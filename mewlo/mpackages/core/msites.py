@@ -277,7 +277,7 @@ class MewloSiteManager(object):
         #self.request = request
         # ATTN: NOT FINISHED - test
         #request.response.set_status(200,"Ok")
-        request.response.set_status_error(404,"Page not found or supported.")
+        request.response.add_status_error(404,"Page not found or supported")
         # return response
         return request.response
 

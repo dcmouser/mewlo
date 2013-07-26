@@ -10,6 +10,12 @@ class ErrorTracker(object):
     def add_errorstring(self,errorstr):
         self.errorstrings.append(errorstr)
 
+    def tostring(self):
+        return ", ".join(self.errorstrings)
+
+    def count(self):
+        return len(self.errorstrings)
+
 
     def debug(self,indentstr=""):
         outstr = indentstr+"Last errors:"
