@@ -11,10 +11,10 @@ DefMewlo_BasePackage_subdirlist = ["mpackages"]
 
 # Import the mewlo modules we need from the mpackages/core directory
 import mewlo
-import msettings
-import mpackage
-import mrequest
-import mreply
+from msettings import MewloSettings
+from mpackage import MewloPackageManager
+from mrequest import MewloRequest
+from mreply import MewloReply
 
 
 # python libs
@@ -40,9 +40,9 @@ class MewloSite(object):
         # initialize settings
         self.sitemanager = None
         # create site settings
-        self.sitesettings = msettings.MewloSettings()
+        self.sitesettings = MewloSettings()
         # collection of mewlo addon packages
-        self.packagemanager = mpackage.MewloPackageManager(self)
+        self.packagemanager = MewloPackageManager(self)
 
 
     def merge_settings(self, in_settings):
@@ -224,13 +224,50 @@ class MewloSiteManager(object):
         outstr = ""
         outstr += "Testing submission of url: "+url+"\n"
         # generate request and debug it
-        request = mrequest.MewloRequest.createrequest_from_urlstring(self,url)
+        request = MewloRequest.createrequest_from_urlstring(self,url)
         outstr += request.debug()
         # generate reply and debug it
         reply = self.process_request(request)
         outstr += reply.debug()
         # return debug text
         return outstr
+
+
+
+
+
+
+
+
+
+
+    def create_and_start_webserver_wsgiref(self, portnumber=8080):
+        """Create a wsgiref web server and begin serving requests."""
+        # see http://lucumr.pocoo.org/2007/5/21/getting-started-with-wsgi/
+        from wsgiref.simple_server import make_server
+        srv = make_server('localhost', portnumber, self.wsgiref_callback)
+        srv.serve_forever()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -253,7 +290,7 @@ class MewloSiteManager(object):
         outstr += " "+str(start_response)+"\n"
         self.log(outstr)
         # create request
-        request = mrequest.MewloRequest.createrequest_from_wsgiref_environ(self,environ)
+        request = MewloRequest.createrequest_from_wsgiref_environ(self,environ)
         # get reply
         reply = self.process_request(request)
         # return reply
@@ -263,12 +300,19 @@ class MewloSiteManager(object):
 
 
 
-    def create_and_start_webserver_wsgiref(self, portnumber=8080):
-        """Create a wsgiref web server and begin serving requests."""
-        # see http://lucumr.pocoo.org/2007/5/21/getting-started-with-wsgi/
-        from wsgiref.simple_server import make_server
-        srv = make_server('localhost', portnumber, self.wsgiref_callback)
-        srv.serve_forever()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

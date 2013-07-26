@@ -2,11 +2,11 @@
 # This file manages a test package
 
 # mewlo imports
-import mewlo.mpackages.core.mpackage as mpackage
+from mewlo.mpackages.core.mpackage import MewloPackageObject
 
 
 
-class Test_MewloPackageObject(mpackage.MewloPackageObject):
+class Test_MewloPackageObject(MewloPackageObject):
     """
     The Test_MewloPackage class defines a test mewlo "package" aka extension/plugin/addon.
     """

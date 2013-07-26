@@ -1,7 +1,7 @@
 # mrequest.py
 # This file contains classes to support web server requests
 
-import mreply
+from mreply import MewloReply
 
 
 
@@ -18,7 +18,7 @@ class MewloRequest(object):
         self.site = None
         self.url = ""
         # note that a request contains a reply, to be filled in during processing of request
-        self.reply= mreply.MewloReply(self)
+        self.reply= MewloReply(self)
 
 
     def set_url(self, in_url):

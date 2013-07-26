@@ -2,11 +2,11 @@
 # This file manages the core Mewlo classes
 
 # mewlo imports
-import mewlo.mpackages.core.mpackage as mpackage
+from mewlo.mpackages.core.mpackage import MewloPackageObject
 
 
 
-class Core_MewloPackageObject(mpackage.MewloPackageObject):
+class Core_MewloPackageObject(MewloPackageObject):
     """
     The Core_MewloPackage class manages the core mewlo code
     """
