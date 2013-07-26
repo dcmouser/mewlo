@@ -1,8 +1,11 @@
 # mrequest.py
 # This file contains classes to support web server requests
 
-from mreply import MewloReply
+# mewlo stuff
+from mresponse import MewloResponse
 
+# this version uses werkzeug to do heavy lifting
+from werkzeug.wrappers import Request
 
 
 
@@ -16,14 +19,22 @@ class MewloRequest(object):
         # init -- note that request contains reference to the site manager (and site it's assigned to), so that it contains all info needed for processing and is the only thing we need to pass around
         self.sitemanager = in_sitemanager
         self.site = None
+        self.wreq = None
         self.url = ""
-        # note that a request contains a reply, to be filled in during processing of request
-        self.reply= MewloReply(self)
+        # note that a request contains a response, to be filled in during processing of request
+        self.response = MewloResponse(self)
 
 
     def set_url(self, in_url):
         self.url = in_url
 
+    def get_environ(self):
+        return self.wreq.environ
+
+
+    def make_werkzeugrequest(self,wsgiref_environ):
+        self.wreq = Request(wsgiref_environ)
+        return self.wreq
 
 
 
@@ -59,5 +70,7 @@ class MewloRequest(object):
     def createrequest_from_wsgiref_environ(cls, sitemanager, wsgiref_environ):
         # create request
         request = MewloRequest(sitemanager)
+        # now werkzeug does the work
+        request.make_werkzeugrequest(wsgiref_environ)
         # return it
         return request

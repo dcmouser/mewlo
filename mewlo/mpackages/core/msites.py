@@ -14,7 +14,7 @@ import mewlo
 from msettings import MewloSettings
 from mpackage import MewloPackageManager
 from mrequest import MewloRequest
-from mreply import MewloReply
+from mresponse import MewloResponse
 
 
 # python libs
@@ -226,9 +226,9 @@ class MewloSiteManager(object):
         # generate request and debug it
         request = MewloRequest.createrequest_from_urlstring(self,url)
         outstr += request.debug()
-        # generate reply and debug it
-        reply = self.process_request(request)
-        outstr += reply.debug()
+        # generate response and debug it
+        response = self.process_request(request)
+        outstr += response.debug()
         # return debug text
         return outstr
 
@@ -276,10 +276,10 @@ class MewloSiteManager(object):
         # prepare to process request
         #self.request = request
         # ATTN: NOT FINISHED - test
-        #request.reply.set_status(200,"Ok")
-        request.reply.set_status_error(404,"Not Found","Page not found or supported.")
-        # return reply
-        return request.reply
+        #request.response.set_status(200,"Ok")
+        request.response.set_status_error(404,"Page not found or supported.")
+        # return response
+        return request.response
 
 
 
@@ -290,11 +290,11 @@ class MewloSiteManager(object):
         outstr += " "+str(start_response)+"\n"
         self.log(outstr)
         # create request
-        request = MewloRequest.createrequest_from_wsgiref_environ(self,environ)
-        # get reply
-        reply = self.process_request(request)
-        # return reply
-        return reply.send_wsgiref_response(start_response)
+        request = MewloRequest.createrequest_from_wsgiref_environ(self, environ)
+        # get response
+        response = self.process_request(request)
+        # return response
+        return response.start_and_make_wsgiref_response(start_response)
 
 
 
