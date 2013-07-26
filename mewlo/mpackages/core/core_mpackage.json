@@ -1,0 +1,26 @@
+{
+	"uniqueid": "mewlo.core",
+
+	"nicename": "Mewlo Core",
+	"label": "Mewlo Core Code Package",
+	"description": "This pacakge manages the Mewlo core code.",
+
+	"group": "core",
+	"required": true,
+
+	"author": "mouser@donationcoder.com",
+	"version": "1.0.0",
+	"versiondate": "jul 18, 2013",
+
+	"url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/core",
+	"url.version": "http://www.donationcoder.com/Software/Mouser/mewlo/core/version.json",
+
+	"requires": [],
+
+	"codefile": "core_mpackage.py",
+	"codeclass": "Core_MewloPackageObject",
+
+	"versionlog": {
+		"1.0.0": "first private release"
+		}
+}

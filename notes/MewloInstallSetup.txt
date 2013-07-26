@@ -1,0 +1,24 @@
+5/20/13
+
+//---------------------------------------------------------------------------
+Create a virtualenv to isolate mewlo development, eg:
+	On windows:
+	..\Scripts\virtualenv --no-site-packages mewloenv
+
+Create simple batch file to setup virtual environment in commandline:
+	On windows:
+	start C:\Langs\Python2\venv\mewloenv\Scripts\activate.bat
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+Installing packages into virtual env:
+
+1. Remember that when you want to install a package in the virtualenv, you need to activate it first, then run install as normal
+
+2. pip install SQLAlchemy
+3. pip install Werkzeug
+//---------------------------------------------------------------------------
+
+
+
