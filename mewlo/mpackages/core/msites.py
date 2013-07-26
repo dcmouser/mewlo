@@ -15,6 +15,7 @@ from msettings import MewloSettings
 from mpackage import MewloPackageManager
 from mrequest import MewloRequest
 from mresponse import MewloResponse
+from mroutemanager import MewloRouteManager
 
 
 # python libs
@@ -43,6 +44,8 @@ class MewloSite(object):
         self.sitesettings = MewloSettings()
         # collection of mewlo addon packages
         self.packagemanager = MewloPackageManager(self)
+        # route manager
+        self.routemanager = MewloRouteManager(self)
 
 
     def merge_settings(self, in_settings):
@@ -115,25 +118,15 @@ class MewloSite(object):
 
 
 
-    def apply_settings_early(self):
-        # get early settings and apply them
-        settings = self.get_settings_early()
-        self.merge_settings(settings)
+    def setup_early(self):
+        self.add_settings_early()
+        self.add_routes()
 
-    def get_settings_early(self):
-        # define some early settings
-        settings = {}
-        # generic config
-        settings["config"] = self.get_settings_config()
-        # url routes
-        settings["urls"] = self.get_settings_urls()
-        #
-        return settings
+    def add_settings_early(self):
+        pass
 
-    def get_settings_config(self):
-        return {}
-    def get_settings_urls(self):
-        return {}
+    def add_routes(self):
+        pass
 
 
 
@@ -149,7 +142,7 @@ class MewloSite(object):
         # create instance of site -- we do it this way so it will create the DERIVED class
         mysite = cls()
         # we need to apply our early settings
-        mysite.apply_settings_early()
+        mysite.setup_early()
         # now create a manager using just this site
         sitemanager = mysite.create_and_prepare_standalone_sitemanager()
         # now return the manager
@@ -163,6 +156,7 @@ class MewloSite(object):
         outstr = indentstr+"MewloSite (" + self.__class__.__name__ +") reporting in.\n"
         outstr += self.sitesettings.debug(indentstr+" ")
         outstr += self.packagemanager.debug(indentstr+" ")
+        outstr += self.routemanager.debug(indentstr+" ")
         return outstr
 
 

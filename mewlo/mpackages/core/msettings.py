@@ -17,6 +17,12 @@ class MewloSettings(object):
     def merge_settings(self, settingstoadd):
         self.settingdict.update(settingstoadd)
 
+    def merge_settings_atsection(self, sectionname, settingstoadd):
+        if not sectionname in self.settingdict:
+            self.settingdict[sectionname]=settingstoadd
+        else:
+            self.settingdict[sectionname].update(settingstoadd)
+
     def get_value(self, propertyname, defaultval=None):
         if (propertyname in self.settingdict):
             return self.settingdict[propertyname]

@@ -40,34 +40,32 @@ class MewloSite_Test1(MewloSite):
 
 
 
-    def get_settings_config(self):
-        # generic config
+    def add_settings_early(self):
         config = {}
         # site-specific extension home directory for this site (directory specified as a package, see top of file; could also be specified as absolute directory path string)
         config["sitepackageimport"] = [sitempackageimport]
         # site prefix?
         config["urlprefix"] = ""
-        #
-        return config
+        # add to settings
+        self.sitesettings.merge_settings_atsection("config",config)
 
 
 
-
-    def get_settings_urls(self):
+    def add_routes(self):
         # url routes (note that call properties must be dotted path to a function taking one argument (request)
-        urls = []
+
         # add some urls
-        urls.append( {
+        self.routemanager.add_route( {
             "id": "homepage",
             "url": "/",
             "call": "request_home",
             } )
-        urls.append( {
+        self.routemanager.add_route( {
             "id": "aboutpage",
             "url": "/help/about",
             "call": "request_about",
             } )
-        urls.append( {
+        self.routemanager.add_route( {
             "id": "hellopage",
             "url": "/test/hello",
             "args": {
@@ -78,8 +76,6 @@ class MewloSite_Test1(MewloSite):
                     },
             "call": "request_sayhello",
             } )
-        #
-        return urls
 
 
 
