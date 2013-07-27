@@ -225,12 +225,12 @@ class MewloSiteManager(object):
 
 
 
-    def test_submit_url(self, url):
+    def test_submit_path(self, pathstr):
         """Simulate the submission of a url"""
         outstr = ""
-        outstr += "Testing submission of url: "+url+"\n"
+        outstr += "Testing submission of url: "+pathstr+"\n"
         # generate request and debug it
-        request = MewloRequest.createrequest_from_urlstring(self,url)
+        request = MewloRequest.createrequest_from_pathstring(self,pathstr)
         outstr += request.debug()
         # generate response and debug it
         self.process_request(request)
@@ -284,7 +284,7 @@ class MewloSiteManager(object):
 
         if (not ishandled):
             # no site handled it, so this is an error
-            request.response.add_status_error(404,"Page not found or supported on any site: '"+request.get_url()+"'")
+            request.response.add_status_error(404,"Page not found or supported on any site: '"+request.get_path()+"'")
 
         # return response
         return True

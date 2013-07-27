@@ -6,7 +6,7 @@ from mresponse import MewloResponse
 
 # this version uses werkzeug to do heavy lifting
 from werkzeug.wrappers import Request
-
+from werkzeug.test import create_environ
 
 
 
@@ -20,15 +20,12 @@ class MewloRequest(object):
         self.sitemanager = in_sitemanager
         self.site = None
         self.wreq = None
-        self.url = None
         # note that a request contains a response, to be filled in during processing of request
         self.response = MewloResponse(self)
 
 
-    def set_url(self, in_url):
-        self.url = in_url
-    def get_url(self):
-        return self.url
+    def get_path(self):
+        return self.wreq.path
 
     def get_environ(self):
         return self.wreq.environ
@@ -37,13 +34,11 @@ class MewloRequest(object):
 
 
 
-    def make_werkzeugrequest(self,wsgiref_environ):
+    def make_werkzeugrequest(self, wsgiref_environ):
         self.wreq = Request(wsgiref_environ)
-        self.store_wreq_values()
         return self.wreq
 
-    def store_wreq_values(self):
-        self.url = self.wreq.base_url
+
 
 
 
@@ -53,7 +48,7 @@ class MewloRequest(object):
 
     def debug(self, indentstr=""):
         outstr = indentstr+" MewloRequest reporting in:\n"
-        outstr += indentstr+"  URL: "+self.url+"\n"
+        outstr += indentstr+"  URL: "+self.get_path()+"\n"
         return outstr
 
 
@@ -68,13 +63,11 @@ class MewloRequest(object):
 
 
     @classmethod
-    def createrequest_from_urlstring(cls, sitemanager, url):
+    def createrequest_from_pathstring(cls, sitemanager, pathstr):
+        # simulate werkzeug call environ
+        env = create_environ(pathstr, "http://localhost"+pathstr)
         # create request
-        request = MewloRequest(sitemanager)
-        # set values
-        request.set_url(url)
-        # return it
-        return request
+        return cls.createrequest_from_wsgiref_environ(sitemanager, env)
 
 
     @classmethod

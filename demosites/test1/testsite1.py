@@ -57,17 +57,17 @@ class MewloSite_Test1(MewloSite):
         # add some urls
         self.routemanager.add_route( {
             "id": "homepage",
-            "url": "/",
+            "path": "/",
             "call": "request_home",
             } )
         self.routemanager.add_route( {
             "id": "aboutpage",
-            "url": "/help/about",
+            "path": "/help/about",
             "call": "request_about",
             } )
         self.routemanager.add_route( {
             "id": "hellopage",
-            "url": "/test/hello",
+            "path": "/test/hello",
             "args": {
                     "id": "name",
                     "type": "string",
@@ -113,8 +113,8 @@ def main():
     print sitemanager.debug()
 
     # some simple tests
-    print sitemanager.test_submit_url("/help/about")
-    print sitemanager.test_submit_url("/test/hello/name/jesse")
+    print sitemanager.test_submit_path("/help/about")
+    print sitemanager.test_submit_path("/test/hello/name/jesse")
 
     # start serving from web server test
     sitemanager.create_and_start_webserver_wsgiref()

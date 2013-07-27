@@ -39,7 +39,7 @@ class MewloRoute(object):
 
     def process_request(self, request):
         # return True if the request is for this site and we have set request.response
-        if (self.get("url") == request.get_url()):
+        if (self.get("path") == request.get_path()):
             # match, we handle it
             self.handle_request(request)
             return True
