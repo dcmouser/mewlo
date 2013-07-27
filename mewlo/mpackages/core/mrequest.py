@@ -19,9 +19,13 @@ class MewloRequest(object):
         # init -- note that request contains reference to the site manager (and site it's assigned to), so that it contains all info needed for processing and is the only thing we need to pass around
         self.sitemanager = in_sitemanager
         self.site = None
+        # for now we use werkzeug to do our heavy lifting
         self.wreq = None
+        # path components
+        self.pathparts = None
         # note that a request contains a response, to be filled in during processing of request
         self.response = MewloResponse(self)
+
 
 
     def get_path(self):
@@ -32,6 +36,10 @@ class MewloRequest(object):
 
 
 
+    def get_pathparts(self):
+        return self.pathparts
+
+
 
 
     def make_werkzeugrequest(self, wsgiref_environ):
@@ -40,6 +48,11 @@ class MewloRequest(object):
 
 
 
+
+    def preprocess(self):
+        # request has been created and filled; now do any preparsing of request info, i.e. breaking down path parts, etc
+        path = self.get_path()
+        self.pathparts = path.split("/")
 
 
 

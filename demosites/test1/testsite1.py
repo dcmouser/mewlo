@@ -41,11 +41,12 @@ class MewloSite_Test1(MewloSite):
 
 
     def add_settings_early(self):
-        config = {}
-        # site-specific extension home directory for this site (directory specified as a package, see top of file; could also be specified as absolute directory path string)
-        config["sitepackageimport"] = [sitempackageimport]
-        # site prefix?
-        config["urlprefix"] = ""
+        config = {
+            # site-specific extension home directory for this site (directory specified as a package, see top of file; could also be specified as absolute directory path string)
+            "sitepackageimport": [sitempackageimport],
+            # site prefix
+            "urlprefix": "",
+            }
         # add to settings
         self.sitesettings.merge_settings_atsection("config",config)
 
@@ -58,22 +59,33 @@ class MewloSite_Test1(MewloSite):
         self.routemanager.add_route( {
             "id": "homepage",
             "path": "/",
+            "allow_extra_args": False,
             "call": "request_home",
             } )
         self.routemanager.add_route( {
             "id": "aboutpage",
             "path": "/help/about",
+            "allow_extra_args": False,
             "call": "request_about",
             } )
         self.routemanager.add_route( {
             "id": "hellopage",
             "path": "/test/hello",
-            "args": {
-                    "id": "name",
-                    "type": "string",
-                    "required": True,
-                    "help": "name of person to say hello to"
-                    },
+            "args": [
+                        {
+                        "id": "name",
+                        "type": "STRING",
+                        "required": True,
+                        "help": "name of person to say hello to",
+                        },
+                        {
+                        "id": "age",
+                        "type": "INTEGER",
+                        "required": False,
+                        "help": "age of person to say hello to",
+                        },
+                    ],
+            "allow_extra_args": False,
             "call": "request_sayhello",
             } )
 
@@ -114,7 +126,7 @@ def main():
 
     # some simple tests
     print sitemanager.test_submit_path("/help/about")
-    print sitemanager.test_submit_path("/test/hello/name/jesse")
+    print sitemanager.test_submit_path("/test/hello/name/jesse/age/44")
 
     # start serving from web server test
     sitemanager.create_and_start_webserver_wsgiref()

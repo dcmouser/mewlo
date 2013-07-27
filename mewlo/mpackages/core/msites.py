@@ -275,6 +275,8 @@ class MewloSiteManager(object):
 
 
     def process_request(self, request):
+        # first do any pre-processing on the request
+        self.preprocess_request(request)
         # walk through the site list and let each site take a chance at processing the request
         for site in self.sites:
             ishandled = site.process_request(request)
@@ -306,7 +308,9 @@ class MewloSiteManager(object):
 
 
 
-
+    def preprocess_request(self, request):
+        # pre-process and parse the request
+        request.preprocess()
 
 
 
