@@ -20,21 +20,32 @@ class MewloRequest(object):
         self.sitemanager = in_sitemanager
         self.site = None
         self.wreq = None
-        self.url = ""
+        self.url = None
         # note that a request contains a response, to be filled in during processing of request
         self.response = MewloResponse(self)
 
 
     def set_url(self, in_url):
         self.url = in_url
+    def get_url(self):
+        return self.url
 
     def get_environ(self):
         return self.wreq.environ
 
 
+
+
+
     def make_werkzeugrequest(self,wsgiref_environ):
         self.wreq = Request(wsgiref_environ)
+        self.store_wreq_values()
         return self.wreq
+
+    def store_wreq_values(self):
+        self.url = self.wreq.base_url
+
+
 
 
 

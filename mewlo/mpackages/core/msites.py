@@ -135,6 +135,18 @@ class MewloSite(object):
 
 
 
+    def process_request(self, request):
+        # return True if the request is for this site and we have set request.response
+        ishandled = self.routemanager.process_request(request)
+        return ishandled
+
+
+
+
+
+
+
+
 
     @classmethod
     def create_manager_and_simplesite(cls):
@@ -221,8 +233,8 @@ class MewloSiteManager(object):
         request = MewloRequest.createrequest_from_urlstring(self,url)
         outstr += request.debug()
         # generate response and debug it
-        response = self.process_request(request)
-        outstr += response.debug()
+        self.process_request(request)
+        outstr += request.response.debug()
         # return debug text
         return outstr
 
@@ -262,18 +274,20 @@ class MewloSiteManager(object):
 
 
 
-
-
-
-
     def process_request(self, request):
-        # prepare to process request
-        #self.request = request
-        # ATTN: NOT FINISHED - test
-        #request.response.set_status(200,"Ok")
-        request.response.add_status_error(404,"Page not found or supported")
+        # walk through the site list and let each site take a chance at processing the request
+        for site in self.sites:
+            ishandled = site.process_request(request)
+            if (ishandled):
+                # ok this site handled it
+                break
+
+        if (not ishandled):
+            # no site handled it, so this is an error
+            request.response.add_status_error(404,"Page not found or supported on any site: '"+request.get_url()+"'")
+
         # return response
-        return request.response
+        return True
 
 
 
@@ -286,9 +300,9 @@ class MewloSiteManager(object):
         # create request
         request = MewloRequest.createrequest_from_wsgiref_environ(self, environ)
         # get response
-        response = self.process_request(request)
-        # return response
-        return response.start_and_make_wsgiref_response(start_response)
+        ishandled = self.process_request(request)
+        # process response
+        return request.response.start_and_make_wsgiref_response(start_response)
 
 
 

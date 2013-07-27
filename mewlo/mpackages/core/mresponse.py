@@ -58,6 +58,11 @@ class MewloResponse(object):
         self.set_status(in_statuscode)
         self.errors.add_errorstring(in_errorstr)
 
+    def set_responsedata(self, in_responsedata, in_statuscode = 200):
+        self.responsedata = in_responsedata
+        self.statuscode = in_statuscode
+
+
 
     def calc_wsgiref_status_string(self):
         return str(self.statuscode)
