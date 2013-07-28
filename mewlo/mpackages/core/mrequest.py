@@ -21,8 +21,9 @@ class MewloRequest(object):
         self.site = None
         # for now we use werkzeug to do our heavy lifting
         self.wreq = None
-        # path components
-        self.pathparts = None
+        # misc from request
+        self.parsedargs = None
+        self.matchedroute = None
         # note that a request contains a response, to be filled in during processing of request
         self.response = MewloResponse(self)
 
@@ -34,10 +35,22 @@ class MewloRequest(object):
     def get_environ(self):
         return self.wreq.environ
 
+    def get_sitemanager(self):
+        return self.sitemanager
+
+    def get_handlingsite(self):
+        return self.matchedroute.get_routemanager().get_site()
 
 
-    def get_pathparts(self):
-        return self.pathparts
+
+
+    def set_route_parsedargs(self, in_parsedargs):
+        self.parsedargs = in_parsedargs
+    def set_route_matched(self, in_matchedroute):
+        self.matchedroute = in_matchedroute
+
+
+
 
 
 
@@ -49,11 +62,10 @@ class MewloRequest(object):
 
 
 
-    def preprocess(self):
-        # request has been created and filled; now do any preparsing of request info, i.e. breaking down path parts, etc
-        path = self.get_path()
-        self.pathparts = path.split("/")
 
+    def preprocess(self):
+        # any preprocessing to do after request is built?
+        pass
 
 
 
@@ -91,3 +103,4 @@ class MewloRequest(object):
         request.make_werkzeugrequest(wsgiref_environ)
         # return it
         return request
+

@@ -4,6 +4,8 @@
 
 # Mewlo imports
 from mewlo.mpackages.core.msites import MewloSite
+from mewlo.mpackages.core.mroutemanager import *
+
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live; this is just a way to get the relative directory easily
 import mpackages as sitempackageimport
@@ -43,7 +45,7 @@ class MewloSite_Test1(MewloSite):
     def add_settings_early(self):
         config = {
             # site-specific extension home directory for this site (directory specified as a package, see top of file; could also be specified as absolute directory path string)
-            "sitepackageimport": [sitempackageimport],
+            "sitempackageimport": [sitempackageimport],
             # site prefix
             "urlprefix": "",
             }
@@ -56,39 +58,57 @@ class MewloSite_Test1(MewloSite):
         # url routes (note that call properties must be dotted path to a function taking one argument (request)
 
         # add some urls
-        self.routemanager.add_route( {
-            "id": "homepage",
-            "path": "/",
-            "allow_extra_args": False,
-            "call": "request_home",
-            } )
-        self.routemanager.add_route( {
-            "id": "aboutpage",
-            "path": "/help/about",
-            "allow_extra_args": False,
-            "call": "request_about",
-            } )
-        self.routemanager.add_route( {
-            "id": "hellopage",
-            "path": "/test/hello",
-            "args": [
-                        {
-                        "id": "name",
-                        "type": "STRING",
-                        "required": True,
-                        "help": "name of person to say hello to",
-                        },
-                        {
-                        "id": "age",
-                        "type": "INTEGER",
-                        "required": False,
-                        "help": "age of person to say hello to",
-                        },
-                    ],
-            "allow_extra_args": False,
-            "call": "request_sayhello",
-            } )
+        self.routemanager.add_route(
+            MewloRoute(
+                id = "homepage",
+                path = "/",
+                allow_extra_args = False,
+                invoke = "controllers.requests.request_home"
+                ))
 
+        self.routemanager.add_route(
+            MewloRoute(
+                id = "aboutpage",
+                path = "/help/about",
+                allow_extra_args = False,
+                invoke = "controllers.requests.request_about"
+                ))
+
+        self.routemanager.add_route(
+            MewloRoute(
+                id = "hellopage",
+                path = "/test/hello",
+                args = [
+                        MewloRouteArgString(
+                            id = "name",
+                            required = True,
+                            help = "name of person to say hello to",
+                            ),
+                        MewloRouteArgInteger(
+                            id = "age",
+                            required = False,
+                            help = "age of person (optional)",
+                            )
+                        ],
+                allow_extra_args = False,
+                invoke = "controllers.requests.request_sayhello"
+                ))
+
+        self.routemanager.add_route(
+            MewloRoute(
+                id  = "articlepage",
+                path = "/article",
+                args = [
+                        MewloRouteArgString(
+                            id = "title",
+                            required = False,
+                            positional = True,
+                            help = "title of article to display",
+                            )
+                        ],
+                allow_extra_args = False,
+                invoke = "controllers.requests.request_article"
+                ))
 
 
 
@@ -126,6 +146,7 @@ def main():
 
     # some simple tests
     print sitemanager.test_submit_path("/help/about")
+    print sitemanager.test_submit_path("/page/mystery")
     print sitemanager.test_submit_path("/test/hello/name/jesse/age/44")
 
     # start serving from web server test

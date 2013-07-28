@@ -3,8 +3,10 @@
 
 class ErrorTracker(object):
 
-    def __init__(self):
+    def __init__(self, initialerrorstr=None):
         self.errorstrings = []
+        if (initialerrorstr != None):
+            self.add_errorstring(initialerrorstr)
 
 
     def add_errorstring(self,errorstr):
