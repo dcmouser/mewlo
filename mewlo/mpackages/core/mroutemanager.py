@@ -159,11 +159,10 @@ class MewloRoute(object):
     """
 
     # class constants
-    DEF_ARGID_extraargs = "__EXTRAARGS"
+    DEF_ARGID_extraargs = "extraargs"
 
 
-    def __init__(self, id, path, callable, args=[], allow_extra_args=False, extra = None):
-        self.routemanager = None
+    def __init__(self, id, path, callable, args=[], allow_extra_args=False, extra = None, callableroot = None):
         #
         self.id = id
         self.path = path
@@ -171,33 +170,53 @@ class MewloRoute(object):
         self.args = args
         self.allow_extra_args = allow_extra_args
         self.extra = extra
+        self.callableroot = callableroot
+        self.callable = None
+        #
+        self.parentobj = None
 
 
 
-    def set_routemanager(self, in_routemanager):
-        self.routemanager = in_routemanager
+#    def get_sitemodule_relativeimportdir(self):
+#        # return site import
+#        return self.get_site().get_sitemodule_relativeimportdir()
 
-    def get_routemanager(self):
-        return self.routemanager
+#    def get_site_controller_importdirpkg(self):
+#        return self.get_site().get_site_controller_importdirpkg()
+#
+
+
+    def get_callableroot(self):
+        return self.callableroot
+
 
     def get_extra(self):
         return self.extra
 
 
-    def validate(self):
-        """This function should evaluate a route and report any errors; it can be used to validate routes at time of construction"""
-        errors = ErrorTracker()
-        # check some bad combos
-        # ATTN: unfinished
 
-        # any errors?
-        isvalid = (errors.count()==0)
-        # return
-        return (isvalid, errors)
+    def prepare(self, parentobj, errors):
+        # update stuff for ourself based on parent
+        self.parentobj = parentobj
+        # we want to propagage callableroot from parent down
+        if (self.callableroot==None):
+            self.callableroot = parentobj.get_callableroot()
+        # now calculate callable once instead of every time
+        (self.callable, errorstr) = self.find_callable()
+        if (self.callable == None):
+            errors.add_errorstr(errorstr)
 
 
 
-    def process_request(self, request):
+    def find_callable(self):
+        # look up the callable
+        (callable, errorstr) = find_callable_from_dottedpath(self.get_callableroot(), self.callablestring)
+        if (callable == None):
+            errorstr = "Failed to find dynamic callable '"+self.callablestring+"'; "+errorstr
+        return (callable, errorstr)
+
+
+    def process_request(self, request, site):
         # return True if the request is for this site and we have set request.response
         # we can return false as soon as we fail to match
 
@@ -227,7 +246,7 @@ class MewloRoute(object):
 
         # ok, did we match? if so handle it
         if (didmatch):
-            handleresult = self.handle_request(request, argdict)
+            handleresult = self.handle_request(request, site, argdict)
 
         # return flag saying if we matched
         return didmatch
@@ -343,24 +362,23 @@ class MewloRoute(object):
 
 
 
-    def handle_request(self, request, argdict):
+    def handle_request(self, request, site, argdict):
         # we matched against this route, so WE will handle the request
 
-        # update the request and record the parsed arg dictionary, etc
+        # update the request and record the matched site, parsed arg dictionary, etc
+        request.set_matched(self, site)
         request.set_route_parsedargs(argdict)
-        request.set_route_matched(self)
 
         # ok now we want to call whatever function should do the actual work
         (success, errorstr) = self.invoke_routecall(request)
 
         # error?
         if (not success):
-            responsedata = "Found a route that handled it: '"+self.id+"' but got error when trying to invoke route callable: '"+errorstr+"'."
+            responsedata = "Found a route that handled it: '"+self.id+"' but got error when trying to invoke route callable.  Error: "+errorstr+"."
             request.response.set_responsedata(responsedata)
 
         # return success
         return success
-
 
 
 
@@ -374,23 +392,11 @@ class MewloRoute(object):
         This requires a little bit of magic, since we are going to launch the function given its dotted path name
         """
 
-        # find the callable
-        (callable, errorstr) = find_callable_from_dottedpath(self.callablestring)
+        if (self.callable==None):
+            return (False, "Callable '"+self.callablestring+"' was not found when preparing route.")
 
-        if (callable):
-            (success, errorstr) = callable(request)
-        else:
-            success = False
-            errorstr = "failed to find dynamic callable (function) '"+self.callablestring+"': "+errorstr
-
+        (success, errorstr) = self.callable(request)
         return (success, errorstr)
-
-
-
-
-
-
-
 
 
 
@@ -403,7 +409,8 @@ class MewloRoute(object):
     def debug(self, indentstr=""):
         outstr = indentstr+"MewloRoute '"+self.id+"':\n"
         outstr += indentstr+" path: "+self.path+"\n"
-        outstr += indentstr+" invoke: "+self.callablestring+"\n"
+        outstr += indentstr+" callable: "+self.callablestring+"\n"
+        outstr += indentstr+" callable root: "+str(self.get_callableroot())+"\n"
         outstr += indentstr+" args:\n"
         indentstr += " "
         for routearg in self.args:
@@ -428,60 +435,90 @@ class MewloRoute(object):
 
 
 
-class MewloRouteManager(object):
+
+
+
+
+
+
+
+
+
+
+
+
+
+class MewloRouteGroup(object):
     """
-    The MewloRouteManager class keeps track of url routes
+    The MewloRouteGroup class holds a list of routes (or child RouteGroups)
     """
 
-    def __init__(self, in_site):
+    def __init__(self, callableroot=None, routes=None):
+        self.callableroot = callableroot
         self.routes = []
-        self.site = in_site
+        self.parentobj = None
+        #
+        if (routes != None):
+            self.append(routes)
+
+    def get_callableroot(self):
+        return self.callableroot
+    def set_callableroot(self, callableroot):
+        self.callableroot = callableroot
 
 
-    def get_site(self):
-        return self.site
-
-
-    def add_route(self, route):
-        # if we are given a child MewloRoute, we will add it directly; otherwise parse from dictionary
-        (isvalid, errors) = route.validate()
-
-        # if it's good, add it
-        if (isvalid):
-            route.set_routemanager(self)
-            self.routes.append(route)
+    def append(self, routes):
+        # append a new route (or list of routes) (or hierarchical routegroups) to our routes list
+        if isinstance(routes,list):
+            for route in routes:
+                self.routes.append(route)
         else:
-            # otherwise throw error
-            # ATTN: unfinished - use a MewloException class eventually
-            raise Exception("MewloException, MewloRouteManager.add_route(..) error: "+errors.tostring())
-
-        # success
-        return (isvalid, errors)
+            self.routes.append(routes)
 
 
-
-
-    def process_request(self, request):
+    def process_request(self, request, site):
         # walk through the site list and let each site take a chance at processing the request
         ishandled = False
         for route in self.routes:
-            ishandled = route.process_request(request)
+            ishandled = route.process_request(request, site)
             if (ishandled):
                 # ok this site handled it
                 break
         return ishandled
 
 
-
+    def prepare(self, parentobj, errors):
+        # update stuff for ourself based on parent
+        self.parentobj = parentobj
+        # we want to propagage callableroot from parent down
+        if (self.callableroot==None):
+            self.callableroot = parentobj.get_callableroot()
+        # recursive prepare
+        for route in self.routes:
+            route.prepare(self, errors)
 
 
     def debug(self, indentstr=""):
-        outstr = indentstr+"MewloRouteManager reporting in.\n"
-        indentstr += " "
-        outstr += indentstr+"Url Routes:\n"
+        outstr = indentstr+"MewloRouteGroup reporting in:\n"
+        outstr += indentstr+" Root for callables: " + str(self.callableroot)+"\n"
         for route in self.routes:
-            outstr += route.debug(indentstr+" ")
+            outstr += route.debug(indentstr+" ")+"\n"
         return outstr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

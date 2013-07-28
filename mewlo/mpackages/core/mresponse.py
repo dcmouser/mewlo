@@ -56,7 +56,7 @@ class MewloResponse(object):
     def add_status_error(self, in_statuscode, in_errorstr):
         # set values
         self.set_status(in_statuscode)
-        self.errors.add_errorstring(in_errorstr)
+        self.errors.add_errorstr(in_errorstr)
 
     def set_responsedata(self, in_responsedata, in_statuscode = 200):
         self.responsedata = in_responsedata
@@ -90,7 +90,7 @@ class MewloResponse(object):
 
 
     def add_errors_to_response(self):
-        if (self.errors.count()==0):
+        if (self.errors.counterrors()==0):
             return
         errorstr = self.errors.tostring()+"."
         if (self.responsedata==None):

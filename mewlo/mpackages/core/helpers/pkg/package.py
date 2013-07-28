@@ -6,7 +6,7 @@ import json
 import os
 
 # mewlo stuff
-import mewlo.mpackages.core.helpers.errortracker as errortracker
+from mewlo.mpackages.core.helpers.errortracker import ErrorTracker
 
 
 
@@ -31,13 +31,13 @@ class Package(object):
         self.readytoloadcode = False
         self.readytorun = False
         self.enabled = False
-        self.errortracker = errortracker.ErrorTracker()
+        self.errortracker = ErrorTracker()
 
 
 
     def adderror(self, errorstr):
         if (errorstr!=""):
-            self.errortracker.add_errorstring(errorstr)
+            self.errortracker.add_errorstr(errorstr)
 
 
     def load_infofile(self):

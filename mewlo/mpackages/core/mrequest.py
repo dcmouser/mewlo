@@ -15,9 +15,8 @@ class MewloRequest(object):
     The MewloRequest class handles a web server request
     """
 
-    def __init__(self, in_sitemanager):
-        # init -- note that request contains reference to the site manager (and site it's assigned to), so that it contains all info needed for processing and is the only thing we need to pass around
-        self.sitemanager = in_sitemanager
+    def __init__(self):
+        # init
         self.site = None
         # for now we use werkzeug to do our heavy lifting
         self.wreq = None
@@ -35,23 +34,20 @@ class MewloRequest(object):
     def get_environ(self):
         return self.wreq.environ
 
-    def get_sitemanager(self):
-        return self.sitemanager
-
-    def get_handlingsite(self):
-        return self.matchedroute.get_routemanager().get_site()
-
-
-
 
     def set_route_parsedargs(self, in_parsedargs):
         self.parsedargs = in_parsedargs
     def get_route_parsedargs(self):
         return self.parsedargs
 
-    def set_route_matched(self, in_matchedroute):
-        self.matchedroute = in_matchedroute
+    def set_matched(self, route, site):
+        self.matchedroute = route
+        self.matchedsite = site
 
+    def get_matchedroute(self):
+        return self.matchedroute
+    def get_matchedsite(self):
+        return self.matchedsite
 
 
 
@@ -91,17 +87,17 @@ class MewloRequest(object):
 
 
     @classmethod
-    def createrequest_from_pathstring(cls, sitemanager, pathstr):
+    def createrequest_from_pathstring(cls, pathstr):
         # simulate werkzeug call environ
         env = create_environ(pathstr, "http://localhost"+pathstr)
         # create request
-        return cls.createrequest_from_wsgiref_environ(sitemanager, env)
+        return cls.createrequest_from_wsgiref_environ(env)
 
 
     @classmethod
-    def createrequest_from_wsgiref_environ(cls, sitemanager, wsgiref_environ):
+    def createrequest_from_wsgiref_environ(cls, wsgiref_environ):
         # create request
-        request = MewloRequest(sitemanager)
+        request = MewloRequest()
         # now werkzeug does the work
         request.make_werkzeugrequest(wsgiref_environ)
         # return it

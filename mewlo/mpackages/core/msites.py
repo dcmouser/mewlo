@@ -15,7 +15,8 @@ from msettings import MewloSettings
 from mpackage import MewloPackageManager
 from mrequest import MewloRequest
 from mresponse import MewloResponse
-from mroutemanager import MewloRouteManager
+from mroutemanager import MewloRouteGroup
+from mewlo.mpackages.core.helpers.errortracker import ErrorTracker
 
 
 # python libs
@@ -37,15 +38,29 @@ class MewloSite(object):
     Typically you will only have one site running.
     """
 
-    def __init__(self):
+    # class constants
+    DEF_CONFIGVAR_pkgdirimps_sitempackages = "pkgdirimps_sitempackages"
+    DEF_CONFIGVAR_callableroot = "callableroot"
+    DEF_SECTION_config = "config"
+
+
+    def __init__(self, in_sitemodulename):
         # initialize settings
         self.sitemanager = None
+        self.callableroot = None
         # create site settings
         self.sitesettings = MewloSettings()
         # collection of mewlo addon packages
         self.packagemanager = MewloPackageManager(self)
         # route manager
-        self.routemanager = MewloRouteManager(self)
+        self.routes = MewloRouteGroup()
+        # record package of the site for relative imports
+        self.sitemodulename = in_sitemodulename
+
+
+
+    def get_callableroot(self):
+        return self.callableroot
 
 
     def merge_settings(self, in_settings):
@@ -60,7 +75,7 @@ class MewloSite(object):
         # set it to be our site manager
         self.set_and_add_sitemanager(mysitemanager)
         # ask it to prepare for work
-        self.sitemanager.prepare()
+        errors = self.sitemanager.prepare()
         # return the site manager created
         return self.sitemanager
 
@@ -73,11 +88,10 @@ class MewloSite(object):
 
 
 
-
     def get_package_directory_list(self):
         """Return a list of absolute directory paths where (addon) packages should be scanned"""
         packagedirectories = []
-        sitepackages = self.sitesettings.get_sectionvalue("config","sitempackageimport")
+        sitepackages = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_pkgdirimps_sitempackages)
         if (sitepackages==None):
             pass
         else:
@@ -94,26 +108,71 @@ class MewloSite(object):
         return packagedirectories
 
 
-    def prepare(self):
-        """Do stuff after settings have been set """
-        self.discover_packages()
-        self.loadinfos_packages()
-        self.instantiate_packages()
+    def get_sitemodulename(self):
+        """Return import of ourself; useful for relative importing."""
+        return self.sitemodulename
+    def get_pkgdirimp_dotpathprefix_site(self):
+        """Return import of ourself; useful for relative importing."""
+        from string import join
+        modpath = self.sitemodulename
+        dirpath = join(modpath.split('.')[:-1],'.')
+        return dirpath
 
-    def discover_packages(self):
+
+    def prepare(self, errors = None):
+        """Do stuff after settings have been set """
+        if (errors==None):
+            errors = ErrorTracker()
+        # misc. stuff
+        self.prepare_settings(errors)
+        #
+        self.discover_packages(errors)
+        self.loadinfos_packages(errors)
+        self.instantiate_packages(errors)
+        self.prepare_routes(errors)
+        #
+        return errors
+
+
+
+    def prepare_settings(self, errors):
+        # prepare some settings
+        self.callableroot = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_callableroot)
+
+
+
+    def prepare_routes(self, errors):
+        # walk all routes and compile/cache/update stuff
+        self.routes.prepare(self, errors)
+
+
+    def discover_packages(self, errors):
         """Discover packages """
         packagedirectories = self.sitemanager.get_package_directory_list() + self.get_package_directory_list()
         self.packagemanager.set_directories(packagedirectories)
         self.packagemanager.discover_packages()
 
-    def loadinfos_packages(self):
+    def loadinfos_packages(self, errors):
         """Load infos for all packages """
         self.packagemanager.loadinfos_packages()
 
-    def instantiate_packages(self):
+    def instantiate_packages(self, errors):
         """load and instantiate packages"""
         self.packagemanager.instantiate_packages()
 
+
+
+    def validate(self, errors=None):
+        """Validate the site and return an ErrorTracker with errors and warnings"""
+        if (errors==None):
+            errors = ErrorTracker()
+        #
+        if (not self.sitesettings.value_exists(self.DEF_CONFIGVAR_pkgdirimps_sitempackages, self.DEF_SECTION_config)):
+            errors.add_warningstr("Site config variable '"+self.DEF_CONFIGVAR_pkgdirimps_sitempackages+"' not specified; no directory will be scanned for site-specific extensions.")
+        if (not self.sitesettings.value_exists(self.DEF_CONFIGVAR_callableroot, self.DEF_SECTION_config)):
+            errors.add_warningstr("Site config variable '"+self.DEF_CONFIGVAR_callableroot+"' not specified; therefore needs to be specified for each route group.")
+        #
+        return errors
 
 
 
@@ -122,10 +181,13 @@ class MewloSite(object):
         self.add_settings_early()
         self.add_routes()
 
+
     def add_settings_early(self):
+        # subclass can overide
         pass
 
     def add_routes(self):
+        # subclass can overide
         pass
 
 
@@ -137,7 +199,7 @@ class MewloSite(object):
 
     def process_request(self, request):
         # return True if the request is for this site and we have set request.response
-        ishandled = self.routemanager.process_request(request)
+        ishandled = self.routes.process_request(request, self)
         return ishandled
 
 
@@ -166,9 +228,12 @@ class MewloSite(object):
 
     def debug(self,indentstr=""):
         outstr = indentstr+"MewloSite (" + self.__class__.__name__ +") reporting in.\n"
+        outstr += indentstr+" Site validation:\n"
+        outstr += (self.validate()).debug(indentstr+"  ")
         outstr += self.sitesettings.debug(indentstr+" ")
         outstr += self.packagemanager.debug(indentstr+" ")
-        outstr += self.routemanager.debug(indentstr+" ")
+        outstr += indentstr+" Callable root: "+str(self.get_callableroot())+"\n"
+        outstr += self.routes.debug(indentstr+" ")
         return outstr
 
 
@@ -193,6 +258,7 @@ class MewloSiteManager(object):
     def __init__(self):
         # the collection of sites that this manager takes care of
         self.sites = list()
+        self.prepare_errors = ErrorTracker()
 
 
     def add_site(self,site):
@@ -213,12 +279,13 @@ class MewloSiteManager(object):
     def prepare(self):
         """Ask sites to load all enabled packages"""
         for site in self.sites:
-            site.prepare()
+            site.prepare(self.prepare_errors)
+        return self.prepare_errors
 
 
-    def log(self, str):
+    def log(self, astr):
         nowtime = datetime.now()
-        outstr = "MEWLODEBUG ["+nowtime.strftime("%B %d, %Y at %I:%M%p")+"]: "+str
+        outstr = "MEWLODEBUG ["+nowtime.strftime("%B %d, %Y at %I:%M%p")+"]: "+astr
         print outstr
 
 
@@ -230,7 +297,7 @@ class MewloSiteManager(object):
         outstr = ""
         outstr += "Testing submission of url: "+pathstr+"\n"
         # generate request and debug it
-        request = MewloRequest.createrequest_from_pathstring(self,pathstr)
+        request = MewloRequest.createrequest_from_pathstring(pathstr)
         outstr += request.debug()
         # generate response and debug it
         self.process_request(request)
@@ -300,7 +367,7 @@ class MewloSiteManager(object):
         outstr += " "+str(start_response)+"\n"
         self.log(outstr)
         # create request
-        request = MewloRequest.createrequest_from_wsgiref_environ(self, environ)
+        request = MewloRequest.createrequest_from_wsgiref_environ(environ)
         # get response
         ishandled = self.process_request(request)
         # process response
@@ -332,6 +399,7 @@ class MewloSiteManager(object):
 
     def debug(self,indentstr=''):
         outstr = indentstr+"MewloSiteManager reporting in.\n"
+        outstr += self.prepare_errors.debug(indentstr+" ")
         outstr += self.debug_sites(indentstr+" ")
         return outstr
 

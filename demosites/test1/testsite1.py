@@ -8,10 +8,8 @@ from mewlo.mpackages.core.mroutemanager import *
 
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live; this is just a way to get the relative directory easily
-import mpackages as sitempackageimport
-
-
-
+import mpackages as pkgdirimp_sitempackages
+import controllers as pkgdirimp_callables
 
 
 
@@ -33,7 +31,7 @@ class MewloSite_Test1(MewloSite):
 
     def __init__(self):
         # call parent class init
-        super(MewloSite_Test1, self).__init__()
+        super(MewloSite_Test1, self).__init__(__name__)
 
 
 
@@ -44,8 +42,9 @@ class MewloSite_Test1(MewloSite):
 
     def add_settings_early(self):
         config = {
-            # site-specific extension home directory for this site (directory specified as a package, see top of file; could also be specified as absolute directory path string)
-            "sitempackageimport": [sitempackageimport],
+            # we set some package-directory-imports which will be the BASE from which dynamic imports are done
+            "pkgdirimps_sitempackages": [pkgdirimp_sitempackages],
+            "callableroot": pkgdirimp_callables,
             # site prefix
             "urlprefix": "",
             }
@@ -57,24 +56,26 @@ class MewloSite_Test1(MewloSite):
     def add_routes(self):
         # url routes (note that call properties must be dotted path to a function taking one argument (request)
 
-        # add some urls
-        self.routemanager.add_route(
+        # create a routegroup
+        routegroup = MewloRouteGroup()
+        # set the parent import-package-directory for the urls in this group
+        #routegroup.set_callableroot("controllers")
+        #
+        routegroup.append(
             MewloRoute(
                 id = "homepage",
                 path = "/",
-                allow_extra_args = False,
-                callable = "controllers.requests.request_home"
+                callable = "requests.request_home"
                 ))
 
-        self.routemanager.add_route(
+        routegroup.append(
             MewloRoute(
                 id = "aboutpage",
                 path = "/help/about",
-                allow_extra_args = False,
-                callable = "controllers.requests.request_about"
+                callable = "requests.request_about"
                 ))
 
-        self.routemanager.add_route(
+        routegroup.append(
             MewloRoute(
                 id = "hellopage",
                 path = "/test/hello",
@@ -90,11 +91,11 @@ class MewloSite_Test1(MewloSite):
                             help = "age of person (optional)",
                             )
                         ],
-                allow_extra_args = False,
-                callable = "controllers.requests.request_sayhello"
+                callable = "requests.request_sayhello",
+                extra = [ "whatever we want" ],
                 ))
 
-        self.routemanager.add_route(
+        routegroup.append(
             MewloRoute(
                 id  = "articlepage",
                 path = "/article",
@@ -106,11 +107,11 @@ class MewloSite_Test1(MewloSite):
                             help = "title of article to display",
                             )
                         ],
-                allow_extra_args = False,
-                callable = "controllers.requests.request_article",
-                extra = [ "whatever we want" ]
+                callable = "requests.request_article",
                 ))
-
+        #
+        # then add routegroup to site
+        self.routes.append(routegroup)
 
 
 
@@ -142,8 +143,16 @@ def main():
     # create a simple site from our test class and a sitemanager that supervises it
     sitemanager = MewloSite_Test1.create_manager_and_simplesite()
 
-    # now ask the manager to debug and print some useful info
+    # stop if there were errors preparing
+    if (sitemanager.prepare_errors.counterrors()>0):
+        print "Stopping due to sitemanager preparation errors:\n"
+        print sitemanager.prepare_errors.debug()
+        exit()
+
+
+    # ask the manager to debug and print some useful info
     print sitemanager.debug()
+
 
     # some simple tests
     print sitemanager.test_submit_path("/help/about")

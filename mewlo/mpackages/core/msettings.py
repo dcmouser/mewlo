@@ -34,6 +34,11 @@ class MewloSettings(object):
                 return self.settingdict[propertysection][propertyname]
         return defaultval
 
+    def value_exists(self, propertyname, propertysection=None):
+        if (propertysection==None):
+            return (propertyname in self.settingdict)
+        return (propertyname in self.settingdict[propertysection])
+
 
     def debug(self, indentstr=""):
         outstr = indentstr+"Settings:\n"
