@@ -39,16 +39,15 @@ class MewloSite_Test1(MewloSite):
 
 
 
-
     def add_settings_early(self):
         config = {
-            # we set some package-directory-imports which will be the BASE from which dynamic imports are done
-            "pkgdirimps_sitempackages": [pkgdirimp_sitempackages],
-            "callableroot": pkgdirimp_callables,
+            # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
+            MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
+            MewloSite.DEF_CONFIGVAR_callableroot: pkgdirimp_callables,
             # site prefix
-            "urlprefix": "",
+            MewloSite.DEF_CONFIGVAR_urlprefix: "",
             }
-        # add to settings
+        # add config to settings
         self.sitesettings.merge_settings_atsection("config",config)
 
 
@@ -58,8 +57,8 @@ class MewloSite_Test1(MewloSite):
 
         # create a routegroup
         routegroup = MewloRouteGroup()
-        # set the parent import-package-directory for the urls in this group
-        #routegroup.set_callableroot("controllers")
+        # overide the parent import-package-directory for the urls in this group?
+        #routegroup.set_callableroot(pkgdirimp_callables)
         #
         routegroup.append(
             MewloRoute(
@@ -110,7 +109,7 @@ class MewloSite_Test1(MewloSite):
                 callable = "requests.request_article",
                 ))
         #
-        # then add routegroup to site
+        # add routegroup to site
         self.routes.append(routegroup)
 
 

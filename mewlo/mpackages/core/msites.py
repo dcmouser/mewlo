@@ -39,13 +39,18 @@ class MewloSite(object):
     """
 
     # class constants
+    DEF_SECTION_config = "config"
     DEF_CONFIGVAR_pkgdirimps_sitempackages = "pkgdirimps_sitempackages"
     DEF_CONFIGVAR_callableroot = "callableroot"
-    DEF_SECTION_config = "config"
+    DEF_CONFIGVAR_urlprefix = "urlprefix"
 
 
-    def __init__(self, in_sitemodulename):
+
+    def __init__(self, sitemodulename, sitename=None):
         # initialize settings
+        if (sitename==None):
+            sitename = self.__class__.__name__
+        self.sitename = sitename
         self.sitemanager = None
         self.callableroot = None
         # create site settings
@@ -55,17 +60,19 @@ class MewloSite(object):
         # route manager
         self.routes = MewloRouteGroup()
         # record package of the site for relative imports
-        self.sitemodulename = in_sitemodulename
+        self.sitemodulename = sitemodulename
 
 
 
     def get_callableroot(self):
         return self.callableroot
 
+    def get_sitename(self):
+        return self.sitename
 
-    def merge_settings(self, in_settings):
+    def merge_settings(self, settings):
         # merge in some settings
-        self.sitesettings.merge_settings(in_settings)
+        self.sitesettings.merge_settings(settings)
 
 
     def create_and_prepare_standalone_sitemanager(self):
@@ -80,9 +87,9 @@ class MewloSite(object):
         return self.sitemanager
 
 
-    def set_and_add_sitemanager(self, in_sitemanager):
+    def set_and_add_sitemanager(self, sitemanager):
         # initialize settings
-        self.sitemanager = in_sitemanager
+        self.sitemanager = sitemanager
         # register the site with the site manager
         self.sitemanager.add_site(self)
 
@@ -129,6 +136,7 @@ class MewloSite(object):
         self.discover_packages(errors)
         self.loadinfos_packages(errors)
         self.instantiate_packages(errors)
+        #
         self.prepare_routes(errors)
         #
         return errors
@@ -143,7 +151,7 @@ class MewloSite(object):
 
     def prepare_routes(self, errors):
         # walk all routes and compile/cache/update stuff
-        self.routes.prepare(self, errors)
+        self.routes.prepare(self, self, errors)
 
 
     def discover_packages(self, errors):
@@ -167,14 +175,19 @@ class MewloSite(object):
         if (errors==None):
             errors = ErrorTracker()
         #
-        if (not self.sitesettings.value_exists(self.DEF_CONFIGVAR_pkgdirimps_sitempackages, self.DEF_SECTION_config)):
-            errors.add_warningstr("Site config variable '"+self.DEF_CONFIGVAR_pkgdirimps_sitempackages+"' not specified; no directory will be scanned for site-specific extensions.")
-        if (not self.sitesettings.value_exists(self.DEF_CONFIGVAR_callableroot, self.DEF_SECTION_config)):
-            errors.add_warningstr("Site config variable '"+self.DEF_CONFIGVAR_callableroot+"' not specified; therefore needs to be specified for each route group.")
+        self.validate_setting_config(errors, self.DEF_CONFIGVAR_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
+        self.validate_setting_config(errors, self.DEF_CONFIGVAR_callableroot, False, "no directory will be scanned for site-specific extensions.")
+        self.validate_setting_config(errors, self.DEF_CONFIGVAR_urlprefix, False, "site has no prefix and starts at root (/).")
         #
         return errors
 
 
+    def validate_setting_config(self, errors, varname, iserror, messagestr):
+        if (not self.sitesettings.value_exists(varname, self.DEF_SECTION_config)):
+            if (iserror):
+                errors.add_errorstr("Site config variable '"+varname+"' not specified; "+messagestr)
+            else:
+                errors.add_warningstr("Site config variable '"+varname+"' not specified; "+messagestr)
 
 
     def setup_early(self):

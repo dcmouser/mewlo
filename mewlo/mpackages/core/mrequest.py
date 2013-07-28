@@ -35,8 +35,8 @@ class MewloRequest(object):
         return self.wreq.environ
 
 
-    def set_route_parsedargs(self, in_parsedargs):
-        self.parsedargs = in_parsedargs
+    def set_route_parsedargs(self, parsedargs):
+        self.parsedargs = parsedargs
     def get_route_parsedargs(self):
         return self.parsedargs
 

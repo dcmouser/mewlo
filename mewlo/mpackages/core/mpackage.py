@@ -25,8 +25,8 @@ class MewloPackage(package.Package):
     The MewloPackage class exposes author and version info about a package, supports online, version checking, database updating, dependency chains, etc.
     """
 
-    def __init__(self, in_packagemanager, filepath):
-        super(MewloPackage, self).__init__(in_packagemanager, filepath)
+    def __init__(self, packagemanager, filepath):
+        super(MewloPackage, self).__init__(packagemanager, filepath)
 
 
 
@@ -42,11 +42,11 @@ class MewloPackageManager(packagemanager.PackageManager):
     """
 
 
-    def __init__(self, in_mewlosite):
+    def __init__(self, mewlosite):
         # parent constructor
         super(MewloPackageManager,self).__init__()
         # set pointer to mewlosite
-        self.mewlosite= in_mewlosite
+        self.mewlosite= mewlosite
         # set file pattern of mewlo package files
         self.set_filepatternsuffix(DefMewlo_Package_filepatternsuffix)
 
@@ -65,8 +65,8 @@ class MewloPackageObject(packagemanager.PackageObject):
     The MewloPackageObject class is the parent class for the actual 3rd party class that will be instantiated when a package is LOADED+ENABLED
     """
 
-    def __init__(self, in_package):
-        super(MewloPackageObject, self).__init__(in_package)
+    def __init__(self, package):
+        super(MewloPackageObject, self).__init__(package)
 
 
 

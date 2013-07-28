@@ -13,8 +13,8 @@ class MewloResponse(object):
     The MewloResponse class handles the response to a server request
     """
 
-    def __init__(self, in_request):
-        self.request = in_request
+    def __init__(self, request):
+        self.request = request
         self.isfinalized = False
         #
         self.wresp = None
@@ -45,22 +45,22 @@ class MewloResponse(object):
 
 
 
-    def set_status(self, in_statuscode):
+    def set_status(self, statuscode):
         # set values
-        self.statuscode = in_statuscode
+        self.statuscode = statuscode
 
     def set_status_ok(self):
         # set values
         self.statuscode = 200
 
-    def add_status_error(self, in_statuscode, in_errorstr):
+    def add_status_error(self, statuscode, errorstr):
         # set values
-        self.set_status(in_statuscode)
-        self.errors.add_errorstr(in_errorstr)
+        self.set_status(statuscode)
+        self.errors.add_errorstr(errorstr)
 
-    def set_responsedata(self, in_responsedata, in_statuscode = 200):
-        self.responsedata = in_responsedata
-        self.statuscode = in_statuscode
+    def set_responsedata(self, responsedata, statuscode = 200):
+        self.responsedata = responsedata
+        self.statuscode = statuscode
 
 
 

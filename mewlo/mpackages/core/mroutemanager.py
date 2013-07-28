@@ -174,6 +174,9 @@ class MewloRoute(object):
         self.callable = None
         #
         self.parentobj = None
+        self.site = None
+        # instantiate callable and throw exception right away? this is a problem because we may not have set callableroot yet
+        #(self.callable, errorstr) = self.find_callable_throwexception()
 
 
 
@@ -189,30 +192,37 @@ class MewloRoute(object):
     def get_callableroot(self):
         return self.callableroot
 
-
     def get_extra(self):
         return self.extra
 
 
 
-    def prepare(self, parentobj, errors):
+    def prepare(self, parentobj, site, errors):
         # update stuff for ourself based on parent
         self.parentobj = parentobj
+        self.site= site
         # we want to propagage callableroot from parent down
         if (self.callableroot==None):
             self.callableroot = parentobj.get_callableroot()
         # now calculate callable once instead of every time
-        (self.callable, errorstr) = self.find_callable()
-        if (self.callable == None):
-            errors.add_errorstr(errorstr)
+        if (self.callable==None):
+            (self.callable, errorstr) = self.find_callable()
+            if (self.callable == None):
+                errors.add_errorstr(errorstr)
 
+
+    def find_callable_throwexception(self):
+        # look up the callable
+        (callable, errorstr) = self.find_callable()
+        if (callable == None):
+            raise Exception(errorstr)
 
 
     def find_callable(self):
         # look up the callable
         (callable, errorstr) = find_callable_from_dottedpath(self.get_callableroot(), self.callablestring)
         if (callable == None):
-            errorstr = "Failed to find dynamic callable '"+self.callablestring+"'; "+errorstr
+            errorstr = "In route '"+self.id+"' of site '"+self.site.get_sitename()+"', failed to find dynamic callable '"+self.callablestring+"'; "+errorstr+"."
         return (callable, errorstr)
 
 
@@ -457,6 +467,7 @@ class MewloRouteGroup(object):
         self.callableroot = callableroot
         self.routes = []
         self.parentobj = None
+        self.site = None
         #
         if (routes != None):
             self.append(routes)
@@ -487,15 +498,16 @@ class MewloRouteGroup(object):
         return ishandled
 
 
-    def prepare(self, parentobj, errors):
+    def prepare(self, parentobj, site, errors):
         # update stuff for ourself based on parent
         self.parentobj = parentobj
+        self.site= site
         # we want to propagage callableroot from parent down
         if (self.callableroot==None):
             self.callableroot = parentobj.get_callableroot()
         # recursive prepare
         for route in self.routes:
-            route.prepare(self, errors)
+            route.prepare(self, site, errors)
 
 
     def debug(self, indentstr=""):

@@ -11,8 +11,8 @@ class Core_MewloPackageObject(MewloPackageObject):
     The Core_MewloPackage class manages the core mewlo code
     """
 
-    def __init__(self, in_package):
-        super(Core_MewloPackageObject, self).__init__(in_package)
+    def __init__(self, package):
+        super(Core_MewloPackageObject, self).__init__(package)
         pass
 
 

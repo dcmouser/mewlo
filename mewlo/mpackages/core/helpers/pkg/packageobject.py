@@ -11,8 +11,8 @@ class PackageObject(object):
     The PackageObject class is the parent class for the actual 3rd party class that will be instantiated when a package is LOADED+ENABLED
     """
 
-    def __init__(self, in_package):
-        self.package = in_package
+    def __init__(self, package):
+        self.package = package
 
 
     def debug(self,indentstr=""):

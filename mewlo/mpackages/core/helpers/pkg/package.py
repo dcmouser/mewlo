@@ -16,9 +16,9 @@ class Package(object):
     The Package is a class represents a dynamically found module that can be used as an addon package.
     """
 
-    def __init__(self, in_packagemanager, filepath):
+    def __init__(self, packagemanager, filepath):
         # keep pointer to package manager
-        self.packagemanager = in_packagemanager
+        self.packagemanager = packagemanager
         # found info (json) file defining the package
         self.infofilepath = filepath
         # dictionary acquired from info file

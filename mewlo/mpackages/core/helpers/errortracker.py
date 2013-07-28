@@ -48,7 +48,7 @@ class ErrorTracker(object):
                 outstr += indentstr+" "+str(index)+". "+astr+"\n"
         #
         outstr += indentstr+"Warnings:"
-        if (len(self.errorstrings)==0):
+        if (len(self.warningstrings)==0):
             outstr += " None.\n"
         else:
             outstr += "\n"

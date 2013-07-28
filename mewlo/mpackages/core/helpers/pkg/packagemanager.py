@@ -29,14 +29,14 @@ class PackageManager(object):
         self.packages = []
 
 
-    def set_directories(self,in_dirlist):
-        self.dirlist = in_dirlist
+    def set_directories(self, dirlist):
+        self.dirlist = dirlist
 
-    def set_filepatternsuffix(self,in_filepatternsuffix):
-        self.filepatternsuffix = in_filepatternsuffix
+    def set_filepatternsuffix(self, filepatternsuffix):
+        self.filepatternsuffix = filepatternsuffix
 
 
-    def create_package(self,filepath):
+    def create_package(self, filepath):
         """Create a child package; subclasses will reimplement this to use their preferred child class"""
         return Package(self,filepath)
 
@@ -73,7 +73,7 @@ class PackageManager(object):
         return "*_"+self.filepatternsuffix+".json"
 
 
-    def findfilepaths(self,dirpath,filepattern):
+    def findfilepaths(self, dirpath, filepattern):
         """Find recursive list of filepaths matching pattern"""
         filepaths = []
         for path, dirs, files in os.walk(os.path.abspath(dirpath)):
@@ -121,12 +121,12 @@ class PackageManager(object):
 
 
 
-    def DoImportModuleByPath(self,path):
+    def DoImportModuleByPath(self, path):
         return self.DoImportModuleByPath_Version1(path)
 
 
 
-    def DoImportModuleByPath_Version1(self,path):
+    def DoImportModuleByPath_Version1(self, path):
         """Load a python module import by explicit path; version1 uses imp.load_source"""
         dynamicmodule = None
         errorstr = ""
@@ -142,7 +142,7 @@ class PackageManager(object):
         return (dynamicmodule, errorstr)
 
 
-    def DoImportModuleByPath_Version2(self,path):
+    def DoImportModuleByPath_Version2(self, path):
         """Load a python module import by explicit path; version2 uses find_module and load_module"""
         dynamicmodule = None
         errorstr = ""
@@ -170,7 +170,7 @@ class PackageManager(object):
         return (dynamicmodule, errorstr)
 
 
-    def DoImportModuleByPath_Version3(self,path):
+    def DoImportModuleByPath_Version3(self, path):
         """Load a python module import by explicit path; version3 appends to sys path"""
         dynamicmodule = None
         errorstr = ""
@@ -196,7 +196,7 @@ class PackageManager(object):
         return (dynamicmodule, errorstr)
 
 
-    def debug(self,indentstr=""):
+    def debug(self, indentstr=""):
         outstr = indentstr+"PackageManager reporting in.\n"
         indentstr+=" "
         outstr += indentstr+"Directories to scan:\n"
@@ -205,7 +205,7 @@ class PackageManager(object):
         outstr += self.debug_packages(indentstr)
         return outstr
 
-    def debug_packages(self,indentstr=""):
+    def debug_packages(self, indentstr=""):
         outstr = indentstr+"Packages found:\n"
         indentstr+=" "
         if (len(self.packages)==0):
@@ -226,11 +226,11 @@ class PackageObject(object):
     The PackageObject class is the parent class for the actual 3rd party class that will be instantiated when a package is LOADED+ENABLED
     """
 
-    def __init__(self, in_package):
-        self.package = in_package
+    def __init__(self, package):
+        self.package = package
 
 
-    def debug(self,indentstr=""):
+    def debug(self, indentstr=""):
         outstr = indentstr+"Base PackageObject reporting in.\n"
         return outstr
 
