@@ -63,7 +63,7 @@ class MewloSite_Test1(MewloSite):
                 id = "homepage",
                 path = "/",
                 allow_extra_args = False,
-                invoke = "controllers.requests.request_home"
+                callable = "controllers.requests.request_home"
                 ))
 
         self.routemanager.add_route(
@@ -71,7 +71,7 @@ class MewloSite_Test1(MewloSite):
                 id = "aboutpage",
                 path = "/help/about",
                 allow_extra_args = False,
-                invoke = "controllers.requests.request_about"
+                callable = "controllers.requests.request_about"
                 ))
 
         self.routemanager.add_route(
@@ -91,7 +91,7 @@ class MewloSite_Test1(MewloSite):
                             )
                         ],
                 allow_extra_args = False,
-                invoke = "controllers.requests.request_sayhello"
+                callable = "controllers.requests.request_sayhello"
                 ))
 
         self.routemanager.add_route(
@@ -107,7 +107,8 @@ class MewloSite_Test1(MewloSite):
                             )
                         ],
                 allow_extra_args = False,
-                invoke = "controllers.requests.request_article"
+                callable = "controllers.requests.request_article",
+                extra = [ "whatever we want" ]
                 ))
 
 

@@ -162,14 +162,15 @@ class MewloRoute(object):
     DEF_ARGID_extraargs = "__EXTRAARGS"
 
 
-    def __init__(self, id, path, invoke, args=[], allow_extra_args=False):
+    def __init__(self, id, path, callable, args=[], allow_extra_args=False, extra = None):
         self.routemanager = None
         #
         self.id = id
         self.path = path
-        self.invokestring = invoke
+        self.callablestring = callable
         self.args = args
         self.allow_extra_args = allow_extra_args
+        self.extra = extra
 
 
 
@@ -178,6 +179,9 @@ class MewloRoute(object):
 
     def get_routemanager(self):
         return self.routemanager
+
+    def get_extra(self):
+        return self.extra
 
 
     def validate(self):
@@ -351,7 +355,7 @@ class MewloRoute(object):
 
         # error?
         if (not success):
-            responsedata = "Found a route that handled it: '"+self.id+"' but got error when trying to invoke route function: '"+errorstr+"'."
+            responsedata = "Found a route that handled it: '"+self.id+"' but got error when trying to invoke route callable: '"+errorstr+"'."
             request.response.set_responsedata(responsedata)
 
         # return success
@@ -371,14 +375,13 @@ class MewloRoute(object):
         """
 
         # find the callable
-        #print "ATTN:DEBUG attempting to invoke: "+invokestring+"\n"
-        (invokee, errorstr) = find_callable_from_dottedpath(self.invokestring)
+        (callable, errorstr) = find_callable_from_dottedpath(self.callablestring)
 
-        if (invokee):
-            (success, errorstr) = invokee(request)
+        if (callable):
+            (success, errorstr) = callable(request)
         else:
             success = False
-            errorstr = "failed to find dynamic invoke function '"+self.invokestring+"': "+errorstr
+            errorstr = "failed to find dynamic callable (function) '"+self.callablestring+"': "+errorstr
 
         return (success, errorstr)
 
@@ -400,7 +403,7 @@ class MewloRoute(object):
     def debug(self, indentstr=""):
         outstr = indentstr+"MewloRoute '"+self.id+"':\n"
         outstr += indentstr+" path: "+self.path+"\n"
-        outstr += indentstr+" invoke: "+self.invokestring+"\n"
+        outstr += indentstr+" invoke: "+self.callablestring+"\n"
         outstr += indentstr+" args:\n"
         indentstr += " "
         for routearg in self.args:
