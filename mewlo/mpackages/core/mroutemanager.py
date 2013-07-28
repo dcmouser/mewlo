@@ -409,8 +409,8 @@ class MewloRoute(object):
     def debug(self, indentstr=""):
         outstr = indentstr+"MewloRoute '"+self.id+"':\n"
         outstr += indentstr+" path: "+self.path+"\n"
-        outstr += indentstr+" callable: "+self.callablestring+"\n"
-        outstr += indentstr+" callable root: "+str(self.get_callableroot())+"\n"
+        outstr += indentstr+" callable-as-string: "+self.callablestring+"\n"
+        outstr += indentstr+" callable: "+str(self.callable)+"\n"
         outstr += indentstr+" args:\n"
         indentstr += " "
         for routearg in self.args:
