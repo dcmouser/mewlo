@@ -20,7 +20,7 @@ def request_about(request):
 
 
 def request_sayhello(request):
-    request.response.set_responsedata("In request_sayhello.")
+    request.response.set_responsedata("In request_sayhello, with args: "+str(request.get_route_parsedargs()))
     return (True,"")
 
 

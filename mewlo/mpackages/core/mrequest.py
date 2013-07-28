@@ -46,6 +46,9 @@ class MewloRequest(object):
 
     def set_route_parsedargs(self, in_parsedargs):
         self.parsedargs = in_parsedargs
+    def get_route_parsedargs(self):
+        return self.parsedargs
+
     def set_route_matched(self, in_matchedroute):
         self.matchedroute = in_matchedroute
 
