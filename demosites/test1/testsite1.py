@@ -59,7 +59,6 @@ class MewloSite_Test1(MewloSite):
         # create a routegroup
         routegroup = MewloRouteGroup()
         # overide the parent import-package-directory for the urls in this group?
-        callableroot = pkgdirimp_callables
         #routegroup.set_callableroot(pkgdirimp_callables)
         #
         routegroup.append(
@@ -75,7 +74,7 @@ class MewloSite_Test1(MewloSite):
                 path = "/help/about",
 #                callable = "requests.request_about"
 # an alternate way to set the callable immediately, rather than deferred -- for better error reporting
-                callable = findcallable(callableroot, "requests.request_about2")
+               callable = findcallable(pkgdirimp_callables, "requests.request_about")
                 ))
 
         routegroup.append(

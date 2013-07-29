@@ -31,6 +31,10 @@ def find_callable_from_dottedpath(callableroot, callablepath):
     # see http://stackoverflow.com/questions/6643324/how-is-calling-module-and-function-by-string-handled-in-python
     # return tuple (funcreferce, errorstr)
 
+    if (isinstance(callableroot, basestring) and callableroot!=""):
+        callablepath = callableroot + "." + callablepath
+        callableroot = None
+
     # get splitted name
     modulepath, functionname = callablepath_dotsplit(callablepath)
 
