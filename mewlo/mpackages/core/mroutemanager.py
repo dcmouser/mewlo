@@ -4,7 +4,7 @@
 
 # mewlo modules
 from helpers.errortracker import ErrorTracker
-from helpers.callables import find_callable_from_dottedpath
+from helpers.callables import findcallable
 
 
 
@@ -175,18 +175,6 @@ class MewloRoute(object):
         #
         self.parentobj = None
         self.site = None
-        # instantiate callable and throw exception right away? this is a problem because we may not have set callableroot yet
-        #(self.callable, errorstr) = self.find_callable_throwexception()
-
-
-
-#    def get_sitemodule_relativeimportdir(self):
-#        # return site import
-#        return self.get_site().get_sitemodule_relativeimportdir()
-
-#    def get_site_controller_importdirpkg(self):
-#        return self.get_site().get_site_controller_importdirpkg()
-#
 
 
     def get_callableroot(self):
@@ -211,19 +199,18 @@ class MewloRoute(object):
                 errors.add_errorstr(errorstr)
 
 
-    def find_callable_throwexception(self):
-        # look up the callable
-        (callable, errorstr) = self.find_callable()
-        if (callable == None):
-            raise Exception(errorstr)
-
-
     def find_callable(self):
         # look up the callable
-        (callable, errorstr) = find_callable_from_dottedpath(self.get_callableroot(), self.callablestring)
-        if (callable == None):
-            errorstr = "In route '"+self.id+"' of site '"+self.site.get_sitename()+"', failed to find dynamic callable '"+self.callablestring+"'; "+errorstr+"."
+        (callable, errorstr) = findcallable(self.get_callableroot(), self.callablestring, False)
+        if (errorstr!=""):
+            errorstr = "In route '"+self.id+"' of site '"+self.site.get_sitename()+"', "+errorstr
         return (callable, errorstr)
+
+
+
+
+
+
 
 
     def process_request(self, request, site):
@@ -413,13 +400,11 @@ class MewloRoute(object):
 
 
 
-
-
-
     def debug(self, indentstr=""):
         outstr = indentstr+"MewloRoute '"+self.id+"':\n"
         outstr += indentstr+" path: "+self.path+"\n"
-        outstr += indentstr+" callable-as-string: "+self.callablestring+"\n"
+        if (isinstance(self.callablestring,basestring)):
+            outstr += indentstr+" callable-as-string: "+self.callablestring+"\n"
         outstr += indentstr+" callable: "+str(self.callable)+"\n"
         outstr += indentstr+" args:\n"
         indentstr += " "

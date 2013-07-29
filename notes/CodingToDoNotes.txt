@@ -1,0 +1,13 @@
+//---------------------------------------------------------------------------
+The MewloRoute and MewlowRouteGroup classes are used to provide a hierarchical collection of routes, with dynamically located "callables" (the controller functions).
+After they are added to a site, a preparation phase walks them and resolves the dynamic callables.  This lets the system detect errors resolving callables early, though it's still less immediate than if we used direct importing of callable functions.
+
+So, there are a couple of issues:
+1. Can we improve the MewloRouteGroup classes, in general.
+2. Should we switch to a non-dynamically resolved callable system (i note that all of the frameworks i've seen provide this kind of dynamic string-based callable functionality)?
+3. What do these dynamic dotted-string based callables really get us in python beyond saving us from doing a couple of import statements?
+
+And also:
+1. Views may have the same kind of hierarchical group, dynanamic dotted-string-path based specification
+2. Should we generalize the route and routegroup class to make it cover View "classes"/files too?
+//---------------------------------------------------------------------------

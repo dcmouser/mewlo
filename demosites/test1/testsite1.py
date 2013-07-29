@@ -6,11 +6,12 @@
 from mewlo.mpackages.core.msites import MewloSite
 from mewlo.mpackages.core.mroutemanager import *
 
+# helpers
+from mewlo.mpackages.core.helpers.callables import findcallable
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live; this is just a way to get the relative directory easily
 import mpackages as pkgdirimp_sitempackages
 import controllers as pkgdirimp_callables
-
 
 
 
@@ -58,6 +59,7 @@ class MewloSite_Test1(MewloSite):
         # create a routegroup
         routegroup = MewloRouteGroup()
         # overide the parent import-package-directory for the urls in this group?
+        callableroot = pkgdirimp_callables
         #routegroup.set_callableroot(pkgdirimp_callables)
         #
         routegroup.append(
@@ -71,7 +73,9 @@ class MewloSite_Test1(MewloSite):
             MewloRoute(
                 id = "aboutpage",
                 path = "/help/about",
-                callable = "requests.request_about"
+#                callable = "requests.request_about"
+# an alternate way to set the callable immediately, rather than deferred -- for better error reporting
+                callable = findcallable(callableroot, "requests.request_about2")
                 ))
 
         routegroup.append(

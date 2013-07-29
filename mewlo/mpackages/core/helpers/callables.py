@@ -6,6 +6,26 @@ from types import ModuleType
 
 
 
+def findcallable(callableroot, callablestring, flag_throwexception=True):
+    # find a callable, class static function
+    if (isinstance(callablestring, basestring)):
+        (callable, errorstr) = find_callable_from_dottedpath(callableroot, callablestring)
+    else:
+        callable = callablestring
+        errorstr = ""
+    #
+    if (callable == None):
+       errorstr = "failed to find dynamic callable '"+callablestring+"'; "+errorstr+"."
+    #
+    if (flag_throwexception):
+        if (errorstr!=""):
+            raise Exception(errorstr)
+        return callable
+    #
+    return (callable, errorstr)
+
+
+
 def find_callable_from_dottedpath(callableroot, callablepath):
     # given a dotted path, find the callable
     # see http://stackoverflow.com/questions/6643324/how-is-calling-module-and-function-by-string-handled-in-python
