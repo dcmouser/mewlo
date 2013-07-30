@@ -97,7 +97,7 @@ class MewloSite_Test1(MewloSite):
                             )
                         ],
 #                controller = MewloController(function="requests.request_sayhello"),
-                controller = MewloController(root="test1.controllers.requests", function="request_sayhello"),
+                controller = MewloController(function="requests.request_sayhello"),
                 # we can pass in any extra data which will just be part of the route that can be examined post-matching
                 extra = [ "whatever we want" ],
                 # we can force the route to simulate as if certain call args were assigned (this works whether there are RouteArgs for these or not; no type checking is performed on them
