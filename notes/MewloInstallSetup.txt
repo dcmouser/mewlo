@@ -38,6 +38,10 @@ STEP 3 - Install required helper packages
 Install the Werkzeug package which is temporarily being used to do some lower-level request+response work:
   On windows:
   pip install Werkzeug
+
+To build documentation:
+	pip install Sphinx
+	pip install rst2pdf <--- this fails in my virtualenv
 //---------------------------------------------------------------------------
 
 
