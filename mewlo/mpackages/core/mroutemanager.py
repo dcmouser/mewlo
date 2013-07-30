@@ -28,9 +28,8 @@ from mewlo.mpackages.core.mcontroller import MewloController
 class MewloRouteArg(object):
     """The MewloRouteArg represents a single route argument"""
 
-    def __init__(self, id, argtype, required, positional, help, defaultval):
+    def __init__(self, id, required, positional, help, defaultval):
         self.id = id
-        self.argtype = argtype
         self.required = required
         self.positional = positional
         self.help = help
@@ -53,7 +52,7 @@ class MewloRouteArg(object):
 
     def debug(self, indentstr=""):
         outstr = indentstr+"MewloRouteArg '"+self.id+"':\n"
-        outstr += indentstr+" argtype: "+self.argtype+"\n"
+        outstr += indentstr+" argtype: "+self.get_argtypestr()+"\n"
         outstr += indentstr+" required: "+str(self.required)+"\n"
         outstr += indentstr+" positional: "+str(self.required)+"\n"
         outstr += indentstr+" help: "+str(self.help)+"\n"
@@ -72,9 +71,9 @@ class MewloRouteArg(object):
 class MewloRouteArgFlag(MewloRouteArg):
     """The MewloRouteArg represents a single route argument"""
     #
-    def __init__(self, id, required=True, positional=False, help="", defaultval=None):
-        # just defer to parent constructor (but force argtype just for debugging purposes)
-        super(MewloRouteArgFlag, self).__init__(id, argtype="FLAG", required=required, positional=positional, help=help, defaultval=defaultval)
+    def __init__(self, id, required=True, positional=False, help=None, defaultval=None):
+        # just defer to parent constructor
+        super(MewloRouteArgFlag, self).__init__(id, required=required, positional=positional, help=help, defaultval=defaultval)
     #
     def validate_argvalue(self, argval):
         # see parent class for documentation
@@ -87,30 +86,34 @@ class MewloRouteArgFlag(MewloRouteArg):
     #
     def get_isflag(self):
         return True
+    def get_argtypestr(self):
+        return "Flag"
 
 
 
 class MewloRouteArgString(MewloRouteArg):
     """The MewloRouteArg represents a single route argument"""
     #
-    def __init__(self, id, required=True, positional=False, help="", defaultval=None):
-        # just defer to parent constructor (but force argtype just for debugging purposes)
-        super(MewloRouteArgString, self).__init__(id, argtype="STRING", required=required, positional=positional, help=help, defaultval=defaultval)
+    def __init__(self, id, required=True, positional=False, help=None, defaultval=None):
+        # just defer to parent constructor
+        super(MewloRouteArgString, self).__init__(id, required=required, positional=positional, help=help, defaultval=defaultval)
     #
     def validate_argvalue(self, argval):
         # see parent class for documentation
         isvalid = True
         errorstr = ""
         return (isvalid, argval, errorstr)
-
+    #
+    def get_argtypestr(self):
+        return "String"
 
 
 class MewloRouteArgInteger(MewloRouteArg):
     """The MewloRouteArg represents a single route argument"""
     #
-    def __init__(self, id, required=True, positional=False, help="", defaultval=None):
-        # just defer to parent constructor (but force argtype just for debugging purposes)
-        super(MewloRouteArgInteger, self).__init__(id, argtype="INTEGER", required=required, positional=positional, help=help, defaultval=defaultval)
+    def __init__(self, id, required=True, positional=False, help=None, defaultval=None):
+        # just defer to parent constructor
+        super(MewloRouteArgInteger, self).__init__(id, required=required, positional=positional, help=help, defaultval=defaultval)
     #
     def validate_argvalue(self, argval):
         # see parent class for documentation
@@ -123,7 +126,9 @@ class MewloRouteArgInteger(MewloRouteArg):
             errorstr = "Expected integer value; "+str(ValueError)
         #
         return (isvalid, argval, errorstr)
-
+    #
+    def get_argtypestr(self):
+        return "Integer"
 
 
 
@@ -252,9 +257,9 @@ class MewloRoute(object):
         """
         Split argstring into '/' separated args and try to match against route args.
         @return tuple(didmatchargs, argdict, errorstr), where:
-            didmatchargs is True on match or False on no match
-            argdict is a dictionary with argid = value entries
-            errorstr is "" on success, or an errorstring on failure
+        * didmatchargs is True on match or False on no match
+        * argdict is a dictionary with argid = value entries
+        * errorstr is "" on success, or an errorstring on failure
         if didmatchargs = False, then caller should treat errorstr as explanation for failure to match rather than as an error per se
         """
 
