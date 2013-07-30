@@ -11,7 +11,6 @@ class MewloSettings(object):
 
     def __init__(self):
         self.settingdict = {}
-        pass
 
 
     def merge_settings(self, settingstoadd):
@@ -41,6 +40,6 @@ class MewloSettings(object):
 
 
     def debug(self, indentstr=""):
-        outstr = indentstr+"Settings:\n"
+        outstr = indentstr+"MewloSettings:\n"
         outstr += indentstr+str(self.settingdict)+"\n"
         return outstr

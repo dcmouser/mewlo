@@ -5,13 +5,14 @@
 # Mewlo imports
 from mewlo.mpackages.core.msites import MewloSite
 from mewlo.mpackages.core.mroutemanager import *
+from mewlo.mpackages.core.mcontroller import MewloController
 
 # helpers
-from mewlo.mpackages.core.helpers.callables import findcallable
+#from mewlo.mpackages.core.helpers.callables import findcallable
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live; this is just a way to get the relative directory easily
 import mpackages as pkgdirimp_sitempackages
-import controllers as pkgdirimp_callables
+import controllers as pkgdirimp_controllers
 
 
 
@@ -44,7 +45,7 @@ class MewloSite_Test1(MewloSite):
         config = {
             # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
             MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
-            MewloSite.DEF_CONFIGVAR_callableroot: pkgdirimp_callables,
+            MewloSite.DEF_CONFIGVAR_controllerroot: pkgdirimp_controllers,
             # site prefix
             MewloSite.DEF_CONFIGVAR_urlprefix: "",
             }
@@ -58,23 +59,24 @@ class MewloSite_Test1(MewloSite):
 
         # create a routegroup
         routegroup = MewloRouteGroup()
-        # overide the parent import-package-directory for the urls in this group?
-        #routegroup.set_callableroot(pkgdirimp_callables)
+        # overide the parent import-package-directory for the urls in this group? if we don't it will use the controller root set in SITE config
+        # routegroup.set_controllerroot(pkgdirimp_controllers)
+        # another way to specify controller functions directly
+        from controllers.requests import request_article
         #
         routegroup.append(
             MewloRoute(
                 id = "homepage",
                 path = "/",
-                callable = "requests.request_home"
+                controller = MewloController(function="requests.request_home")
                 ))
 
         routegroup.append(
             MewloRoute(
                 id = "aboutpage",
                 path = "/help/about",
-#                callable = "requests.request_about"
-# an alternate way to set the callable immediately, rather than deferred -- for better error reporting
-               callable = findcallable(pkgdirimp_callables, "requests.request_about")
+                # we can pass the root package to the MewloController constructor, which has the benefit of doing the import immediately and raising exception if not found; otherwise the error will come up during preparation
+                controller = MewloController(root=pkgdirimp_controllers, function="requests.request_about"),
                 ))
 
         routegroup.append(
@@ -93,7 +95,7 @@ class MewloSite_Test1(MewloSite):
                             help = "age of person (optional)",
                             )
                         ],
-                callable = "requests.request_sayhello",
+                controller = MewloController(function="requests.request_sayhello"),
                 extra = [ "whatever we want" ],
                 ))
 
@@ -109,7 +111,9 @@ class MewloSite_Test1(MewloSite):
                             help = "title of article to display",
                             )
                         ],
-                callable = "requests.request_article",
+#                controller = MewloController(function="requests.request_article"),
+                # another alternative is to import above and then specify the function reference explicitly
+                controller = MewloController(function=request_article),
                 ))
         #
         # add routegroup to site

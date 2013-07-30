@@ -4,7 +4,7 @@
 
 # mewlo modules
 from helpers.errortracker import ErrorTracker
-from helpers.callables import findcallable
+from mewlo.mpackages.core.mcontroller import MewloController
 
 
 
@@ -162,23 +162,26 @@ class MewloRoute(object):
     DEF_ARGID_extraargs = "extraargs"
 
 
-    def __init__(self, id, path, callable, args=[], allow_extra_args=False, extra = None, callableroot = None):
+    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extra = None):
         #
         self.id = id
         self.path = path
-        self.callablestring = callable
         self.args = args
         self.allow_extra_args = allow_extra_args
         self.extra = extra
-        self.callableroot = callableroot
-        self.callable = None
+        self.controllerroot = None
         #
-        self.parentobj = None
-        self.site = None
+        # the controller should be a MewloController derived class, or createable from whatever is passed
+        if (isinstance(controller,MewloController)):
+            self.controller = controller
+        else:
+            self.controller = MewloController(function=controller)
 
 
-    def get_callableroot(self):
-        return self.callableroot
+
+
+    def get_controllerroot(self):
+        return self.controllerroot
 
     def get_extra(self):
         return self.extra
@@ -189,22 +192,12 @@ class MewloRoute(object):
         # update stuff for ourself based on parent
         self.parentobj = parentobj
         self.site= site
-        # we want to propagage callableroot from parent down
-        if (self.callableroot==None):
-            self.callableroot = parentobj.get_callableroot()
-        # now calculate callable once instead of every time
-        if (self.callable==None):
-            (self.callable, errorstr) = self.find_callable()
-            if (self.callable == None):
-                errors.add_errorstr(errorstr)
-
-
-    def find_callable(self):
-        # look up the callable
-        (callable, errorstr) = findcallable(self.get_callableroot(), self.callablestring, False)
-        if (errorstr!=""):
-            errorstr = "In route '"+self.id+"' of site '"+self.site.get_sitename()+"', "+errorstr
-        return (callable, errorstr)
+        # root propagation
+        if (self.controllerroot==None):
+            self.controllerroot = parentobj.get_controllerroot()
+        # prepare controller
+        if (self.controller!=None):
+            self.controller.prepare(self, site, errors)
 
 
 
@@ -371,7 +364,7 @@ class MewloRoute(object):
 
         # error?
         if (not success):
-            responsedata = "Found a route that handled it: '"+self.id+"' but got error when trying to invoke route callable.  Error: "+errorstr+"."
+            responsedata = "Found a route that handled it: '"+self.id+"' but got error when trying to invoke route controller.  Error: "+errorstr+"."
             request.response.set_responsedata(responsedata)
 
         # return success
@@ -389,10 +382,10 @@ class MewloRoute(object):
         This requires a little bit of magic, since we are going to launch the function given its dotted path name
         """
 
-        if (self.callable==None):
-            return (False, "Callable '"+self.callablestring+"' was not found when preparing route.")
+        if (self.controller==None):
+            return (False, "Controller was not found when preparing route.")
 
-        (success, errorstr) = self.callable(request)
+        (success, errorstr) = self.controller.invoke(request)
         return (success, errorstr)
 
 
@@ -403,9 +396,10 @@ class MewloRoute(object):
     def debug(self, indentstr=""):
         outstr = indentstr+"MewloRoute '"+self.id+"':\n"
         outstr += indentstr+" path: "+self.path+"\n"
-        if (isinstance(self.callablestring,basestring)):
-            outstr += indentstr+" callable-as-string: "+self.callablestring+"\n"
-        outstr += indentstr+" callable: "+str(self.callable)+"\n"
+        if (self.controller!=None):
+            outstr += self.controller.debug(indentstr+" ")
+        else:
+            outstr += indentstr+" Controller: "+str(self.controller)+"\n"
         outstr += indentstr+" args:\n"
         indentstr += " "
         for routearg in self.args:
@@ -448,8 +442,8 @@ class MewloRouteGroup(object):
     The MewloRouteGroup class holds a list of routes (or child RouteGroups)
     """
 
-    def __init__(self, callableroot=None, routes=None):
-        self.callableroot = callableroot
+    def __init__(self, controllerroot=None, routes=None):
+        self.controllerroot = controllerroot
         self.routes = []
         self.parentobj = None
         self.site = None
@@ -457,10 +451,10 @@ class MewloRouteGroup(object):
         if (routes != None):
             self.append(routes)
 
-    def get_callableroot(self):
-        return self.callableroot
-    def set_callableroot(self, callableroot):
-        self.callableroot = callableroot
+    def get_controllerroot(self):
+        return self.controllerroot
+    def set_controllerroot(self, controllerroot):
+        self.controllerroot = controllerroot
 
 
     def append(self, routes):
@@ -487,9 +481,9 @@ class MewloRouteGroup(object):
         # update stuff for ourself based on parent
         self.parentobj = parentobj
         self.site= site
-        # we want to propagage callableroot from parent down
-        if (self.callableroot==None):
-            self.callableroot = parentobj.get_callableroot()
+        # we want to propagage controllerroot from parent down
+        if (self.controllerroot==None):
+            self.controllerroot = parentobj.get_controllerroot()
         # recursive prepare
         for route in self.routes:
             route.prepare(self, site, errors)
@@ -497,7 +491,7 @@ class MewloRouteGroup(object):
 
     def debug(self, indentstr=""):
         outstr = indentstr+"MewloRouteGroup reporting in:\n"
-        outstr += indentstr+" Root for callables: " + str(self.callableroot)+"\n"
+        outstr += indentstr+" Root for controllers: " + str(self.controllerroot)+"\n"
         for route in self.routes:
             outstr += route.debug(indentstr+" ")+"\n"
         return outstr

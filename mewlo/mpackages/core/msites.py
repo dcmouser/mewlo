@@ -41,7 +41,7 @@ class MewloSite(object):
     # class constants
     DEF_SECTION_config = "config"
     DEF_CONFIGVAR_pkgdirimps_sitempackages = "pkgdirimps_sitempackages"
-    DEF_CONFIGVAR_callableroot = "callableroot"
+    DEF_CONFIGVAR_controllerroot = "controllerroot"
     DEF_CONFIGVAR_urlprefix = "urlprefix"
 
 
@@ -52,7 +52,7 @@ class MewloSite(object):
             sitename = self.__class__.__name__
         self.sitename = sitename
         self.sitemanager = None
-        self.callableroot = None
+        self.controllerroot = None
         # create site settings
         self.sitesettings = MewloSettings()
         # collection of mewlo addon packages
@@ -64,8 +64,8 @@ class MewloSite(object):
 
 
 
-    def get_callableroot(self):
-        return self.callableroot
+    def get_controllerroot(self):
+        return self.controllerroot
 
     def get_sitename(self):
         return self.sitename
@@ -145,7 +145,7 @@ class MewloSite(object):
 
     def prepare_settings(self, errors):
         # prepare some settings
-        self.callableroot = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_callableroot)
+        self.controllerroot = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_controllerroot)
 
 
 
@@ -176,7 +176,7 @@ class MewloSite(object):
             errors = ErrorTracker()
         #
         self.validate_setting_config(errors, self.DEF_CONFIGVAR_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
-        self.validate_setting_config(errors, self.DEF_CONFIGVAR_callableroot, False, "no directory will be scanned for site-specific extensions.")
+        self.validate_setting_config(errors, self.DEF_CONFIGVAR_controllerroot, False, "no site-default specified for controller root.")
         self.validate_setting_config(errors, self.DEF_CONFIGVAR_urlprefix, False, "site has no prefix and starts at root (/).")
         #
         return errors
@@ -245,7 +245,7 @@ class MewloSite(object):
         outstr += (self.validate()).debug(indentstr+"  ")
         outstr += self.sitesettings.debug(indentstr+" ")
         outstr += self.packagemanager.debug(indentstr+" ")
-        outstr += indentstr+" Callable root: "+str(self.get_callableroot())+"\n"
+        outstr += indentstr+" Controller root: "+str(self.get_controllerroot())+"\n"
         outstr += self.routes.debug(indentstr+" ")
         return outstr
 
