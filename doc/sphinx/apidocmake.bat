@@ -1,0 +1,1 @@
+sphinx-apidoc -f -o _apidoc ..\..\mewlo
