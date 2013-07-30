@@ -6,45 +6,39 @@ from types import ModuleType
 
 
 
-def findcallable(callableroot, callablestring, flag_throwexception=True):
-    # find a callable, class static function
-    if (isinstance(callablestring, basestring)):
-        (callable, errorstr) = find_callable_from_dottedpath(callableroot, callablestring)
-    else:
-        callable = callablestring
-        errorstr = ""
-    #
-    if (callable == None):
-       errorstr = "failed to find dynamic callable '"+callablestring+"'; "+errorstr+"."
-    #
-    if (flag_throwexception):
-        if (errorstr!=""):
-            raise Exception(errorstr)
-        return callable
-    #
-    return (callable, errorstr)
 
 
-
-def find_callable_from_dottedpath(callableroot, callablepath):
+def find_callable(callableroot, callableobj):
     # given a dotted path, find the callable
     # see http://stackoverflow.com/questions/6643324/how-is-calling-module-and-function-by-string-handled-in-python
     # return tuple (funcreferce, errorstr)
 
-    if (isinstance(callableroot, basestring) and callableroot!=""):
-        callablepath = callableroot + "." + callablepath
-        callableroot = None
+    # if callableobj is not a string, then we are DONE and can either just return it if its callable, or throw an error if its not callable
+    if (not isinstance(callableobj, basestring)):
+        if (callable(callableobj)):
+            return (callableobj, "")
+        return (None,"The provided object ("+str(callableobj)+") is not a 'callable'.")
 
-    # get splitted name
-    modulepath, functionname = callablepath_dotsplit(callablepath)
+    # ok so we know that callableobj is a string
+    callablepath = callableobj
 
-    # get module
-    (mod, errorstr) = find_callable_from_dottedpath_module(callableroot, modulepath)
+# don't do this, let find_module_from_dottedpath do it
+#    # ok now check root, it can be None, a STRING, or a package module
+#    if (isinstance(callableroot, basestring) and callableroot!=""):
+#        # it's a non blank string, so just add it as prefix of dotted path and clear it
+#        callablepath = callableroot + "." + callablepath
+#        callableroot = None
+
+    # split dotted path into modules (might be blank), and last item is a functionname
+    modulepath, functionname = split_dottedpath_modulepath_and_funcname(callablepath)
+
+    # now that we have (possibly None) modulepath string, let's find it from root (which might be None or an actual package object)
+    (mod, errorstr) = find_module_from_dottedpath(callableroot, modulepath)
     if (mod==None):
         return (None, errorstr)
 
-    # get function
-    (func, errorstr) = find_callable_from_dottedpath_function(mod, functionname)
+    # now we have the module OBJECT where the function is located, so we can try to lookup the function from the module
+    (func, errorstr) = find_function_from_module_and_dottedpath(mod, functionname)
     if (func==None):
         return (None, "Imported module '"+modulepath+"' but "+errorstr)
 
@@ -52,24 +46,54 @@ def find_callable_from_dottedpath(callableroot, callablepath):
     return (func, "")
 
 
-def find_callable_from_dottedpath_module(callableroot, modulepath):
+
+
+
+
+
+
+
+
+
+
+
+
+
+def find_callable_throwexception(callableroot, callableobj):
+    # just call find_callable but throw an exception if not found; more useful for finding errors quickly
+    (callable, errorstr) = find_callable(callableroot, callableobj)
+    if (errorstr!=""):
+        raise Exception(errorstr)
+    return callable
+
+
+
+def find_module_from_dottedpath(callableroot, modulepath):
+    # if a root is specified, we use it
     if (callableroot!=None):
         # we have a root
         if (isinstance(callableroot, basestring)):
+            # root is a string so just add it to module path and then look for module by string dottedpath
             modulepath = callableroot + "." + modulepath
-            (mod,errorstr) = find_callable_from_dottedpath_module_bystring(modulepath)
+            (mod,errorstr) = find_module_from_dottedpath_bystring(modulepath)
         elif (isinstance(callableroot, ModuleType)):
-            (mod,errorstr) = find_callable_from_dottedpath_module_relativetopackage(callableroot, modulepath)
+            # root is actually a package module, so just find modulepath dottedstring relative to the root package module
+            (mod,errorstr) = find_module_from_dottedpath_relativetopackage(callableroot, modulepath)
         else:
+            # no idea what callableroot IS
             mod = None
             errorstr = "Unknown callableroot ("+str(callableroot)+") type; not attempting to load modulepath: "+modulepath
     else:
-        (mod,errorstr) = find_callable_from_dottedpath_module_bystring(modulepath)
+        # no root, so just import the module as a string
+        (mod,errorstr) = find_module_from_dottedpath_bystring(modulepath)
     return (mod,errorstr)
 
 
 
-def find_callable_from_dottedpath_module_bystring(modulepath):
+
+
+def find_module_from_dottedpath_bystring(modulepath):
+    # call __import__ to load the module and get a reference to it; the ["dummyval"] arg is needed to trick it to return a module reference
     try:
         mod = __import__(modulepath, globals(), locals(), ["dummyval",], -1)
     except Exception as exp:
@@ -77,13 +101,20 @@ def find_callable_from_dottedpath_module_bystring(modulepath):
     return (mod, "")
 
 
-def find_callable_from_dottedpath_module_relativetopackage(parentmodule, modulepath):
-    # ATTN: i tried lots of approaches to directly ask the parentmodule to import modulepath, but could not get it to work, so i've fallen back on this method; i'm not sure what downsides it might have in terms of scope confusion..
-    fullpath = parentmodule.__name__ + "." + modulepath
-    return find_callable_from_dottedpath_module_bystring(fullpath)
+def find_module_from_dottedpath_relativetopackage(parentmodule, modulepath):
+    # ATTN: i tried lots of approaches to directly ask the parentmodule to import modulepath, but could not get it to work, so i've fallen back on this method; i'm not sure what if any downsides it might have in terms of scope confusion..
+    #  it does seem to solve the problem of the getting the parentmodule __name__ to be a dotted path and not just the pure name of the module, which helps it work regardless of where main script is run from
+    fullpath = parentmodule.__name__
+    if (modulepath != ""):
+        fullpath = fullpath + "." + modulepath
+    return find_module_from_dottedpath_bystring(fullpath)
 
 
-def find_callable_from_dottedpath_function(mod, functionname):
+
+
+
+def find_function_from_module_and_dottedpath(mod, functionname):
+    # we have an imported module package, not find the function attribute by name
     try:
         func = getattr(mod, functionname)
     except Exception as exp:
@@ -92,7 +123,10 @@ def find_callable_from_dottedpath_function(mod, functionname):
     return (func, "")
 
 
-def callablepath_dotsplit(dottedname):
+
+
+
+def split_dottedpath_modulepath_and_funcname(dottedname):
     from string import join
     #
     modulepath = join(dottedname.split('.')[:-1],'.')

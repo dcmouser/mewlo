@@ -31,3 +31,15 @@ def request_sayhello(request):
 def request_article(request):
     request.response.set_responsedata("In request_article.")
     return (True,"")
+
+
+
+
+# test
+class request_test_class(object):
+    def __init__(self):
+        pass
+    @classmethod
+    def testinvoke(cls,request):
+        request.response.set_responsedata("In request_test_class invoke().")
+        return (True,"")

@@ -28,12 +28,13 @@ from mewlo.mpackages.core.mcontroller import MewloController
 class MewloRouteArg(object):
     """The MewloRouteArg represents a single route argument"""
 
-    def __init__(self, id, argtype, required, positional, help):
+    def __init__(self, id, argtype, required, positional, help, defaultval):
         self.id = id
         self.argtype = argtype
         self.required = required
         self.positional = positional
         self.help = help
+        self.defaultval = defaultval
 
 
     def validate_argvalue(self, argval):
@@ -71,9 +72,9 @@ class MewloRouteArg(object):
 class MewloRouteArgFlag(MewloRouteArg):
     """The MewloRouteArg represents a single route argument"""
     #
-    def __init__(self, id, required=True, positional=False, help=""):
+    def __init__(self, id, required=True, positional=False, help="", defaultval=None):
         # just defer to parent constructor (but force argtype just for debugging purposes)
-        super(MewloRouteArgFlag, self).__init__(id, argtype="FLAG", required=required, positional=positional, help=help)
+        super(MewloRouteArgFlag, self).__init__(id, argtype="FLAG", required=required, positional=positional, help=help, defaultval=defaultval)
     #
     def validate_argvalue(self, argval):
         # see parent class for documentation
@@ -92,9 +93,9 @@ class MewloRouteArgFlag(MewloRouteArg):
 class MewloRouteArgString(MewloRouteArg):
     """The MewloRouteArg represents a single route argument"""
     #
-    def __init__(self, id, required=True, positional=False, help=""):
+    def __init__(self, id, required=True, positional=False, help="", defaultval=None):
         # just defer to parent constructor (but force argtype just for debugging purposes)
-        super(MewloRouteArgString, self).__init__(id, argtype="STRING", required=required, positional=positional, help=help)
+        super(MewloRouteArgString, self).__init__(id, argtype="STRING", required=required, positional=positional, help=help, defaultval=defaultval)
     #
     def validate_argvalue(self, argval):
         # see parent class for documentation
@@ -107,9 +108,9 @@ class MewloRouteArgString(MewloRouteArg):
 class MewloRouteArgInteger(MewloRouteArg):
     """The MewloRouteArg represents a single route argument"""
     #
-    def __init__(self, id, required=True, positional=False, help=""):
+    def __init__(self, id, required=True, positional=False, help="", defaultval=None):
         # just defer to parent constructor (but force argtype just for debugging purposes)
-        super(MewloRouteArgInteger, self).__init__(id, argtype="INTEGER", required=required, positional=positional, help=help)
+        super(MewloRouteArgInteger, self).__init__(id, argtype="INTEGER", required=required, positional=positional, help=help, defaultval=defaultval)
     #
     def validate_argvalue(self, argval):
         # see parent class for documentation
@@ -162,13 +163,15 @@ class MewloRoute(object):
     DEF_ARGID_extraargs = "extraargs"
 
 
-    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extra = None):
+    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extra = None, forcedargs = None):
         #
         self.id = id
         self.path = path
         self.args = args
         self.allow_extra_args = allow_extra_args
         self.extra = extra
+        self.forcedargs = forcedargs
+        #
         self.controllerroot = None
         #
         # the controller should be a MewloController derived class, or createable from whatever is passed
@@ -281,6 +284,9 @@ class MewloRoute(object):
             argrequired = routearg.required
             argpositional = routearg.positional
             #
+            argval = None
+            flag_setargval = False
+            #
             if ((requestargindex < requestargcount) and (argpositional or (argid == requestargs[requestargindex])) ):
                 # ok we matched this arg, assign it, consume it, and move to next
                 didmatcharg = True
@@ -303,6 +309,25 @@ class MewloRoute(object):
                     else:
                         # ok we go its value
                         argval = requestargs[requestargindex]
+                # set flag saying we have argval ready and to set it below
+                flag_setargval = True
+                # and advance/consume the request arg index since we matched it
+                requestargindex += 1
+            else:
+                # we didn't match it, so if it was required, it's an error (if it wasn't required, just skip over it)
+                if (argrequired):
+                    # it was required, and is missing, so that's a FAIL
+                    errorstr = "Route arg "+argid+" was required but not found in request."
+                    break
+                else:
+                    # no value specified, is there a default setting?
+                    if (routearg.defaultval):
+                        # set flag saying we have argval ready and to set it below
+                        argval = routearg.defaultval
+                        flag_setargval = True
+
+            # now record the argval
+            if (flag_setargval):
                 # now let's check to make sure arg value is allowed given arg type
                 (isvalid, argval, typecheckerrorstr) = routearg.validate_argvalue(argval)
                 if (isvalid):
@@ -311,14 +336,6 @@ class MewloRoute(object):
                 else:
                     # error in value type
                     errorstr = "Route arg "+argid+" did not match expected value type: " + typecheckerrorstr
-                    break
-                # and advance request arg index
-                requestargindex += 1
-            else:
-                # we didn't match it, so if it was required, it's an error (if it wasn't required, just skip over it)
-                if (argrequired):
-                    # it was required, and is missing, so that's a FAIL
-                    errorstr = "Route arg "+argid+" was required but not found in request."
                     break
 
         # ok we've walked all the route args, if there was no error, we can proceed to final stage, checking for extra args at end of expected route args
@@ -355,6 +372,9 @@ class MewloRoute(object):
     def handle_request(self, request, site, argdict):
         # we matched against this route, so WE will handle the request
 
+        # any args in argdict that need to be FORCED?
+        self.force_args(argdict)
+
         # update the request and record the matched site, parsed arg dictionary, etc
         request.set_matched(self, site)
         request.set_route_parsedargs(argdict)
@@ -387,6 +407,19 @@ class MewloRoute(object):
 
         (success, errorstr) = self.controller.invoke(request)
         return (success, errorstr)
+
+
+
+
+
+
+    def force_args(self, argdict):
+        # merge in forced args (i use an explicit loop here because argdict is not likely to remain a pure dictionary in future code)
+        if (self.forcedargs==None):
+            return
+        for key,val in self.forcedargs.iteritems():
+            argdict[key]=val
+
 
 
 

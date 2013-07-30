@@ -3,7 +3,8 @@
 
 
 # helpers
-from helpers.callables import findcallable
+from helpers.callables import find_callable, find_callable_throwexception
+
 
 # python modules
 from types import ModuleType
@@ -16,8 +17,8 @@ class MewloController(object):
     """
 
     def __init__(self, function = None, root = None):
-        self.root = root
         self.function = function
+        self.root = root
         #
         self.callable = None
         self.parentobj = None
@@ -26,8 +27,9 @@ class MewloController(object):
         # if they gave us an actual package as root and a function string, we COULD try to do a lookup right now in order to throw an early exception
         # otherwise we will defer lookup until later
         if (True):
-            if (isinstance(root,ModuleType) and isinstance(function,basestring)):
-                self.callable = findcallable(root, function, True)
+            #if (isinstance(root,ModuleType) and isinstance(function,basestring)):
+            if (root != None and isinstance(function,basestring)):
+                self.callable = find_callable_throwexception(root, function)
 
 
     def get_controllerroot(self):
@@ -63,7 +65,7 @@ class MewloController(object):
             callablestring = self.function
 
         # look it up by string
-        (callable, errorstr) = findcallable(self.get_controllerroot(), callablestring, False)
+        (callable, errorstr) = find_callable(self.get_controllerroot(), callablestring)
         if (errorstr!=""):
             errorstr = "In route '"+self.parentobj.id+"' of site '"+self.site.get_sitename()+"', "+errorstr
         return (callable, errorstr)
@@ -73,6 +75,8 @@ class MewloController(object):
 
     def invoke(self, request):
         # just invoke callable
+        # sublassed could implement this differently
+        # @return (successflag, errorstr)
         return self.callable(request)
 
 
