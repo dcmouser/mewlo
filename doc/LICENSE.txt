@@ -1,0 +1,4 @@
+mewlo will be open source.
+but we haven't yet decided on a specific OS license.
+
+contact mouser@donationcoder.com with suggestions.

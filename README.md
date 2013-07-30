@@ -12,3 +12,4 @@ For more information see:
  * Forum: http://www.donationcoder.com/forum/index.php?topic=35480.0
  * Planning docs: https://sites.google.com/site/mewlobook/jesse-s-pages
  * Online discussion on channel #mewlo on efnet.
+ * Correspondence: mouser@donationcoder.com
