@@ -240,6 +240,7 @@ class MewloSite(object):
 
 
     def debug(self,indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloSite (" + self.__class__.__name__ +") reporting in.\n"
         outstr += indentstr+" Site validation:\n"
         outstr += (self.validate()).debug(indentstr+"  ")
@@ -411,6 +412,7 @@ class MewloSiteManager(object):
 
 
     def debug(self,indentstr=''):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloSiteManager reporting in.\n"
         outstr += self.prepare_errors.debug(indentstr+" ")
         outstr += self.debug_sites(indentstr+" ")

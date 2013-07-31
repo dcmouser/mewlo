@@ -197,6 +197,7 @@ class PackageManager(object):
 
 
     def debug(self, indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"PackageManager reporting in.\n"
         indentstr+=" "
         outstr += indentstr+"Directories to scan:\n"
@@ -231,6 +232,7 @@ class PackageObject(object):
 
 
     def debug(self, indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"Base PackageObject reporting in.\n"
         return outstr
 

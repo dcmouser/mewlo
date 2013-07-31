@@ -1,5 +1,8 @@
-# callables.py
-"""Support functions to help find dynamic callables"""
+"""
+This module contains functions that can lookup and return a reference to a function in a module, where both are specified by module imports or dotted strings.
+"""
+
+
 
 # python modules
 from types import ModuleType
@@ -9,9 +12,18 @@ from types import ModuleType
 
 
 def find_callable(callableroot, callableobj):
-    # given a dotted path, find the callable
-    # see http://stackoverflow.com/questions/6643324/how-is-calling-module-and-function-by-string-handled-in-python
-    # return tuple (funcreferce, errorstr)
+    """
+    Given a dotted path, and an optional root package, find the callable.
+
+    This is really the only function in this module that the user should ever have to invoke; the rest of the functions are called by this one.
+
+    For more info on the approach, see http://stackoverflow.com/questions/6643324/how-is-calling-module-and-function-by-string-handled-in-python
+
+    :param callableroot: None | string to prefix to dotted path | imported package(module) to use as root of dotted lookup
+    :param callableobj: string representing a dotted path to look up; the last element is treated as function name, and everything before that is treated as module name to lookup
+
+    :return: tuple (funcreferce, errorstr)
+    """
 
     # if callableobj is not a string, then we are DONE and can either just return it if its callable, or throw an error if its not callable
     if (not isinstance(callableobj, basestring)):
@@ -21,13 +33,6 @@ def find_callable(callableroot, callableobj):
 
     # ok so we know that callableobj is a string
     callablepath = callableobj
-
-# don't do this, let find_module_from_dottedpath do it
-#    # ok now check root, it can be None, a STRING, or a package module
-#    if (isinstance(callableroot, basestring) and callableroot!=""):
-#        # it's a non blank string, so just add it as prefix of dotted path and clear it
-#        callablepath = callableroot + "." + callablepath
-#        callableroot = None
 
     # split dotted path into modules (might be blank), and last item is a functionname
     modulepath, functionname = split_dottedpath_modulepath_and_funcname(callablepath)
@@ -60,7 +65,10 @@ def find_callable(callableroot, callableobj):
 
 
 def find_callable_throwexception(callableroot, callableobj):
-    # just call find_callable but throw an exception if not found; more useful for finding errors quickly
+    """
+    Just call find_callable but throw an exception if not found; more useful for finding errors quickly
+    """
+
     (callable, errorstr) = find_callable(callableroot, callableobj)
     if (errorstr!=""):
         raise Exception(errorstr)

@@ -40,6 +40,7 @@ class MewloSettings(object):
 
 
     def debug(self, indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloSettings:\n"
         outstr += indentstr+str(self.settingdict)+"\n"
         return outstr

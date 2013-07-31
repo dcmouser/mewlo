@@ -103,6 +103,7 @@ class MewloResponse(object):
 
 
     def debug(self, indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         # finalize if its not finalized yet
         self.finalize_response()
         #

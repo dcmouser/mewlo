@@ -17,6 +17,7 @@ class Test_MewloPackageObject(MewloPackageObject):
 
 
     def debug(self,indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         str = indentstr+"Mewlo Test_MewloPackage reporting in.\n"
         return str
 

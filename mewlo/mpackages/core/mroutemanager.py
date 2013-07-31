@@ -51,6 +51,7 @@ class MewloRouteArg(object):
 
 
     def debug(self, indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloRouteArg '"+self.id+"':\n"
         outstr += indentstr+" argtype: "+self.get_argtypestr()+"\n"
         outstr += indentstr+" required: "+str(self.required)+"\n"
@@ -432,6 +433,7 @@ class MewloRoute(object):
 
 
     def debug(self, indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloRoute '"+self.id+"':\n"
         outstr += indentstr+" path: "+self.path+"\n"
         if (self.controller!=None):
@@ -528,6 +530,7 @@ class MewloRouteGroup(object):
 
 
     def debug(self, indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloRouteGroup reporting in:\n"
         outstr += indentstr+" Root for controllers: " + str(self.controllerroot)+"\n"
         for route in self.routes:

@@ -6,13 +6,17 @@
 Welcome to mewlo's documentation!
 =================================
 
+Introduction:
+
+   .. include:: ../../README.md
+
+
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
    _apidoc/modules
-
 
 
 Indices and tables

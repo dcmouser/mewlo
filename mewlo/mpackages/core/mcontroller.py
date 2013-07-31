@@ -82,6 +82,7 @@ class MewloController(object):
 
 
     def debug(self, indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloController:\n"
         outstr += indentstr+" callable: "+str(self.callable)+"\n"
         return outstr

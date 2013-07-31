@@ -178,6 +178,7 @@ class Package(object):
 
 
     def debug(self,indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"Package reporting in.\n"
         indentstr += " "
         #
