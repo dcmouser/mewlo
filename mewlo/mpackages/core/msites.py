@@ -19,7 +19,7 @@ from mroutemanager import MewloRouteGroup
 
 # helpers
 from mewlo.mpackages.core.helpers.eventtracker import EventTracker
-from mewlo.mpackages.core.helpers.logger import LogManager, Logger, LogMessage
+from mewlo.mpackages.core.helpers.logger.logger import LogManager, Logger, LogMessage
 from mewlo.mpackages.core.mewlologger import MewloLogMessage
 
 # python libs

@@ -73,13 +73,13 @@ class MewloRequest(object):
     # short helpers - just hand over to the site responsible for this request
     def logerror(self, *args, **kwargs):
         kwargs['request']=self
-        self.site.logerror(args,kwargs)
+        self.site.logerror(*args, **kwargs)
     def logwarning(self, *args, **kwargs):
         kwargs['request']=self
-        self.site.logwarning(args,kwargs)
+        self.site.logwarning(*args, **kwargs)
     def log(self, *args, **kwargs):
         kwargs['request']=self
-        self.site.log(args,kwargs)
+        self.site.log(*args, **kwargs)
 
 
 

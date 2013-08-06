@@ -3,7 +3,7 @@ This module defines subclassed logger classes.
 
 """
 
-from helpers.logger import LogMessage
+from helpers.logger.logger import LogMessage
 
 
 class MewloLogMessage(LogMessage):
@@ -16,6 +16,9 @@ class MewloLogMessage(LogMessage):
         super(MewloLogMessage,self).__init__(msg, type, level, id, extras)
         # add mewlo properties to it
         self.request = request
+
+    def as_logline(self):
+        return str(self.msg) + " | " + self.request.get_path()
 
 
 
