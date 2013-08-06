@@ -8,7 +8,8 @@ from mewlo.mpackages.core.mroutemanager import *
 from mewlo.mpackages.core.mcontroller import MewloController
 
 # Mewlo helpers
-from mewlo.mpackages.core.helpers.logger import LogTarget
+#from mewlo.mpackages.core.helpers.logger.logger import LogTarget
+from mewlo.mpackages.core.helpers.logger.logger_filetarget import LogTarget_File
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live; this is just a way to get the relative directory easily
 import mpackages as pkgdirimp_sitempackages
@@ -130,9 +131,8 @@ class MewloSite_Test1(MewloSite):
 
     def add_loggers(self):
         logger = self.createadd_logger('mytestlogger')
-        logger.add_target(LogTarget())
-        pass
-
+        logger.add_target(LogTarget_File(filename='testlogout1.txt'))
+        logger.add_target(LogTarget_File(filename='testlogout2.txt'))
 
 
 
