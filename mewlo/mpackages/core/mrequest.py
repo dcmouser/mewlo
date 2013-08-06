@@ -22,7 +22,7 @@ class MewloRequest(object):
         self.wreq = None
         # misc from request
         self.parsedargs = None
-        self.matchedroute = None
+        self.route = None
         # note that a request contains a response, to be filled in during processing of request
         self.response = MewloResponse(self)
 
@@ -41,13 +41,13 @@ class MewloRequest(object):
         return self.parsedargs
 
     def set_matched(self, route, site):
-        self.matchedroute = route
-        self.matchedsite = site
+        self.route = route
+        self.site = site
 
-    def get_matchedroute(self):
-        return self.matchedroute
-    def get_matchedsite(self):
-        return self.matchedsite
+    def get_route(self):
+        return self.route
+    def get_site(self):
+        return self.site
 
 
 
@@ -65,6 +65,23 @@ class MewloRequest(object):
     def preprocess(self):
         # any preprocessing to do after request is built?
         pass
+
+
+
+
+
+    # short helpers - just hand over to the site responsible for this request
+    def logerror(self, *args, **kwargs):
+        kwargs['request']=self
+        self.site.logerror(args,kwargs)
+    def logwarning(self, *args, **kwargs):
+        kwargs['request']=self
+        self.site.logwarning(args,kwargs)
+    def log(self, *args, **kwargs):
+        kwargs['request']=self
+        self.site.log(args,kwargs)
+
+
 
 
 

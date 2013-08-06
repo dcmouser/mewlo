@@ -3,7 +3,6 @@
 
 
 # mewlo modules
-from helpers.errortracker import ErrorTracker
 from mewlo.mpackages.core.mcontroller import MewloController
 
 
@@ -385,8 +384,16 @@ class MewloRoute(object):
         request.set_matched(self, site)
         request.set_route_parsedargs(argdict)
 
+        # give site a chance to pre-handle the invocation
+        precall_success = site.pre_runroute_callable(self, request)
+        if (not precall_success):
+            return False
+
         # ok now we want to call whatever function should do the actual work
         (success, errorstr) = self.invoke_routecall(request)
+
+        # give site a chance to pre-handle the invocation
+        poistcall_success = site.post_runroute_callable(request)
 
         # error?
         if (not success):

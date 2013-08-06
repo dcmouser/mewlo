@@ -16,8 +16,11 @@ from mpackage import MewloPackageManager
 from mrequest import MewloRequest
 from mresponse import MewloResponse
 from mroutemanager import MewloRouteGroup
-from mewlo.mpackages.core.helpers.errortracker import ErrorTracker
 
+# helpers
+from mewlo.mpackages.core.helpers.eventtracker import EventTracker
+from mewlo.mpackages.core.helpers.logger import LogManager, Logger, LogMessage
+from mewlo.mpackages.core.mewlologger import MewloLogMessage
 
 # python libs
 import os
@@ -59,6 +62,8 @@ class MewloSite(object):
         self.packagemanager = MewloPackageManager(self)
         # route manager
         self.routes = MewloRouteGroup()
+        # log manager
+        self.logmanager = LogManager()
         # record package of the site for relative imports
         self.sitemodulename = sitemodulename
 
@@ -129,7 +134,7 @@ class MewloSite(object):
     def prepare(self, errors = None):
         """Do stuff after settings have been set """
         if (errors==None):
-            errors = ErrorTracker()
+            errors = EventTracker()
         # misc. stuff
         self.prepare_settings(errors)
         #
@@ -171,9 +176,9 @@ class MewloSite(object):
 
 
     def validate(self, errors=None):
-        """Validate the site and return an ErrorTracker with errors and warnings"""
+        """Validate the site and return an EventTracker with errors and warnings"""
         if (errors==None):
-            errors = ErrorTracker()
+            errors = EventTracker()
         #
         self.validate_setting_config(errors, self.DEF_CONFIGVAR_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
         self.validate_setting_config(errors, self.DEF_CONFIGVAR_controllerroot, False, "no site-default specified for controller root.")
@@ -185,13 +190,14 @@ class MewloSite(object):
     def validate_setting_config(self, errors, varname, iserror, messagestr):
         if (not self.sitesettings.value_exists(varname, self.DEF_SECTION_config)):
             if (iserror):
-                errors.add_errorstr("Site config variable '"+varname+"' not specified; "+messagestr)
+                errors.error("Site config variable '"+varname+"' not specified; "+messagestr)
             else:
-                errors.add_warningstr("Site config variable '"+varname+"' not specified; "+messagestr)
+                errors.warning("Site config variable '"+varname+"' not specified; "+messagestr)
 
 
     def setup_early(self):
         self.add_settings_early()
+        self.add_loggers()
         self.add_routes()
 
 
@@ -199,13 +205,28 @@ class MewloSite(object):
         # subclass can overide
         pass
 
+    def add_loggers(self):
+        # subclass can overide
+        pass
+
     def add_routes(self):
         # subclass can overide
         pass
 
+    def pre_runroute_callable(self, route, request):
+        """
+        Called after a route is matched, but before it is invoked.
+        :return: True to allow route to invoke, or False to prevent it.
+        """
+        return True
 
 
-
+    def post_runroute_callable(self, request):
+        """
+        Called after a route is invoked.
+        :return: False on error
+        """
+        return True
 
 
 
@@ -214,6 +235,33 @@ class MewloSite(object):
         # return True if the request is for this site and we have set request.response
         ishandled = self.routes.process_request(request, self)
         return ishandled
+
+
+
+
+
+
+
+
+
+    def createadd_logger(self,id):
+        # create and add and return a logger item
+        logger = Logger(id)
+        self.logmanager.add_logger(logger)
+        return logger
+
+
+    # short logging statements
+    def logerror(self, msg, request, level=Logger.DEF_LEVEL_default, id=Logger.DEF_MESSAGEID_default, extras = {}):
+        self.log(msg, Logger.DEF_MTYPE_error, request, level, id, extras)
+    def logwarning(self, msg, request, level=Logger.DEF_LEVEL_default, id=Logger.DEF_MESSAGEID_default, extras = {}):
+        self.log(msg, Logger.DEF_MTYPE_warning, request, level, id, extras)
+    #
+    def log(self, msg, mtype, request, level=Logger.DEF_LEVEL_default, id=Logger.DEF_MESSAGEID_default, extras = {}):
+        logmessage = MewloLogMessage(msg, request, mtype, level, id, extras)
+        self.logmanager.process(logmessage)
+
+
 
 
 
@@ -262,6 +310,15 @@ class MewloSite(object):
 
 
 
+
+
+
+
+
+
+
+
+
 class MewloSiteManager(object):
     """
     The MewloManager class holds a collection of Mewlo "sites", which can handle incoming requests.
@@ -272,7 +329,7 @@ class MewloSiteManager(object):
     def __init__(self):
         # the collection of sites that this manager takes care of
         self.sites = list()
-        self.prepare_errors = ErrorTracker()
+        self.prepare_errors = EventTracker()
 
 
     def add_site(self,site):
@@ -297,10 +354,13 @@ class MewloSiteManager(object):
         return self.prepare_errors
 
 
-    def log(self, astr):
+    def debugmessage(self, astr):
         nowtime = datetime.now()
         outstr = "MEWLODEBUG ["+nowtime.strftime("%B %d, %Y at %I:%M%p")+"]: "+astr
         print outstr
+
+
+
 
 
 
@@ -379,7 +439,7 @@ class MewloSiteManager(object):
         outstr = "wsgiref_callback:\n"
         outstr += " "+str(environ)+"\n"
         outstr += " "+str(start_response)+"\n"
-        self.log(outstr)
+        self.debugmessage(outstr)
         # create request
         request = MewloRequest.createrequest_from_wsgiref_environ(environ)
         # get response

@@ -7,8 +7,8 @@ from mewlo.mpackages.core.msites import MewloSite
 from mewlo.mpackages.core.mroutemanager import *
 from mewlo.mpackages.core.mcontroller import MewloController
 
-# helpers
-#from mewlo.mpackages.core.helpers.callables import findcallable
+# Mewlo helpers
+from mewlo.mpackages.core.helpers.logger import LogTarget
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live; this is just a way to get the relative directory easily
 import mpackages as pkgdirimp_sitempackages
@@ -96,7 +96,6 @@ class MewloSite_Test1(MewloSite):
                             defaultval = 44,
                             )
                         ],
-#                controller = MewloController(function="requests.request_sayhello"),
                 controller = MewloController(function="requests.request_sayhello"),
                 # we can pass in any extra data which will just be part of the route that can be examined post-matching
                 extra = [ "whatever we want" ],
@@ -129,9 +128,24 @@ class MewloSite_Test1(MewloSite):
 
 
 
+    def add_loggers(self):
+        logger = self.createadd_logger('mytestlogger')
+        logger.add_target(LogTarget())
+        pass
 
 
 
+
+
+
+
+    def pre_runroute_callable(self, route, request):
+        request.logwarning("This is a test warning called PRE run route.")
+        return True
+
+    def post_runroute_callable(self, request):
+        request.logwarning("This is a test warning called POST run route: "+str(request))
+        return True
 
 
 
@@ -156,7 +170,7 @@ def main():
     sitemanager = MewloSite_Test1.create_manager_and_simplesite()
 
     # stop if there were errors preparing
-    if (sitemanager.prepare_errors.counterrors()>0):
+    if (sitemanager.prepare_errors.count_errors()>0):
         print "Stopping due to sitemanager preparation errors:\n"
         print sitemanager.prepare_errors.debug()
         exit()

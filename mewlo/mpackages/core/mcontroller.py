@@ -47,7 +47,7 @@ class MewloController(object):
         if (self.callable==None):
             (self.callable, errorstr) = self.find_callable()
             if (self.callable == None):
-                errors.add_errorstr(errorstr)
+                errors.error(errorstr)
 
 
 

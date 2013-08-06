@@ -23,6 +23,8 @@ def find_callable(callableroot, callableobj):
     :param callableobj: string representing a dotted path to look up; the last element is treated as function name, and everything before that is treated as module name to lookup
 
     :return: tuple (funcreferce, errorstr)
+
+    :todo: support python egg format of "package.module:object"
     """
 
     # if callableobj is not a string, then we are DONE and can either just return it if its callable, or throw an error if its not callable

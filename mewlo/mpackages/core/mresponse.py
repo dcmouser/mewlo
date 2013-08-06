@@ -2,7 +2,7 @@
 # This file contains classes to support response to requests
 
 # mewlo modules
-from helpers.errortracker import ErrorTracker
+from helpers.eventtracker import EventTracker
 
 # this version uses werkzeug to do heavy lifting
 from werkzeug.wrappers import Response
@@ -23,7 +23,7 @@ class MewloResponse(object):
         self.headers = None
         self.responsedata = None
         #
-        self.errors = ErrorTracker()
+        self.errors = EventTracker()
 
 
 
@@ -56,7 +56,7 @@ class MewloResponse(object):
     def add_status_error(self, statuscode, errorstr):
         # set values
         self.set_status(statuscode)
-        self.errors.add_errorstr(errorstr)
+        self.errors.error(errorstr)
 
     def set_responsedata(self, responsedata, statuscode = 200):
         self.responsedata = responsedata
@@ -76,13 +76,14 @@ class MewloResponse(object):
         # any final error checking?
         if (self.isfinalized):
             return
+        self.isfinalized = True
 
         # statuscode not set? this is an internal error
         if (self.statuscode == None):
-            self.add_status_error(500, "Response statuscode not set")
+            self.add_status_error(500, u"Response statuscode not set")
         # response data not set? this is an internal error
         if (self.responsedata == None):
-            self.add_status_error(500, "Response data not set")
+            self.add_status_error(500, u"Response data not set")
 
         # add errors to response
         self.add_errors_to_response()
@@ -90,7 +91,7 @@ class MewloResponse(object):
 
 
     def add_errors_to_response(self):
-        if (self.errors.counterrors()==0):
+        if (self.errors.count_errors()==0):
             return
         errorstr = self.errors.tostring()+"."
         if (self.responsedata==None):

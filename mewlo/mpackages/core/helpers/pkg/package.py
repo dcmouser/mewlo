@@ -6,7 +6,7 @@ import json
 import os
 
 # mewlo stuff
-from mewlo.mpackages.core.helpers.errortracker import ErrorTracker
+from mewlo.mpackages.core.helpers.eventtracker import EventTracker
 
 
 
@@ -31,13 +31,13 @@ class Package(object):
         self.readytoloadcode = False
         self.readytorun = False
         self.enabled = False
-        self.errortracker = ErrorTracker()
+        self.eventtracker = EventTracker()
 
 
 
     def adderror(self, errorstr):
         if (errorstr!=""):
-            self.errortracker.add_errorstr(errorstr)
+            self.eventtracker.error(errorstr)
 
 
     def load_infofile(self):
@@ -182,7 +182,7 @@ class Package(object):
         outstr = indentstr+"Package reporting in.\n"
         indentstr += " "
         #
-        outstr += self.errortracker.debug(indentstr)+"\n"
+        outstr += self.eventtracker.debug(indentstr)+"\n"
         #
         outstr += indentstr+"Info dictionary ("+self.infofilepath+"):\n"
         jsonstring = json.dumps(self.infodict, indent=12)
