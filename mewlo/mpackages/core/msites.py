@@ -1,11 +1,8 @@
 # msites.py
 # This file contains classes to handle Mewlo sites and site manager.
 
-
 # global constants
 DefMewlo_BasePackage_subdirlist = ["mpackages"]
-
-
 
 
 
@@ -71,16 +68,18 @@ class MewloSite(object):
 
     def get_controllerroot(self):
         return self.controllerroot
-
     def get_sitename(self):
         return self.sitename
     def get_id(self):
         # generic get_id function used in lots of places to help display debug info
         return self.get_sitename()
 
+
+
     def merge_settings(self, settings):
-        # merge in some settings
+        """Merge in some settings to our site settings."""
         self.sitesettings.merge_settings(settings)
+
 
 
     def create_and_prepare_standalone_sitemanager(self):
@@ -95,7 +94,9 @@ class MewloSite(object):
         return self.sitemanager
 
 
+
     def set_and_add_sitemanager(self, sitemanager):
+        """Shortcut to quickly add a site manager to the site, and tell it that it belongs to this site."""
         # initialize settings
         self.sitemanager = sitemanager
         # register the site with the site manager
@@ -105,6 +106,7 @@ class MewloSite(object):
 
     def get_package_directory_list(self):
         """Return a list of absolute directory paths where (addon) packages should be scanned"""
+
         packagedirectories = []
         sitepackages = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_pkgdirimps_sitempackages)
         if (sitepackages==None):
@@ -123,9 +125,13 @@ class MewloSite(object):
         return packagedirectories
 
 
+
     def get_sitemodulename(self):
         """Return import of ourself; useful for relative importing."""
         return self.sitemodulename
+
+
+
     def get_pkgdirimp_dotpathprefix_site(self):
         """Return import of ourself; useful for relative importing."""
         from string import join
@@ -134,8 +140,13 @@ class MewloSite(object):
         return dirpath
 
 
+
     def prepare(self, errors = None):
-        """Do stuff after settings have been set """
+        """
+        Do preparatory stuff after settings have been set.
+        It is critical that this function get called prior to running the system.
+        """
+
         if (errors==None):
             errors = EventTracker()
         # misc. stuff
@@ -150,17 +161,13 @@ class MewloSite(object):
         return errors
 
 
-
     def prepare_settings(self, errors):
-        # prepare some settings
+        """Prepare some settings."""
         self.controllerroot = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_controllerroot)
 
-
-
     def prepare_routes(self, errors):
-        # walk all routes and compile/cache/update stuff
+        """Walk all routes and compile/cache/update stuff."""
         self.routes.prepare(self, self, errors)
-
 
     def discover_packages(self, errors):
         """Discover packages """
@@ -173,7 +180,7 @@ class MewloSite(object):
         self.packagemanager.loadinfos_packages()
 
     def instantiate_packages(self, errors):
-        """load and instantiate packages"""
+        """Load and instantiate packages"""
         self.packagemanager.instantiate_packages()
 
 
@@ -191,6 +198,7 @@ class MewloSite(object):
 
 
     def validate_setting_config(self, errors, varname, iserror, messagestr):
+        """Helper function for the validate() method."""
         if (not self.sitesettings.value_exists(varname, self.DEF_SECTION_config)):
             if (iserror):
                 errors.error("Site config variable '"+varname+"' not specified; "+messagestr)
@@ -198,23 +206,26 @@ class MewloSite(object):
                 errors.warning("Site config variable '"+varname+"' not specified; "+messagestr)
 
 
+
     def setup_early(self):
+        """Do early setup stuff.  Most of the functions invoked here are empty and are intended for subclasses to override."""
         self.add_settings_early()
         self.add_loggers()
         self.add_routes()
 
-
     def add_settings_early(self):
-        # subclass can overide
+        """Does nothing in base class, but subclass can overide."""
         pass
 
     def add_loggers(self):
-        # subclass can overide
+        """Does nothing in base class, but subclass can overide."""
         pass
 
     def add_routes(self):
-        # subclass can overide
+        """Does nothing in base class, but subclass can overide."""
         pass
+
+
 
     def pre_runroute_callable(self, route, request):
         """
@@ -235,32 +246,34 @@ class MewloSite(object):
 
 
     def process_request(self, request):
-        # return True if the request is for this site and we have set request.response
+        """
+        Run the request through the routes and handle it if it matches any.
+        :return: True if the request is for this site and we have set request.response
+        """
+
         ishandled = self.routes.process_request(request, self)
         return ishandled
 
 
 
-
-
-
-
-
-
     def createadd_logger(self,id):
-        # create and add and return a logger item
+        """Shortcut to create and add and return a logger item."""
         logger = Logger(id)
         self.logmanager.add_logger(logger)
         return logger
 
 
-    # short logging statements
+
     def logerror(self, msg, request, level=Logger.DEF_LEVEL_default, id=Logger.DEF_MESSAGEID_default, extras = {}):
+        """Shortcut to add a log message."""
         self.log(msg, Logger.DEF_MTYPE_error, request, level, id, extras)
+
     def logwarning(self, msg, request, level=Logger.DEF_LEVEL_default, id=Logger.DEF_MESSAGEID_default, extras = {}):
+        """Shortcut to add a log message."""
         self.log(msg, Logger.DEF_MTYPE_warning, request, level, id, extras)
-    #
+
     def log(self, msg, mtype, request, level=Logger.DEF_LEVEL_default, id=Logger.DEF_MESSAGEID_default, extras = {}):
+        """Shortcut to add a log message by sending it to our log manager."""
         logmessage = MewloLogMessage(msg, request, mtype, level, id, extras)
         self.logmanager.process(logmessage)
 
@@ -269,14 +282,9 @@ class MewloSite(object):
 
 
 
-
-
-
-
-
     @classmethod
     def create_manager_and_simplesite(cls):
-        """This is a convenience helper function to aid in testing of MewloSite derived classes."""
+        """This is a convenience (class) helper function to aid in testing of MewloSite derived classes."""
         # create instance of site -- we do it this way so it will create the DERIVED class
         mysite = cls()
         # we need to apply our early settings
@@ -310,18 +318,6 @@ class MewloSite(object):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 class MewloSiteManager(object):
     """
     The MewloManager class holds a collection of Mewlo "sites", which can handle incoming requests.
@@ -336,12 +332,15 @@ class MewloSiteManager(object):
 
 
     def add_site(self,site):
+        """Add a site to our list of managed sites."""
         self.sites.append(site)
 
 
     def get_installdir(self):
+        """Get the directory path of the mewlo installation from the mewlo package."""
         path = os.path.dirname(os.path.realpath(mewlo.__file__))
         return path
+
 
     def get_package_directory_list(self):
         """Return a list of directories in the base/install path of Mewlo, where addon packages should be scanned"""
@@ -351,26 +350,27 @@ class MewloSiteManager(object):
 
 
     def prepare(self):
-        """Ask sites to load all enabled packages"""
+        """Ask all children sites to 'prepare'."""
         for site in self.sites:
             site.prepare(self.prepare_errors)
         return self.prepare_errors
 
 
     def debugmessage(self, astr):
+        """
+        Display a simple debug message with date+time to stdout.
+        ATTN: We probably want to remove this later.
+        """
+
         nowtime = datetime.now()
         outstr = "MEWLODEBUG ["+nowtime.strftime("%B %d, %Y at %I:%M%p")+"]: "+astr
         print outstr
 
 
 
-
-
-
-
-
     def test_submit_path(self, pathstr):
-        """Simulate the submission of a url"""
+        """Simulate the submission of a url."""
+
         outstr = ""
         outstr += "Testing submission of url: "+pathstr+"\n"
         # generate request and debug it
@@ -386,13 +386,9 @@ class MewloSiteManager(object):
 
 
 
-
-
-
-
-
     def create_and_start_webserver_wsgiref(self, portnumber=8080):
         """Create a wsgiref web server and begin serving requests."""
+
         # see http://lucumr.pocoo.org/2007/5/21/getting-started-with-wsgi/
         from wsgiref.simple_server import make_server
         srv = make_server('localhost', portnumber, self.wsgiref_callback)
@@ -407,20 +403,12 @@ class MewloSiteManager(object):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
     def process_request(self, request):
+        """Process a request by handing it off to all of our child sites in turn until we find one that will handle it."""
+
         # first do any pre-processing on the request
         self.preprocess_request(request)
+
         # walk through the site list and let each site take a chance at processing the request
         for site in self.sites:
             ishandled = site.process_request(request)
@@ -438,7 +426,8 @@ class MewloSiteManager(object):
 
 
     def wsgiref_callback(self, environ, start_response):
-        """Receive a callback from wsgi web server"""
+        """Receive a callback from wsgi web server.  We process it and then send response."""
+
         outstr = "wsgiref_callback:\n"
         outstr += " "+str(environ)+"\n"
         outstr += " "+str(start_response)+"\n"
@@ -453,22 +442,8 @@ class MewloSiteManager(object):
 
 
     def preprocess_request(self, request):
-        # pre-process and parse the request
+        """Pre-process and parse the request.  Here we might add stuff to it before asking child sites to look at it."""
         request.preprocess()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -482,6 +457,7 @@ class MewloSiteManager(object):
         return outstr
 
     def debug_sites(self,indentstr=" "):
+        """Debug helper; return string with recursive debug info from child sites."""
         outstr = indentstr+"Sites:\n"
         indentstr+=" "
         if (len(self.sites)==0):
@@ -489,18 +465,5 @@ class MewloSiteManager(object):
         for site in self.sites:
             outstr += site.debug(indentstr+" ")+"\n"
         return outstr
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

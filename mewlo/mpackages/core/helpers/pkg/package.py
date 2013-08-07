@@ -36,11 +36,14 @@ class Package(object):
 
 
     def adderror(self, errorstr):
+        """Add an error string to our error tracker."""
         if (errorstr!=""):
             self.eventtracker.error(errorstr)
 
 
+
     def load_infofile(self):
+        """Load the info file for this package."""
         # init
         self.infodict = None
         self.readytoloadcode = False
@@ -81,7 +84,10 @@ class Package(object):
         return (self.infodict,errorstr)
 
 
+
     def load_codemodule(self):
+        """Import the codemodule associated with this package."""
+
         # init
         self.codemodule = None
         self.codemodule_path = ""
@@ -112,6 +118,7 @@ class Package(object):
         return (self.codemodule,errorstr)
 
 
+
     def get_pathtocodemodule(self):
         """The info file for the package should tell us what module file to import; we default to same name as info file but with .py"""
         # default module name
@@ -123,6 +130,7 @@ class Package(object):
         pathtocodemodule = dir + "/" + self.get_infofile_property("codefile",pathtocodemodule_default)
         # return it
         return pathtocodemodule
+
 
 
     def instantiate_packageobject(self):
@@ -152,6 +160,7 @@ class Package(object):
         return ""
 
 
+
     def get_infofile_property(self, propertyname, defaultval):
         """Lookup property in our info dict and return it, or defaultval if not found."""
         if (self.infodict==None):
@@ -162,17 +171,16 @@ class Package(object):
 
 
 
-
     def update_queue_check(self):
-        """Update: check online for new version"""
+        """Update: check online for new version. ATTN: UNFINISHED."""
         pass
 
     def update_queue_download(self):
-        """Update: download a downloaded new version"""
+        """Update: download a downloaded new version. ATTN: UNFINISHED."""
         pass
 
     def update_queue_install(self):
-        """Update: install a new version"""
+        """Update: install a new version. ATTN: UNFINISHED."""
         pass
 
 

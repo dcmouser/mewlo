@@ -1,17 +1,14 @@
 # mpackage.py
 # This file defines the classes that support mewlo package/extensions
 
-
-# global constants
-DefMewlo_Package_filepatternsuffix = "mpackage"
-
-
-
-
 # helper imports
 import helpers.pkg.packagemanager as packagemanager
 import helpers.pkg.package as package
 
+
+
+# global constants
+DefMewlo_Package_filepatternsuffix = "mpackage"
 
 
 
@@ -36,11 +33,11 @@ class MewloPackage(package.Package):
 
 
 
+
 class MewloPackageManager(packagemanager.PackageManager):
     """
     The MewloPackageManager manages a collection of MewloPackages.
     """
-
 
     def __init__(self, mewlosite):
         # parent constructor
@@ -52,8 +49,12 @@ class MewloPackageManager(packagemanager.PackageManager):
 
 
     def create_package(self, filepath):
-        # create an appropriate child package
+        """Create an appropriate child package."""
         return MewloPackage(self,filepath)
+
+
+
+
 
 
 
@@ -67,9 +68,6 @@ class MewloPackageObject(packagemanager.PackageObject):
 
     def __init__(self, package):
         super(MewloPackageObject, self).__init__(package)
-
-
-
 
 
 

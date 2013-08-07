@@ -8,6 +8,9 @@ from helpers.eventtracker import EventTracker
 from werkzeug.wrappers import Response
 
 
+
+
+
 class MewloResponse(object):
     """
     The MewloResponse class handles the response to a server request
@@ -28,12 +31,15 @@ class MewloResponse(object):
 
 
     def make_werkzeugresponse(self):
+        """Create a werkzeug response object and attach it to us."""
         self.wresp = Response(response = self.responsedata, status = self.statuscode, headers = self.headers)
         return self.wresp
 
 
 
     def start_and_make_wsgiref_response(self, wsgiref_start_response):
+        """This is invoked when we want to send a final response to the wsgi web server."""
+
         # finalize response, checks any self-consistency stuff
         self.finalize_response()
         # now create werkzeug response via werkzeug
@@ -62,8 +68,6 @@ class MewloResponse(object):
         self.responsedata = responsedata
         self.statuscode = statuscode
 
-
-
     def calc_wsgiref_status_string(self):
         return str(self.statuscode)
 
@@ -73,6 +77,11 @@ class MewloResponse(object):
 
 
     def finalize_response(self):
+        """
+        This function is invoked after the response is finished being built and is about to be sent as a reply.
+        It is responsible for final error checking, and will do things like display an error if no response has been set.
+        """
+
         # any final error checking?
         if (self.isfinalized):
             return
@@ -90,7 +99,10 @@ class MewloResponse(object):
 
 
 
+
     def add_errors_to_response(self):
+        """Helper funciton to add any pending accumulated errors to the response."""
+
         if (self.errors.count_errors()==0):
             return
         errorstr = self.errors.tostring()+"."

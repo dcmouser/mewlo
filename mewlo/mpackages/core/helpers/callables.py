@@ -6,6 +6,9 @@ This module contains functions that can lookup and return a reference to a funct
 
 # python modules
 from types import ModuleType
+import sys
+import os
+import traceback
 
 
 
@@ -54,18 +57,6 @@ def find_callable(callableroot, callableobj):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 def find_callable_throwexception(callableroot, callableobj):
     """
     Just call find_callable but throw an exception if not found; more useful for finding errors quickly
@@ -78,7 +69,13 @@ def find_callable_throwexception(callableroot, callableobj):
 
 
 
+
 def find_module_from_dottedpath(callableroot, modulepath):
+    """
+    Internal helper funciton for finding a callable by string or module itself.
+    Given a dotted path to a module, look up and return the module.
+    """
+
     # if a root is specified, we use it
     if (callableroot!=None):
         # we have a root
@@ -100,9 +97,12 @@ def find_module_from_dottedpath(callableroot, modulepath):
 
 
 
-
-
 def find_module_from_dottedpath_bystring(modulepath):
+    """
+    Internal helper funciton for finding a callable by string.
+    Given a dotted path to a module, look up and return the module.
+    """
+
     # call __import__ to load the module and get a reference to it; the ["dummyval"] arg is needed to trick it to return a module reference
     try:
         mod = __import__(modulepath, globals(), locals(), ["dummyval",], -1)
@@ -111,7 +111,13 @@ def find_module_from_dottedpath_bystring(modulepath):
     return (mod, "")
 
 
+
 def find_module_from_dottedpath_relativetopackage(parentmodule, modulepath):
+    """
+    Internal helper funciton for finding a callable by string.
+    Given a dotted path to a module relative to a parent, look up and return the module.
+    """
+
     # ATTN: i tried lots of approaches to directly ask the parentmodule to import modulepath, but could not get it to work, so i've fallen back on this method; i'm not sure what if any downsides it might have in terms of scope confusion..
     #  it does seem to solve the problem of the getting the parentmodule __name__ to be a dotted path and not just the pure name of the module, which helps it work regardless of where main script is run from
     fullpath = parentmodule.__name__
@@ -121,9 +127,12 @@ def find_module_from_dottedpath_relativetopackage(parentmodule, modulepath):
 
 
 
-
-
 def find_function_from_module_and_dottedpath(mod, functionname):
+    """
+    Internal helper funciton for finding a callable by string.
+    Return the callable function attribute in the given module.
+    """
+
     # we have an imported module package, not find the function attribute by name
     try:
         func = getattr(mod, functionname)
@@ -134,9 +143,12 @@ def find_function_from_module_and_dottedpath(mod, functionname):
 
 
 
-
-
 def split_dottedpath_modulepath_and_funcname(dottedname):
+    """
+    Internal helper funciton for finding a callable by string.
+    Split off the token after the last dot and return a tuple of (string-less-the-last-token, last-token)
+    """
+
     from string import join
     #
     modulepath = join(dottedname.split('.')[:-1],'.')
@@ -147,3 +159,89 @@ def split_dottedpath_modulepath_and_funcname(dottedname):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+def importmodule_bypath(path):
+    """Import a module by path."""
+    return do_importmodule_bypath_version1(path)
+
+
+
+def do_importmodule_bypath_version1(path):
+    """Internal helper function. Load a python module import by explicit path; version1 uses imp.load_source"""
+    dynamicmodule = None
+    errorstr = ""
+
+    name, ext = os.path.splitext(os.path.basename(path))
+    modulename = "DynamicallyLoadedPackage_"+name
+
+    try:
+        dynamicmodule = imp.load_source(modulename, path)
+    except Exception as exp:
+        errorstr = "Failure to load_source module ("+path+"): "+str(exp)+"; STACK TRACEBACK: "+traceback.format_exc()
+
+    return (dynamicmodule, errorstr)
+
+
+def do_importmodule_bypath_version2(path):
+    """Internal helper function.Load a python module import by explicit path; version2 uses find_module and load_module"""
+    dynamicmodule = None
+    errorstr = ""
+    file = None
+
+    # get name+path
+    name, ext = os.path.splitext(os.path.basename(path))
+    dirpath = os.path.dirname(path)
+
+    # find the module
+    try:
+        (file, filename, data) = imp.find_module(name, [dirpath])
+        if (not file):
+            errorstr = "Failure to find module ("+path+")."
+    except Exception as exp:
+        errorstr = "Failure to find module ("+path+"): "+str(exp)
+    # load it after find
+    if (file):
+        try:
+            dynamicmodule = imp.load_module(name, file, filename, data)
+        except Exception as exp:
+            errorstr = "Failure to load module ("+path+"): "+str(exp)+"; STACK TRACEBACK: "+traceback.format_exc()
+        file.close()
+    # return it
+    return (dynamicmodule, errorstr)
+
+
+def do_importmodule_bypath_version3(path):
+    """Internal helper function.Load a python module import by explicit path; version3 appends to sys path"""
+    dynamicmodule = None
+    errorstr = ""
+
+    # save previous sys path
+    oldpath = sys.path
+
+    #append path of new module to load
+    dirpath = os.path.dirname(path)
+    name, ext = os.path.splitext(os.path.basename(path))
+    sys.path.append(dirpath)
+
+    # do the import
+    try:
+        dynamicmodule = __import__(name)
+    except Exception as exp:
+        errorstr = "Failure to import package code module ("+path+"): "+str(exp)+"; STACK TRACEBACK: "+traceback.format_exc()
+
+    # reset sys path
+    sys.path = oldpath
+
+    # return it
+    return (dynamicmodule, errorstr)

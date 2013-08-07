@@ -9,21 +9,6 @@ from mewlo.mpackages.core.mcontroller import MewloController
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class MewloRouteArg(object):
     """The MewloRouteArg represents a single route argument"""
 
@@ -35,6 +20,7 @@ class MewloRouteArg(object):
         self.defaultval = defaultval
 
 
+
     def validate_argvalue(self, argval):
         """
         Check arg type and value
@@ -44,9 +30,11 @@ class MewloRouteArg(object):
         where errorstr is "" on valid, or description of error if not
         note that argval will ONLY be CONVERTED IFF isvalid is returned as true, i.e. it is safely MADE valid; this will happen most typically for INTEGER args
         """
+
         isvalid = False
         errorstr = "Base MewloRouteArg cannot be used as an actual instantiated arg."
         return (isvalid, argval, errorstr)
+
 
 
     def debug(self, indentstr=""):
@@ -58,9 +46,14 @@ class MewloRouteArg(object):
         outstr += indentstr+" help: "+str(self.help)+"\n"
         return outstr
 
+
+
     def get_isflag(self):
-        # subclass may implement
+        """Return true if this arg type is a flag; base class returns False; subclasses may override."""
         return False
+
+
+
 
 
 
@@ -70,11 +63,12 @@ class MewloRouteArg(object):
 
 class MewloRouteArgFlag(MewloRouteArg):
     """The MewloRouteArg represents a single route argument"""
-    #
+
     def __init__(self, id, required=True, positional=False, help=None, defaultval=None):
         # just defer to parent constructor
         super(MewloRouteArgFlag, self).__init__(id, required=required, positional=positional, help=help, defaultval=defaultval)
-    #
+
+
     def validate_argvalue(self, argval):
         # see parent class for documentation
         isvalid = (type(argval) == bool)
@@ -83,38 +77,49 @@ class MewloRouteArgFlag(MewloRouteArg):
         else:
             errorstr = ""
         return (isvalid, argval, errorstr)
-    #
+
+
     def get_isflag(self):
         return True
+
+
     def get_argtypestr(self):
         return "Flag"
 
 
 
+
+
 class MewloRouteArgString(MewloRouteArg):
     """The MewloRouteArg represents a single route argument"""
-    #
+
     def __init__(self, id, required=True, positional=False, help=None, defaultval=None):
         # just defer to parent constructor
         super(MewloRouteArgString, self).__init__(id, required=required, positional=positional, help=help, defaultval=defaultval)
-    #
+
+
     def validate_argvalue(self, argval):
         # see parent class for documentation
         isvalid = True
         errorstr = ""
         return (isvalid, argval, errorstr)
-    #
+
+
     def get_argtypestr(self):
         return "String"
 
 
+
+
+
 class MewloRouteArgInteger(MewloRouteArg):
     """The MewloRouteArg represents a single route argument"""
-    #
+
     def __init__(self, id, required=True, positional=False, help=None, defaultval=None):
         # just defer to parent constructor
         super(MewloRouteArgInteger, self).__init__(id, required=required, positional=positional, help=help, defaultval=defaultval)
-    #
+
+
     def validate_argvalue(self, argval):
         # see parent class for documentation
         try:
@@ -124,29 +129,11 @@ class MewloRouteArgInteger(MewloRouteArg):
         except ValueError:
             isvalid = False
             errorstr = "Expected integer value; "+str(ValueError)
-        #
         return (isvalid, argval, errorstr)
-    #
+
+
     def get_argtypestr(self):
         return "Integer"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -169,7 +156,6 @@ class MewloRoute(object):
 
 
     def __init__(self, id, path, controller, args=[], allow_extra_args=False, extra = None, forcedargs = None):
-        #
         self.id = id
         self.path = path
         self.args = args
@@ -187,17 +173,16 @@ class MewloRoute(object):
 
 
 
-
     def get_controllerroot(self):
         return self.controllerroot
-
     def get_extra(self):
         return self.extra
 
 
 
     def prepare(self, parentobj, site, errors):
-        # update stuff for ourself based on parent
+        """Prepare any info/caching; this is called before system startup by our parent site."""
+
         self.parentobj = parentobj
         self.site= site
         # root propagation
@@ -209,14 +194,12 @@ class MewloRoute(object):
 
 
 
-
-
-
-
-
     def process_request(self, request, site):
-        # return True if the request is for this site and we have set request.response
-        # we can return false as soon as we fail to match
+        """
+        Called to see if we this route matches the request.
+        :return: True if the request is for this site and we have set request.response
+        :return: False if we fail to match
+        """
 
         routepath = self.path
         requestpath = request.get_path()
@@ -248,8 +231,6 @@ class MewloRoute(object):
 
         # return flag saying if we matched
         return didmatch
-
-
 
 
 
@@ -366,16 +347,8 @@ class MewloRoute(object):
 
 
 
-
-
-
-
-
-
-
-
     def handle_request(self, request, site, argdict):
-        # we matched against this route, so WE will handle the request
+        """We matched against this route, so WE will handle the request."""
 
         # any args in argdict that need to be FORCED?
         self.force_args(argdict)
@@ -405,10 +378,6 @@ class MewloRoute(object):
 
 
 
-
-
-
-
     def invoke_routecall(self, request):
         """
         Invoke the specified function by route string
@@ -423,19 +392,13 @@ class MewloRoute(object):
 
 
 
-
-
-
     def force_args(self, argdict):
-        # merge in forced args (i use an explicit loop here because argdict is not likely to remain a pure dictionary in future code)
+        """Merge in forced args (i use an explicit loop here because argdict is not likely to remain a pure dictionary in future code)."""
+
         if (self.forcedargs==None):
             return
         for key,val in self.forcedargs.iteritems():
             argdict[key]=val
-
-
-
-
 
 
 
@@ -463,27 +426,6 @@ class MewloRoute(object):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class MewloRouteGroup(object):
     """
     The MewloRouteGroup class holds a list of routes (or child RouteGroups)
@@ -498,14 +440,16 @@ class MewloRouteGroup(object):
         if (routes != None):
             self.append(routes)
 
+
     def get_controllerroot(self):
         return self.controllerroot
     def set_controllerroot(self, controllerroot):
         self.controllerroot = controllerroot
 
 
+
     def append(self, routes):
-        # append a new route (or list of routes) (or hierarchical routegroups) to our routes list
+        """Append a new route (or list of routes) (or hierarchical routegroups) to our routes list."""
         if isinstance(routes,list):
             for route in routes:
                 self.routes.append(route)
@@ -513,8 +457,9 @@ class MewloRouteGroup(object):
             self.routes.append(routes)
 
 
+
     def process_request(self, request, site):
-        # walk through the site list and let each site take a chance at processing the request
+        """Walk through the site list and let each site take a chance at processing the request."""
         ishandled = False
         for route in self.routes:
             ishandled = route.process_request(request, site)
@@ -524,8 +469,10 @@ class MewloRouteGroup(object):
         return ishandled
 
 
+
     def prepare(self, parentobj, site, errors):
-        # update stuff for ourself based on parent
+        """Initial preparation, invoked by parent."""
+
         self.parentobj = parentobj
         self.site= site
         # we want to propagage controllerroot from parent down
@@ -536,6 +483,7 @@ class MewloRouteGroup(object):
             route.prepare(self, site, errors)
 
 
+
     def debug(self, indentstr=""):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloRouteGroup reporting in:\n"
@@ -543,23 +491,5 @@ class MewloRouteGroup(object):
         for route in self.routes:
             outstr += route.debug(indentstr+" ")+"\n"
         return outstr
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

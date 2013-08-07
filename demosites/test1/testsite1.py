@@ -24,11 +24,6 @@ import controllers as pkgdirimp_controllers
 
 
 
-
-
-
-
-
 # the test1 demo site class
 class MewloSite_Test1(MewloSite):
 
@@ -38,11 +33,9 @@ class MewloSite_Test1(MewloSite):
 
 
 
-
-
-
-
     def add_settings_early(self):
+        """This is called by default by the base MewloSite as the first thing to do at startup; here we expect to set some site settings that might be used during startup."""
+
         config = {
             # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
             MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
@@ -56,9 +49,9 @@ class MewloSite_Test1(MewloSite):
 
 
     def add_routes(self):
-        # url routes (note that call properties must be dotted path to a function taking one argument (request)
+        """This is called by default by the base MewloSite near startup, to add routes to the system."""
 
-        # create a routegroup
+         # create a routegroup
         routegroup = MewloRouteGroup()
         # overide the parent import-package-directory for the urls in this group? if we don't it will use the controller root set in SITE config
         # routegroup.set_controllerroot(pkgdirimp_controllers)
@@ -127,9 +120,9 @@ class MewloSite_Test1(MewloSite):
 
 
 
-
-
     def add_loggers(self):
+        """This is called by default by the base MewloSite near startup, to add loggers to the system."""
+
         logger = self.createadd_logger('mytestlogger')
         logger.add_target(LogTarget_File(filename='testlogout1.txt'))
         logger.add_target(LogTarget_File(filename='testlogout2.txt'))
@@ -139,14 +132,17 @@ class MewloSite_Test1(MewloSite):
 
 
 
-
-
-
     def pre_runroute_callable(self, route, request):
+        """This is called by default when a route is about to be invoked.  Subclassed sites can override it."""
+
         request.logwarning("This is a test warning called PRE run route.")
         return True
 
+
+
     def post_runroute_callable(self, request):
+        """This is called by default after a route has been invoked.  Subclassed sites can override it."""
+
         request.logwarning("This is a test warning called POST run route: "+str(request))
         return True
 
@@ -159,15 +155,8 @@ class MewloSite_Test1(MewloSite):
 
 
 
-
-
-
-
-
-
-# if this python file is run as a script:
-
 def main():
+    """This function is invoked by the python interpreter if this script itself is executed as the main script."""
 
     # create a simple site from our test class and a sitemanager that supervises it
     sitemanager = MewloSite_Test1.create_manager_and_simplesite()
@@ -178,10 +167,8 @@ def main():
         print sitemanager.prepare_errors.debug()
         exit()
 
-
     # ask the manager to debug and print some useful info
     print sitemanager.debug()
-
 
     # some simple tests
     print sitemanager.test_submit_path("/help/about")

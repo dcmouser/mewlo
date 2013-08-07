@@ -3,14 +3,16 @@ This module defines a derived logging hey class that implements file logging
 
 """
 
-# python modules
 
-# for printing to file
+# python modules (for printing to file)
 from __future__ import print_function
 
 # Mewlo helpers
 from mewlo.mpackages.core.helpers.logger.logger import LogTarget
 from mewlo.mpackages.core.helpers.debugging import smart_dotted_idpath
+from mewlo.mpackages.core.helpers.debugging import MewloExceptionPlus, raiseammend
+
+
 
 
 
@@ -23,6 +25,7 @@ class LogTarget_File(LogTarget):
     DEF_FILEMODE_default = 'a'
 
 
+
     def __init__(self, filename=None, filemode = DEF_FILEMODE_default):
         # parent init
         super(LogTarget_File, self).__init__()
@@ -32,16 +35,18 @@ class LogTarget_File(LogTarget):
         self.set_fileinfo(filename,filemode)
 
 
+
     def set_fileinfo(self, filename, filemode):
-        # close any exisitng file if its already open
+        """Close any exisitng file if its already open."""
         self.closefile_ifopen()
         # remember the filename and desired open more
         self.filename = filename
         self.filemode = filemode
 
 
+
     def closefile_ifopen(self):
-        # close the file if it's already open
+        """Close the file if it's already open."""
         if (self.filep==None):
             return
         # close file and clear it
@@ -49,24 +54,27 @@ class LogTarget_File(LogTarget):
         self.filep = None
 
 
+
     def get_openfile(self):
-        # open the file if it's not open; return it
+        """
+        Open the file if it's not open.
+        :return: the file reference so to use.
+        """
+
         # this will throw an exception if file cannot be opened
         if (self.filep==None):
             try:
                 self.filep = open(self.filename, self.filemode)
             except Exception as exp:
-                # just add some extra info to the exception
-                if (False):
-                    print("ATTN:DEBUG - failed to open file for logging; identification of log target is: " + smart_dotted_idpath(self))
-                    raise exp
-                raise IOError("Failed to open file '"+self.filename+"' for logging using filemode '"+self.filemode+"'.  Error occurred in LogTarget: " + smart_dotted_idpath(self))
+                # call our helper function to raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception
+                raiseammend(exp,"Error occurred in LogTarget: ",self)
         return self.filep
 
 
-    def savetofile(self, logmessage):
-        # ensure file is open
-        # this will throw exception if there is an error opening the file
+
+    def writeto_file(self, logmessage):
+        """Write out the logmessage to the file."""
+        # ensure file is open. this will throw exception if there is an error opening the file
         filep = self.get_openfile()
         # get log line as string
         outline = logmessage.as_logline()
@@ -77,11 +85,12 @@ class LogTarget_File(LogTarget):
 
 
 
-
-
-
     def process(self, logmessage):
-        # called by logger; we overide this in our subclass to do actual work.
-        self.savetofile(logmessage)
+        """
+        Called by logger parent to actually do the work.
+        We overide this in our subclass to do actual work.
+        """
+
+        self.writeto_file(logmessage)
 
 

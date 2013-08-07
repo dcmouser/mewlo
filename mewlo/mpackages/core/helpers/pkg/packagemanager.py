@@ -5,9 +5,9 @@
 import imp
 import fnmatch
 import os
-import sys
-import traceback
 
+# helpers
+from ..callables import importmodule_bypath
 
 
 
@@ -40,6 +40,8 @@ class PackageManager(object):
         """Create a child package; subclasses will reimplement this to use their preferred child class"""
         return Package(self,filepath)
 
+
+
     def discover_packages(self):
         """Scan all package directories and discover packages"""
         # init
@@ -54,15 +56,21 @@ class PackageManager(object):
         for filepath in packagefilepaths:
             self.createadd_package_frominfofile(filepath)
 
+
+
     def createadd_package_frominfofile(self, infofilepath):
         """Given a path to an infofile, create a package from it"""
         pkg = self.create_package(infofilepath)
         if (pkg != None):
             self.packages.append(pkg)
 
+
+
     def loadinfos_packages(self):
-        # now let's go ahead and load all the info files
+        """Load all the info files."""
         self.load_package_infofiles()
+
+
 
     def instantiate_packages(self):
         """Actually import code modules and instantiate package objects"""
@@ -70,6 +78,7 @@ class PackageManager(object):
 
 
     def calc_packageinfofile_pattern(self):
+        """Given self.filepatternsuffix we create the file match pattern that describes the json info files we need to look for."""
         return "*_"+self.filepatternsuffix+".json"
 
 
@@ -110,7 +119,7 @@ class PackageManager(object):
             else:
                 # get name+extension of file, for import module info
                 # ok now load it dynamically
-                (dynamicmodule, errorstr) = self.DoImportModuleByPath(path)
+                (dynamicmodule, errorstr) = importmodule_bypath(path)
 
             # now add it to our class-wide cache, so we don't try to reload it again
             PackageManager.classwide_packagemodules[path] = dynamicmodule
@@ -118,82 +127,6 @@ class PackageManager(object):
         # return it
         return (PackageManager.classwide_packagemodules[path],errorstr)
 
-
-
-
-    def DoImportModuleByPath(self, path):
-        return self.DoImportModuleByPath_Version1(path)
-
-
-
-    def DoImportModuleByPath_Version1(self, path):
-        """Load a python module import by explicit path; version1 uses imp.load_source"""
-        dynamicmodule = None
-        errorstr = ""
-
-        name, ext = os.path.splitext(os.path.basename(path))
-        modulename = "DynamicallyLoadedPackage_"+name
-
-        try:
-            dynamicmodule = imp.load_source(modulename, path)
-        except Exception as exp:
-            errorstr = "Failure to load_source module ("+path+"): "+str(exp)+"; STACK TRACEBACK: "+traceback.format_exc()
-
-        return (dynamicmodule, errorstr)
-
-
-    def DoImportModuleByPath_Version2(self, path):
-        """Load a python module import by explicit path; version2 uses find_module and load_module"""
-        dynamicmodule = None
-        errorstr = ""
-        file = None
-
-        # get name+path
-        name, ext = os.path.splitext(os.path.basename(path))
-        dirpath = os.path.dirname(path)
-
-        # find the module
-        try:
-            (file, filename, data) = imp.find_module(name, [dirpath])
-            if (not file):
-                errorstr = "Failure to find module ("+path+")."
-        except Exception as exp:
-            errorstr = "Failure to find module ("+path+"): "+str(exp)
-        # load it after find
-        if (file):
-            try:
-                dynamicmodule = imp.load_module(name, file, filename, data)
-            except Exception as exp:
-                errorstr = "Failure to load module ("+path+"): "+str(exp)+"; STACK TRACEBACK: "+traceback.format_exc()
-            file.close()
-        # return it
-        return (dynamicmodule, errorstr)
-
-
-    def DoImportModuleByPath_Version3(self, path):
-        """Load a python module import by explicit path; version3 appends to sys path"""
-        dynamicmodule = None
-        errorstr = ""
-
-        # save previous sys path
-        oldpath = sys.path
-
-        #append path of new module to load
-        dirpath = os.path.dirname(path)
-        name, ext = os.path.splitext(os.path.basename(path))
-        sys.path.append(dirpath)
-
-        # do the import
-        try:
-            dynamicmodule = __import__(name)
-        except Exception as exp:
-            errorstr = "Failure to import package code module ("+path+"): "+str(exp)+"; STACK TRACEBACK: "+traceback.format_exc()
-
-        # reset sys path
-        sys.path = oldpath
-
-        # return it
-        return (dynamicmodule, errorstr)
 
 
     def debug(self, indentstr=""):
@@ -206,7 +139,9 @@ class PackageManager(object):
         outstr += self.debug_packages(indentstr)
         return outstr
 
+
     def debug_packages(self, indentstr=""):
+        """Helper debug function.  Return indented debug of child packages."""
         outstr = indentstr+"Packages found:\n"
         indentstr+=" "
         if (len(self.packages)==0):
@@ -214,6 +149,8 @@ class PackageManager(object):
         for package in self.packages:
             outstr += package.debug(indentstr+" ")+"\n"
         return outstr
+
+
 
 
 

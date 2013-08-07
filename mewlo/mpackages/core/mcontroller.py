@@ -5,7 +5,6 @@
 # helpers
 from helpers.callables import find_callable, find_callable_throwexception
 
-
 # python modules
 from types import ModuleType
 
@@ -32,12 +31,15 @@ class MewloController(object):
                 self.callable = find_callable_throwexception(root, function)
 
 
+
     def get_controllerroot(self):
         return self.root
 
 
+
     def prepare(self, parentobj, site, errors):
-        # update stuff for ourself based on parent
+        """Do initial preparatory stuff on system startup."""
+
         self.parentobj = parentobj
         self.site= site
         # we want to propagage callableroot from parent down
@@ -51,9 +53,9 @@ class MewloController(object):
 
 
 
-
     def find_callable(self):
-        # look up the callable
+        """Lookup the callable wrapped by this controller object."""
+
         if (self.function==None):
             # error, nothing to call
             return (None,"No function specified for callable.")
@@ -72,11 +74,13 @@ class MewloController(object):
 
 
 
-
     def invoke(self, request):
-        # just invoke callable
-        # sublassed could implement this differently
-        # @return (successflag, errorstr)
+        """
+        Invoke callable on the request.
+        Sublassed could implement this differently
+        :return: (successflag, errorstr)
+        """
+
         return self.callable(request)
 
 
@@ -86,3 +90,5 @@ class MewloController(object):
         outstr = indentstr+"MewloController:\n"
         outstr += indentstr+" callable: "+str(self.callable)+"\n"
         return outstr
+
+

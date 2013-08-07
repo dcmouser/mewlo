@@ -30,9 +30,11 @@ class EventTracker(object):
         """Add a warning string to the list."""
         self.add_message_with_type(etype=self.DEF_TYPE_Warning, mesg=mesg, event=event)
 
+
     def error(self, mesg, event={}):
         """Add an error string to the list."""
         self.add_message_with_type(etype=self.DEF_TYPE_Error, mesg=mesg, event=event)
+
 
 
     def add_message_with_type(self, etype, mesg, event={}):
@@ -53,22 +55,28 @@ class EventTracker(object):
 
 
     def count_all(self):
+        """Return a count of ALL events (errors+warnings+other)."""
         return len(self.events)
 
+
     def count_bytype(self, etype):
+        """Return a count of events of the specified typestring."""
         foundcount = 0
         for event in self.events:
             if (event['type']==etype):
                 foundcount+=1
         return foundcount
 
+
     def count_errors(self):
         """Return a count of the number of errors."""
         return self.count_bytype(etype=self.DEF_TYPE_Error)
 
 
+
+
     def tostring(self, etype='*', indentstr=''):
-        """Return a string that is a comma separated join of all errors and warnings."""
+        """Return a string that is a comma separated join of all events, regardless of type."""
         outstr = ""
         outstr += indentstr+"Events:"
         if (len(self.events)==0):
@@ -84,9 +92,11 @@ class EventTracker(object):
         return outstr
 
 
+
     def event_to_string(self, event):
         """Return a string describing the event."""
         return str(event)
+
 
 
     def debug(self, indentstr=""):

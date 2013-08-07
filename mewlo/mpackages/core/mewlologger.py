@@ -8,6 +8,8 @@ from helpers.logger.logger import LogMessage
 
 
 
+
+
 class MewloLogMessage(LogMessage):
     """
     MewloLogMessage- a single loggable event/message, derived from the LogMessage class.
@@ -20,6 +22,8 @@ class MewloLogMessage(LogMessage):
         # add mewlo properties to it (request)
         self.request = request
 
+
+
     def as_logline(self):
         """Get the LogMessage as a string suitable for writing to a log file."""
         return str(self.msg) + " | " + self.request.get_path()
@@ -29,6 +33,4 @@ class MewloLogMessage(LogMessage):
     def debug(self, indentstr=""):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         return indentstr+"MewloLogMessage: "+str(self.msg)
-
-
 

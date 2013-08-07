@@ -44,6 +44,7 @@ class MewloRequest(object):
         self.route = route
         self.site = site
 
+
     def get_route(self):
         return self.route
     def get_site(self):
@@ -51,39 +52,54 @@ class MewloRequest(object):
 
 
 
-
-
-
     def make_werkzeugrequest(self, wsgiref_environ):
+        """Create a werkzeug request from the environment and attach it to us."""
         self.wreq = Request(wsgiref_environ)
         return self.wreq
 
 
 
-
-
     def preprocess(self):
-        # any preprocessing to do after request is built?
+        """Do any preprocessing of the request.  Base class does nothing here."""
         pass
 
 
 
-
-
-    # short helpers - just hand over to the site responsible for this request
     def logerror(self, *args, **kwargs):
+        """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
         kwargs['request']=self
         self.site.logerror(*args, **kwargs)
+
     def logwarning(self, *args, **kwargs):
+        """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
         kwargs['request']=self
         self.site.logwarning(*args, **kwargs)
+
     def log(self, *args, **kwargs):
+        """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
         kwargs['request']=self
         self.site.log(*args, **kwargs)
 
 
 
+    @classmethod
+    def createrequest_from_pathstring(cls, pathstr):
+        """Create a simulated web request from a path string, using werkzeug helper function."""
+        env = create_environ(pathstr, "http://localhost"+pathstr)
+        # create request
+        return cls.createrequest_from_wsgiref_environ(env)
 
+
+
+    @classmethod
+    def createrequest_from_wsgiref_environ(cls, wsgiref_environ):
+        """Helper function to create a simulated web request from a path string, using werkzeug helper function."""
+        # create request
+        request = MewloRequest()
+        # now werkzeug does the work
+        request.make_werkzeugrequest(wsgiref_environ)
+        # return it
+        return request
 
 
 
@@ -92,32 +108,3 @@ class MewloRequest(object):
         outstr = indentstr+" MewloRequest reporting in:\n"
         outstr += indentstr+"  URL: "+self.get_path()+"\n"
         return outstr
-
-
-
-
-
-
-
-
-
-
-
-
-    @classmethod
-    def createrequest_from_pathstring(cls, pathstr):
-        # simulate werkzeug call environ
-        env = create_environ(pathstr, "http://localhost"+pathstr)
-        # create request
-        return cls.createrequest_from_wsgiref_environ(env)
-
-
-    @classmethod
-    def createrequest_from_wsgiref_environ(cls, wsgiref_environ):
-        # create request
-        request = MewloRequest()
-        # now werkzeug does the work
-        request.make_werkzeugrequest(wsgiref_environ)
-        # return it
-        return request
-

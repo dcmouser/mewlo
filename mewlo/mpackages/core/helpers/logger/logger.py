@@ -40,8 +40,12 @@ Some examples of things we will want to be able to easily do:
 """
 
 
+
 # Mewlo helpers
 from mewlo.mpackages.core.helpers.debugging import smart_dotted_idpath
+
+
+
 
 
 class LogManager(object):
@@ -53,22 +57,35 @@ class LogManager(object):
         self.loggers = []
         self.set_parent(site)
 
+
+
     def set_parent(self, parent):
         self.parent = parent
     def get_parent(self):
         return self.parent
 
 
+
     def add_logger(self, logger):
         """Just add a child logger to our collection."""
+
         self.loggers.append(logger)
         # let logger know it's parent
         logger.set_parent(self)
 
+
+
     def process(self, logmessage):
         """Process a LogMessage, by allowing each of our attached loggers to handle it."""
+
         for logger in self.loggers:
             logger.process(logmessage)
+
+
+
+
+
+
 
 
 
@@ -82,19 +99,27 @@ class LogFilter(object):
         self.andfilters = []
         self.parent = None
 
+
+
     def set_parent(self, parent):
         self.parent = parent
     def get_parent(self):
         return self.parent
 
+
+
     def add_andfilter(self, filter):
-        # add a chained filter which is treated like an AND
+        """Add a chained filter which is treated like an AND."""
+
         self.andfilters.append(filter)
         # let filter know it's parent
         filter.set_parent(self)
 
+
+
     def doesmatch_full(self, logmessage):
         """Check if the logmessage matches our filter (or ALL of them if there are multiple chained with us."""
+
         # first check against ourself, if fail, then no point going any further
         if (not self.doesmatch_us(logmessage)):
             # doesn't match our condition
@@ -107,8 +132,10 @@ class LogFilter(object):
         return True
 
 
+
     def doesmatch_andchains(self, logmessage):
         """Check if logmessages matches any attached "AND" chained filters (we may have none)."""
+
         # test ALL and reject if any reject
         for filter in self.andfilters:
             if (not filter.doesmatch_full(logmessage)):
@@ -120,8 +147,15 @@ class LogFilter(object):
 
     def doesmatch(self, logmessage):
         """This is the exposed public function to check if a logmessage matches the filter. It will normally be implemented by a subclass."""
+
         # parent class just returns True so it will always match
         return True
+
+
+
+
+
+
 
 
 
@@ -135,15 +169,22 @@ class LogTarget(object):
     def __init__(self):
         self.parent = None
 
+
+
     def set_parent(self, parent):
         self.parent = parent
     def get_parent(self):
         return self.parent
 
+
+
     def process(self, logmessage):
         """Process the target action (write to file, save to database, emailing, etc.).  This should be overridden by subclass to do actual work."""
+
         print "Activating base LogTarget action, which is to write log message to screen: "+logmessage.debug()+"\n"
         pass
+
+
 
 
 
@@ -170,6 +211,7 @@ class Logger(object):
     DEF_THROTTLERATE_default_messages_per_sec = 60
 
 
+
     def __init__(self, id, throttlerate = DEF_THROTTLERATE_default_messages_per_sec):
         self.id = id
         #
@@ -181,6 +223,8 @@ class Logger(object):
         #
         self.parent = None
 
+
+
     def set_parent(self, parent):
         self.parent = parent
     def get_parent(self):
@@ -189,11 +233,14 @@ class Logger(object):
         return self.id
 
 
+
     def add_filter(self, filter):
         """Append a filter.  Multiple appended filters are treated like OR conditions (you can simulate AND by chaining filters together."""
         self.filters.append(filter)
         # let filter know it's parent logger
         filter.set_parent(self)
+
+
 
     def add_target(self, target):
         """Append a target.  Targets will be run when the filters match. Multiple appended targets will be run in sequence."""
@@ -209,6 +256,7 @@ class Logger(object):
             self.run_targets(logmessage)
 
 
+
     def doesmatch_filters(self, logmessage):
         """Return True if this message matches ANY of the filter(s) for the logger.."""
         # if no filters added, then it's an automatic match
@@ -222,10 +270,16 @@ class Logger(object):
         return False
 
 
+
     def run_targets(self, logmessage):
         """Run ALL registered targets on the message."""
         for target in self.targets:
             target.process(logmessage)
+
+
+
+
+
 
 
 
@@ -246,9 +300,13 @@ class LogMessage(object):
         # extra dictionary (note we COPY (shallow) the dictionary because we dont want to get a dictionary that may be modified by caller or which we may add to and affect caller
         self.extra = dict(extras)
 
+
+
     def as_logline(self):
         """Get the LogMessage as a (default formatted) string suitable for writing to a log file.  Subclasses would be expected to override this function."""
         return str(self.msg)
+
+
 
     def debug(self, indentstr=""):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
