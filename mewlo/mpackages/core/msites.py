@@ -63,7 +63,7 @@ class MewloSite(object):
         # route manager
         self.routes = MewloRouteGroup()
         # log manager
-        self.logmanager = LogManager()
+        self.logmanager = LogManager(self)
         # record package of the site for relative imports
         self.sitemodulename = sitemodulename
 
@@ -74,6 +74,9 @@ class MewloSite(object):
 
     def get_sitename(self):
         return self.sitename
+    def get_id(self):
+        # generic get_id function used in lots of places to help display debug info
+        return self.get_sitename()
 
     def merge_settings(self, settings):
         # merge in some settings

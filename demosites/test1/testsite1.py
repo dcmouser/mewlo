@@ -133,6 +133,9 @@ class MewloSite_Test1(MewloSite):
         logger = self.createadd_logger('mytestlogger')
         logger.add_target(LogTarget_File(filename='testlogout1.txt'))
         logger.add_target(LogTarget_File(filename='testlogout2.txt'))
+        #
+        # want to test raising an exception on failure to write/open file? uncomment this
+        #logger.add_target(LogTarget_File(filename=''))
 
 
 
