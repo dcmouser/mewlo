@@ -1,5 +1,8 @@
-# testsite1.py
-# This class defines a test site (and will run a debug test of it if started as main script)
+"""
+testsite1.py
+This class defines a test site (and will run a debug test of it if started as main script)
+"""
+
 
 
 # Mewlo imports

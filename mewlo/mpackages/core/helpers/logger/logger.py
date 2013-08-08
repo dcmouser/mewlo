@@ -1,41 +1,44 @@
 """
+logger.py
+
 This module defines classes and functions that assist in logging.
 
 There are multiple classes that work together to create our logging system:
-* LogManager - the main supervisor class that manages a collection of Loggers
-* Logger - responsible for saving/writing a log event to some destination, and matching log events to decide whether to handle them
-* LogMessage- a single loggable event/message
-* LogFilter - class responsible for deciding if a log message should be handled by a Logger; each logger has a list of zero or more LogFilters to check for match
-* LogTarget - destination targets for loggers; each logger has a list of LogTargets to send to on match
+    * LogManager - the main supervisor class that manages a collection of Loggers
+    * Logger - responsible for saving/writing a log event to some destination, and matching log events to decide whether to handle them
+    * LogMessage- a single loggable event/message
+    * LogFilter - class responsible for deciding if a log message should be handled by a Logger; each logger has a list of zero or more LogFilters to check for match
+    * LogTarget - destination targets for loggers; each logger has a list of LogTargets to send to on match
 
 How these classes co-exist:
-* A site has a single LogManager; all logging functionality is done through that manager.
-* A LogManager manages a collection of zero or more Loggers
-* A Logger has a collection of zero or more LogFilters and a collection of one or more LogTargets
-* A triggered LogMessage is sent to the LogManager which sends it to each Logger; if a message passes the filters for a Logger, it triggers the targets for that logger
+    * A site has a single LogManager; all logging functionality is done through that manager.
+    * A LogManager manages a collection of zero or more Loggers
+    * A Logger has a collection of zero or more LogFilters and a collection of one or more LogTargets
+    * A triggered LogMessage is sent to the LogManager which sends it to each Logger; if a message passes the filters for a Logger, it triggers the targets for that logger
 
 What are the goals of the logging system?
-* Provide a convenient syntax for adding both simple and complex logging messages
-* Support log messages with useful information like:
-** a dotted id path, to aid in filtering messages (e.g. "authentification.openid.yahoo")
-** numerical severity level, to aid in filtering messages and deciding who to email them to (e.g. from -100 to +100)
-** a short message "type", again to aid in filtering (e.g. "error" | "warning")
-** extras dictionary of arbitrary data to be serialized/stringified
-* Allow a collection of loggers to be configured that process log messages in different ways.  Each Logger may:
-** Filter on which log messages it cares about based on various patterns
-** Decide how to handle the log message, with targets that include:
-*** Emailing log messages
-*** Saving log messages to text files (rotating or otherwise(
-*** Storing log messages in database tables
-* Additionally we would like to support things like queuing log messages for deferred handling (useful if we want to log to database but database is not set up yet).
-* Smart throttling if we are being overwhelmed with log messages
-* Smart digesting, if we have a bunch of messages to email we might want to send onlyh one email with all log messages for a given session
+
+    * Provide a convenient syntax for adding both simple and complex logging messages
+    * Support log messages with useful information like:
+        * a dotted id path, to aid in filtering messages (e.g. "authentification.openid.yahoo")
+        * numerical severity level, to aid in filtering messages and deciding who to email them to (e.g. from -100 to +100)
+        * a short message "type", again to aid in filtering (e.g. "error" | "warning")
+        * extras dictionary of arbitrary data to be serialized/stringified
+    * Allow a collection of loggers to be configured that process log messages in different ways.  Each Logger may:
+        * Filter on which log messages it cares about based on various patterns
+        * Decide how to handle the log message, with targets that include:
+            * Emailing log messages
+            * Saving log messages to text files (rotating or otherwise(
+            * Storing log messages in database tables
+    * Additionally we would like to support things like queuing log messages for deferred handling (useful if we want to log to database but database is not set up yet).
+    * Smart throttling if we are being overwhelmed with log messages
+    * Smart digesting, if we have a bunch of messages to email we might want to send onlyh one email with all log messages for a given session
 
 Some examples of things we will want to be able to easily do:
-* on severe errors trigger an email to admin
-* log "debug" messages to file only
-* discard warning messages when running in production mode
-* log messages of type x|y|z to database tables x,y,z
+    * on severe errors trigger an email to admin
+    * log "debug" messages to file only
+    * discard warning messages when running in production mode
+    * log messages of type x|y|z to database tables x,y,z
 
 """
 

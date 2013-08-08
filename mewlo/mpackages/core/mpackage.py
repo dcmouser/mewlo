@@ -1,5 +1,10 @@
-# mpackage.py
-# This file defines the classes that support mewlo package/extensions
+"""
+mpackage.py
+This file defines the classes that support mewlo package/extensions
+"""
+
+
+
 
 # helper imports
 import helpers.pkg.packagemanager as packagemanager

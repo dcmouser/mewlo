@@ -1,0 +1,59 @@
+This document lays out the philosophy and coding style used in the Mewlo system for handling errors, exceptions, and error logging.
+
+In particular, we want to answer questions like:
+
+    * When should we use exceptions vs error return values or tuples?
+    * When and how do we log serious errors?
+
+
+
+
+
+Error/Exception approaches
+
+If we have a function that we expect may encounter an error, there are several ways we might handle it:
+
+1. Getting an error description from a procedure that doesn't normally return a value (blank errorstring if no error):
+errorstring = runfunction()
+
+2. Getting an error description in addition to a return value, by returning a tuple (blank errorstring if no error):
+(value, errorstring) = runfunction()
+
+3. Using an exception to signal an error:
+try:
+    value = runfunction()
+Exception exp:
+    errorstring = str(exp)
+
+In above cases we could use a custom error class instead of errorstring, or a custom exception, to pass additional info (see below).
+
+In many languages, raising exceptions is very costly, but in python it's cheap and encouraged.
+
+
+
+
+
+Different kinds of errors/exceptions
+
+Let us consider two kinds of "errors/exceptions".
+The first kind of error/exception we will call "Serious Errors".  These are the kind that reflects a programming mistake or an unanticipated error that reflects a "serious" problem -- one that should be logged and where an administrator needs to be informed.  It would be common for such errors to terminate the associated request immediately without continuing.
+The second kind of error/exception we will call "Casual Errors".  These are errors that can be considered an alternate-form of the return value from a function.  Such return values do not signify a programming error or serious problem that requires termination of the request, etc.  The programming logic by definition will take into account such error return values.
+
+
+
+
+
+Other issues
+
+There are a few additional interesting issues in handling "errors".
+One issue is the case where we get an exception/error and we want return it up the chain of calls while accumulating the errors -- and to be able to report the CHAIN of exceptions (exception locations, etc.).
+A related issue is where we may actually have multiple "errors" that we want to accumulate (possibly with some additional warnings that are possibly only relevant IF there are errors).
+Another issue is where we need to add some context to an error/exception before processing it, perhaps to give it some additional context, etc.
+
+
+
+
+Our strategy
+
+We want to use a consistent approach to error return values, exceptions, and logging.  So would should that approach be?
+

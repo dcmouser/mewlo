@@ -1,5 +1,7 @@
-# msettings.py
-# This file contains classes to support hierarchical settings associates with sites
+"""
+msettings.py
+This file contains classes to support hierarchical settings associates with sites
+"""
 
 
 

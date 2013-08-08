@@ -1,5 +1,10 @@
-# mrequest.py
-# This file contains classes to support web server requests
+"""
+mrequest.py
+This file contains classes to support web server requests
+"""
+
+
+
 
 # mewlo stuff
 from mresponse import MewloResponse

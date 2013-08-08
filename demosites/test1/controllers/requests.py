@@ -1,5 +1,7 @@
-# requests.py
-# This file holds controller functions that will be invoked by route manager
+"""
+requests.py
+This file holds controller functions that will be invoked by route manager
+"""
 
 
 
@@ -8,18 +10,21 @@
 
 
 def request_home(request):
+    """Show home page."""
     request.response.set_responsedata("In request_home.")
     return (True,"")
 
 
 
 def request_about(request):
+    """Show about page."""
     request.response.set_responsedata("In request_about.")
     return (True,"")
 
 
 
 def request_sayhello(request):
+    """Show simple hello page; demonstrates use of args."""
     matchedroute = request.get_route()
     args = request.get_route_parsedargs()
     extra = matchedroute.get_extra()
@@ -29,6 +34,7 @@ def request_sayhello(request):
 
 
 def request_article(request):
+    """Show an article."""
     request.response.set_responsedata("In request_article.")
     return (True,"")
 

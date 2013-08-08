@@ -1,4 +1,5 @@
 """
+eventtracker.py
 This module defines classes and functions that help track errors and warnings in a given context.
 
 Some things to think about:

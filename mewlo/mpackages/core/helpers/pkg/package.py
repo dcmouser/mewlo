@@ -1,5 +1,9 @@
-# package.py
-# Works with packagemanager.py to support our package/extension/addon system
+"""
+package.py
+Works with packagemanager.py to support our package/extension/addon system
+"""
+
+
 
 # python libraries
 import json

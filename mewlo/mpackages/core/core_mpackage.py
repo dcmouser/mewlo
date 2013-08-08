@@ -1,5 +1,10 @@
-# core_mpackage.py
-# This file manages the core Mewlo classes
+"""
+core_mpackage.py
+This file manages the core Mewlo classes
+"""
+
+
+
 
 # mewlo imports
 from mewlo.mpackages.core.mpackage import MewloPackageObject

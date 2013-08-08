@@ -1,6 +1,7 @@
-# package.py
-# Works with packagemanager.py to support our package/extension/addon system
-
+"""
+packagepbject.py
+Works with packagemanager.py to support our package/extension/addon system
+"""
 
 
 

@@ -1,5 +1,10 @@
-# mresponse.py
-# This file contains classes to support response to requests
+"""
+mresponse.py
+This file contains classes to support response to requests
+"""
+
+
+
 
 # mewlo modules
 from helpers.eventtracker import EventTracker

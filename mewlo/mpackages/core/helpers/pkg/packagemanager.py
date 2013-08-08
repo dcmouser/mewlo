@@ -1,5 +1,10 @@
-# packagemanager.py
-# This file supports discovery and loading of modules by path and filename pattern
+"""
+packagemanager.py
+This file supports discovery and loading of modules by path and filename pattern
+"""
+
+
+
 
 # python libraries
 import imp
@@ -8,6 +13,7 @@ import os
 
 # helpers
 from ..callables import importmodule_bypath
+
 
 
 

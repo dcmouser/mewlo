@@ -1,8 +1,7 @@
-# msites.py
-# This file contains classes to handle Mewlo sites and site manager.
-
-# global constants
-DefMewlo_BasePackage_subdirlist = ["mpackages"]
+"""
+msites.py
+This file contains classes to handle Mewlo sites and site manager.
+"""
 
 
 
@@ -27,6 +26,8 @@ from datetime import datetime, date, time
 
 
 
+# global constants
+DefMewlo_BasePackage_subdirlist = ["mpackages"]
 
 
 
@@ -385,7 +386,6 @@ class MewloSiteManager(object):
 
 
 
-
     def create_and_start_webserver_wsgiref(self, portnumber=8080):
         """Create a wsgiref web server and begin serving requests."""
 
@@ -393,12 +393,6 @@ class MewloSiteManager(object):
         from wsgiref.simple_server import make_server
         srv = make_server('localhost', portnumber, self.wsgiref_callback)
         srv.serve_forever()
-
-
-
-
-
-
 
 
 
@@ -444,8 +438,6 @@ class MewloSiteManager(object):
     def preprocess_request(self, request):
         """Pre-process and parse the request.  Here we might add stuff to it before asking child sites to look at it."""
         request.preprocess()
-
-
 
 
 
