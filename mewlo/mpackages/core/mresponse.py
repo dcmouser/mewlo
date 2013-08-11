@@ -7,7 +7,7 @@ This file contains classes to support response to requests
 
 
 # mewlo modules
-from helpers.eventtracker import EventTracker
+from mevent import MewloEventList
 
 # this version uses werkzeug to do heavy lifting
 from werkzeug.wrappers import Response
@@ -31,7 +31,7 @@ class MewloResponse(object):
         self.headers = None
         self.responsedata = None
         #
-        self.errors = EventTracker()
+        self.eventlist = MewloEventList()
 
 
 
@@ -64,10 +64,10 @@ class MewloResponse(object):
         # set values
         self.statuscode = 200
 
-    def add_status_error(self, statuscode, errorstr):
+    def add_status_error(self, statuscode, error):
         # set values
         self.set_status(statuscode)
-        self.errors.error(errorstr)
+        self.eventlist.add_simpleerror(error)
 
     def set_responsedata(self, responsedata, statuscode = 200):
         self.responsedata = responsedata
@@ -108,13 +108,13 @@ class MewloResponse(object):
     def add_errors_to_response(self):
         """Helper funciton to add any pending accumulated errors to the response."""
 
-        if (self.errors.count_errors()==0):
+        if (self.eventlist.count_errors()==0):
             return
-        errorstr = self.errors.tostring()+"."
+        rstr = str(self.eventlist)
         if (self.responsedata==None):
-            self.responsedata = errorstr
+            self.responsedata = rstr
         else:
-            self.responsedata.append(errorstr)
+            self.responsedata.append(rstr)
 
 
 

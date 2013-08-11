@@ -10,8 +10,9 @@ from __future__ import print_function
 
 # Mewlo helpers
 from mewlo.mpackages.core.helpers.logger.logger import LogTarget
-from mewlo.mpackages.core.helpers.debugging import smart_dotted_idpath
-from mewlo.mpackages.core.helpers.debugging import MewloExceptionPlus, raiseammend
+
+# python modules
+import sys
 
 
 
@@ -64,11 +65,7 @@ class LogTarget_File(LogTarget):
 
         # this will throw an exception if file cannot be opened
         if (self.filep==None):
-            try:
-                self.filep = open(self.filename, self.filemode)
-            except Exception as exp:
-                # call our helper function to raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception
-                raiseammend(exp,"Error occurred in LogTarget: ",self)
+            self.filep = open(self.filename, self.filemode)
         return self.filep
 
 

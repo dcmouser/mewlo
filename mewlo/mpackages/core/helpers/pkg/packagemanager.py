@@ -14,6 +14,9 @@ import os
 # helpers
 from ..callables import importmodule_bypath
 
+# mewlo modules
+from mewlo.mpackages.core.mevent import MewloFailure
+
 
 
 
@@ -113,25 +116,26 @@ class PackageManager(object):
     def loadimport(self, path):
         """Dynamically load an importbypath (or returned cached value of previous import)"""
         dynamicmodule = None
-        errorstr = ""
 
         # not in our cache? then we have to load it
         if (not path in PackageManager.classwide_packagemodules):
             # first we check if path is blank or does not exist
             if (path==""):
-                errorstr = "Blank path specified."
+                return None, MewloFailure("Failed to load import by path '"+path+"', because a blank path was specified.")
             elif (not os.path.isfile(path)):
-                errorstr = "File does not exist ("+path+")."
+                return None, MewloFailure("Failed to load import by path '"+path+"', because that file does not exist.")
             else:
                 # get name+extension of file, for import module info
                 # ok now load it dynamically
-                (dynamicmodule, errorstr) = importmodule_bypath(path)
+                dynamicmodule, failure = importmodule_bypath(path)
+                if (failure!=None):
+                    return None, failure
 
             # now add it to our class-wide cache, so we don't try to reload it again
             PackageManager.classwide_packagemodules[path] = dynamicmodule
 
         # return it
-        return (PackageManager.classwide_packagemodules[path],errorstr)
+        return PackageManager.classwide_packagemodules[path], None
 
 
 

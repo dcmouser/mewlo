@@ -41,10 +41,10 @@ class MewloSite_Test1(MewloSite):
 
         config = {
             # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
-            MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
+            #MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
             MewloSite.DEF_CONFIGVAR_controllerroot: pkgdirimp_controllers,
             # site prefix
-            MewloSite.DEF_CONFIGVAR_urlprefix: "",
+            #MewloSite.DEF_CONFIGVAR_urlprefix: "",
             }
         # add config to settings
         self.sitesettings.merge_settings_atsection("config",config)
@@ -131,7 +131,7 @@ class MewloSite_Test1(MewloSite):
         logger.add_target(LogTarget_File(filename='testlogout2.txt'))
         #
         # want to test raising an exception on failure to write/open file? uncomment this
-        #logger.add_target(LogTarget_File(filename=''))
+        # logger.add_target(LogTarget_File(filename=''))
 
 
 
@@ -165,9 +165,9 @@ def main():
     sitemanager = MewloSite_Test1.create_manager_and_simplesite()
 
     # stop if there were errors preparing
-    if (sitemanager.prepare_errors.count_errors()>0):
-        print "Stopping due to sitemanager preparation errors:\n"
-        print sitemanager.prepare_errors.debug()
+    if (sitemanager.prepeventlist.count_errors()>0):
+        print "Stopping due to sitemanager preparation errors:"
+        print sitemanager.prepeventlist.debug()
         exit()
 
     # ask the manager to debug and print some useful info

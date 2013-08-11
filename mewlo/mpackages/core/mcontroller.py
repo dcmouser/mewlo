@@ -7,7 +7,10 @@ The base class for callable controllers that are invoked when activating routes
 
 
 # helpers
-from helpers.callables import find_callable, find_callable_throwexception
+from helpers.callables import find_callable
+
+# mewlo modules
+from mewlo.mpackages.core.mexception import mreraise
 
 # python modules
 from types import ModuleType
@@ -26,57 +29,58 @@ class MewloController(object):
         self.root = root
         #
         self.callable = None
-        self.parentobj = None
+        self.parent = None
         self.site = None
         #
         # if they gave us an actual package as root and a function string, we COULD try to do a lookup right now in order to throw an early exception
         # otherwise we will defer lookup until later
         if (True):
-            #if (isinstance(root,ModuleType) and isinstance(function,basestring)):
             if (root != None and isinstance(function,basestring)):
-                self.callable = find_callable_throwexception(root, function)
+                self.callable = find_callable(root, function)
 
 
 
     def get_controllerroot(self):
         return self.root
+    def get_parent(self):
+        return self.parent
 
-
-
-    def prepare(self, parentobj, site, errors):
+    def prepare(self, parent, site, eventlist):
         """Do initial preparatory stuff on system startup."""
+        # ATTN: todo - use eventlist
 
-        self.parentobj = parentobj
+        self.parent = parent
         self.site= site
         # we want to propagage callableroot from parent down
         if (self.root==None):
-            self.root = parentobj.get_controllerroot()
+            self.root = parent.get_controllerroot()
         # now calculate callable once instead of every time
         if (self.callable==None):
-            (self.callable, errorstr) = self.find_callable()
-            if (self.callable == None):
-                errors.error(errorstr)
+            self.callable = self.find_ourcallable()
 
 
 
-    def find_callable(self):
+    def find_ourcallable(self):
         """Lookup the callable wrapped by this controller object."""
 
         if (self.function==None):
             # error, nothing to call
-            return (None,"No function specified for callable.")
+            raise Exception("No function specified for callable.")
         elif (not isinstance(self.function, basestring)):
             # they gave us a function directly, just use it
-            return (self.function,"")
+            return self.function
         else:
             # they gave us a string, so we're going to look it up at root
             callablestring = self.function
 
         # look it up by string
-        (callable, errorstr) = find_callable(self.get_controllerroot(), callablestring)
-        if (errorstr!=""):
-            errorstr = "In route '"+self.parentobj.id+"' of site '"+self.site.get_sitename()+"', "+errorstr
-        return (callable, errorstr)
+        try:
+            callable = find_callable(self.get_controllerroot(), callablestring)
+        except Exception as exp:
+            # add some info and reraise
+            mreraise(exp, "Error occurred while trying to look up the callable '"+callablestring+"' specified by: ", obj=self)
+
+        return callable
 
 
 

@@ -46,7 +46,7 @@ Some examples of things we will want to be able to easily do:
 
 # Mewlo helpers
 from mewlo.mpackages.core.helpers.debugging import smart_dotted_idpath
-
+from mewlo.mpackages.core.mexception import mreraise
 
 
 
@@ -66,6 +66,8 @@ class LogManager(object):
         self.parent = parent
     def get_parent(self):
         return self.parent
+    def get_site(self):
+        return self.parent.get_site()
 
 
 
@@ -108,7 +110,8 @@ class LogFilter(object):
         self.parent = parent
     def get_parent(self):
         return self.parent
-
+    def get_site(self):
+        return self.parent.get_site()
 
 
     def add_andfilter(self, filter):
@@ -171,6 +174,7 @@ class LogTarget(object):
 
     def __init__(self):
         self.parent = None
+        self.isenabled = True
 
 
 
@@ -178,7 +182,13 @@ class LogTarget(object):
         self.parent = parent
     def get_parent(self):
         return self.parent
+    def get_site(self):
+        return self.parent.get_site()
 
+    def set_isenabled(self, flagval):
+        self.isenabled = flagval
+    def get_isenabled(self):
+        return self.isenabled
 
 
     def process(self, logmessage):
@@ -232,6 +242,8 @@ class Logger(object):
         self.parent = parent
     def get_parent(self):
         return self.parent
+    def get_site(self):
+        return self.parent.get_site()
     def get_id(self):
         return self.id
 
@@ -277,7 +289,18 @@ class Logger(object):
     def run_targets(self, logmessage):
         """Run ALL registered targets on the message."""
         for target in self.targets:
-            target.process(logmessage)
+            if (target.get_isenabled()):
+                try:
+                    target.process(logmessage)
+                except IOError as exp:
+                    # first thing we need to do is disable this target, in case we get recursively called or decide to keep running
+                    target.set_isenabled(False)
+                    # ATTN: todo
+                    # what should we do now? if we raise an exception here, we can't continue with the other targets
+                    # the best thing to do might be to LOG the error here (or add it to error list) and continue
+                    # raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception to provide extra info
+                    # we probably wouldn't consider this a fatal error that should stop program from executing.
+                    mreraise(exp, "Disabling the logger wherre the error occurred: ", obj=target)
 
 
 

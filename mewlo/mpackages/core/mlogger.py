@@ -1,5 +1,5 @@
 """
-mewlologger,py
+mlogger,py
 This module defines subclassed logger classes specialized for Mewlo.
 
 """
@@ -27,7 +27,10 @@ class MewloLogMessage(LogMessage):
 
     def as_logline(self):
         """Get the LogMessage as a string suitable for writing to a log file."""
-        return str(self.msg) + " | " + self.request.get_path()
+        retstr = str(self.msg)
+        if (self.request!=None):
+            retstr += " | " + self.request.get_path()
+        return retstr
 
 
 

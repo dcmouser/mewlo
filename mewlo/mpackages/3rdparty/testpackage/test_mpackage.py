@@ -18,7 +18,7 @@ class Test_MewloPackageObject(MewloPackageObject):
 
     def __init__(self, package):
         super(Test_MewloPackageObject, self).__init__(package)
-        pass
+
 
 
     def debug(self,indentstr=""):

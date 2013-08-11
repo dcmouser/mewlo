@@ -12,11 +12,13 @@ from mpackage import MewloPackageManager
 from mrequest import MewloRequest
 from mresponse import MewloResponse
 from mroutemanager import MewloRouteGroup
+from mlogger import MewloLogMessage
+from mexception import mreraise
 
 # helpers
-from mewlo.mpackages.core.helpers.eventtracker import EventTracker
+from mevent import MewloEventList
 from mewlo.mpackages.core.helpers.logger.logger import LogManager, Logger, LogMessage
-from mewlo.mpackages.core.mewlologger import MewloLogMessage
+
 
 # python libs
 import os
@@ -74,6 +76,8 @@ class MewloSite(object):
     def get_id(self):
         # generic get_id function used in lots of places to help display debug info
         return self.get_sitename()
+    def get_site(self):
+        return self
 
 
 
@@ -90,7 +94,7 @@ class MewloSite(object):
         # set it to be our site manager
         self.set_and_add_sitemanager(mysitemanager)
         # ask it to prepare for work
-        errors = self.sitemanager.prepare()
+        eventlist = self.sitemanager.prepare()
         # return the site manager created
         return self.sitemanager
 
@@ -142,69 +146,77 @@ class MewloSite(object):
 
 
 
-    def prepare(self, errors = None):
+    def prepare(self, eventlist = None):
         """
         Do preparatory stuff after settings have been set.
         It is critical that this function get called prior to running the system.
         """
 
-        if (errors==None):
-            errors = EventTracker()
+        if (eventlist==None):
+            eventlist = MewloEventList()
+
+        # set the context of the eventlist to this site so all added events properly denote they are from our site
+        #eventlist.set_context("Preparing site "+self.get_sitename())
+
+        # before we start preparing -- we validate the site settings which will just log some warnings/errors if any found
+        self.validate(eventlist)
+
         # misc. stuff
-        self.prepare_settings(errors)
+        self.prepare_settings(eventlist)
         #
-        self.discover_packages(errors)
-        self.loadinfos_packages(errors)
-        self.instantiate_packages(errors)
+        self.discover_packages(eventlist)
+        self.loadinfos_packages(eventlist)
+        self.instantiate_packages(eventlist)
         #
-        self.prepare_routes(errors)
+        self.prepare_routes(eventlist)
         #
-        return errors
+        return eventlist
 
 
-    def prepare_settings(self, errors):
+    def prepare_settings(self, eventlist):
         """Prepare some settings."""
         self.controllerroot = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_controllerroot)
 
-    def prepare_routes(self, errors):
+    def prepare_routes(self, eventlist):
         """Walk all routes and compile/cache/update stuff."""
-        self.routes.prepare(self, self, errors)
+        self.routes.prepare(self, self, eventlist)
 
-    def discover_packages(self, errors):
+    def discover_packages(self, eventlist):
         """Discover packages """
         packagedirectories = self.sitemanager.get_package_directory_list() + self.get_package_directory_list()
         self.packagemanager.set_directories(packagedirectories)
         self.packagemanager.discover_packages()
 
-    def loadinfos_packages(self, errors):
+    def loadinfos_packages(self, eventlist):
         """Load infos for all packages """
         self.packagemanager.loadinfos_packages()
 
-    def instantiate_packages(self, errors):
+    def instantiate_packages(self, eventlist):
         """Load and instantiate packages"""
         self.packagemanager.instantiate_packages()
 
 
 
-    def validate(self, errors=None):
-        """Validate the site and return an EventTracker with errors and warnings"""
-        if (errors==None):
-            errors = EventTracker()
+    def validate(self, eventlist=None):
+        """Validate the site and return an MewloEventList with errors and warnings"""
+        if (eventlist==None):
+            eventlist = MewloEventList()
         #
-        self.validate_setting_config(errors, self.DEF_CONFIGVAR_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
-        self.validate_setting_config(errors, self.DEF_CONFIGVAR_controllerroot, False, "no site-default specified for controller root.")
-        self.validate_setting_config(errors, self.DEF_CONFIGVAR_urlprefix, False, "site has no prefix and starts at root (/).")
+        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
+        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_controllerroot, False, "no site-default specified for controller root.")
+        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_urlprefix, False, "site has no prefix and starts at root (/).")
         #
-        return errors
+        return eventlist
 
 
-    def validate_setting_config(self, errors, varname, iserror, messagestr):
+    def validate_setting_config(self, eventlist, varname, iserror, messagestr):
         """Helper function for the validate() method."""
         if (not self.sitesettings.value_exists(varname, self.DEF_SECTION_config)):
+            estr = "In site "+self.get_sitename()+", site config variable '"+varname+"' not specified; "+messagestr
             if (iserror):
-                errors.error("Site config variable '"+varname+"' not specified; "+messagestr)
+                eventlist.add_simpleerror(estr)
             else:
-                errors.warning("Site config variable '"+varname+"' not specified; "+messagestr)
+                eventlist.add_simplewarning(estr)
 
 
 
@@ -329,7 +341,7 @@ class MewloSiteManager(object):
     def __init__(self):
         # the collection of sites that this manager takes care of
         self.sites = list()
-        self.prepare_errors = EventTracker()
+        self.prepeventlist = MewloEventList()
 
 
     def add_site(self,site):
@@ -353,8 +365,9 @@ class MewloSiteManager(object):
     def prepare(self):
         """Ask all children sites to 'prepare'."""
         for site in self.sites:
-            site.prepare(self.prepare_errors)
-        return self.prepare_errors
+            # prepare the site
+            site.prepare(self.prepeventlist)
+        return self.prepeventlist
 
 
     def debugmessage(self, astr):
@@ -444,7 +457,7 @@ class MewloSiteManager(object):
     def debug(self,indentstr=''):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloSiteManager reporting in.\n"
-        outstr += self.prepare_errors.debug(indentstr+" ")
+        outstr += self.prepeventlist.debug(indentstr+" ")
         outstr += self.debug_sites(indentstr+" ")
         return outstr
 

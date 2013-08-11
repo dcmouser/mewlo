@@ -3,7 +3,7 @@ This document lays out the philosophy and coding style used in the Mewlo system 
 In particular, we want to answer questions like:
 
     * When should we use exceptions vs error return values or tuples?
-    * When and how do we log serious errors?
+    * When and how do we log serious errors -- where in the exception chain?
 
 
 
@@ -38,6 +38,21 @@ Different kinds of errors/exceptions
 Let us consider two kinds of "errors/exceptions".
 The first kind of error/exception we will call "Serious Errors".  These are the kind that reflects a programming mistake or an unanticipated error that reflects a "serious" problem -- one that should be logged and where an administrator needs to be informed.  It would be common for such errors to terminate the associated request immediately without continuing.
 The second kind of error/exception we will call "Casual Errors".  These are errors that can be considered an alternate-form of the return value from a function.  Such return values do not signify a programming error or serious problem that requires termination of the request, etc.  The programming logic by definition will take into account such error return values.
+Another example of the casual errors are form processing errors, for which there may be multiple and they are reported with context when presenting form.
+
+And somewhere between these two are some other things:
+Cases where we want to log some unusual event, even if we don't technically consider it an error.
+Cases where we want to create a "report" of warnings+errors after doing some operation or performing some validation.
+
+
+
+
+
+So we can break this orthogonally into several dimensions:
+1. How do we REPORT the "error/exception" back to our caller?
+2. What kind of "object" is the error/exception?
+3. How (and how far) do we propagate it up the call stack?
+4. How/when do we log it?
 
 
 
@@ -53,7 +68,43 @@ Another issue is where we need to add some context to an error/exception before 
 
 
 
+
 Our strategy
 
 We want to use a consistent approach to error return values, exceptions, and logging.  So would should that approach be?
 
+
+
+
+FIRST DRAFT proposal:
+
+1. Use formal exceptions in all cases where there is normally a return value; do not use tuples
+2. Use a custom exception class to wrap all errors/exceptions, which will support adding contextual information and logging.
+3. Pass exceptions up the call stack chain until they get to a "natural" place to recover; use philosophy of database transactions -- roll back until its safe to do additional work.  Often this will mean rolling back to processing of the url request and displaying an error page.
+4. If a function is re-raising the objection as-is, it need not worry about logging it or converting(wrapping) it.  Only when an exception/error is consumed must the function allow it to be logged.
+5. MewloRequest objects will have a ErrorTracker object attached to them which can hold multiple errors added to the request as it is processed.  In this way we can defer displaying errors until final page rendering.
+6. This is similar in spirit to the way multiple form processing errors are accumulated and prepared for display.  Perhaps we can unify these concepts.
+7. WHENEVER a function call could conceivably throw an exception, it should be placed in a TRY EXCEPT block, even if the only command in the except block is a raise; this is to ensure we have exceptions occuring only where we expect them.
+
+RESULT from first draft:
+
+This approach worked, but had some real drawbacks:
+1. Python treats many programming errors as runtime exceptions, including syntax errors in code.
+Because of this, one has to be very careful when using exceptions to catch function return-code information that is not a critical error.
+This fundamental tension between critical exceptions and simple "failure return codes" is what makes this approach most unpleasing.
+2. Having caught an exception deep in a call stack, if we want to ADD extra info to it (contextual text hints for example), we need to wrap the exception and re-raise it.
+This does help us with issue#1 because we can use a flag in our wrapped exception to signify when it's a return-code type exception.
+
+
+
+SECOND DRAFT proposal:
+
+1. NEVER use exceptions for failure return codes.  Only use an exception if the event is so serious that we know the caller will not know how to handle our return code.
+2. Due to #1, all functions that might possibly return a failure message needs to return a tuple if it is a function that normally returns a value, or have the sole return value be the failure message.
+3. We will enforce a uniform policy for these failure messages.
+4. The form of a failure return message can be one of the following: 
+None, blank string, string describing the error, MewloEvent, MewloEventList
+5. The intent of this is as follows:
+a) make it cheap to return strings or None as simple error messages
+b) have helper functions to make it easy to convert these to (and add them to) standard flexible MewloEventList collections which we can use to do more serious processing when we need to.
+c) ensure that all functions receiving a failure message can accept it in the standard formats (which also allow multiple errors to be returned via MewloEventList).

@@ -11,7 +11,8 @@ import sys
 import os
 import traceback
 
-
+# mewlo imports
+from mewlo.mpackages.core.mexception import mreraise
 
 
 
@@ -26,16 +27,18 @@ def find_callable(callableroot, callableobj):
     :param callableroot: None | string to prefix to dotted path | imported package(module) to use as root of dotted lookup
     :param callableobj: string representing a dotted path to look up; the last element is treated as function name, and everything before that is treated as module name to lookup
 
-    :return: tuple (funcreferce, errorstr)
+    :return: funcreference
 
     :todo: support python egg format of "package.module:object"
     """
 
+    # Note that many of the function calls below can throw exceptions
+
     # if callableobj is not a string, then we are DONE and can either just return it if its callable, or throw an error if its not callable
     if (not isinstance(callableobj, basestring)):
         if (callable(callableobj)):
-            return (callableobj, "")
-        return (None,"The provided object ("+str(callableobj)+") is not a 'callable'.")
+            return callableobj
+        raise TypeError("The provided object ("+str(callableobj)+") is not a 'callable'.")
 
     # ok so we know that callableobj is a string
     callablepath = callableobj
@@ -44,29 +47,14 @@ def find_callable(callableroot, callableobj):
     modulepath, functionname = split_dottedpath_modulepath_and_funcname(callablepath)
 
     # now that we have (possibly None) modulepath string, let's find it from root (which might be None or an actual package object)
-    (mod, errorstr) = find_module_from_dottedpath(callableroot, modulepath)
-    if (mod==None):
-        return (None, errorstr)
+    mod = find_module_from_dottedpath(callableroot, modulepath)
 
     # now we have the module OBJECT where the function is located, so we can try to lookup the function from the module
-    (func, errorstr) = find_function_from_module_and_dottedpath(mod, functionname)
-    if (func==None):
-        return (None, "Imported module '"+modulepath+"' but "+errorstr)
+    func = find_function_from_module_and_dottedpath(mod, functionname)
 
     # success
-    return (func, "")
+    return func
 
-
-
-def find_callable_throwexception(callableroot, callableobj):
-    """
-    Just call find_callable but throw an exception if not found; more useful for finding errors quickly
-    """
-
-    (callable, errorstr) = find_callable(callableroot, callableobj)
-    if (errorstr!=""):
-        raise Exception(errorstr)
-    return callable
 
 
 
@@ -83,18 +71,17 @@ def find_module_from_dottedpath(callableroot, modulepath):
         if (isinstance(callableroot, basestring)):
             # root is a string so just add it to module path and then look for module by string dottedpath
             modulepath = callableroot + "." + modulepath
-            (mod,errorstr) = find_module_from_dottedpath_bystring(modulepath)
+            mod = find_module_from_dottedpath_bystring(modulepath)
         elif (isinstance(callableroot, ModuleType)):
             # root is actually a package module, so just find modulepath dottedstring relative to the root package module
-            (mod,errorstr) = find_module_from_dottedpath_relativetopackage(callableroot, modulepath)
+            mod = find_module_from_dottedpath_relativetopackage(callableroot, modulepath)
         else:
             # no idea what callableroot IS
-            mod = None
-            errorstr = "Unknown callableroot ("+str(callableroot)+") type; not attempting to load modulepath: "+modulepath
+            raise LookupError("Unknown callableroot ("+str(callableroot)+") type; not attempting to load modulepath: "+modulepath)
     else:
         # no root, so just import the module as a string
-        (mod,errorstr) = find_module_from_dottedpath_bystring(modulepath)
-    return (mod,errorstr)
+        mod = find_module_from_dottedpath_bystring(modulepath)
+    return mod
 
 
 
@@ -105,11 +92,8 @@ def find_module_from_dottedpath_bystring(modulepath):
     """
 
     # call __import__ to load the module and get a reference to it; the ["dummyval"] arg is needed to trick it to return a module reference
-    try:
-        mod = __import__(modulepath, globals(), locals(), ["dummyval",], -1)
-    except Exception as exp:
-        return (None, "Failed to module import '"+modulepath+"': "+str(exp))
-    return (mod, "")
+    mod = __import__(modulepath, globals(), locals(), ["dummyval",], -1)
+    return mod
 
 
 
@@ -135,12 +119,8 @@ def find_function_from_module_and_dottedpath(mod, functionname):
     """
 
     # we have an imported module package, not find the function attribute by name
-    try:
-        func = getattr(mod, functionname)
-    except Exception as exp:
-        return (None, "failed to find function '"+functionname+"': "+str(exp))
-    #
-    return (func, "")
+    func = getattr(mod, functionname)
+    return func
 
 
 
@@ -181,23 +161,24 @@ def importmodule_bypath(path):
 def do_importmodule_bypath_version1(path):
     """Internal helper function. Load a python module import by explicit path; version1 uses imp.load_source"""
     dynamicmodule = None
-    errorstr = ""
 
     name, ext = os.path.splitext(os.path.basename(path))
     modulename = "DynamicallyLoadedPackage_"+name
 
+    import imp
     try:
         dynamicmodule = imp.load_source(modulename, path)
     except Exception as exp:
-        errorstr = "Failure to load_source module ("+path+"): "+str(exp)+"; STACK TRACEBACK: "+traceback.format_exc()
+        return None, MewloFailure("failed to import module by path", exp=exp)
 
-    return (dynamicmodule, errorstr)
+    return dynamicmodule, None
+
+
 
 
 def do_importmodule_bypath_version2(path):
     """Internal helper function.Load a python module import by explicit path; version2 uses find_module and load_module"""
     dynamicmodule = None
-    errorstr = ""
     file = None
 
     # get name+path
@@ -205,27 +186,20 @@ def do_importmodule_bypath_version2(path):
     dirpath = os.path.dirname(path)
 
     # find the module
-    try:
-        (file, filename, data) = imp.find_module(name, [dirpath])
-        if (not file):
-            errorstr = "Failure to find module ("+path+")."
-    except Exception as exp:
-        errorstr = "Failure to find module ("+path+"): "+str(exp)
+    (file, filename, data) = imp.find_module(name, [dirpath])
+
     # load it after find
-    if (file):
-        try:
-            dynamicmodule = imp.load_module(name, file, filename, data)
-        except Exception as exp:
-            errorstr = "Failure to load module ("+path+"): "+str(exp)+"; STACK TRACEBACK: "+traceback.format_exc()
-        file.close()
+    dynamicmodule = imp.load_module(name, file, filename, data)
+
     # return it
-    return (dynamicmodule, errorstr)
+    return dynamicmodule, None
+
+
 
 
 def do_importmodule_bypath_version3(path):
     """Internal helper function.Load a python module import by explicit path; version3 appends to sys path"""
     dynamicmodule = None
-    errorstr = ""
 
     # save previous sys path
     oldpath = sys.path
@@ -236,13 +210,17 @@ def do_importmodule_bypath_version3(path):
     sys.path.append(dirpath)
 
     # do the import
-    try:
-        dynamicmodule = __import__(name)
-    except Exception as exp:
-        errorstr = "Failure to import package code module ("+path+"): "+str(exp)+"; STACK TRACEBACK: "+traceback.format_exc()
+    dynamicmodule = __import__(name)
 
     # reset sys path
     sys.path = oldpath
 
     # return it
-    return (dynamicmodule, errorstr)
+    return dynamicmodule, None
+
+
+
+
+
+
+

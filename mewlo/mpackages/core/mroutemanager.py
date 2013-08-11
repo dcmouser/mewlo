@@ -57,6 +57,9 @@ class MewloRouteArg(object):
         return False
 
 
+    def get_argtypestr(self):
+        """Just nice label for display."""
+        return "None (base arg class)"
 
 
 
@@ -86,8 +89,8 @@ class MewloRouteArgFlag(MewloRouteArg):
     def get_isflag(self):
         return True
 
-
     def get_argtypestr(self):
+        """Just nice label for display."""
         return "Flag"
 
 
@@ -110,6 +113,7 @@ class MewloRouteArgString(MewloRouteArg):
 
 
     def get_argtypestr(self):
+        """Just nice label for display."""
         return "String"
 
 
@@ -131,12 +135,16 @@ class MewloRouteArgInteger(MewloRouteArg):
             isvalid = True
             errorstr = ""
         except ValueError:
+            # we just catch this and report it back -- it's not a coding error, just an indication that user url is wrong
             isvalid = False
+            # for safety, when we return we set argval to None since it didn't match the type we expected
+            argval = None
             errorstr = "Expected integer value; "+str(ValueError)
         return (isvalid, argval, errorstr)
 
 
     def get_argtypestr(self):
+        """Just nice label for display."""
         return "Integer"
 
 
@@ -181,20 +189,23 @@ class MewloRoute(object):
         return self.controllerroot
     def get_extra(self):
         return self.extra
+    def get_parent(self):
+        return self.parent
+    def get_id(self):
+        return self.id
 
 
-
-    def prepare(self, parentobj, site, errors):
+    def prepare(self, parent, site, eventlist):
         """Prepare any info/caching; this is called before system startup by our parent site."""
 
-        self.parentobj = parentobj
+        self.parent = parent
         self.site= site
         # root propagation
         if (self.controllerroot==None):
-            self.controllerroot = parentobj.get_controllerroot()
+            self.controllerroot = parent.get_controllerroot()
         # prepare controller
         if (self.controller!=None):
-            self.controller.prepare(self, site, errors)
+            self.controller.prepare(self, site, eventlist)
 
 
 
@@ -438,7 +449,7 @@ class MewloRouteGroup(object):
     def __init__(self, controllerroot=None, routes=None):
         self.controllerroot = controllerroot
         self.routes = []
-        self.parentobj = None
+        self.parent = None
         self.site = None
         #
         if (routes != None):
@@ -449,7 +460,8 @@ class MewloRouteGroup(object):
         return self.controllerroot
     def set_controllerroot(self, controllerroot):
         self.controllerroot = controllerroot
-
+    def get_parent(self):
+        return self.parent
 
 
     def append(self, routes):
@@ -474,17 +486,17 @@ class MewloRouteGroup(object):
 
 
 
-    def prepare(self, parentobj, site, errors):
+    def prepare(self, parent, site, eventlist):
         """Initial preparation, invoked by parent."""
 
-        self.parentobj = parentobj
+        self.parent = parent
         self.site= site
         # we want to propagage controllerroot from parent down
         if (self.controllerroot==None):
-            self.controllerroot = parentobj.get_controllerroot()
+            self.controllerroot = parent.get_controllerroot()
         # recursive prepare
         for route in self.routes:
-            route.prepare(self, site, errors)
+            route.prepare(self, site, eventlist)
 
 
 
