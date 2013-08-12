@@ -12,12 +12,11 @@ from mpackage import MewloPackageManager
 from mrequest import MewloRequest
 from mresponse import MewloResponse
 from mroutemanager import MewloRouteGroup
-from mlogger import MewloLogMessage
 from mexception import mreraise
 
 # helpers
-from mevent import MewloEventList
-from mewlo.mpackages.core.helpers.logger.logger import LogManager, Logger, LogMessage
+from mewlo.mpackages.core.helpers.event.event import Event, EventList, EWarning, EError
+from mewlo.mpackages.core.helpers.event.logger import LogManager, Logger
 
 
 # python libs
@@ -153,7 +152,7 @@ class MewloSite(object):
         """
 
         if (eventlist==None):
-            eventlist = MewloEventList()
+            eventlist = EventList()
 
         # set the context of the eventlist to this site so all added events properly denote they are from our site
         #eventlist.set_context("Preparing site "+self.get_sitename())
@@ -169,6 +168,10 @@ class MewloSite(object):
         self.instantiate_packages(eventlist)
         #
         self.prepare_routes(eventlist)
+        #
+        # ATTN: TEST 8/11/13 - test log the events
+        if (True):
+            self.logevents(eventlist)
         #
         return eventlist
 
@@ -198,9 +201,9 @@ class MewloSite(object):
 
 
     def validate(self, eventlist=None):
-        """Validate the site and return an MewloEventList with errors and warnings"""
+        """Validate the site and return an EventList with errors and warnings"""
         if (eventlist==None):
-            eventlist = MewloEventList()
+            eventlist = EventList()
         #
         self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
         self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_controllerroot, False, "no site-default specified for controller root.")
@@ -214,9 +217,9 @@ class MewloSite(object):
         if (not self.sitesettings.value_exists(varname, self.DEF_SECTION_config)):
             estr = "In site "+self.get_sitename()+", site config variable '"+varname+"' not specified; "+messagestr
             if (iserror):
-                eventlist.add_simpleerror(estr)
+                eventlist.add(EError(estr))
             else:
-                eventlist.add_simplewarning(estr)
+                eventlist.add(EWarning(estr))
 
 
 
@@ -277,19 +280,14 @@ class MewloSite(object):
 
 
 
-    def logerror(self, msg, request, level=Logger.DEF_LEVEL_default, id=Logger.DEF_MESSAGEID_default, extras = {}):
-        """Shortcut to add a log message."""
-        self.log(msg, Logger.DEF_MTYPE_error, request, level, id, extras)
+    def logevent(self, mevent):
+        """Shortcut to add a log message from an event/failure."""
+        self.logmanager.process(mevent)
 
-    def logwarning(self, msg, request, level=Logger.DEF_LEVEL_default, id=Logger.DEF_MESSAGEID_default, extras = {}):
-        """Shortcut to add a log message."""
-        self.log(msg, Logger.DEF_MTYPE_warning, request, level, id, extras)
-
-    def log(self, msg, mtype, request, level=Logger.DEF_LEVEL_default, id=Logger.DEF_MESSAGEID_default, extras = {}):
-        """Shortcut to add a log message by sending it to our log manager."""
-        logmessage = MewloLogMessage(msg, request, mtype, level, id, extras)
-        self.logmanager.process(logmessage)
-
+    def logevents(self, mevents):
+        """Shortcut to add a log message from a *possible* iterable of events."""
+        for mevent in mevents:
+            self.logevent(mevent)
 
 
 
@@ -341,7 +339,7 @@ class MewloSiteManager(object):
     def __init__(self):
         # the collection of sites that this manager takes care of
         self.sites = list()
-        self.prepeventlist = MewloEventList()
+        self.prepeventlist = EventList()
 
 
     def add_site(self,site):

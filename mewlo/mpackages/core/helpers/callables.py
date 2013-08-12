@@ -5,7 +5,7 @@ This module contains functions that can lookup and return a reference to a funct
 
 
 
-# python modules
+# python imports
 from types import ModuleType
 import sys
 import os
@@ -13,6 +13,9 @@ import traceback
 
 # mewlo imports
 from mewlo.mpackages.core.mexception import mreraise
+
+#helper imports
+from mewlo.mpackages.core.helpers.event.event import EFailure
 
 
 
@@ -169,7 +172,7 @@ def do_importmodule_bypath_version1(path):
     try:
         dynamicmodule = imp.load_source(modulename, path)
     except Exception as exp:
-        return None, MewloFailure("failed to import module by path", exp=exp)
+        return None, EFailure("failed to import module by path", {"exp":exp})
 
     return dynamicmodule, None
 

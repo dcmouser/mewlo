@@ -5,14 +5,19 @@ Works with packagemanager.py to support our package/extension/addon system
 
 
 
-# python libraries
+# python imports
 import json
 import os
 
-# mewlo stuff
-from mewlo.mpackages.core.mevent import MewloEventList, MewloFailure
+# helper imports
+from ..event.event import EventList, EFailure
+
+# mewlo imports
 from mewlo.mpackages.core.mexception import mreraise
 from mewlo.mpackages.core.mewlomisc import readfile_asjson
+
+
+
 
 
 class Package(object):
@@ -35,7 +40,7 @@ class Package(object):
         self.readytoloadcode = False
         self.readytorun = False
         self.enabled = False
-        self.eventlist = MewloEventList()
+        self.eventlist = EventList()
 
 
 
@@ -107,20 +112,20 @@ class Package(object):
         packageobj = None
         # module loaded in memory?
         if (self.codemodule == None):
-            return MewloFailure("No code module imported to instantiate package object from")
+            return EFailure("No code module imported to instantiate package object from")
         # object class defined in info dictionary?
         packageobject_classname = self.get_infofile_property("codeclass",None)
         if (packageobject_classname == None):
-            return MewloFailure("Package info file is missing the 'codeclass' property which defines the class of the MewloPackage derived class in the package module")
+            return EFailure("Package info file is missing the 'codeclass' property which defines the class of the MewloPackage derived class in the package module")
         # does it exist
         if (not packageobject_classname in dir(self.codemodule)):
-            return MewloFailure("Package class ("+packageobject_classname+") not found in package module ("+self.codemodule.__name__+")")
+            return EFailure("Package class ("+packageobject_classname+") not found in package module ("+self.codemodule.__name__+")")
         # instantiate it
         try:
             packageobj_class = getattr(self.codemodule, packageobject_classname)
             packageobj = packageobj_class(self)
         except:
-            return MewloFailure("Package class object ("+packageobject_classname+") was found in package module, but could not be instantiated.")
+            return EFailure("Package class object ("+packageobject_classname+") was found in package module, but could not be instantiated.")
         # save it for use
         self.packageobject = packageobj
         # no failure returns None

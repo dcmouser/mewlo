@@ -9,7 +9,7 @@ This module defines a derived logging hey class that implements file logging
 from __future__ import print_function
 
 # Mewlo helpers
-from mewlo.mpackages.core.helpers.logger.logger import LogTarget
+from mewlo.mpackages.core.helpers.event.logger import LogTarget
 
 # python modules
 import sys

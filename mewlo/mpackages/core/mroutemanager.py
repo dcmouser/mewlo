@@ -167,12 +167,12 @@ class MewloRoute(object):
     DEF_ARGID_extraargs = "extraargs"
 
 
-    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extra = None, forcedargs = None):
+    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extras = None, forcedargs = None):
         self.id = id
         self.path = path
         self.args = args
         self.allow_extra_args = allow_extra_args
-        self.extra = extra
+        self.extras = extras
         self.forcedargs = forcedargs
         #
         self.controllerroot = None
@@ -187,8 +187,8 @@ class MewloRoute(object):
 
     def get_controllerroot(self):
         return self.controllerroot
-    def get_extra(self):
-        return self.extra
+    def get_extras(self):
+        return self.extras
     def get_parent(self):
         return self.parent
     def get_id(self):

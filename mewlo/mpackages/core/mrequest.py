@@ -70,20 +70,13 @@ class MewloRequest(object):
 
 
 
-    def logerror(self, *args, **kwargs):
+    def logevent(self, mevent):
         """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
-        kwargs['request']=self
-        self.site.logerror(*args, **kwargs)
-
-    def logwarning(self, *args, **kwargs):
-        """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
-        kwargs['request']=self
-        self.site.logwarning(*args, **kwargs)
-
-    def log(self, *args, **kwargs):
-        """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
-        kwargs['request']=self
-        self.site.log(*args, **kwargs)
+        # add request field (if it wasn't already set in mevent)
+        missingfields = { "request":self }
+        mevent.mergemissings(missingfields)
+        # add it via site
+        self.site.logevent(mevent)
 
 
 

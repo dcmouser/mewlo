@@ -6,7 +6,6 @@ This module defines classes and functions that assist in logging.
 There are multiple classes that work together to create our logging system:
     * LogManager - the main supervisor class that manages a collection of Loggers
     * Logger - responsible for saving/writing a log event to some destination, and matching log events to decide whether to handle them
-    * LogMessage- a single loggable event/message
     * LogFilter - class responsible for deciding if a log message should be handled by a Logger; each logger has a list of zero or more LogFilters to check for match
     * LogTarget - destination targets for loggers; each logger has a list of LogTargets to send to on match
 
@@ -14,7 +13,7 @@ How these classes co-exist:
     * A site has a single LogManager; all logging functionality is done through that manager.
     * A LogManager manages a collection of zero or more Loggers
     * A Logger has a collection of zero or more LogFilters and a collection of one or more LogTargets
-    * A triggered LogMessage is sent to the LogManager which sends it to each Logger; if a message passes the filters for a Logger, it triggers the targets for that logger
+    * A triggered logmessage(Event class) is sent to the LogManager which sends it to each Logger; if a message passes the filters for a Logger, it triggers the targets for that logger
 
 What are the goals of the logging system?
 
@@ -47,7 +46,8 @@ Some examples of things we will want to be able to easily do:
 # Mewlo helpers
 from mewlo.mpackages.core.helpers.debugging import smart_dotted_idpath
 from mewlo.mpackages.core.mexception import mreraise
-
+#
+from event import Event
 
 
 
@@ -81,7 +81,7 @@ class LogManager(object):
 
 
     def process(self, logmessage):
-        """Process a LogMessage, by allowing each of our attached loggers to handle it."""
+        """Process a logmessage(Event), by allowing each of our attached loggers to handle it."""
 
         for logger in self.loggers:
             logger.process(logmessage)
@@ -212,14 +212,6 @@ class Logger(object):
     Logger - responsible for saving/writing a log event to some destination, and matching log events to decide whether to handle them.
     """
 
-    # class constants
-    # a logmessage can have a severity level (negative or postitive)
-    DEF_LEVEL_default = 0
-    # default message dotted "id" which is just used for easy filtering and searching
-    DEF_MESSAGEID_default = None
-    # shorthand logmessage "types"
-    DEF_MTYPE_error = 'ERROR'
-    DEF_MTYPE_warning = 'WARNING'
     # we can throttle when log messages are generating too rapidly
     DEF_THROTTLERATE_default_messages_per_sec = 60
 
@@ -266,7 +258,7 @@ class Logger(object):
 
 
     def process(self, logmessage):
-        """Process a LogMessage.  This may involve ignoring it if it doesn't match our filters, or sending it to Targets immediately if it does."""
+        """Process a logmessage(Event).  This may involve ignoring it if it doesn't match our filters, or sending it to Targets immediately if it does."""
         if (self.doesmatch_filters(logmessage)):
             self.run_targets(logmessage)
 
@@ -301,42 +293,4 @@ class Logger(object):
                     # raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception to provide extra info
                     # we probably wouldn't consider this a fatal error that should stop program from executing.
                     mreraise(exp, "Disabling the logger wherre the error occurred: ", obj=target)
-
-
-
-
-
-
-
-
-
-
-
-class LogMessage(object):
-    """
-    LogMessage- a single loggable event/message
-    """
-
-    def __init__(self, msg, mtype, level=Logger.DEF_LEVEL_default, id=Logger.DEF_MESSAGEID_default, extras={}):
-        # constructor for log message
-        self.msg = msg
-        self.mtype = mtype
-        self.level = level
-        self.id = id
-        # extra dictionary (note we COPY (shallow) the dictionary because we dont want to get a dictionary that may be modified by caller or which we may add to and affect caller
-        self.extra = dict(extras)
-
-
-
-    def as_logline(self):
-        """Get the LogMessage as a (default formatted) string suitable for writing to a log file.  Subclasses would be expected to override this function."""
-        return str(self.msg)
-
-
-
-    def debug(self, indentstr=""):
-        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        return indentstr+"LogMessage: "+self.as_logline()
-
-
 

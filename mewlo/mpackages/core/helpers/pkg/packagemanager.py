@@ -6,16 +6,15 @@ This file supports discovery and loading of modules by path and filename pattern
 
 
 
-# python libraries
+# python imports
 import imp
 import fnmatch
 import os
 
-# helpers
+# helper imports
 from ..callables import importmodule_bypath
+from ..event.event import EFailure
 
-# mewlo modules
-from mewlo.mpackages.core.mevent import MewloFailure
 
 
 
@@ -121,9 +120,9 @@ class PackageManager(object):
         if (not path in PackageManager.classwide_packagemodules):
             # first we check if path is blank or does not exist
             if (path==""):
-                return None, MewloFailure("Failed to load import by path '"+path+"', because a blank path was specified.")
+                return None, EFailure("Failed to load import by path '"+path+"', because a blank path was specified.")
             elif (not os.path.isfile(path)):
-                return None, MewloFailure("Failed to load import by path '"+path+"', because that file does not exist.")
+                return None, EFailure("Failed to load import by path '"+path+"', because that file does not exist.")
             else:
                 # get name+extension of file, for import module info
                 # ok now load it dynamically

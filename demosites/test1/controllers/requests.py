@@ -27,8 +27,8 @@ def request_sayhello(request):
     """Show simple hello page; demonstrates use of args."""
     matchedroute = request.get_route()
     args = request.get_route_parsedargs()
-    extra = matchedroute.get_extra()
-    request.response.set_responsedata("In request_sayhello, with args: "+str(args)+" and extra: "+str(extra))
+    extras = matchedroute.get_extras()
+    request.response.set_responsedata("In request_sayhello, with args: "+str(args)+" and extras: "+str(extras))
     return (True,"")
 
 

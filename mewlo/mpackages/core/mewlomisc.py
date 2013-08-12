@@ -5,7 +5,9 @@ This module contains misclenaeous helper functions.
 
 # mewlo imports
 from mewlo.mpackages.core.mexception import mreraise
-from mewlo.mpackages.core.mevent import MewloFailure
+
+# helper imports
+from mewlo.mpackages.core.helpers.event.event import EFailure, EException
 
 
 
@@ -13,7 +15,7 @@ from mewlo.mpackages.core.mevent import MewloFailure
 def readfile_asjson(filepath, nicelabel):
     """
     Read a file and return json dictionary
-    :return: MewloFailure on error
+    :return: EFailure on error
     """
 
     # python libraries
@@ -21,20 +23,20 @@ def readfile_asjson(filepath, nicelabel):
 
     # make sure filename is nonblanck
     if (filepath == ""):
-        return None, MewloFailure(nicelabel+" has blank info file path")
+        return None, EFailure(nicelabel+" has blank info file path")
 
     # open the file and load into a string
     try:
         # open file for reading, and read it into string
         file = open(filepath,"r")
     except Exception as exp:
-        return None, MewloFailure("Failed to open "+nicelabel+" from path '"+filepathh+"'.", exp = exp)
+        return None, EException("Failed to open "+nicelabel+" from path '"+filepathh+"'.", exp=exp, flag_traceback=False )
 
      # read the file
     try:
         jsonstr = file.read()
     except Exception as exp:
-        return None, MewloFailure("Opened but failed to read contents of "+nicelabel+" from '"+filepath+"'.", exp=exp)
+        return None, EException("Opened but failed to read contents of "+nicelabel+" from '"+filepath+"'.", exp=exp, flag_traceback=False )
     finally:
         file.close()
 
@@ -42,7 +44,7 @@ def readfile_asjson(filepath, nicelabel):
     try:
         jsondict = json.loads(jsonstr)
     except Exception as exp:
-        return None, MewloFailure("Syntax error parsing json code in "+nicelabel+" '"+filepath+"'.", exp=exp)
+        return None, EException("Syntax error parsing json code in "+nicelabel+" '"+filepath+"'.", exp=exp, flag_traceback=True)
 
     # success
     return jsondict, None

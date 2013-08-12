@@ -7,7 +7,7 @@ This file contains classes to support response to requests
 
 
 # mewlo modules
-from mevent import MewloEventList
+from mewlo.mpackages.core.helpers.event.event import EventList, EError, EWarning
 
 # this version uses werkzeug to do heavy lifting
 from werkzeug.wrappers import Response
@@ -31,7 +31,7 @@ class MewloResponse(object):
         self.headers = None
         self.responsedata = None
         #
-        self.eventlist = MewloEventList()
+        self.eventlist = EventList()
 
 
 
@@ -64,10 +64,10 @@ class MewloResponse(object):
         # set values
         self.statuscode = 200
 
-    def add_status_error(self, statuscode, error):
+    def add_status_error(self, statuscode, errorstr):
         # set values
         self.set_status(statuscode)
-        self.eventlist.add_simpleerror(error)
+        self.eventlist.add(EError(errorstr,{"statuscode":statuscode}))
 
     def set_responsedata(self, responsedata, statuscode = 200):
         self.responsedata = responsedata

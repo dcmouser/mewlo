@@ -10,9 +10,10 @@ from mewlo.mpackages.core.msites import MewloSite
 from mewlo.mpackages.core.mroutemanager import *
 from mewlo.mpackages.core.mcontroller import MewloController
 
-# Mewlo helpers
-#from mewlo.mpackages.core.helpers.logger.logger import LogTarget
-from mewlo.mpackages.core.helpers.logger.logger_filetarget import LogTarget_File
+# helpers
+from mewlo.mpackages.core.helpers.event.logger_filetarget import LogTarget_File
+from mewlo.mpackages.core.helpers.event.event import EWarning, EError
+
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live; this is just a way to get the relative directory easily
 import mpackages as pkgdirimp_sitempackages
@@ -41,10 +42,10 @@ class MewloSite_Test1(MewloSite):
 
         config = {
             # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
-            #MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
+            MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
             MewloSite.DEF_CONFIGVAR_controllerroot: pkgdirimp_controllers,
             # site prefix
-            #MewloSite.DEF_CONFIGVAR_urlprefix: "",
+            MewloSite.DEF_CONFIGVAR_urlprefix: "",
             }
         # add config to settings
         self.sitesettings.merge_settings_atsection("config",config)
@@ -58,8 +59,6 @@ class MewloSite_Test1(MewloSite):
         routegroup = MewloRouteGroup()
         # overide the parent import-package-directory for the urls in this group? if we don't it will use the controller root set in SITE config
         # routegroup.set_controllerroot(pkgdirimp_controllers)
-        # another way to specify controller functions directly
-        from controllers.requests import request_article
         #
         routegroup.append(
             MewloRoute(
@@ -95,11 +94,12 @@ class MewloSite_Test1(MewloSite):
                         ],
                 controller = MewloController(function="requests.request_sayhello"),
                 # we can pass in any extra data which will just be part of the route that can be examined post-matching
-                extra = [ "whatever we want" ],
+                extras = [ "whatever we want" ],
                 # we can force the route to simulate as if certain call args were assigned (this works whether there are RouteArgs for these or not; no type checking is performed on them
                 forcedargs = { "sign": u"aries" },
                 ))
 
+        from controllers.requests import request_article
         routegroup.append(
             MewloRoute(
                 id  = "articlepage",
@@ -115,7 +115,6 @@ class MewloSite_Test1(MewloSite):
 #                controller = MewloController(function="requests.request_article"),
                 # another alternative is to import above and then specify the function reference explicitly
                 controller = MewloController(function=request_article),
-
                 ))
         #
         # add routegroup to site
@@ -127,18 +126,18 @@ class MewloSite_Test1(MewloSite):
         """This is called by default by the base MewloSite near startup, to add loggers to the system."""
 
         logger = self.createadd_logger('mytestlogger')
-        logger.add_target(LogTarget_File(filename='testlogout1.txt'))
-        logger.add_target(LogTarget_File(filename='testlogout2.txt'))
+        logger.add_target(LogTarget_File(filename='testlogout1.txt', filemode='w'))
+        logger.add_target(LogTarget_File(filename='testlogout2.txt', filemode='w'))
         #
         # want to test raising an exception on failure to write/open file? uncomment this
-        # logger.add_target(LogTarget_File(filename=''))
+        #logger.add_target(LogTarget_File(filename=''))
 
 
 
     def pre_runroute_callable(self, route, request):
         """This is called by default when a route is about to be invoked.  Subclassed sites can override it."""
 
-        request.logwarning("This is a test warning called PRE run route.")
+        request.logevent(EWarning("This is a test warning called PRE run route."))
         return True
 
 
@@ -146,7 +145,7 @@ class MewloSite_Test1(MewloSite):
     def post_runroute_callable(self, request):
         """This is called by default after a route has been invoked.  Subclassed sites can override it."""
 
-        request.logwarning("This is a test warning called POST run route: "+str(request))
+        request.logevent(EWarning("This is a test warning called POST run route: "+str(request)))
         return True
 
 
