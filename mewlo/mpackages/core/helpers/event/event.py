@@ -25,7 +25,7 @@ class Event(object):
     """Base class for event/error class."""
 
     # class constants
-    DEF_FIELDNAME_etype = "type"
+    DEF_SAFEFIELDNAMELIST = ["type","msg","exp","request","traceback","statuscode"]
     #
     DEF_ETYPE_failure = "FAILURE"
     DEF_ETYPE_error = "ERROR"
@@ -43,6 +43,8 @@ class Event(object):
         # merge in fields
         if (fields != None):
             self.fields.update(fields)
+        # check field safety?
+        self.safetycheck_fields(self.fields)
 
 
     def __str__(self):
@@ -52,6 +54,8 @@ class Event(object):
 
     def setfield(self, fieldname, fieldval):
         self.fields[fieldname] = fieldval
+        # check field safety?
+        self.safetycheck_fieldname(fieldname)
 
     def getfield(self, fieldname, defaultval = None):
         if (fieldname in self.fields):
@@ -63,12 +67,16 @@ class Event(object):
         """Merge in new fields over existing, taking care of cases where one or both fields are None."""
         if (fields!=None):
             self.fields.update(fields)
+            # check field safety?
+            self.safetycheck_fields(fields)
 
     def mergemissings(self, fields):
         """Merge in missing fields."""
         for fieldname in fields.keys():
             if (not fieldname in self.fields) or (self.fields[fieldname]==None):
                 self.fields[fieldname] = fields[fieldname]
+                # check field safety?
+                self.safetycheck_fieldname(fieldname)
 
 
     def fieldmatches(self, fieldname, fieldval):
@@ -83,6 +91,24 @@ class Event(object):
         except:
             pass
         return False
+
+
+    def safetycheck_fieldname(self, fieldname):
+        """
+        Check to make sure this is an allowed fieldname -- helps to catch coding typo errors
+        ATTN: disable on optimization.
+        """
+        if (not fieldname in Event.DEF_SAFEFIELDNAMELIST):
+            if (not fieldname.startswith("custom_")):
+                raise Exception("Fieldname specified for Event [%s] that is not in our list of safe fieldnames (%s) and does not begin with 'custom_'." % (fieldname , ",".join(Event.DEF_SAFEFIELDNAMELIST)))
+
+    def safetycheck_fields(self, fields):
+        """
+        Check to make sure fields are allowed fieldnames -- helps to catch coding typo errors
+        ATTN: disable on optimization.
+        """
+        for fieldname in fields.keys():
+            self.safetycheck_fieldname(fieldname)
 
 
     def stringify(self):
@@ -195,7 +221,7 @@ class EventList(object):
 
     def count_errors(self):
         """Shorthand to count the number of events of error type."""
-        return self.countfieldmatches(Event.DEF_FIELDNAME_etype, Event.DEF_ETYPE_error)
+        return self.countfieldmatches("type", Event.DEF_ETYPE_error)
 
 
 
@@ -231,25 +257,25 @@ class EventList(object):
 
 def EFailure(msg=None, fields=None):
     """Helper function to create failure type event"""
-    defaultfields = { "msg":msg, Event.DEF_FIELDNAME_etype:Event.DEF_ETYPE_failure }
+    defaultfields = { "msg":msg, "type":Event.DEF_ETYPE_failure }
     # create event
     return Event(fields, defaultfields)
 
 def EError(msg=None, fields=None):
     """Helper function to create error type event"""
-    defaultfields = { "msg":msg, Event.DEF_FIELDNAME_etype:Event.DEF_ETYPE_error }
+    defaultfields = { "msg":msg, "type":Event.DEF_ETYPE_error }
     # create event
     return Event(fields, defaultfields)
 
 def EWarning(msg=None, fields=None):
     """Helper function to create warning type event"""
-    defaultfields = { "msg":msg, Event.DEF_FIELDNAME_etype:Event.DEF_ETYPE_warning }
+    defaultfields = { "msg":msg, "type":Event.DEF_ETYPE_warning }
     # create event
     return Event(fields, defaultfields)
 
 def EException(msg=None, exp=None, fields=None, flag_traceback=True):
     """Helper function to create exception type event with full exception traceback info."""
-    defaultfields = { "msg":msg, Event.DEF_FIELDNAME_etype:Event.DEF_ETYPE_exception, "exp":exp }
+    defaultfields = { "msg":msg, "type":Event.DEF_ETYPE_exception, "exp":exp }
     # add traceback?
     if (flag_traceback):
         defaultfields["traceback"] = Event.calc_traceback_text()

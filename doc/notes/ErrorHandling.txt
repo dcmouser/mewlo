@@ -86,7 +86,7 @@ FIRST DRAFT proposal:
 6. This is similar in spirit to the way multiple form processing errors are accumulated and prepared for display.  Perhaps we can unify these concepts.
 7. WHENEVER a function call could conceivably throw an exception, it should be placed in a TRY EXCEPT block, even if the only command in the except block is a raise; this is to ensure we have exceptions occuring only where we expect them.
 
-RESULT from first draft:
+Experience trying the first draft:
 
 This approach worked, but had some real drawbacks:
 1. Python treats many programming errors as runtime exceptions, including syntax errors in code.
@@ -99,12 +99,35 @@ This does help us with issue#1 because we can use a flag in our wrapped exceptio
 
 SECOND DRAFT proposal:
 
-1. NEVER use exceptions for failure return codes.  Only use an exception if the event is so serious that we know the caller will not know how to handle our return code.
+1. NEVER use exceptions for failure return codes.  Only use an exception if the event is so serious that we know the caller will not know how to handle our return code or we want immediate program halt.
 2. Due to #1, all functions that might possibly return a failure message needs to return a tuple if it is a function that normally returns a value, or have the sole return value be the failure message.
-3. We will enforce a uniform policy for these failure messages.
-4. The form of a failure return message can be one of the following: 
-None, blank string, string describing the error, MewloEvent, MewloEventList
-5. The intent of this is as follows:
-a) make it cheap to return strings or None as simple error messages
-b) have helper functions to make it easy to convert these to (and add them to) standard flexible MewloEventList collections which we can use to do more serious processing when we need to.
-c) ensure that all functions receiving a failure message can accept it in the standard formats (which also allow multiple errors to be returned via MewloEventList).
+3. As convention, the variable holding the "failure" message should be called "failure", and should be set to None when the function has completed with success.
+4a. So for example: (sum,failure) = compute_sum(a,b,c)
+4b. Or: failure = performoperation()
+5. When the operation succeeds, failure must be returned as None; and on error it must be non-None.
+6. But what kind of non-None value should be returned as failure?
+In the most trivial scenario, where the called function KNOWS that the caller does not intend to log or report the failure, or distinguish between different kinds of failures, it is allowable to simply return boolean True value as the failure.
+In all other cases, the convention should be to return an instance of the Event class.  There are several helper functions for creating such Event objects, including helper functions to create an Event object from an exception, recording a full traceback log of where the error occurred.
+Event objects are fairly lightweight by default but can support arbitrary extra data using a dictionary, and are designed to be written out to log files, displayed on screen, etc. 
+
+
+
+Experience trying the second draft:
+
+1. The convention/approach has absolute minimal impact on performance/memory on succeess, or on trivial failure return values.
+2. The convention allows arbitrary objects to be used as failure codes, BUT proscribes a standard failure object that is flexible and not too heavy.
+3. The prescribed failure object can support additional features that are useful like being able to save traceback callstack information, etc.
+4. The prescribed failure object is a member of the class of objects used for logging, so it is ready-made for logging and debug display.
+
+Drawbacks:
+
+1. We do not ENFORCE the requirement that all failure codes be Events, which could result in misuse.  We could overcome this by insisting that ALL failure return values are EITHER None or an Event.
+2. Our current implementation of the Event class is purely as an open-ened dictionary, without dedicated properties.  This means that when creating new events with unusual dictionary keys for certion properies (like "level" for severity level), the possibility of a typo being uncaught is high.
+3. The use of a pure dictionary-based approach to saving event properties also means the construction looks a bit messier.  e.g. instead of Event("my message",level=10) we have Event("my message",{"level":10}).
+4. We could solve this by going back to a fixed set of real properties, but we did that previously, and dropped it in favor of the dictionary because the number of properties in worst case was getting large and heavyweight for cases where they weren't needed.
+5. A compromise might be some optionally enabled check on dictionary key names that could be run when debugging mode is enabled.
+6. Another partial solution is we can always use helper functions that take specific named parameters as options and construct Event object dynamically from them; the existing EError(), EWarning(), EException, etc functions are examples of exactly this.
+
+Conclusion:
+
+Second draft is a winner.
