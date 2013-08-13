@@ -5,11 +5,10 @@ This file contains classes to support web server requests
 
 
 
-
-# mewlo stuff
+# mewlo imports
 from mresponse import MewloResponse
 
-# this version uses werkzeug to do heavy lifting
+# werkzeug imports -- currently wrapped and used to do heavy lifting
 from werkzeug.wrappers import Request
 from werkzeug.test import create_environ
 
@@ -80,6 +79,15 @@ class MewloRequest(object):
 
 
 
+    def debug(self, indentstr=""):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        outstr = indentstr+" MewloRequest reporting in:\n"
+        outstr += indentstr+"  URL: "+self.get_path()+"\n"
+        return outstr
+
+
+
+
     @classmethod
     def createrequest_from_pathstring(cls, pathstr):
         """Create a simulated web request from a path string, using werkzeug helper function."""
@@ -101,8 +109,3 @@ class MewloRequest(object):
 
 
 
-    def debug(self, indentstr=""):
-        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+" MewloRequest reporting in:\n"
-        outstr += indentstr+"  URL: "+self.get_path()+"\n"
-        return outstr

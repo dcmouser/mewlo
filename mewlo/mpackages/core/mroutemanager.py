@@ -4,17 +4,14 @@ This file contains classes to support hierarchical settings associates with site
 """
 
 
-
-
-# mewlo modules
-from mewlo.mpackages.core.mcontroller import MewloController
-
+# mewlo imports
+from mcontroller import MewloController
 
 
 
 
 class MewloRouteArg(object):
-    """The MewloRouteArg represents a single route argument"""
+    """The MewloRouteArg represents a single route argument."""
 
     def __init__(self, id, required, positional, help, defaultval):
         self.id = id
@@ -27,12 +24,12 @@ class MewloRouteArg(object):
 
     def validate_argvalue(self, argval):
         """
-        Check arg type and value
-        @return tuple (isvalid, argval, errorstr)
-        where isvalid is True if it meets requirements, or False if not
-        where argval is CONVERTED/COERCED argval
-        where errorstr is "" on valid, or description of error if not
-        note that argval will ONLY be CONVERTED IFF isvalid is returned as true, i.e. it is safely MADE valid; this will happen most typically for INTEGER args
+        Check arg type and value.
+        :return: tuple (isvalid, argval, errorstr)
+        where isvalid is True if it meets requirements, or False if not.
+        where argval is CONVERTED/COERCED argval.
+        where errorstr is "" on valid, or description of error if not.
+        note that argval will ONLY be CONVERTED IFF isvalid is returned as true, i.e. it is safely MADE valid; this will happen most typically for INTEGER args.
         """
 
         isvalid = False
@@ -69,7 +66,7 @@ class MewloRouteArg(object):
 
 
 class MewloRouteArgFlag(MewloRouteArg):
-    """The MewloRouteArg represents a single route argument"""
+    """The MewloRouteArg represents a single route argument."""
 
     def __init__(self, id, required=True, positional=False, help=None, defaultval=None):
         # just defer to parent constructor
@@ -98,7 +95,7 @@ class MewloRouteArgFlag(MewloRouteArg):
 
 
 class MewloRouteArgString(MewloRouteArg):
-    """The MewloRouteArg represents a single route argument"""
+    """The MewloRouteArg represents a single route argument."""
 
     def __init__(self, id, required=True, positional=False, help=None, defaultval=None):
         # just defer to parent constructor
@@ -121,7 +118,7 @@ class MewloRouteArgString(MewloRouteArg):
 
 
 class MewloRouteArgInteger(MewloRouteArg):
-    """The MewloRouteArg represents a single route argument"""
+    """The MewloRouteArg represents a single route argument."""
 
     def __init__(self, id, required=True, positional=False, help=None, defaultval=None):
         # just defer to parent constructor
@@ -160,7 +157,7 @@ class MewloRouteArgInteger(MewloRouteArg):
 
 class MewloRoute(object):
     """
-    The MewloRoute class represents a single route
+    The MewloRoute class represents a single route.
     """
 
     # class constants
@@ -252,11 +249,11 @@ class MewloRoute(object):
     def match_args(self, requestargstring):
         """
         Split argstring into '/' separated args and try to match against route args.
-        @return tuple(didmatchargs, argdict, errorstr), where:
-        * didmatchargs is True on match or False on no match
-        * argdict is a dictionary with argid = value entries
-        * errorstr is "" on success, or an errorstring on failure
-        if didmatchargs = False, then caller should treat errorstr as explanation for failure to match rather than as an error per se
+        :return: tuple(didmatchargs, argdict, errorstr), where:
+            * didmatchargs is True on match or False on no match.
+            * argdict is a dictionary with argid = value entries.
+            * errorstr is "" on success, or an errorstring on failure.
+        if didmatchargs = False, then caller should treat errorstr as explanation for failure to match rather than as an error per se.
         """
 
         argdict = {}
@@ -276,7 +273,7 @@ class MewloRoute(object):
         # now walk route args and try to consume
         routeargs = self.args
         requestargindex = 0
-        #
+
         for routearg in routeargs:
             # does this arg match the name (or position)?
             didmatcharg = False

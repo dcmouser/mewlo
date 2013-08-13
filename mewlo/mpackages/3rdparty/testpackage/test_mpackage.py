@@ -16,7 +16,9 @@ class Test_MewloPackageObject(MewloPackageObject):
     The Test_MewloPackage class defines a test mewlo "package" aka extension/plugin/addon.
     """
 
+
     def __init__(self, package):
+        # parent constructor
         super(Test_MewloPackageObject, self).__init__(package)
 
 

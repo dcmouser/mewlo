@@ -1,25 +1,24 @@
 """
 mpackage.py
-This file defines the classes that support mewlo package/extensions
+This file defines the classes that support mewlo package/extensions.
+They are custom subclasses from the pkg classes.
 """
 
 
 
 
 # helper imports
-import helpers.pkg.packagemanager as packagemanager
-import helpers.pkg.package as package
-
-
-
-# global constants
-DefMewlo_Package_filepatternsuffix = "mpackage"
+from helpers.pkg.packageobject import PackageObject
+from helpers.pkg.packagemanager import PackageManager
+from helpers.pkg.package import Package
 
 
 
 
 
-class MewloPackage(package.Package):
+
+
+class MewloPackage(Package):
     """
     The MewloPackage class represents an mewlo "package" aka extension/plugin/addon/component.
     It is *not* the same as a Python "package".
@@ -39,10 +38,12 @@ class MewloPackage(package.Package):
 
 
 
-class MewloPackageManager(packagemanager.PackageManager):
-    """
-    The MewloPackageManager manages a collection of MewloPackages.
-    """
+class MewloPackageManager(PackageManager):
+    """The MewloPackageManager manages a collection of MewloPackages."""
+
+    # class constants
+    DefMewlo_Package_filepatternsuffix = "mpackage"
+
 
     def __init__(self, mewlosite):
         # parent constructor
@@ -50,7 +51,7 @@ class MewloPackageManager(packagemanager.PackageManager):
         # set pointer to mewlosite
         self.mewlosite= mewlosite
         # set file pattern of mewlo package files
-        self.set_filepatternsuffix(DefMewlo_Package_filepatternsuffix)
+        self.set_filepatternsuffix(self.DefMewlo_Package_filepatternsuffix)
 
 
     def create_package(self, filepath):
@@ -66,12 +67,13 @@ class MewloPackageManager(packagemanager.PackageManager):
 
 
 
-class MewloPackageObject(packagemanager.PackageObject):
+class MewloPackageObject(PackageObject):
     """
     The MewloPackageObject class is the parent class for the actual 3rd party class that will be instantiated when a package is LOADED+ENABLED
     """
 
     def __init__(self, package):
+        # parent constructor
         super(MewloPackageObject, self).__init__(package)
 
 

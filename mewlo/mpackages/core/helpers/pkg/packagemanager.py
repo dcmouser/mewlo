@@ -21,8 +21,8 @@ from ..event.event import EFailure
 
 class PackageManager(object):
     """
-    The PackageManager is a class that can be used to dynamically find modules by path and filename pattern, and load them.
-    It's useful for plugin-discovery type things
+    The PackageManager is a class that can be used to dynamically find modules by path and filename pattern.  It manages a collection of Package objects that represent addonsm, etc.
+    It's useful for plugin-discovery type things.
     """
 
     # class-wide dictionary of module imports, to avoid multiple dynamic-code-importing
@@ -33,7 +33,7 @@ class PackageManager(object):
         # stuff
         self.dirlist = []
         self.filepatternsuffix = ""
-        # package list
+        # package collection
         self.packages = []
 
 
@@ -45,13 +45,14 @@ class PackageManager(object):
 
 
     def create_package(self, filepath):
-        """Create a child package; subclasses will reimplement this to use their preferred child class"""
+        """Create a child package; subclasses will reimplement this to use their preferred child class."""
         return Package(self,filepath)
 
 
 
     def discover_packages(self):
-        """Scan all package directories and discover packages"""
+        """Scan all package directories and discover packages."""
+
         # init
         packagefilepaths = []
         filepattern = self.calc_packageinfofile_pattern()
@@ -67,7 +68,7 @@ class PackageManager(object):
 
 
     def createadd_package_frominfofile(self, infofilepath):
-        """Given a path to an infofile, create a package from it"""
+        """Given a path to an infofile, create a package from it."""
         pkg = self.create_package(infofilepath)
         if (pkg != None):
             self.packages.append(pkg)
@@ -81,17 +82,17 @@ class PackageManager(object):
 
 
     def instantiate_packages(self):
-        """Actually import code modules and instantiate package objects"""
+        """Actually import code modules and instantiate package objects."""
         self.load_package_codemodules()
 
 
     def calc_packageinfofile_pattern(self):
         """Given self.filepatternsuffix we create the file match pattern that describes the json info files we need to look for."""
-        return "*_"+self.filepatternsuffix+".json"
+        return "*_" + self.filepatternsuffix+".json"
 
 
     def findfilepaths(self, dirpath, filepattern):
-        """Find recursive list of filepaths matching pattern"""
+        """Find recursive list of filepaths matching pattern."""
         filepaths = []
         for path, dirs, files in os.walk(os.path.abspath(dirpath)):
             for filename in fnmatch.filter(files, filepattern):
@@ -100,34 +101,33 @@ class PackageManager(object):
 
 
     def load_package_infofiles(self):
-        """Load the infofiles for all packages found"""
+        """Load the infofiles for all packages found."""
         for package in self.packages:
             package.load_infofile()
 
 
     def load_package_codemodules(self):
-        """Load the code modules for all packages found"""
+        """Load the code modules for all packages found."""
         for package in self.packages:
             if (package.readytoloadcode):
                 package.load_codemodule()
 
 
     def loadimport(self, path):
-        """Dynamically load an importbypath (or returned cached value of previous import)"""
+        """Dynamically load an importbypath (or returned cached value of previous import)."""
         dynamicmodule = None
 
         # not in our cache? then we have to load it
         if (not path in PackageManager.classwide_packagemodules):
             # first we check if path is blank or does not exist
-            if (path==""):
+            if (path == ""):
                 return None, EFailure("Failed to load import by path '"+path+"', because a blank path was specified.")
             elif (not os.path.isfile(path)):
                 return None, EFailure("Failed to load import by path '"+path+"', because that file does not exist.")
             else:
-                # get name+extension of file, for import module info
-                # ok now load it dynamically
+                # then load it dynamically
                 dynamicmodule, failure = importmodule_bypath(path)
-                if (failure!=None):
+                if (failure != None):
                     return None, failure
 
             # now add it to our class-wide cache, so we don't try to reload it again
@@ -159,27 +159,5 @@ class PackageManager(object):
             outstr += package.debug(indentstr+" ")+"\n"
         return outstr
 
-
-
-
-
-
-
-
-
-
-class PackageObject(object):
-    """
-    The PackageObject class is the parent class for the actual 3rd party class that will be instantiated when a package is LOADED+ENABLED
-    """
-
-    def __init__(self, package):
-        self.package = package
-
-
-    def debug(self, indentstr=""):
-        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+"Base PackageObject reporting in.\n"
-        return outstr
 
 

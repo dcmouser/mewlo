@@ -1,27 +1,24 @@
 """
 logger_filetarget.py
-This module defines a derived logging hey class that implements file logging
-
+This module defines a derived logging hey class that implements file logging.
 """
 
 
-# python modules (for printing to file)
+# python future import
 from __future__ import print_function
 
-# Mewlo helpers
-from mewlo.mpackages.core.helpers.event.logger import LogTarget
-
-# python modules
+# python imports
 import sys
+
+# helper imports
+from logger import LogTarget
 
 
 
 
 
 class LogTarget_File(LogTarget):
-    """
-    LogTarget_File - target that can write log lines to a file
-    """
+    """LogTarget_File - target that can write log lines to a file."""
 
     # class constants
     DEF_FILEMODE_default = 'a'
@@ -29,7 +26,7 @@ class LogTarget_File(LogTarget):
 
 
     def __init__(self, filename=None, filemode = DEF_FILEMODE_default):
-        # parent init
+        # parent constructor
         super(LogTarget_File, self).__init__()
         # we start out with closed file and will only open on first write
         self.filep = None
@@ -39,7 +36,8 @@ class LogTarget_File(LogTarget):
 
 
     def set_fileinfo(self, filename, filemode):
-        """Close any exisitng file if its already open."""
+        """Set the filename we will open and write to on first write."""
+        # Close any exisitng file if its already open.
         self.closefile_ifopen()
         # remember the filename and desired open more
         self.filename = filename

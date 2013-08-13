@@ -63,4 +63,38 @@ eg.:
         stuff to do here
 
 
+If we have a multiple step process where a failure may occur at any point, the following code flow is recommended:
+
+    failure = myproc_step1(a,b)
+    if (failure==None):
+        failure = myproc_step2(a,b)
+    if (failure==None):
+        failure = myproc_step3(a,b)
+    if (failure==None):
+        failure = myproc_step4(a,b)
+
+In this way, the failure variable holds the first error, and subsequent steps are not taken.
+This is slightly less efficient than nesting the checks, but nesting makes it a bit harder to add/move code so we prefer it.
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+4. Dealing with exceptions
+
+a)
+As described above, Mewlo code should avoid throwing exceptions; exceptions should be used only for fatal errors that we cannot anticipate.
+
+However, we will frequently be calling functions in other modules that do throw exceptions.
+
+Mewlo code should always try+catch such anticipateable exceptions and return failure values as described above.
+
+A useful thing to do when catching such an exception, a frequently useful thing to do is use the helper function EException() in the events.py module to convert/wrap the exception object info a Mewlo Event object, which is the recommended object to return for failure values.
+This is useful because it preserves all exception info and creates an (albeit heavyweight) failure value suitable for logging or display.
+
+
+b)
+Occasionally we may want to re-raise an exception instead of returning it as a failure object.
+When doing so, we may want to add info to the exception to help explain the nature/location of the exception.
+To do so, use the helper function mreraise() in the mexectpion.py module.
 //---------------------------------------------------------------------------

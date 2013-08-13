@@ -23,6 +23,17 @@ from mewlo.mpackages.core.mewlomisc import readfile_asjson
 class Package(object):
     """
     The Package is a class represents a dynamically found module that can be used as an addon package.
+    It is actually a fairly light-weight structure that:
+        * loads a json info file with information about the "addon package".
+        * dynamically loads(imports) a python code module specified by the json info file.
+        * dynamically instantiates a PackageObject object from the above python code module.
+    It is actually the PackageObject object that, once instantiated, does the work of the addon.
+    So, the right way to think of a Package is as the bridge middleman responsible for instantiating a PackageObject addon.
+    Additional features that the Package class provides:
+        * displaying addon info, version info, update checking, etc.
+        * handles dependency checking, etc.
+    A Package also keeps an eventlist of any warnings or errors encountered while trying to instantiate the PackageObject.
+    If an addon cannot be located/loaded/etc., the error information will be stores in this eventlist, and the addon will be disabled.
     """
 
     def __init__(self, packagemanager, filepath):
@@ -94,6 +105,7 @@ class Package(object):
 
     def get_pathtocodemodule(self):
         """The info file for the package should tell us what module file to import; we default to same name as info file but with .py"""
+
         # default module name
         path = self.infofilepath
         dir, fullname = os.path.split(path)
@@ -108,24 +120,30 @@ class Package(object):
 
     def instantiate_packageobject(self):
         """Assuming we have imported the dynamic package module, now create the package object that we invoke to do work"""
+
         # init
-        packageobj = None
+        self.packageobject = None
+
         # module loaded in memory?
         if (self.codemodule == None):
             return EFailure("No code module imported to instantiate package object from")
+
         # object class defined in info dictionary?
         packageobject_classname = self.get_infofile_property("codeclass",None)
         if (packageobject_classname == None):
             return EFailure("Package info file is missing the 'codeclass' property which defines the class of the MewloPackage derived class in the package module")
+
         # does it exist
         if (not packageobject_classname in dir(self.codemodule)):
             return EFailure("Package class ("+packageobject_classname+") not found in package module ("+self.codemodule.__name__+")")
+
         # instantiate it
         try:
             packageobj_class = getattr(self.codemodule, packageobject_classname)
             packageobj = packageobj_class(self)
         except:
             return EFailure("Package class object ("+packageobject_classname+") was found in package module, but could not be instantiated.")
+
         # save it for use
         self.packageobject = packageobj
         # no failure returns None
@@ -135,6 +153,7 @@ class Package(object):
 
     def get_infofile_property(self, propertyname, defaultval):
         """Lookup property in our info dict and return it, or defaultval if not found."""
+
         if (self.infodict==None):
             return defaultval
         if (propertyname in self.infodict):
@@ -159,6 +178,7 @@ class Package(object):
 
     def debug(self,indentstr=""):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+
         outstr = indentstr+"Package reporting in.\n"
         indentstr += " "
         #
@@ -168,7 +188,7 @@ class Package(object):
         jsonstring = json.dumps(self.infodict, indent=12)
         outstr += indentstr+" '"+jsonstring+"'\n"
         #
-        outstr += indentstr+"Code Module file: "+self.codemodule_path+"\n"
+        outstr += indentstr+"Code module file: "+self.codemodule_path+"\n"
         #
         outstr += indentstr+"Code module: "
         outstr += str(self.codemodule)+"\n"

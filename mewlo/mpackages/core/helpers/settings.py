@@ -1,12 +1,12 @@
 """
-msettings.py
-This file contains classes to support hierarchical settings associates with sites
+settings.py
+This file contains classes to support hierarchical settings
 """
 
 
 
 
-class MewloSettings(object):
+class Settings(object):
     """
     The MewloSettings class stores a hierarchical dictionary of settings
     """

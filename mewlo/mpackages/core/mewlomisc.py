@@ -4,10 +4,10 @@ This module contains misclenaeous helper functions.
 """
 
 # mewlo imports
-from mewlo.mpackages.core.mexception import mreraise
+from mexception import mreraise
 
 # helper imports
-from mewlo.mpackages.core.helpers.event.event import EFailure, EException
+from helpers.event.event import EFailure, EException
 
 
 
@@ -32,7 +32,7 @@ def readfile_asjson(filepath, nicelabel):
     except Exception as exp:
         return None, EException("Failed to open "+nicelabel+" from path '"+filepathh+"'.", exp=exp, flag_traceback=False )
 
-     # read the file
+    # read the file
     try:
         jsonstr = file.read()
     except Exception as exp:

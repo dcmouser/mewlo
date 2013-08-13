@@ -7,7 +7,7 @@ This file manages the core Mewlo classes
 
 
 # mewlo imports
-from mewlo.mpackages.core.mpackage import MewloPackageObject
+from mpackage import MewloPackageObject
 
 
 
@@ -17,8 +17,8 @@ class Core_MewloPackageObject(MewloPackageObject):
     """
 
     def __init__(self, package):
+        # parent constructor
         super(Core_MewloPackageObject, self).__init__(package)
-        pass
 
 
     def debug(self,indentstr=""):

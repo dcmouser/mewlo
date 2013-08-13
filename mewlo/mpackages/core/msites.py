@@ -5,30 +5,24 @@ This file contains classes to handle Mewlo sites and site manager.
 
 
 
-# Import the mewlo modules we need from the mpackages/core directory
-import mewlo
-from msettings import MewloSettings
+# mewlo imports
 from mpackage import MewloPackageManager
 from mrequest import MewloRequest
 from mresponse import MewloResponse
 from mroutemanager import MewloRouteGroup
 from mexception import mreraise
 
-# helpers
-from mewlo.mpackages.core.helpers.event.event import Event, EventList, EWarning, EError
-from mewlo.mpackages.core.helpers.event.logger import LogManager, Logger
+# helper imports
+from helpers.event.event import Event, EventList, EWarning, EError
+from helpers.event.logger import LogManager, Logger
+from helpers.settings import Settings
 
-
-# python libs
+# python limports
 import os
 from datetime import datetime, date, time
 
 
 
-
-
-# global constants
-DefMewlo_BasePackage_subdirlist = ["mpackages"]
 
 
 
@@ -56,7 +50,7 @@ class MewloSite(object):
         self.sitemanager = None
         self.controllerroot = None
         # create site settings
-        self.sitesettings = MewloSettings()
+        self.sitesettings = Settings()
         # collection of mewlo addon packages
         self.packagemanager = MewloPackageManager(self)
         # route manager
@@ -336,6 +330,10 @@ class MewloSiteManager(object):
     When supporting multiple sites, the sites are completely independent of one another, and must have completely separate uri prefixes.  They share nothing.
     """
 
+    # class constants
+    DefMewlo_BasePackage_subdirlist = ["mpackages"]
+
+
     def __init__(self):
         # the collection of sites that this manager takes care of
         self.sites = list()
@@ -349,6 +347,7 @@ class MewloSiteManager(object):
 
     def get_installdir(self):
         """Get the directory path of the mewlo installation from the mewlo package."""
+        import mewlo
         path = os.path.dirname(os.path.realpath(mewlo.__file__))
         return path
 
@@ -356,7 +355,7 @@ class MewloSiteManager(object):
     def get_package_directory_list(self):
         """Return a list of directories in the base/install path of Mewlo, where addon packages should be scanned"""
         basedir = self.get_installdir()
-        packagedirectories = [basedir+"/"+dir for dir in DefMewlo_BasePackage_subdirlist]
+        packagedirectories = [basedir+"/"+dir for dir in self.DefMewlo_BasePackage_subdirlist]
         return packagedirectories
 
 

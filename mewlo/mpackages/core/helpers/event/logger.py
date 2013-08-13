@@ -43,11 +43,10 @@ Some examples of things we will want to be able to easily do:
 
 
 
-# Mewlo helpers
-from mewlo.mpackages.core.helpers.debugging import smart_dotted_idpath
-from mewlo.mpackages.core.mexception import mreraise
-#
+# helper imports
+from ..debugging import smart_dotted_idpath
 from event import Event
+
 
 
 

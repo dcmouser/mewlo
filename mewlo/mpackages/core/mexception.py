@@ -4,10 +4,10 @@ This module contains classes and functions for custom exception handling
 """
 
 
-# helpers
+# helper imports
 from helpers.debugging import smart_dotted_idpath
 
-# python modules
+# python imports
 import sys
 import traceback
 

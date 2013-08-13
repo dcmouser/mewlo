@@ -6,13 +6,13 @@ The base class for callable controllers that are invoked when activating routes
 
 
 
-# helpers
+# helper imports
 from helpers.callables import find_callable
 
-# mewlo modules
-from mewlo.mpackages.core.mexception import mreraise
+# mewlo imports
+from mexception import mreraise
 
-# python modules
+# python imports
 from types import ModuleType
 
 

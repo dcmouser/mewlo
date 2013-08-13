@@ -4,13 +4,13 @@ This module contains classes and functions for custom event/error handling
 """
 
 
-# helper modules
+# helper imports
 from mewlo.mpackages.core.helpers.debugging import smart_dotted_idpath
 
-# mewlo modules
+# mewlo imports
 from mewlo.mpackages.core.mexception import compute_traceback_astext
 
-# python modules
+# python imports
 import sys
 import traceback
 
@@ -25,7 +25,7 @@ class Event(object):
     """Base class for event/error class."""
 
     # class constants
-    DEF_SAFEFIELDNAMELIST = ["type","msg","exp","request","traceback","statuscode"]
+    DEF_SAFE_FIELDNAME_LIST = ["type","msg","exp","request","traceback","statuscode"]
     #
     DEF_ETYPE_failure = "FAILURE"
     DEF_ETYPE_error = "ERROR"
@@ -98,7 +98,7 @@ class Event(object):
         Check to make sure this is an allowed fieldname -- helps to catch coding typo errors
         ATTN: disable on optimization.
         """
-        if (not fieldname in Event.DEF_SAFEFIELDNAMELIST):
+        if (not fieldname in Event.DEF_SAFE_FIELDNAME_LIST):
             if (not fieldname.startswith("custom_")):
                 raise Exception("Fieldname specified for Event [%s] that is not in our list of safe fieldnames (%s) and does not begin with 'custom_'." % (fieldname , ",".join(Event.DEF_SAFEFIELDNAMELIST)))
 

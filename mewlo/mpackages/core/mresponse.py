@@ -6,10 +6,10 @@ This file contains classes to support response to requests
 
 
 
-# mewlo modules
-from mewlo.mpackages.core.helpers.event.event import EventList, EError, EWarning
+# helper imports
+from helpers.event.event import EventList, EError, EWarning
 
-# this version uses werkzeug to do heavy lifting
+# werkzeug imports
 from werkzeug.wrappers import Response
 
 
