@@ -1,0 +1,14 @@
+This document is for describing areas of Mewlo that are ugly/unpleasant and where a better solution would be welcome.
+//---------------------------------------------------------------------------
+
+
+8/12/13
+We aren't currently using python eggs and officially installable packages for different components
+
+
+8/13/13
+It looks like when dynamically importing modules (ie packages), relative imports are not being supported; this could create hardships.
+
+
+8/13/13
+We are still throwing some exceptions in mcontroller and helpers/callables modules
