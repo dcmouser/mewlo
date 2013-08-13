@@ -4,15 +4,15 @@ This file documents coding style guidelines used in Mewlo project
 
 
 1. See:
-See DocumentationStyle.txt file for info on documentation style
-See ErrorHandling.txt file for guidelines on error handling
+See documentation_style.txt file for info on documentation style
+See error_handling.txt file for guidelines on error handling
 
 
 
 
 2. The top of each code file should look like (leave out import sections that are not used):
 """
-FILENAME.py
+filename.py
 Description of file.
 """
 
@@ -39,3 +39,8 @@ Mewlo code should conform to the official PEP8 style guide: http://www.python.or
 4.
 Prefer long named functions, properties, classes.
 Mewlo classes typically have a prefix of M or Mewlo.
+
+
+
+5.
+ALL filenames should be in lowercase using underscores to separate words.

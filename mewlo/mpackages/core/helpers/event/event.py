@@ -30,7 +30,7 @@ class Event(object):
     DEF_ETYPE_exception = "EXCEPTION"
 
 
-    def __init__(self, fields=None, defaultfields = None):
+    def __init__(self, fields=None, defaultfields=None):
         """Constructor for an Event.  We use a generic fields dictionary to specify all fields for the event, whose values overide an optional defaultfields dictionary. """
         # start with default fields
         if (defaultfields!=None):
