@@ -12,14 +12,14 @@ This file holds controller functions that will be invoked by route manager
 def request_home(request):
     """Show home page."""
     request.response.set_responsedata("In request_home.")
-    return (True,"")
+    return None
 
 
 
 def request_about(request):
     """Show about page."""
     request.response.set_responsedata("In request_about.")
-    return (True,"")
+    return None
 
 
 
@@ -29,14 +29,14 @@ def request_sayhello(request):
     args = request.get_route_parsedargs()
     extras = matchedroute.get_extras()
     request.response.set_responsedata("In request_sayhello, with args: "+str(args)+" and extras: "+str(extras))
-    return (True,"")
+    return None
 
 
 
 def request_article(request):
     """Show an article."""
     request.response.set_responsedata("In request_article.")
-    return (True,"")
+    return None
 
 
 
@@ -48,4 +48,4 @@ class request_test_class(object):
     @classmethod
     def testinvoke(cls,request):
         request.response.set_responsedata("In request_test_class invoke().")
-        return (True,"")
+        return None

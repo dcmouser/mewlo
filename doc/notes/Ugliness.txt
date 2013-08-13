@@ -4,3 +4,7 @@ This document is for describing areas of Mewlo that are ugly/unpleasant and wher
 
 8/12/13
 We aren't currently using python eggs and officially installable packages for different components
+
+
+8/13/13
+It looks like when dynamically importing modules (ie packages), relative imports are not being supported; this could create hardships.

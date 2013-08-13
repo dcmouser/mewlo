@@ -5,7 +5,9 @@ This file manages the core Mewlo classes
 
 
 # mewlo imports
-from mpackage import MewloPackageObject
+# ATTN: because of the way this file is imported dynamically, it seems it does not support relative imports
+from mewlo.mpackages.core.mpackage import MewloPackageObject
+
 
 
 

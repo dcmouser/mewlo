@@ -5,6 +5,7 @@ This file manages a test package
 
 
 # mewlo imports
+# ATTN: because of the way this file is imported dynamically, it seems it does not support relative imports
 from mewlo.mpackages.core.mpackage import MewloPackageObject
 
 

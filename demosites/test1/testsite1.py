@@ -116,8 +116,8 @@ class MewloSite_Test1(MewloSite):
                 # another alternative is to import above and then specify the function reference explicitly
                 controller = MewloController(function=request_article),
                 ))
-        #
-        # add routegroup to site
+
+        # add routegroup we just created to the site
         self.routes.append(routegroup)
 
 
@@ -137,16 +137,15 @@ class MewloSite_Test1(MewloSite):
     def pre_runroute_callable(self, route, request):
         """This is called by default when a route is about to be invoked.  Subclassed sites can override it."""
 
-        request.logevent(EWarning("This is a test warning called PRE run route."))
-        return True
+        request.logevent(EWarning("This is a test1 warning called PRE run route:"+request.get_path()))
 
 
 
     def post_runroute_callable(self, request):
         """This is called by default after a route has been invoked.  Subclassed sites can override it."""
 
-        request.logevent(EWarning("This is a test warning called POST run route: "+str(request)))
-        return True
+        request.logevent(EWarning("This is a test2 warning called POST run route: "+request.get_path()))
+
 
 
 
@@ -163,22 +162,21 @@ def main():
     # create a simple site from our test class and a sitemanager that supervises it
     sitemanager = MewloSite_Test1.create_manager_and_simplesite()
 
-    # stop if there were errors preparing
-    if (sitemanager.prepeventlist.count_errors()>0):
+    # check if there were any errors encountered during preparation of the site
+    if (sitemanager.prepeventlist.count_errors()==0):
+        # no errors, so let's serve the site
+        # start by displaying some debug info
+        print sitemanager.debug()
+        # simulate some simple requests
+        print sitemanager.test_submit_path("/help/about")
+        print sitemanager.test_submit_path("/page/mystery")
+        print sitemanager.test_submit_path("/test/hello/name/jesse/age/44")
+        # start serving from web server test
+        sitemanager.create_and_start_webserver_wsgiref()
+    else:
         print "Stopping due to sitemanager preparation errors:"
         print sitemanager.prepeventlist.debug()
-        exit()
 
-    # ask the manager to debug and print some useful info
-    print sitemanager.debug()
-
-    # some simple tests
-    print sitemanager.test_submit_path("/help/about")
-    print sitemanager.test_submit_path("/page/mystery")
-    print sitemanager.test_submit_path("/test/hello/name/jesse/age/44")
-
-    # start serving from web server test
-    sitemanager.create_and_start_webserver_wsgiref()
 
 
 if __name__ == "__main__":

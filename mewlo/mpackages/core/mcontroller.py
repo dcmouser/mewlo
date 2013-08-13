@@ -87,7 +87,7 @@ class MewloController(object):
         """
         Invoke callable on the request.
         Sublassed could implement this differently
-        :return: (successflag, errorstr)
+        :return: failure or None on success
         """
 
         return self.callable(request)

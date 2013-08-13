@@ -7,7 +7,8 @@ This file contains classes to support hierarchical settings associates with site
 # mewlo imports
 from mcontroller import MewloController
 
-
+# helper imports
+from helpers.event.event import EFailure
 
 
 class MewloRouteArg(object):
@@ -25,16 +26,10 @@ class MewloRouteArg(object):
     def validate_argvalue(self, argval):
         """
         Check arg type and value.
-        :return: tuple (isvalid, argval, errorstr)
-        where isvalid is True if it meets requirements, or False if not.
-        where argval is CONVERTED/COERCED argval.
-        where errorstr is "" on valid, or description of error if not.
-        note that argval will ONLY be CONVERTED IFF isvalid is returned as true, i.e. it is safely MADE valid; this will happen most typically for INTEGER args.
+        :return: tuple (argval, failure)
+        where argval is CONVERTED/COERCED argval, or None on failure
         """
-
-        isvalid = False
-        errorstr = "Base MewloRouteArg cannot be used as an actual instantiated arg."
-        return (isvalid, argval, errorstr)
+        return None, EFailure("Base MewloRouteArg cannot be used as an actual instantiated arg.")
 
 
 
@@ -75,12 +70,11 @@ class MewloRouteArgFlag(MewloRouteArg):
 
     def validate_argvalue(self, argval):
         # see parent class for documentation
-        isvalid = (type(argval) == bool)
-        if (not isvalid):
-            errorstr = "Expected boolean True/False."
-        else:
-            errorstr = ""
-        return (isvalid, argval, errorstr)
+        try:
+            argval = int(argval)
+        except Exception as exp:
+            return None, EFailure("Expected boolean value; "+str(exp))
+        return argval, None
 
 
     def get_isflag(self):
@@ -104,9 +98,7 @@ class MewloRouteArgString(MewloRouteArg):
 
     def validate_argvalue(self, argval):
         # see parent class for documentation
-        isvalid = True
-        errorstr = ""
-        return (isvalid, argval, errorstr)
+        return argval, None
 
 
     def get_argtypestr(self):
@@ -129,15 +121,9 @@ class MewloRouteArgInteger(MewloRouteArg):
         # see parent class for documentation
         try:
             argval = int(argval)
-            isvalid = True
-            errorstr = ""
-        except ValueError:
-            # we just catch this and report it back -- it's not a coding error, just an indication that user url is wrong
-            isvalid = False
-            # for safety, when we return we set argval to None since it didn't match the type we expected
-            argval = None
-            errorstr = "Expected integer value; "+str(ValueError)
-        return (isvalid, argval, errorstr)
+        except Exception as exp:
+            return None, EFailure("Expected integer value; "+str(exp))
+        return argval, None
 
 
     def get_argtypestr(self):
@@ -235,11 +221,11 @@ class MewloRoute(object):
             return False
 
         # ok we got a leftmost match, now we need to check extra argstring parts, separated by '/' character
-        (didmatch, argdict, errorstr) = self.match_args(requestextra)
+        (didmatch, argdict, failure) = self.match_args(requestextra)
 
         # ok, did we match? if so handle it
         if (didmatch):
-            handleresult = self.handle_request(request, site, argdict)
+            failure = self.handle_request(request, site, argdict)
 
         # return flag saying if we matched
         return didmatch
@@ -249,15 +235,16 @@ class MewloRoute(object):
     def match_args(self, requestargstring):
         """
         Split argstring into '/' separated args and try to match against route args.
-        :return: tuple(didmatchargs, argdict, errorstr), where:
+        :return: tuple(didmatchargs, argdict, failure), where:
             * didmatchargs is True on match or False on no match.
             * argdict is a dictionary with argid = value entries.
-            * errorstr is "" on success, or an errorstring on failure.
-        if didmatchargs = False, then caller should treat errorstr as explanation for failure to match rather than as an error per se.
+            * failure is None on success
+        if didmatchargs = False, then caller should treat failure as explanation for failure to match rather than as an error per se.
+        ATTN: we may want to rewrite this and not use failure = EFailure() on "failure" because this is inefficient when frequenly it just means it didn't match the route and we don't care about the failure code and it is just ignored; though it might be useful for debugging purposes sometimes.
         """
 
         argdict = {}
-        errorstr = ""
+        failure = None
 
         # remove any trailing '/'
         requestargstringlen = len(requestargstring)
@@ -302,7 +289,7 @@ class MewloRoute(object):
                     requestargindex += 1
                     if (requestargindex >= requestargcount):
                         # but there are no more args, so this is an error
-                        errorstr = "Route arg "+argid+" was found but without an associated value following it."
+                        failure = EFailure("Route arg "+argid+" was found but without an associated value following it.")
                         break
                     else:
                         # ok we go its value
@@ -315,7 +302,7 @@ class MewloRoute(object):
                 # we didn't match it, so if it was required, it's an error (if it wasn't required, just skip over it)
                 if (argrequired):
                     # it was required, and is missing, so that's a FAIL
-                    errorstr = "Route arg "+argid+" was required but not found in request."
+                    failure = EFailure("Route arg "+argid+" was required but not found in request.")
                     break
                 else:
                     # no value specified, is there a default setting?
@@ -327,17 +314,17 @@ class MewloRoute(object):
             # now record the argval
             if (flag_setargval):
                 # now let's check to make sure arg value is allowed given arg type
-                (isvalid, argval, typecheckerrorstr) = routearg.validate_argvalue(argval)
-                if (isvalid):
+                (argval, argcheckfailure) = routearg.validate_argvalue(argval)
+                if (argcheckfailure==None):
                     # assign arg value in dictionary
                     argdict[argid]=argval
                 else:
                     # error in value type
-                    errorstr = "Route arg "+argid+" did not match expected value type: " + typecheckerrorstr
+                    failure = EFailure("Route arg "+argid+" did not match expected value type: " + str(argcheckfailure))
                     break
 
         # ok we've walked all the route args, if there was no error, we can proceed to final stage, checking for extra args at end of expected route args
-        if (errorstr == ""):
+        if (failure == None):
             # ok got all the args we REQUIRED, now is there extra stuff?
             if (requestargindex < requestargcount):
                 # there are extra parts, is this allowed?
@@ -346,16 +333,16 @@ class MewloRoute(object):
                     argdict[self.DEF_ARGID_extraargs] = requestargs[requestargindex:]
                 else:
                     # extra args are considered errors
-                    errorstr = "Extra args found at end of request after matching all expected args in route."
+                    failure = EFailure("Extra args found at end of request after matching all expected args in route.")
 
         # if there were no errors then it's a match, otherwise it's failure to match
-        if (errorstr == ""):
+        if (failure == None):
             didmatch = True
         else:
             didmatch = False
 
-        # return
-        return (didmatch, argdict, errorstr)
+        # returnfailf
+        return (didmatch, argdict, failure)
 
 
 
@@ -370,23 +357,26 @@ class MewloRoute(object):
         request.set_route_parsedargs(argdict)
 
         # give site a chance to pre-handle the invocation
-        precall_success = site.pre_runroute_callable(self, request)
-        if (not precall_success):
-            return False
+        precall_failure = site.pre_runroute_callable(self, request)
+        if (precall_failure!=None):
+            return precall_failure
 
         # ok now we want to call whatever function should do the actual work
-        (success, errorstr) = self.invoke_routecall(request)
+        call_failure = self.invoke_routecall(request)
+        if (call_failure!=None):
+            return call_failure
 
         # give site a chance to pre-handle the invocation
-        poistcall_success = site.post_runroute_callable(request)
+        postcall_failure = site.post_runroute_callable(request)
 
         # error?
-        if (not success):
-            responsedata = "Found a route that handled it: '"+self.id+"' but got error when trying to invoke route controller.  Error: "+errorstr+"."
+        if (postcall_failure!=None):
+            responsedata = "Found a route that handled it: '"+self.id+"' but got error when trying to invoke route controller.  Error: "+str(postcall_failure)+"."
             request.response.set_responsedata(responsedata)
+            return postcall_failure
 
         # return success
-        return success
+        return None
 
 
 
@@ -397,10 +387,10 @@ class MewloRoute(object):
         """
 
         if (self.controller==None):
-            return (False, "Controller was not found when preparing route.")
+            return EFailure("Controller was not found when preparing route.")
 
-        (success, errorstr) = self.controller.invoke(request)
-        return (success, errorstr)
+        failure = self.controller.invoke(request)
+        return failure
 
 
 

@@ -434,7 +434,9 @@ class MewloSiteManager(object):
         outstr = "wsgiref_callback:\n"
         outstr += " "+str(environ)+"\n"
         outstr += " "+str(start_response)+"\n"
-        self.debugmessage(outstr)
+        # debug display?
+        if (False):
+            self.debugmessage(outstr)
         # create request
         request = MewloRequest.createrequest_from_wsgiref_environ(environ)
         # get response
