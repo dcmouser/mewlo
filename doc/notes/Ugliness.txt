@@ -4,16 +4,3 @@ This document is for describing areas of Mewlo that are ugly/unpleasant and wher
 
 8/12/13
 We aren't currently using python eggs and officially installable packages for different components
-
-
-8/12/13
-Custom exception class (MewloException in mexception)
-
-
-8/12/13
-Organization of helpers subdirectories vs mewlo core directories
-
-
-8/12/13
-The helper directory is intended to organize classes and functions that do NOT require Mewlo-specific classes and functions
-There are cases where this is not true in the current codebase.

@@ -5,7 +5,7 @@ The base class for callable controllers that are invoked when activating routes
 
 
 # mewlo imports
-from mexception import mreraise
+from helpers.exceptionplus import ExceptionPlus, reraiseplus
 
 # helper imports
 from helpers.callables import find_callable
@@ -43,6 +43,7 @@ class MewloController(object):
     def get_parent(self):
         return self.parent
 
+
     def prepare(self, parent, site, eventlist):
         """Do initial preparatory stuff on system startup."""
         # ATTN: todo - use eventlist
@@ -63,7 +64,7 @@ class MewloController(object):
 
         if (self.function==None):
             # error, nothing to call
-            raise Exception("No function specified for callable.")
+            raise ExceptionPlus("No function specified for callable.", obj=self)
         elif (not isinstance(self.function, basestring)):
             # they gave us a function directly, just use it
             return self.function
@@ -76,7 +77,7 @@ class MewloController(object):
             callable = find_callable(self.get_controllerroot(), callablestring)
         except Exception as exp:
             # add some info and reraise
-            mreraise(exp, "Error occurred while trying to look up the callable '"+callablestring+"' specified by: ", obj=self)
+            reraiseplus(exp, "Error occurred while trying to look up the callable '"+callablestring+"' specified by: ", obj=self)
 
         return callable
 

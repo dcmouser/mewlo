@@ -4,15 +4,12 @@ This module contains classes and functions for custom event/error handling
 """
 
 
-# mewlo imports
-from mewlo.mpackages.core.mexception import compute_traceback_astext
-
 # helper imports
-from mewlo.mpackages.core.helpers.debugging import smart_dotted_idpath
+from ..debugging import smart_dotted_idpath, compute_traceback_astext
 
 # python imports
 import sys
-import traceback
+#import traceback
 
 
 
@@ -126,9 +123,11 @@ class Event(object):
     @classmethod
     def calc_traceback_text(cls):
         """Class function to get current stack traceback as text.  Used when creating an event from an exception."""
+
+        # get traceback info
         exc_info = sys.exc_info()
-        exceptiontype = exc_info[0]
-        exceptionvalue = exc_info[1]
+        #exceptiontype = exc_info[0]
+        #exceptionvalue = exc_info[1]
         traceback_object = exc_info[2]
 
         retstr = compute_traceback_astext(traceback_object,True)

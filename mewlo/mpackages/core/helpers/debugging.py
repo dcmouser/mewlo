@@ -4,6 +4,8 @@ This module contains miscelaneous functions that aid debugging and logging and e
 """
 
 
+# python modules
+import traceback
 
 
 
@@ -77,5 +79,31 @@ def smart_dotted_idpath_getparentobj(obj):
 
 
 
+
+
+
+
+
+
+def compute_traceback_astext(traceback_object, flag_fulltrace):
+    """Convert traceback object to nice text.  See http://effbot.org/librarybook/traceback.htm."""
+    if (flag_fulltrace):
+        tblist = traceback.extract_stack() + traceback.extract_tb(traceback_object)
+    else:
+        tblist = traceback.extract_stack() + traceback.extract_tb(traceback_object)
+    #
+    return compute_traceback_astext_fromlist(tblist)
+
+
+
+def compute_traceback_astext_fromlist(tblist):
+    """Internal helper funciton.  Convert traceback extract list into string."""
+    retstr = ''
+    #for file, lineno, function, text in traceback.extract_tb(traceback_object):
+    for file, lineno, function, text in tblist:
+        if (retstr!=''):
+            retstr += "; "
+        retstr += file +" line #"+str(lineno)+" in "+function+": "+text
+    return retstr
 
 

@@ -43,6 +43,7 @@ Some examples of things we will want to be able to easily do:
 
 # helper imports
 from ..debugging import smart_dotted_idpath
+from ..exceptionplus import reraiseplus
 from event import Event
 
 
@@ -289,5 +290,5 @@ class Logger(object):
                     # the best thing to do might be to LOG the error here (or add it to error list) and continue
                     # raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception to provide extra info
                     # we probably wouldn't consider this a fatal error that should stop program from executing.
-                    mreraise(exp, "Disabling the logger wherre the error occurred: ", obj=target)
+                    reraiseplus(exp, "Disabling the logger wherre the error occurred: ", obj=target)
 

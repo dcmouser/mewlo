@@ -15,7 +15,7 @@
 	"url.version": "http://www.donationcoder.com/Software/Mouser/mewlo/testpackage/version.json",
 
 	"license": "BSD",
-{
+
 	"requires": [],
 
 	"codefile": "test_mpackage.py",

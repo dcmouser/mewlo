@@ -4,9 +4,6 @@ This module contains functions that can lookup and return a reference to a funct
 """
 
 
-# mewlo imports
-from mewlo.mpackages.core.mexception import mreraise
-
 # helper imports
 from event.event import EFailure
 
@@ -162,7 +159,7 @@ def importmodule_bypath(path):
 
 
 def do_importmodule_bypath_version1(path):
-    """Internal helper function. Load a python module import by explicit path; version1 uses imp.load_source"""
+    """Internal helper function. Load a python module import by explicit path; version1 uses imp.load_source."""
 
     name, ext = os.path.splitext(os.path.basename(path))
     modulename = "DynamicallyLoadedPackage_"+name
@@ -179,7 +176,7 @@ def do_importmodule_bypath_version1(path):
 
 
 def _UNUSED_do_importmodule_bypath_version2(path):
-    """Internal helper function.Load a python module import by explicit path; version2 uses find_module and load_module"""
+    """Internal helper function.Load a python module import by explicit path; version2 uses find_module and load_module."""
     dynamicmodule = None
     file = None
 

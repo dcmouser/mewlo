@@ -3,13 +3,14 @@ logger_filetarget.py
 This module defines a derived logging hey class that implements file logging.
 """
 
+# future imports
+from __future__ import print_function
 
 # helper imports
 from logger import LogTarget
 
 # python imports
 import sys
-from __future__ import print_function
 
 
 
