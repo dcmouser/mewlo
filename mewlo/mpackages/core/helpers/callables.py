@@ -30,6 +30,9 @@ def find_callable(callableroot, callableobj):
     :return: funcreference
 
     :todo: support python egg format of "package.module:object"
+
+    ATTN: we currently use an exception here because we treat this like a fatal error.
+    If instead we wanted callers to be able to resume fromt his, we might return EFailures instead
     """
 
     # Note that many of the function calls below can throw exceptions
@@ -168,7 +171,7 @@ def do_importmodule_bypath_version1(path):
     try:
         dynamicmodule = imp.load_source(modulename, path)
     except Exception as exp:
-        return None, EFailure("failed to import module by path", {"exp":exp})
+        return None, EException("failed to import module by path", exp=exp)
 
     return dynamicmodule, None
 

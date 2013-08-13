@@ -8,7 +8,7 @@ This file contains classes to support hierarchical settings associates with site
 from mcontroller import MewloController
 
 # helper imports
-from helpers.event.event import EFailure
+from helpers.event.event import EFailure,EFailureExtend
 
 
 class MewloRouteArg(object):
@@ -223,6 +223,9 @@ class MewloRoute(object):
         # ok we got a leftmost match, now we need to check extra argstring parts, separated by '/' character
         (didmatch, argdict, failure) = self.match_args(requestextra)
 
+        #if (failure):
+        #    print "ATTN: **************** TEST FAILURED ROUTE: "+str(failure)+"\n"
+
         # ok, did we match? if so handle it
         if (didmatch):
             failure = self.handle_request(request, site, argdict)
@@ -302,7 +305,7 @@ class MewloRoute(object):
                 # we didn't match it, so if it was required, it's an error (if it wasn't required, just skip over it)
                 if (argrequired):
                     # it was required, and is missing, so that's a FAIL
-                    failure = EFailure("Route arg "+argid+" was required but not found in request.")
+                    failure = EFailure("Route arg '"+argid+"' was required but not found in request.")
                     break
                 else:
                     # no value specified, is there a default setting?
@@ -320,7 +323,7 @@ class MewloRoute(object):
                     argdict[argid]=argval
                 else:
                     # error in value type
-                    failure = EFailure("Route arg "+argid+" did not match expected value type: " + str(argcheckfailure))
+                    failure = EFailureExtend(argcheckfailure, "Route arg '"+argid+"' did not match expected value type.")
                     break
 
         # ok we've walked all the route args, if there was no error, we can proceed to final stage, checking for extra args at end of expected route args
@@ -366,16 +369,12 @@ class MewloRoute(object):
         if (call_failure!=None):
             return call_failure
 
-        # give site a chance to pre-handle the invocation
+        # give site a chance to do something after we run the route
         postcall_failure = site.post_runroute_callable(request)
-
-        # error?
         if (postcall_failure!=None):
-            responsedata = "Found a route that handled it: '"+self.id+"' but got error when trying to invoke route controller.  Error: "+str(postcall_failure)+"."
-            request.response.set_responsedata(responsedata)
             return postcall_failure
 
-        # return success
+        # return None for success
         return None
 
 
@@ -386,11 +385,14 @@ class MewloRoute(object):
         This requires a little bit of magic, since we are going to launch the function given its dotted path name
         """
 
-        if (self.controller==None):
-            return EFailure("Controller was not found when preparing route.")
+        controllerp = self.controller
 
-        failure = self.controller.invoke(request)
-        return failure
+        if (controllerp == None):
+            return EFailure("Controller was not found when preparing route.", obj=self)
+        if (not controllerp.get_isenabled()):
+            return EFailure("Controller for this route is not enabled.", obj=self)
+
+        return self.controller.invoke(request)
 
 
 

@@ -254,32 +254,50 @@ class EventList(object):
 
 # These are shortcut helper functions
 
-def EFailure(msg=None, fields=None):
+def EFailure(msg="", fields=None, obj=None):
     """Helper function to create failure type event"""
-    defaultfields = { "msg":msg, "type":Event.DEF_ETYPE_failure }
-    # create event
-    return Event(fields, defaultfields)
+    return SimpleEventBuilder(msg, obj, fields, {"type":Event.DEF_ETYPE_failure })
 
-def EError(msg=None, fields=None):
+def EError(msg="", fields=None, obj=None):
     """Helper function to create error type event"""
-    defaultfields = { "msg":msg, "type":Event.DEF_ETYPE_error }
-    # create event
-    return Event(fields, defaultfields)
+    return SimpleEventBuilder(msg, obj, fields, {"type":Event.DEF_ETYPE_error })
 
-def EWarning(msg=None, fields=None):
+def EWarning(msg="", fields=None, obj=None):
     """Helper function to create warning type event"""
-    defaultfields = { "msg":msg, "type":Event.DEF_ETYPE_warning }
-    # create event
-    return Event(fields, defaultfields)
+    return SimpleEventBuilder(msg, obj, fields, {"type":Event.DEF_ETYPE_warning })
 
-def EException(msg=None, exp=None, fields=None, flag_traceback=True):
+
+def EException(msg="", exp=None, fields=None, flag_traceback=True, obj=None):
     """Helper function to create exception type event with full exception traceback info."""
-    defaultfields = { "msg":msg, "type":Event.DEF_ETYPE_exception, "exp":exp }
+    # default fields
+    defaultfields = { "type":Event.DEF_ETYPE_exception, "exp":exp }
     # add traceback?
     if (flag_traceback):
         defaultfields["traceback"] = Event.calc_traceback_text()
     # create event
-    return Event(fields, defaultfields )
+    return SimpleEventBuilder(msg, obj, fields, defaultfields)
 
 
+def EFailureExtend(failure, msg="", fields=None, obj=None):
+    """Helper function to create failure type event by extending another"""
+    if (isinstance(failure,Event)):
+        # add the simple message of the other failure event
+        addmsg = failure.getfield("msg","")
+    else:
+        # assume previous failure is stringifyable and add that
+        addmsg = str(failure)
+    if (addmsg!=""):
+        msg += " "+addmsg
+    # build it
+    return SimpleEventBuilder(msg, obj, fields, {"type":Event.DEF_ETYPE_failure })
 
+
+def SimpleEventBuilder(msg, obj, fields, defaultfields):
+    """Internal func. Helper function to create failure type event"""
+    # add obj info
+    if (obj!=None):
+        msg += smart_dotted_idpath(obj)
+    # add message
+    defaultfields["msg"] = msg
+    # create event
+    return Event(fields, defaultfields)

@@ -8,3 +8,7 @@ We aren't currently using python eggs and officially installable packages for di
 
 8/13/13
 It looks like when dynamically importing modules (ie packages), relative imports are not being supported; this could create hardships.
+
+
+8/13/13
+We are still throwing some exceptions in mcontroller and helpers/callables modules

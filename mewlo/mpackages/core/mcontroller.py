@@ -30,6 +30,8 @@ class MewloController(object):
         self.parent = None
         self.site = None
         #
+        self.isenabled = False
+        #
         # if they gave us an actual package as root and a function string, we COULD try to do a lookup right now in order to throw an early exception
         # otherwise we will defer lookup until later
         if (True):
@@ -42,6 +44,8 @@ class MewloController(object):
         return self.root
     def get_parent(self):
         return self.parent
+    def get_isenabled(self):
+        return self.isenabled
 
 
     def prepare(self, parent, site, eventlist):
@@ -53,9 +57,12 @@ class MewloController(object):
         # we want to propagage callableroot from parent down
         if (self.root==None):
             self.root = parent.get_controllerroot()
-        # now calculate callable once instead of every time
+        # now calculate callable once during preparation (if it wasn't explicitly set during constructor)
         if (self.callable==None):
             self.callable = self.find_ourcallable()
+        # disable it if it's not set
+        self.isenabled = (self.callable!=None)
+
 
 
 
@@ -77,8 +84,11 @@ class MewloController(object):
             callable = find_callable(self.get_controllerroot(), callablestring)
         except Exception as exp:
             # add some info and reraise
+            # ATTN: we currently use an exception here because we treat this like a fatal error
+            # If instead we wanted to simply ignore the error return a 500 status error code and keep serving we could return None from here and log error, etc.
             reraiseplus(exp, "Error occurred while trying to look up the callable '"+callablestring+"' specified by: ", obj=self)
 
+        # success, return it
         return callable
 
 

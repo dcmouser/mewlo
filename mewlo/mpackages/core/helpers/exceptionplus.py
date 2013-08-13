@@ -24,7 +24,11 @@ class ExceptionPlus(Exception):
     Note that Python3 has some built-in features for representing chained/wrapped exceptions.
     """
 
-    def __init__(self, msg=None, exp=None, obj=None):
+    def __init__(self, msg="", exp=None, obj=None):
+
+        # if they pass a msg that is not a string, convert it to one
+        if (not isinstance(msg,basestring)):
+            msg = str(msg)
 
         # add dotted id path if found
         if (obj!=None):

@@ -18,3 +18,11 @@ At the least we need to support the syntax used for python egg entry points in o
 //---------------------------------------------------------------------------
 
 
+
+
+//---------------------------------------------------------------------------
+8/13/13
+
+1. In mcontroller and helper/callables we are still throwing some exception; change to EFailures or EException.
+2. Add obj parameter to Event shortcuts.
+//---------------------------------------------------------------------------

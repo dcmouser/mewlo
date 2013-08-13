@@ -9,6 +9,7 @@ from ..misc import readfile_asjson
 
 # helper imports
 from ..event.event import EventList, EFailure
+from ..exceptionplus import ExceptionPlus
 
 # python imports
 import json
@@ -66,6 +67,9 @@ class Package(object):
         else:
             # failed; add the error message to our eventlist, and continue with this package marked as not useable
             self.eventlist.add(failure)
+            # we could raise an exception immediately if we wanted from the failure
+            if (False):
+                raise ExceptionPlus(failure)
 
 
 

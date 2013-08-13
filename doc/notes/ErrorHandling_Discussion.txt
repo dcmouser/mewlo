@@ -2,14 +2,17 @@ This document discusses options for the philosophy and coding style used in the 
 //---------------------------------------------------------------------------
 
 
+//---------------------------------------------------------------------------
 In particular, we want to answer questions like:
 
     * When should we use exceptions vs error return values or tuples?
     * When and how do we log serious errors -- where in the exception chain?
+//---------------------------------------------------------------------------
 
 
 
 
+//---------------------------------------------------------------------------
 Error/Exception approaches
 
 If we have a function that we expect may encounter an error, there are several ways we might handle it:
@@ -29,11 +32,12 @@ Exception exp:
 In above cases we could use a custom error class instead of errorstring, or a custom exception, to pass additional info (see below).
 
 In many languages, raising exceptions is very costly, but in python it's cheap and encouraged.
+//---------------------------------------------------------------------------
 
 
 
 
-
+//---------------------------------------------------------------------------
 Different kinds of errors/exceptions
 
 Let us consider two kinds of "errors/exceptions".
@@ -44,39 +48,44 @@ Another example of the casual errors are form processing errors, for which there
 And somewhere between these two are some other things:
 Cases where we want to log some unusual event, even if we don't technically consider it an error.
 Cases where we want to create a "report" of warnings+errors after doing some operation or performing some validation.
+//---------------------------------------------------------------------------
 
 
 
 
-
+//---------------------------------------------------------------------------
 So we can break this orthogonally into several dimensions:
 1. How do we REPORT the "error/exception" back to our caller?
 2. What kind of "object" is the error/exception?
 3. How (and how far) do we propagate it up the call stack?
 4. How/when do we log it?
+//---------------------------------------------------------------------------
 
 
 
 
-
+//---------------------------------------------------------------------------
 Other issues
 
 There are a few additional interesting issues in handling "errors".
 One issue is the case where we get an exception/error and we want return it up the chain of calls while accumulating the errors -- and to be able to report the CHAIN of exceptions (exception locations, etc.).
 A related issue is where we may actually have multiple "errors" that we want to accumulate (possibly with some additional warnings that are possibly only relevant IF there are errors).
 Another issue is where we need to add some context to an error/exception before processing it, perhaps to give it some additional context, etc.
+//---------------------------------------------------------------------------
 
 
 
 
+//---------------------------------------------------------------------------
 
 Our strategy
-
 We want to use a consistent approach to error return values, exceptions, and logging.  So would should that approach be?
+//---------------------------------------------------------------------------
 
 
 
 
+//---------------------------------------------------------------------------
 FIRST DRAFT proposal:
 
 1. Use formal exceptions in all cases where there is normally a return value; do not use tuples
@@ -95,9 +104,13 @@ Because of this, one has to be very careful when using exceptions to catch funct
 This fundamental tension between critical exceptions and simple "failure return codes" is what makes this approach most unpleasing.
 2. Having caught an exception deep in a call stack, if we want to ADD extra info to it (contextual text hints for example), we need to wrap the exception and re-raise it.
 This does help us with issue#1 because we can use a flag in our wrapped exception to signify when it's a return-code type exception.
+//---------------------------------------------------------------------------
 
 
 
+
+
+//---------------------------------------------------------------------------
 SECOND DRAFT proposal:
 
 1. NEVER use exceptions for failure return codes.  Only use an exception if the event is so serious that we know the caller will not know how to handle our return code or we want immediate program halt.
@@ -132,3 +145,13 @@ Drawbacks:
 Conclusion:
 
 Second draft is a winner.
+//---------------------------------------------------------------------------
+
+
+
+
+
+//---------------------------------------------------------------------------
+Another benefit of using a class to represent all failure return codes is that we can easily enable a debugging feature during testing that
+logs ALL such failure return code generation.
+//---------------------------------------------------------------------------
