@@ -1,4 +1,7 @@
-mewlo will be open source.
-but we haven't yet decided on a specific OS license.
+Mewlo is open source.
 
-contact mouser@donationcoder.com with suggestions.
+But I am still debating which OS license to use.
+
+For now, the code should be considered under GPL license -- but there is a high likelihood of switching to BSD license.
+
+Contact mouser@donationcoder.com with suggestions.

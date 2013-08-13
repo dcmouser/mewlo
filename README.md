@@ -9,6 +9,7 @@ MEWLO Web Framework
  * Note that Mewlo is a framework for coders, it's not a content management system for non-coders.  One should *NOT* expect to set up a Mewlo site without writing a single line of code, the way you would set up a content management system or blog.
 
 For more information see:
+ * doc/notes directory for various text note files
  * Forum: http://www.donationcoder.com/forum/index.php?topic=35480.0
  * Planning docs: https://sites.google.com/site/mewlobook/jesse-s-pages
  * Online discussion on channel #mewlo on efnet.
