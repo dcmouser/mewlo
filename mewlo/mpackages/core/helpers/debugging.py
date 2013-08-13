@@ -14,6 +14,7 @@ def smart_dotted_idpath(obj):
     This function depends on the convention of the object methods get_parent and get_id.
     When there is no get_parent we stop traveling up chaing.
     When there is no get_id we simply use class name.
+    You can see this function in use in some cases where we catch an exception and want to add some additional info about an object related to the exception.
     """
 
     retstr = ''

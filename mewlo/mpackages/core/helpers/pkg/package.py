@@ -44,22 +44,21 @@ class Package(object):
 
 
 
-
-
     def load_infofile(self):
-        """Load the info file for this package."""
+        """Load the info file (json data) for this package."""
 
         # init
         self.infodict = None
         self.readytoloadcode = False
 
+        # read the json file and parse it into a dictionary
         self.infodict, failure = readfile_asjson(self.infofilepath,"Package info file")
-        if (failure!=None):
-            # on failure do this
-            self.eventlist.add(failure)
-        else:
-            # set readytoloadcode since the json parsed properly
+        if (failure==None):
+            # set readytoloadcode true since the json parsed properly
             self.readytoloadcode = True
+        else:
+            # failed; add the error message to our eventlist, and continue with this package marked as not useable
+            self.eventlist.add(failure)
 
 
 
@@ -83,12 +82,13 @@ class Package(object):
             # if the import worked, instantiate the package object from it
             failure = self.instantiate_packageobject()
 
-        if (failure!=None):
-            # failure of some sore to load code module
-            self.eventlist.add(failure)
-        else:
+        if (failure==None):
+            # success so mark it as ready to run
             self.readytorun = True
             self.enabled = True
+        else:
+            # failed; add the error message to our eventlist, and continue with this package marked as not useable
+            self.eventlist.add(failure)
 
 
 

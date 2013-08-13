@@ -15,7 +15,9 @@ import traceback
 from mewlo.mpackages.core.mexception import mreraise
 
 #helper imports
-from mewlo.mpackages.core.helpers.event.event import EFailure
+from event.event import EFailure
+
+
 
 
 
@@ -163,7 +165,6 @@ def importmodule_bypath(path):
 
 def do_importmodule_bypath_version1(path):
     """Internal helper function. Load a python module import by explicit path; version1 uses imp.load_source"""
-    dynamicmodule = None
 
     name, ext = os.path.splitext(os.path.basename(path))
     modulename = "DynamicallyLoadedPackage_"+name
@@ -179,7 +180,7 @@ def do_importmodule_bypath_version1(path):
 
 
 
-def do_importmodule_bypath_version2(path):
+def _UNUSED_do_importmodule_bypath_version2(path):
     """Internal helper function.Load a python module import by explicit path; version2 uses find_module and load_module"""
     dynamicmodule = None
     file = None
@@ -200,7 +201,7 @@ def do_importmodule_bypath_version2(path):
 
 
 
-def do_importmodule_bypath_version3(path):
+def _UNUSED_do_importmodule_bypath_version3(path):
     """Internal helper function.Load a python module import by explicit path; version3 appends to sys path"""
     dynamicmodule = None
 

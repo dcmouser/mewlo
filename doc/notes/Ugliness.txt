@@ -1,6 +1,16 @@
-7/30/13 - jr
-returning errors inconsistently
+This document is for describing areas of Mewlo that are ugly/unpleasant and where a better solution would be welcome.
+//---------------------------------------------------------------------------
 
 
-7/30/13
-ErrorTracker API
+8/12/13
+We aren't currently using python eggs and officially installable packages for different components
+
+
+8/12/13
+Custom exception class (MewloException in mexception)
+
+
+8/12/13
+Organization of helpers subdirectories vs mewlo core directories
+
+
