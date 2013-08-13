@@ -31,7 +31,20 @@ With multiple lines.
 
 
 //---------------------------------------------------------------------------
-
 Whitespace is encouraged.
 Use multiple blank lines to separate functions and classes.
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+We will be using Sphinx to generate documentation from source code
+See http://docs.python-guide.org/en/latest/writing/documentation.html
+See http://www.python.org/dev/peps/pep-0257/
+See http://pythonhosted.org/an_example_pypi_project/sphinx.html#full-code-example
+See http://matplotlib.org/sampledoc/
+Sphinx special docstring fields: http://sphinx-doc.org/markup/desc.html
+See: http://docs.python.org/devguide/documenting.html
+See: http://datadesk.latimes.com/posts/2012/01/sphinx-on-github/
+//---------------------------------------------------------------------------
+

@@ -4,7 +4,6 @@ This file contains classes to handle Mewlo sites and site manager.
 """
 
 
-
 # mewlo imports
 from mpackage import MewloPackageManager
 from mrequest import MewloRequest
@@ -17,7 +16,7 @@ from helpers.event.event import Event, EventList, EWarning, EError
 from helpers.event.logger import LogManager, Logger
 from helpers.settings import Settings
 
-# python limports
+# python imports
 import os
 from datetime import datetime, date, time
 

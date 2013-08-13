@@ -38,9 +38,7 @@ Some examples of things we will want to be able to easily do:
     * log "debug" messages to file only
     * discard warning messages when running in production mode
     * log messages of type x|y|z to database tables x,y,z
-
 """
-
 
 
 # helper imports

@@ -5,7 +5,6 @@ This file contains classes to support hierarchical settings
 
 
 
-
 class Settings(object):
     """
     The MewloSettings class stores a hierarchical dictionary of settings

@@ -4,19 +4,17 @@ This module contains functions that can lookup and return a reference to a funct
 """
 
 
+# mewlo imports
+from mewlo.mpackages.core.mexception import mreraise
+
+# helper imports
+from event.event import EFailure
 
 # python imports
 from types import ModuleType
 import sys
 import os
 import traceback
-
-# mewlo imports
-from mewlo.mpackages.core.mexception import mreraise
-
-#helper imports
-from event.event import EFailure
-
 
 
 

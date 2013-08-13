@@ -4,17 +4,14 @@ This file supports discovery and loading of modules by path and filename pattern
 """
 
 
-
+# helper imports
+from ..callables import importmodule_bypath
+from ..event.event import EFailure
 
 # python imports
 import imp
 import fnmatch
 import os
-
-# helper imports
-from ..callables import importmodule_bypath
-from ..event.event import EFailure
-
 
 
 

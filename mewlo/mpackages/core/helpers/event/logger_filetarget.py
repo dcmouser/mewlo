@@ -4,14 +4,12 @@ This module defines a derived logging hey class that implements file logging.
 """
 
 
-# python future import
-from __future__ import print_function
+# helper imports
+from logger import LogTarget
 
 # python imports
 import sys
-
-# helper imports
-from logger import LogTarget
+from __future__ import print_function
 
 
 

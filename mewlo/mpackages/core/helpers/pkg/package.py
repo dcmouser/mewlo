@@ -4,19 +4,16 @@ Works with packagemanager.py to support our package/extension/addon system
 """
 
 
-
-# python imports
-import json
-import os
-
-# helper imports
-from ..event.event import EventList, EFailure
-
 # mewlo imports
 from mewlo.mpackages.core.mexception import mreraise
 from mewlo.mpackages.core.mewlomisc import readfile_asjson
 
+# helper imports
+from ..event.event import EventList, EFailure
 
+# python imports
+import json
+import os
 
 
 

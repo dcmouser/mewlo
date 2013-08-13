@@ -14,3 +14,6 @@ Custom exception class (MewloException in mexception)
 Organization of helpers subdirectories vs mewlo core directories
 
 
+8/12/13
+The helper directory is intended to organize classes and functions that do NOT require Mewlo-specific classes and functions
+There are cases where this is not true in the current codebase.

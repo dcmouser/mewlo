@@ -4,8 +4,6 @@ This file contains classes to support response to requests
 """
 
 
-
-
 # helper imports
 from helpers.event.event import EventList, EError, EWarning
 

@@ -4,11 +4,11 @@ This module contains classes and functions for custom event/error handling
 """
 
 
-# helper imports
-from mewlo.mpackages.core.helpers.debugging import smart_dotted_idpath
-
 # mewlo imports
 from mewlo.mpackages.core.mexception import compute_traceback_astext
+
+# helper imports
+from mewlo.mpackages.core.helpers.debugging import smart_dotted_idpath
 
 # python imports
 import sys

@@ -5,8 +5,6 @@ They are custom subclasses from the pkg classes.
 """
 
 
-
-
 # helper imports
 from helpers.pkg.packageobject import PackageObject
 from helpers.pkg.packagemanager import PackageManager

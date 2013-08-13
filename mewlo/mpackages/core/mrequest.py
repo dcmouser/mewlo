@@ -4,13 +4,13 @@ This file contains classes to support web server requests
 """
 
 
-
 # mewlo imports
 from mresponse import MewloResponse
 
-# werkzeug imports -- currently wrapped and used to do heavy lifting
+# werkzeug imports
 from werkzeug.wrappers import Request
 from werkzeug.test import create_environ
+
 
 
 

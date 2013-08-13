@@ -3,6 +3,7 @@ mewlomisc.py
 This module contains misclenaeous helper functions.
 """
 
+
 # mewlo imports
 from mexception import mreraise
 
