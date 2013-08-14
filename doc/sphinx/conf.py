@@ -28,7 +28,7 @@ import sys, os
 
 
 # ATTN: 7/30/13 jr - addign rst2pdf extension for pdf output add ", 'rst2pdf.pdfbuilder'"
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.ifconfig', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.ifconfig', 'sphinx.ext.viewcode', 'sphinxcontrib.fulltoc']
 
 
 

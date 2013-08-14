@@ -68,7 +68,7 @@ class Package(object):
             # failed; add the error message to our eventlist, and continue with this package marked as not useable
             self.eventlist.add(failure)
             # we could raise an exception immediately if we wanted from the failure
-            if (False):
+            if (True):
                 raise ExceptionPlus(failure)
 
 
@@ -100,6 +100,8 @@ class Package(object):
         else:
             # failed; add the error message to our eventlist, and continue with this package marked as not useable
             self.eventlist.add(failure)
+            if (True):
+                raise ExceptionPlus(failure)
 
 
 

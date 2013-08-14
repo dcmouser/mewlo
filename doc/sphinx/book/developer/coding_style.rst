@@ -1,0 +1,69 @@
+Coding Style Guidelines
+=======================
+
+
+Consistency and predictability are of criticial importance in this project.
+
+
+Style:
+
+    * Mewlo code should conform to the official PEP8 style guide -- even though I personally dislike some of the choices it makes.
+    * Use docstring documentation for all functions and classes.
+    * Be generous with blank lines and comments.
+
+
+Documentation:
+
+    * We will be using Sphinx to generate documentation from source code
+    * See http://docs.python-guide.org/en/latest/writing/documentation.html
+    * See http://www.python.org/dev/peps/pep-0257/
+    * See http://pythonhosted.org/an_example_pypi_project/sphinx.html#full-code-example
+    * See http://matplotlib.org/sampledoc/
+    * Sphinx special docstring fields: http://sphinx-doc.org/markup/desc.html
+    * See: http://docs.python.org/devguide/documenting.html
+    * See: http://datadesk.latimes.com/posts/2012/01/sphinx-on-github/
+
+
+Naming:
+
+    * Prefer long named functions, properties, classes.
+    * Mewlo classes typically have a prefix of M or Mewlo.
+
+
+File organization:
+
+    * Favor many files arranged hierarchically into subdirectories, as opposed to large files.
+    * All of Mewlo code (both core required code and optional 3rd party code) is organized into "packages"; every package should have it's own subdirectory under mewlo/mpackages.
+    * The mpackages/core directory is the root to all core Mewlo code.
+    * The mpackages/core/helpers directory holds classes and code that have a reasonable likelihood of being generic and usable in non-Mewlo projects.
+    * To explain the use of a directory, create a file called "README.txt" and place information there.
+
+
+File formats:
+
+    * When data files are desired, use .json format files, not xml
+    * The extensions of files should match their format -- do not use a custom file extension to indicate purpose; to indicate purpose use a suffix in filename (e.g. "mytest_mpackage.json" uses suffix "_mpackage" to denote it is a package file).
+
+
+Python files:
+
+    * All filenames should be in lowercase using underscores to separate words.
+    * The top of each code file should look like (leave out import sections that are not used):
+
+"""
+filename.py
+Description of file.
+"""
+
+# mewlo imports
+imports of mewlo core files
+
+# helper imports
+helper file imports
+
+# 3rd party lib imports
+3rd party lib imports
+
+# python imports
+built in python library imports
+

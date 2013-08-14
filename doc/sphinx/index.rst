@@ -3,20 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to mewlo's documentation!
-=================================
-
-Introduction:
-
-   .. include:: ../../README.md
+.. include:: ../../README.md
 
 
-Contents:
+Main Contents
+=============
 
 .. toctree::
    :maxdepth: 2
 
-   _apidoc/modules
+   book/index
+   sourcecode
+
 
 
 Indices and tables

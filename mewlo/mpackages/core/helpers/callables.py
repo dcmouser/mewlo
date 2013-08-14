@@ -5,7 +5,7 @@ This module contains functions that can lookup and return a reference to a funct
 
 
 # helper imports
-from event.event import EFailure
+from event.event import EFailure, EException
 
 # python imports
 from types import ModuleType
@@ -157,12 +157,15 @@ def split_dottedpath_modulepath_and_funcname(dottedname):
 
 def importmodule_bypath(path):
     """Import a module by path."""
-    return do_importmodule_bypath_version1(path)
+    return do_importmodule_bypath_version3(path)
 
 
 
-def do_importmodule_bypath_version1(path):
-    """Internal helper function. Load a python module import by explicit path; version1 uses imp.load_source."""
+def _UNUSED_do_importmodule_bypath_version1(path):
+    """
+    Internal helper function. Load a python module import by explicit path; version1 uses imp.load_source.
+    This version seems to suffer from failure of dynamically imported modules to be able to perform relative imports.
+    """
 
     name, ext = os.path.splitext(os.path.basename(path))
     modulename = "DynamicallyLoadedPackage_"+name
@@ -179,7 +182,10 @@ def do_importmodule_bypath_version1(path):
 
 
 def _UNUSED_do_importmodule_bypath_version2(path):
-    """Internal helper function.Load a python module import by explicit path; version2 uses find_module and load_module."""
+    """
+    Internal helper function. Load a python module import by explicit path; version2 uses find_module and load_module.
+    This version seems to suffer from failure of dynamically imported modules to be able to perform relative imports.
+    """
     dynamicmodule = None
     file = None
 
@@ -187,11 +193,13 @@ def _UNUSED_do_importmodule_bypath_version2(path):
     name, ext = os.path.splitext(os.path.basename(path))
     dirpath = os.path.dirname(path)
 
-    # find the module
-    (file, filename, data) = imp.find_module(name, [dirpath])
-
-    # load it after find
-    dynamicmodule = imp.load_module(name, file, filename, data)
+    try:
+        # find the module
+        import imp
+        (file, filename, data) = imp.find_module(name, [dirpath])
+        dynamicmodule = imp.load_module(full_name, file, filename, data)
+    except Exception as exp:
+        return None, EException("failed to import module by path", exp=exp)
 
     # return it
     return dynamicmodule, None
@@ -199,8 +207,12 @@ def _UNUSED_do_importmodule_bypath_version2(path):
 
 
 
-def _UNUSED_do_importmodule_bypath_version3(path):
-    """Internal helper function.Load a python module import by explicit path; version3 appends to sys path"""
+def do_importmodule_bypath_version3(path):
+    """
+    Internal helper function.Load a python module import by explicit path; version3 appends to sys path.
+    This version seems to solve the problem of the dynamically imported module failing to load relative imports.
+    """
+
     dynamicmodule = None
 
     # save previous sys path
@@ -211,8 +223,11 @@ def _UNUSED_do_importmodule_bypath_version3(path):
     name, ext = os.path.splitext(os.path.basename(path))
     sys.path.append(dirpath)
 
-    # do the import
-    dynamicmodule = __import__(name)
+    try:
+        # do the import
+        dynamicmodule = __import__(name)
+    except Exception as exp:
+        return None, EException("failed to import module by path", exp=exp)
 
     # reset sys path
     sys.path = oldpath

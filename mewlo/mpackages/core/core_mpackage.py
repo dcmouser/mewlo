@@ -4,9 +4,11 @@ This file manages the core Mewlo classes
 """
 
 
+
 # mewlo imports
-# ATTN: because of the way this file is imported dynamically, it seems it does not support relative imports
-from mewlo.mpackages.core.mpackage import MewloPackageObject
+# ATTN: 8/13/13 some of the ways we attempt to dynamically import our packages fails on relative imports
+#from mewlo.mpackages.core.mpackage import MewloPackageObject
+from mpackage import MewloPackageObject
 
 
 
