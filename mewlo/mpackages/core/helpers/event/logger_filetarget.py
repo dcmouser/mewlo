@@ -33,6 +33,15 @@ class LogTarget_File(LogTarget):
         self.set_fileinfo(filename,filemode)
 
 
+    def process(self, logmessage):
+        """
+        Called by logger parent to actually do the work.
+        We overide this in our subclass to do actual work.
+        """
+        self.write(logmessage)
+
+
+
 
     def set_fileinfo(self, filename, filemode):
         """Set the filename we will open and write to on first write."""
@@ -67,7 +76,7 @@ class LogTarget_File(LogTarget):
 
 
 
-    def writeto_file(self, logmessage):
+    def write(self, logmessage):
         """Write out the logmessage to the file."""
         # ensure file is open. this will throw exception if there is an error opening the file
         filep = self.get_openfile()
@@ -80,12 +89,5 @@ class LogTarget_File(LogTarget):
 
 
 
-    def process(self, logmessage):
-        """
-        Called by logger parent to actually do the work.
-        We overide this in our subclass to do actual work.
-        """
-
-        self.writeto_file(logmessage)
 
 

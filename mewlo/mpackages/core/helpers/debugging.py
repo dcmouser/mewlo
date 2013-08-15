@@ -107,3 +107,37 @@ def compute_traceback_astext_fromlist(tblist):
     return retstr
 
 
+
+
+
+
+
+
+
+
+def calc_caller_tuple(depth=0):
+    """
+    Helper function that returns info about the caller; useful for displaying what linenumber something happened in, etc.
+    Depth of 0 will give us the CALLERS info.  Depth of 1 will be caller's caller.
+    """
+    import inspect
+    stackitem = inspect.stack()[depth+2]
+    return stackitem
+
+
+def calc_caller_dict(depth=0):
+    """
+    Helper function that returns info about the caller; useful for displaying what linenumber something happened in, etc.
+    Depth of 0 will give us the CALLERS info.  Depth of 1 will be caller's caller.
+    """
+    stackitem = calc_caller_tuple(depth)
+    stackdict = {
+        "filename" : stackitem[1],
+        "lineno" : stackitem[2],
+        "function_name" : stackitem[3],
+        }
+    return stackdict
+
+
+
+

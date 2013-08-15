@@ -1,6 +1,7 @@
 Philosophy
 ==========
 
+
 It may be valuable to come up with a coherent philosophical approach to design decisions and tradeoffs in Mewlo.  The following reflects my biases:
 
    * Prefer making maintenance and modification easy over making initial construction fast+easy; do not waste too much time on scaffolding utilities.

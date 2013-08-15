@@ -17,3 +17,7 @@ Ugly Code
 8/13/13:
 
     * We are still throwing some exceptions in mcontroller and helpers/callables modules
+
+
+8/15/13:
+    * We sometimes use ' and sometimes use " for strings; decide on a standard and explain why and make all consistent

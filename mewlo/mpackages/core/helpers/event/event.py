@@ -5,7 +5,7 @@ This module contains classes and functions for custom event/error handling
 
 
 # helper imports
-from ..debugging import smart_dotted_idpath, compute_traceback_astext
+from ..debugging import smart_dotted_idpath, compute_traceback_astext, calc_caller_dict
 
 # python imports
 import sys
@@ -22,7 +22,7 @@ class Event(object):
     """Base class for event/error class."""
 
     # class constants
-    DEF_SAFE_FIELDNAME_LIST = ["type","msg","exp","request","traceback","statuscode"]
+    DEF_SAFE_FIELDNAME_LIST = ["type","msg","exp","request","traceback","statuscode","loc"]
     #
     DEF_ETYPE_failure = "FAILURE"
     DEF_ETYPE_error = "ERROR"
@@ -97,7 +97,7 @@ class Event(object):
         """
         if (not fieldname in Event.DEF_SAFE_FIELDNAME_LIST):
             if (not fieldname.startswith("custom_")):
-                raise Exception("Fieldname specified for Event [%s] that is not in our list of safe fieldnames (%s) and does not begin with 'custom_'." % (fieldname , ",".join(Event.DEF_SAFEFIELDNAMELIST)))
+                raise Exception("Fieldname specified for Event [%s] that is not in our list of safe fieldnames (%s) and does not begin with 'custom_'." % (fieldname , ",".join(Event.DEF_SAFE_FIELDNAME_LIST)))
 
     def safetycheck_fields(self, fields):
         """
@@ -254,20 +254,20 @@ class EventList(object):
 
 # These are shortcut helper functions
 
-def EFailure(msg="", fields=None, obj=None):
+def EFailure(msg="", fields=None, obj=None, flag_loc = False, calldepth=0):
     """Helper function to create failure type event"""
-    return SimpleEventBuilder(msg, obj, fields, {"type":Event.DEF_ETYPE_failure })
+    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {"type":Event.DEF_ETYPE_failure })
 
-def EError(msg="", fields=None, obj=None):
+def EError(msg="", fields=None, obj=None, flag_loc = False, calldepth=0):
     """Helper function to create error type event"""
-    return SimpleEventBuilder(msg, obj, fields, {"type":Event.DEF_ETYPE_error })
+    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {"type":Event.DEF_ETYPE_error })
 
-def EWarning(msg="", fields=None, obj=None):
+def EWarning(msg="", fields=None, obj=None, flag_loc = False, calldepth=0):
     """Helper function to create warning type event"""
-    return SimpleEventBuilder(msg, obj, fields, {"type":Event.DEF_ETYPE_warning })
+    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {"type":Event.DEF_ETYPE_warning })
 
 
-def EException(msg="", exp=None, fields=None, flag_traceback=True, obj=None):
+def EException(msg="", exp=None, fields=None, flag_traceback=True, obj=None, flag_loc = True, calldepth=0):
     """Helper function to create exception type event with full exception traceback info."""
     # default fields
     defaultfields = { "type":Event.DEF_ETYPE_exception, "exp":exp }
@@ -275,10 +275,10 @@ def EException(msg="", exp=None, fields=None, flag_traceback=True, obj=None):
     if (flag_traceback):
         defaultfields["traceback"] = Event.calc_traceback_text()
     # create event
-    return SimpleEventBuilder(msg, obj, fields, defaultfields)
+    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, defaultfields)
 
 
-def EFailureExtend(failure, msg="", fields=None, obj=None):
+def EFailureExtend(failure, msg="", fields=None, obj=None, flag_loc = False, calldepth=0):
     """Helper function to create failure type event by extending another"""
     if (isinstance(failure,Event)):
         # add the simple message of the other failure event
@@ -289,15 +289,18 @@ def EFailureExtend(failure, msg="", fields=None, obj=None):
     if (addmsg!=""):
         msg += " "+addmsg
     # build it
-    return SimpleEventBuilder(msg, obj, fields, {"type":Event.DEF_ETYPE_failure })
+    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {"type":Event.DEF_ETYPE_failure })
 
 
-def SimpleEventBuilder(msg, obj, fields, defaultfields):
+def SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth, defaultfields):
     """Internal func. Helper function to create failure type event"""
     # add obj info
     if (obj!=None):
         msg += smart_dotted_idpath(obj)
     # add message
     defaultfields["msg"] = msg
+    # extra stuff?
+    if (flag_loc):
+        defaultfields["loc"] = calc_caller_dict(calldepth+1)
     # create event
     return Event(fields, defaultfields)

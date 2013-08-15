@@ -13,5 +13,6 @@ From here you can learn about extending the Mewlo system.
    error_handling_policy
    ugliness
    coding_todo
+   to_resolve
    building_docs
    extending

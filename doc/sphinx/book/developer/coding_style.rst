@@ -45,6 +45,12 @@ File formats:
     * The extensions of files should match their format -- do not use a custom file extension to indicate purpose; to indicate purpose use a suffix in filename (e.g. "mytest_mpackage.json" uses suffix "_mpackage" to denote it is a package file).
 
 
+Tools:
+
+    * https://pypi.python.org/pypi/flake8
+    * https://github.com/jcrocholl/pep8
+
+
 Python files:
 
     * All filenames should be in lowercase using underscores to separate words.

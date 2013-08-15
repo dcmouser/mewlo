@@ -12,7 +12,9 @@ from mewlo.mpackages.core.mcontroller import MewloController
 
 # helpers
 from mewlo.mpackages.core.helpers.event.logger_filetarget import LogTarget_File
+from mewlo.mpackages.core.helpers.event.logger_pythontarget import LogTarget_Python
 from mewlo.mpackages.core.helpers.event.event import EWarning, EError
+from mewlo.mpackages.core.helpers.debugging import calc_caller_dict
 
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live; this is just a way to get the relative directory easily
@@ -125,12 +127,26 @@ class MewloSite_Test1(MewloSite):
     def add_loggers(self):
         """This is called by default by the base MewloSite near startup, to add loggers to the system."""
 
+        # create a single logger
         logger = self.createadd_logger('mytestlogger')
+
+        # now add targets to it
         logger.add_target(LogTarget_File(filename='testlogout1.txt', filemode='w'))
-        logger.add_target(LogTarget_File(filename='testlogout2.txt', filemode='w'))
         #
-        # want to test raising an exception on failure to write/open file? uncomment this
-        #logger.add_target(LogTarget_File(filename=''))
+        if (False):
+            # an additional logger to show it will write all loggers
+            logger.add_target(LogTarget_File(filename='testlogout2.txt', filemode='w'))
+        #
+        if (False):
+            # want to test raising an exception on failure to write/open file? uncomment this
+            logger.add_target(LogTarget_File(filename=''))
+        #
+        if (True):
+            # let's add standard python logging as a test
+            import logging
+            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile("mewlo","testlogout3.txt")
+            logger.add_target(LogTarget_Python(pythonlogger))
+            pythonlogger.error("This is a manual python test error.")
 
 
 
@@ -144,7 +160,7 @@ class MewloSite_Test1(MewloSite):
     def post_runroute_callable(self, request):
         """This is called by default after a route has been invoked.  Subclassed sites can override it."""
 
-        request.logevent(EWarning("This is a test2 warning called POST run route: "+request.get_path()))
+        request.logevent(EWarning("This is a test2 warning called POST run route: "+request.get_path(), flag_loc=True))
 
 
 
