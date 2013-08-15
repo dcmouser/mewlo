@@ -29,7 +29,7 @@ class PackageManager(object):
     def __init__(self):
         # stuff
         self.dirlist = []
-        self.filepatternsuffix = ""
+        self.filepatternsuffix = ''
         # package collection
         self.packages = []
 
@@ -117,7 +117,7 @@ class PackageManager(object):
         # not in our cache? then we have to load it
         if (not path in PackageManager.classwide_packagemodules):
             # first we check if path is blank or does not exist
-            if (path == ""):
+            if (path == ''):
                 return None, EFailure("Failed to load import by path '"+path+"', because a blank path was specified.")
             elif (not os.path.isfile(path)):
                 return None, EFailure("Failed to load import by path '"+path+"', because that file does not exist.")

@@ -31,7 +31,7 @@ class ExceptionPlus(Exception):
             msg = str(msg)
 
         # add dotted id path if found
-        if (obj!=None):
+        if (obj != None):
             msg += smart_dotted_idpath(obj)
 
         # call parent init
@@ -42,7 +42,7 @@ class ExceptionPlus(Exception):
         self.origexception = exp
 
         # we use exc_info so we can get traceback info
-        if (exp==None):
+        if (exp == None):
             self.tracetext = None
         else:
             self.tracetext = Event.calc_traceback_text()
@@ -56,10 +56,10 @@ class ExceptionPlus(Exception):
     def ammend_reraise_message(self, msg, obj):
         """Add some additional info to our message."""
         # add dotted id path if found
-        if (obj!=None):
+        if (obj != None):
             msg += smart_dotted_idpath(obj)
         # append message
-        if (self.extramsg==None):
+        if (self.extramsg == None):
             self.extramsg = [msg]
         else:
             self.extramsg.append(msg)
@@ -71,7 +71,7 @@ class ExceptionPlus(Exception):
         retstr = str(self.origexception)
         retstr += " ["+super(ExceptionPlus, self).__str__()+"]"
         # add extr messages
-        if (self.extramsg!=None):
+        if (self.extramsg != None):
             retstr += ". "
             for msg in self.extramsg:
                 retstr += " "+msg+"."

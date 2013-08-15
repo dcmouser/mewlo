@@ -17,7 +17,7 @@ def main():
     # just invoke main() in testsite1
     testsite1.main()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
 
 

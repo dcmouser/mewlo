@@ -69,11 +69,11 @@ def find_module_from_dottedpath(callableroot, modulepath):
     """
 
     # if a root is specified, we use it
-    if (callableroot!=None):
+    if (callableroot != None):
         # we have a root
         if (isinstance(callableroot, basestring)):
             # root is a string so just add it to module path and then look for module by string dottedpath
-            modulepath = callableroot + "." + modulepath
+            modulepath = callableroot + '.' + modulepath
             mod = find_module_from_dottedpath_bystring(modulepath)
         elif (isinstance(callableroot, ModuleType)):
             # root is actually a package module, so just find modulepath dottedstring relative to the root package module
@@ -109,8 +109,8 @@ def find_module_from_dottedpath_relativetopackage(parentmodule, modulepath):
     # ATTN: i tried lots of approaches to directly ask the parentmodule to import modulepath, but could not get it to work, so i've fallen back on this method; i'm not sure what if any downsides it might have in terms of scope confusion..
     #  it does seem to solve the problem of the getting the parentmodule __name__ to be a dotted path and not just the pure name of the module, which helps it work regardless of where main script is run from
     fullpath = parentmodule.__name__
-    if (modulepath != ""):
-        fullpath = fullpath + "." + modulepath
+    if (modulepath != ''):
+        fullpath = fullpath + '.' + modulepath
     return find_module_from_dottedpath_bystring(fullpath)
 
 
@@ -168,7 +168,7 @@ def _UNUSED_do_importmodule_bypath_version1(path):
     """
 
     name, ext = os.path.splitext(os.path.basename(path))
-    modulename = "DynamicallyLoadedPackage_"+name
+    modulename = 'DynamicallyLoadedPackage_'+name
 
     import imp
     try:
@@ -227,7 +227,7 @@ def do_importmodule_bypath_version3(path):
         # do the import
         dynamicmodule = __import__(name)
     except Exception as exp:
-        return None, EException("failed to import module by path", exp=exp)
+        return None, EException("Failed to import module by path.", exp=exp)
 
     # reset sys path
     sys.path = oldpath

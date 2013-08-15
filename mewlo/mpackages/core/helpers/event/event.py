@@ -22,18 +22,18 @@ class Event(object):
     """Base class for event/error class."""
 
     # class constants
-    DEF_SAFE_FIELDNAME_LIST = ["type","msg","exp","request","traceback","statuscode","loc"]
+    DEF_SAFE_FIELDNAME_LIST = ['type', 'msg', 'exp', 'request', 'traceback', 'statuscode', 'loc']
     #
-    DEF_ETYPE_failure = "FAILURE"
-    DEF_ETYPE_error = "ERROR"
-    DEF_ETYPE_warning = "WARNING"
-    DEF_ETYPE_exception = "EXCEPTION"
+    DEF_ETYPE_failure = 'FAILURE'
+    DEF_ETYPE_error = 'ERROR'
+    DEF_ETYPE_warning = 'WARNING'
+    DEF_ETYPE_exception = 'EXCEPTION'
 
 
     def __init__(self, fields=None, defaultfields=None):
         """Constructor for an Event.  We use a generic fields dictionary to specify all fields for the event, whose values overide an optional defaultfields dictionary. """
         # start with default fields
-        if (defaultfields!=None):
+        if (defaultfields != None):
             self.fields = dict(defaultfields)
         else:
             self.fields = {}
@@ -62,7 +62,7 @@ class Event(object):
 
     def mergefields(self, fields):
         """Merge in new fields over existing, taking care of cases where one or both fields are None."""
-        if (fields!=None):
+        if (fields != None):
             self.fields.update(fields)
             # check field safety?
             self.safetycheck_fields(fields)
@@ -79,7 +79,7 @@ class Event(object):
     def fieldmatches(self, fieldname, fieldval):
         """Check if etype matches."""
         ourval = self.getfield(fieldname)
-        if (ourval==fieldval):
+        if (ourval == fieldval):
             return True
         # if fieldval is a container (list), then return true if ourval is in the list
         try:
@@ -96,8 +96,8 @@ class Event(object):
         ATTN: disable on optimization.
         """
         if (not fieldname in Event.DEF_SAFE_FIELDNAME_LIST):
-            if (not fieldname.startswith("custom_")):
-                raise Exception("Fieldname specified for Event [%s] that is not in our list of safe fieldnames (%s) and does not begin with 'custom_'." % (fieldname , ",".join(Event.DEF_SAFE_FIELDNAME_LIST)))
+            if (not fieldname.startswith('custom_')):
+                raise Exception("Fieldname '{0}' specified for an Event that is not in our list of safe fieldnames [{1}] and does not begin with 'custom_'.".format(fieldname , ",".join(Event.DEF_SAFE_FIELDNAME_LIST)))
 
     def safetycheck_fields(self, fields):
         """
@@ -167,21 +167,21 @@ class EventList(object):
 
     def add_context(self, context):
         """Add context value to current context as dotted string path."""
-        if (self.context==None):
+        if (self.context == None):
             self.context = context
         else:
-            self.context.append("."+context)
+            self.context.append('.' + context)
 
 
 
     def add(self, event):
         """Just append a new event."""
         # if its None just ignore
-        if (event==None):
+        if (event == None):
             return
         # before we add it, we set it's context
-        if (self.context!=None):
-            event.setfield("context",self.context)
+        if (self.context != None):
+            event.setfield('context', self.context)
         # now add it
         self.events.append(event)
 
@@ -192,7 +192,7 @@ class EventList(object):
     def add_simple(self, msg, fields=None):
         """Add a simple event."""
         # if msg is blank or '' then ignore
-        if (msg==None or msg==''):
+        if (msg == None or msg == ''):
             return
         # if its already an event, just merge in any new overiding fields and add it; this can be useful if we have an Event (like a return failure code) and we want to add it to an Event list with extra info
         if (isinstance(msg, Event)):
@@ -220,15 +220,15 @@ class EventList(object):
 
     def count_errors(self):
         """Shorthand to count the number of events of error type."""
-        return self.countfieldmatches("type", Event.DEF_ETYPE_error)
+        return self.countfieldmatches('type', Event.DEF_ETYPE_error)
 
 
 
-    def stringify(self, indentstr=''):
+    def stringify(self, indentstr=""):
         """Return a string that is a comma separated join of all events, regardless of type."""
         outstr = ""
         outstr += indentstr+"Events:"
-        if (len(self)==0):
+        if (len(self) == 0):
             outstr += " None.\n"
         else:
             outstr += "\n"
@@ -242,7 +242,7 @@ class EventList(object):
 
 
 
-    def debug(self, indentstr=''):
+    def debug(self, indentstr=""):
         return self.stringify(indentstr)
 
 
@@ -254,53 +254,53 @@ class EventList(object):
 
 # These are shortcut helper functions
 
-def EFailure(msg="", fields=None, obj=None, flag_loc = False, calldepth=0):
+def EFailure(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create failure type event"""
-    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {"type":Event.DEF_ETYPE_failure })
+    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_failure })
 
-def EError(msg="", fields=None, obj=None, flag_loc = False, calldepth=0):
+def EError(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create error type event"""
-    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {"type":Event.DEF_ETYPE_error })
+    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_error })
 
-def EWarning(msg="", fields=None, obj=None, flag_loc = False, calldepth=0):
+def EWarning(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create warning type event"""
-    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {"type":Event.DEF_ETYPE_warning })
+    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_warning })
 
 
 def EException(msg="", exp=None, fields=None, flag_traceback=True, obj=None, flag_loc = True, calldepth=0):
     """Helper function to create exception type event with full exception traceback info."""
     # default fields
-    defaultfields = { "type":Event.DEF_ETYPE_exception, "exp":exp }
+    defaultfields = { 'type': Event.DEF_ETYPE_exception, 'exp': exp }
     # add traceback?
     if (flag_traceback):
-        defaultfields["traceback"] = Event.calc_traceback_text()
+        defaultfields['traceback'] = Event.calc_traceback_text()
     # create event
     return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, defaultfields)
 
 
-def EFailureExtend(failure, msg="", fields=None, obj=None, flag_loc = False, calldepth=0):
+def EFailureExtend(failure, msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create failure type event by extending another"""
     if (isinstance(failure,Event)):
         # add the simple message of the other failure event
-        addmsg = failure.getfield("msg","")
+        addmsg = failure.getfield('msg',"")
     else:
         # assume previous failure is stringifyable and add that
         addmsg = str(failure)
-    if (addmsg!=""):
-        msg += " "+addmsg
+    if (addmsg != ""):
+        msg += " " + addmsg
     # build it
-    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {"type":Event.DEF_ETYPE_failure })
+    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_failure })
 
 
 def SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth, defaultfields):
     """Internal func. Helper function to create failure type event"""
     # add obj info
-    if (obj!=None):
+    if (obj != None):
         msg += smart_dotted_idpath(obj)
     # add message
-    defaultfields["msg"] = msg
+    defaultfields['msg'] = msg
     # extra stuff?
     if (flag_loc):
-        defaultfields["loc"] = calc_caller_dict(calldepth+1)
+        defaultfields['loc'] = calc_caller_dict(calldepth+1)
     # create event
     return Event(fields, defaultfields)

@@ -48,7 +48,7 @@ class Settings(object):
 
     def value_exists(self, propertyname, propertysection=None):
         """Return true if the item existing in our settings dictionary (at specific root section if specified)."""
-        if (propertysection==None):
+        if (propertysection == None):
             return (propertyname in self.settingdict)
         return (propertyname in self.settingdict[propertysection])
 
@@ -56,6 +56,6 @@ class Settings(object):
 
     def debug(self, indentstr=""):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+"MewloSettings:\n"
+        outstr = indentstr + "MewloSettings:\n"
         outstr += indentstr+str(self.settingdict)+"\n"
         return outstr

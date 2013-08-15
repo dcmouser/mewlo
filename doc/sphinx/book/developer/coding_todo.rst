@@ -23,3 +23,7 @@ Coding ToDo
 
     * In mcontroller and helper/callables we are still throwing some exception; change to EFailures or EException.
     * Add obj parameter to Event shortcuts.
+
+
+8/13.13
+    * catch exceptions in the requst processing top-level loop, and log them.

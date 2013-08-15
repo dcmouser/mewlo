@@ -47,10 +47,10 @@ class MewloSite_Test1(MewloSite):
             MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
             MewloSite.DEF_CONFIGVAR_controllerroot: pkgdirimp_controllers,
             # site prefix
-            MewloSite.DEF_CONFIGVAR_urlprefix: "",
+            MewloSite.DEF_CONFIGVAR_urlprefix: '',
             }
         # add config to settings
-        self.sitesettings.merge_settings_atsection("config",config)
+        self.sitesettings.merge_settings_atsection('config',config)
 
 
 
@@ -66,29 +66,29 @@ class MewloSite_Test1(MewloSite):
             MewloRoute(
                 id = "homepage",
                 path = "/",
-                controller = MewloController(function="requests.request_home")
+                controller = MewloController(function='requests.request_home')
                 ))
 
         routegroup.append(
             MewloRoute(
-                id = "aboutpage",
-                path = "/help/about",
+                id = 'aboutpage',
+                path = '/help/about',
                 # we can pass the root package to the MewloController constructor, which has the benefit of doing the import immediately and raising exception if not found; otherwise the error will come up during preparation
-                controller = MewloController(root=pkgdirimp_controllers, function="requests.request_about"),
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_about'),
                 ))
 
         routegroup.append(
             MewloRoute(
-                id = "hellopage",
-                path = "/test/hello",
+                id = 'hellopage',
+                path = '/test/hello',
                 args = [
                         MewloRouteArgString(
-                            id = "name",
+                            id = 'name',
                             required = True,
                             help = "name of person to say hello to",
                             ),
                         MewloRouteArgInteger(
-                            id = "age",
+                            id = 'age',
                             required = False,
                             help = "age of person (optional)",
                             defaultval = 44,
@@ -98,17 +98,17 @@ class MewloSite_Test1(MewloSite):
                 # we can pass in any extra data which will just be part of the route that can be examined post-matching
                 extras = [ "whatever we want" ],
                 # we can force the route to simulate as if certain call args were assigned (this works whether there are RouteArgs for these or not; no type checking is performed on them
-                forcedargs = { "sign": u"aries" },
+                forcedargs = { 'sign': u"aries" },
                 ))
 
         from controllers.requests import request_article
         routegroup.append(
             MewloRoute(
-                id  = "articlepage",
-                path = "/article",
+                id  = 'articlepage',
+                path = '/article',
                 args = [
                         MewloRouteArgString(
-                            id = "title",
+                            id = 'title',
                             required = False,
                             positional = True,
                             help = "title of article to display",
@@ -144,7 +144,7 @@ class MewloSite_Test1(MewloSite):
         if (True):
             # let's add standard python logging as a test
             import logging
-            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile("mewlo","testlogout3.txt")
+            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo','testlogout3.txt')
             logger.add_target(LogTarget_Python(pythonlogger))
             pythonlogger.error("This is a manual python test error.")
 
@@ -184,9 +184,9 @@ def main():
         # start by displaying some debug info
         print sitemanager.debug()
         # simulate some simple requests
-        print sitemanager.test_submit_path("/help/about")
-        print sitemanager.test_submit_path("/page/mystery")
-        print sitemanager.test_submit_path("/test/hello/name/jesse/age/44")
+        print sitemanager.test_submit_path('/help/about')
+        print sitemanager.test_submit_path('/page/mystery')
+        print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
         # start serving from web server test
         sitemanager.create_and_start_webserver_wsgiref()
     else:
@@ -195,7 +195,7 @@ def main():
 
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
 
 

@@ -29,10 +29,6 @@ import logging
 class LogTarget_Python(LogTarget):
     """Target that hands off log writing duties to standard python logging classes."""
 
-    # class constants
-    DEF_FILEMODE_default = 'a'
-
-
 
     def __init__(self, logger):
         # parent constructor
@@ -59,22 +55,22 @@ class LogTarget_Python(LogTarget):
         """
 
         # values from the log event
-        level = logmessage.getfield("level",logging.ERROR)
-        msg = logmessage.getfield("msg","")
-        loc = logmessage.getfield("loc",None)
+        level = logmessage.getfield('level', logging.ERROR)
+        msg = logmessage.getfield('msg', "")
+        loc = logmessage.getfield('loc', None)
 
-        if (loc==None):
+        if (loc == None):
             # log it using high level call
             self.logger.log(level, msg)
         else:
             # fields used for log record
             # ATTN: here is where if we store log event module,func,lineno,file, this is where we would use it
             loggername = self.logger.name
-            pathname = loc["filename"]
-            lineno = loc["lineno"]
+            pathname = loc['filename']
+            lineno = loc['lineno']
             args = None
             exc_info = None
-            func = loc["function_name"]
+            func = loc['function_name']
             # create record
             logrecord = self.logger.makeRecord(loggername, level, pathname, lineno, msg, args, exc_info, func)
             # log record
@@ -99,8 +95,7 @@ class LogTarget_Python(LogTarget):
         import logging
         plogger = logging.getLogger(loggername)
         hdlr = logging.FileHandler(filepath)
-        #formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s [filepath=%(pathname)s] [filename=%(filename)s] [funcname=%(funcName)s] [module=%(module)s] [lineno=%(lineno)d]')
+        formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s [filepath=%(pathname)s] [filename=%(filename)s] [funcname=%(funcName)s] [module=%(module)s] [lineno=%(lineno)d]")
         hdlr.setFormatter(formatter)
         plogger.addHandler(hdlr)
         plogger.setLevel(logging.WARNING)

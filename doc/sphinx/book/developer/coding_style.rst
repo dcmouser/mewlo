@@ -45,6 +45,23 @@ File formats:
     * The extensions of files should match their format -- do not use a custom file extension to indicate purpose; to indicate purpose use a suffix in filename (e.g. "mytest_mpackage.json" uses suffix "_mpackage" to denote it is a package file).
 
 
+Quotes:
+
+    * See http://stackoverflow.com/questions/56011/single-quotes-vs-double-quotes-in-python
+    * Double quotes for text
+    * Single quotes for anything that behaves like an identifier (enums, dictionary keys)
+    * Double quoted raw string literals for regexps
+    * Tripled double quotes for docstrings
+    * Another way to think about it -- single quotes for things that you wouldnt want to translate for internationalization, double quotes for things where you would.
+
+
+Whitespace:
+
+    * Spaces on both sides of assignments and comparisons (around the =, !=, ==), EXCEPT for named function call arguments
+    * Space after commas in lists and function args
+    * Spaces after the : in dictionary assignment
+
+
 Tools:
 
     * https://pypi.python.org/pypi/flake8

@@ -41,7 +41,7 @@ class Package(object):
         # dictionary acquired from info file
         self.infodict = None
         # imported module of code
-        self.codemodule_path = ""
+        self.codemodule_path = ''
         self.codemodule = None
         self.packageobject = None
         # last error, for debug display
@@ -61,7 +61,7 @@ class Package(object):
 
         # read the json file and parse it into a dictionary
         self.infodict, failure = readfile_asjson(self.infofilepath,"Package info file")
-        if (failure==None):
+        if (failure == None):
             # set readytoloadcode true since the json parsed properly
             self.readytoloadcode = True
         else:
@@ -78,22 +78,22 @@ class Package(object):
 
         # init
         self.codemodule = None
-        self.codemodule_path = ""
+        self.codemodule_path = ''
         self.packageobject = None
         self.readytorun = False
         self.enabled = False
 
         # get path to code module
         self.codemodule_path, failure = self.get_pathtocodemodule()
-        if (failure==None):
+        if (failure == None):
             # ask package manager to load the import from the path
             self.codemodule, failure = self.packagemanager.loadimport(self.codemodule_path)
 
-        if (failure==None):
+        if (failure == None):
             # if the import worked, instantiate the package object from it
             failure = self.instantiate_packageobject()
 
-        if (failure==None):
+        if (failure == None):
             # success so mark it as ready to run
             self.readytorun = True
             self.enabled = True
@@ -112,9 +112,9 @@ class Package(object):
         path = self.infofilepath
         dir, fullname = os.path.split(path)
         name, ext = os.path.splitext(fullname)
-        pathtocodemodule_default = name + ".py"
+        pathtocodemodule_default = name + '.py'
         # override with explicit
-        pathtocodemodule = dir + "/" + self.get_infofile_property("codefile",pathtocodemodule_default)
+        pathtocodemodule = dir + '/' + self.get_infofile_property('codefile',pathtocodemodule_default)
         # return it
         return pathtocodemodule, None
 
@@ -156,7 +156,7 @@ class Package(object):
     def get_infofile_property(self, propertyname, defaultval):
         """Lookup property in our info dict and return it, or defaultval if not found."""
 
-        if (self.infodict==None):
+        if (self.infodict == None):
             return defaultval
         if (propertyname in self.infodict):
             return self.infodict[propertyname]

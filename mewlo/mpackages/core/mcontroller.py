@@ -53,15 +53,15 @@ class MewloController(object):
         # ATTN: todo - use eventlist
 
         self.parent = parent
-        self.site= site
+        self.site = site
         # we want to propagage callableroot from parent down
-        if (self.root==None):
+        if (self.root == None):
             self.root = parent.get_controllerroot()
         # now calculate callable once during preparation (if it wasn't explicitly set during constructor)
-        if (self.callable==None):
+        if (self.callable == None):
             self.callable = self.find_ourcallable()
         # disable it if it's not set
-        self.isenabled = (self.callable!=None)
+        self.isenabled = (self.callable != None)
 
 
 
@@ -69,7 +69,7 @@ class MewloController(object):
     def find_ourcallable(self):
         """Lookup the callable wrapped by this controller object."""
 
-        if (self.function==None):
+        if (self.function == None):
             # error, nothing to call
             raise ExceptionPlus("No function specified for callable.", obj=self)
         elif (not isinstance(self.function, basestring)):

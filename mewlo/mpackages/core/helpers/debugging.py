@@ -23,10 +23,10 @@ def smart_dotted_idpath(obj):
     while (True):
         # get the name of this object itself (or fallback to class name), and add it to the dotted string so far
         objidstr = smart_dotted_idpath_getobjidstr(obj)
-        if (retstr==''):
+        if (retstr == ''):
             retstr = objidstr
         else:
-            retstr = objidstr + "."+ retstr
+            retstr = objidstr + '.'+ retstr
         # lookup the parent object if it has one
         obj = smart_dotted_idpath_getparentobj(obj)
         if (obj == None):
@@ -45,12 +45,12 @@ def smart_dotted_idpath_getobjidstr(obj):
 
     # find the get_id attribute func
     try:
-        getidfunc = getattr(obj, "get_id")
+        getidfunc = getattr(obj, 'get_id')
         if (getidfunc and callable(getidfunc)):
             # ok we found a get_id function, so invoke it and get id string
             objid = getidfunc()
-            if (objid!=classname):
-                return classname+"("+objid+")"
+            if (objid != classname):
+                return classname + '(' + objid + ')'
     except:
         # not an error, just drop down
         pass
@@ -63,7 +63,7 @@ def smart_dotted_idpath_getparentobj(obj):
 
     # find the get_parent attribute func
     try:
-        getparentfunc = getattr(obj, "get_parent")
+        getparentfunc = getattr(obj, 'get_parent')
         if (getparentfunc and callable(getparentfunc)):
             # ok we found a get_parent function so get the parent object from it
             return getparentfunc()
@@ -101,9 +101,9 @@ def compute_traceback_astext_fromlist(tblist):
     retstr = ''
     #for file, lineno, function, text in traceback.extract_tb(traceback_object):
     for file, lineno, function, text in tblist:
-        if (retstr!=''):
+        if (retstr != ''):
             retstr += "; "
-        retstr += file +" line #"+str(lineno)+" in "+function+": "+text
+        retstr += file + " line #" + str(lineno) + " in " + function + ": " + text
     return retstr
 
 
@@ -132,9 +132,9 @@ def calc_caller_dict(depth=0):
     """
     stackitem = calc_caller_tuple(depth)
     stackdict = {
-        "filename" : stackitem[1],
-        "lineno" : stackitem[2],
-        "function_name" : stackitem[3],
+        'filename': stackitem[1],
+        'lineno': stackitem[2],
+        'function_name': stackitem[3],
         }
     return stackdict
 

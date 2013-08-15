@@ -40,14 +40,14 @@ class MewloPackageManager(PackageManager):
     """The MewloPackageManager manages a collection of MewloPackages."""
 
     # class constants
-    DefMewlo_Package_filepatternsuffix = "mpackage"
+    DefMewlo_Package_filepatternsuffix = 'mpackage'
 
 
     def __init__(self, mewlosite):
         # parent constructor
         super(MewloPackageManager,self).__init__()
         # set pointer to mewlosite
-        self.mewlosite= mewlosite
+        self.mewlosite = mewlosite
         # set file pattern of mewlo package files
         self.set_filepatternsuffix(self.DefMewlo_Package_filepatternsuffix)
 

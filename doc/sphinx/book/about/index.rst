@@ -3,6 +3,7 @@ About Mewlo
 
 .. toctree::
 
+   goals
    philosophy
    the_team
    help_needed

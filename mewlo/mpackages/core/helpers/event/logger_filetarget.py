@@ -55,7 +55,7 @@ class LogTarget_File(LogTarget):
 
     def closefile_ifopen(self):
         """Close the file if it's already open."""
-        if (self.filep==None):
+        if (self.filep == None):
             return
         # close file and clear it
         filep.close()
@@ -70,7 +70,7 @@ class LogTarget_File(LogTarget):
         """
 
         # this will throw an exception if file cannot be opened
-        if (self.filep==None):
+        if (self.filep == None):
             self.filep = open(self.filename, self.filemode)
         return self.filep
 

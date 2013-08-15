@@ -82,7 +82,7 @@ class MewloRouteArgFlag(MewloRouteArg):
 
     def get_argtypestr(self):
         """Just nice label for display."""
-        return "Flag"
+        return 'Flag'
 
 
 
@@ -103,7 +103,7 @@ class MewloRouteArgString(MewloRouteArg):
 
     def get_argtypestr(self):
         """Just nice label for display."""
-        return "String"
+        return 'String'
 
 
 
@@ -128,7 +128,7 @@ class MewloRouteArgInteger(MewloRouteArg):
 
     def get_argtypestr(self):
         """Just nice label for display."""
-        return "Integer"
+        return 'Integer'
 
 
 
@@ -147,7 +147,7 @@ class MewloRoute(object):
     """
 
     # class constants
-    DEF_ARGID_extraargs = "extraargs"
+    DEF_ARGID_extraargs = 'extraargs'
 
 
     def __init__(self, id, path, controller, args=[], allow_extra_args=False, extras = None, forcedargs = None):
@@ -182,12 +182,12 @@ class MewloRoute(object):
         """Prepare any info/caching; this is called before system startup by our parent site."""
 
         self.parent = parent
-        self.site= site
+        self.site = site
         # root propagation
-        if (self.controllerroot==None):
+        if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
         # prepare controller
-        if (self.controller!=None):
+        if (self.controller != None):
             self.controller.prepare(self, site, eventlist)
 
 
@@ -203,17 +203,17 @@ class MewloRoute(object):
         requestpath = request.get_path()
         routepathlen = len(routepath)
         requestpathlen = len(requestpath)
-        requestextra = ""
+        requestextra = ''
 
         # routepath must be <= len of requestpath
-        if (routepathlen>requestpathlen):
+        if (routepathlen > requestpathlen):
             return False
 
         # exact match?
         if (requestpath == routepath):
             # exact match, there is no arg part
             requestextra = ""
-        elif ( (requestpath[:routepathlen]==routepath[:routepathlen]) and (requestpath[routepathlen] == '/') ):
+        elif ( (requestpath[:routepathlen] == routepath[:routepathlen]) and (requestpath[routepathlen] == '/') ):
             # we might have some args
             requestextra = requestpath[routepathlen+1:]
         else:
@@ -254,7 +254,7 @@ class MewloRoute(object):
         if (requestargstringlen>0 and requestargstring[requestargstringlen-1]=='/'):
             requestargstring = requestargstring[:requestargstringlen-1]
         # split argstring into '/' separated words
-        if (requestargstring == ""):
+        if (requestargstring == ''):
             requestargs = []
         else:
             requestargs = requestargstring.split('/')
@@ -318,9 +318,9 @@ class MewloRoute(object):
             if (flag_setargval):
                 # now let's check to make sure arg value is allowed given arg type
                 (argval, argcheckfailure) = routearg.validate_argvalue(argval)
-                if (argcheckfailure==None):
+                if (argcheckfailure == None):
                     # assign arg value in dictionary
-                    argdict[argid]=argval
+                    argdict[argid] = argval
                 else:
                     # error in value type
                     failure = EFailureExtend(argcheckfailure, "Route arg '"+argid+"' did not match expected value type.")
@@ -361,17 +361,17 @@ class MewloRoute(object):
 
         # give site a chance to pre-handle the invocation
         precall_failure = site.pre_runroute_callable(self, request)
-        if (precall_failure!=None):
+        if (precall_failure != None):
             return precall_failure
 
         # ok now we want to call whatever function should do the actual work
         call_failure = self.invoke_routecall(request)
-        if (call_failure!=None):
+        if (call_failure != None):
             return call_failure
 
         # give site a chance to do something after we run the route
         postcall_failure = site.post_runroute_callable(request)
-        if (postcall_failure!=None):
+        if (postcall_failure != None):
             return postcall_failure
 
         # return None for success
@@ -399,10 +399,10 @@ class MewloRoute(object):
     def force_args(self, argdict):
         """Merge in forced args (i use an explicit loop here because argdict is not likely to remain a pure dictionary in future code)."""
 
-        if (self.forcedargs==None):
+        if (self.forcedargs == None):
             return
         for key,val in self.forcedargs.iteritems():
-            argdict[key]=val
+            argdict[key] = val
 
 
 
@@ -410,7 +410,7 @@ class MewloRoute(object):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloRoute '"+self.id+"':\n"
         outstr += indentstr+" path: "+self.path+"\n"
-        if (self.controller!=None):
+        if (self.controller != None):
             outstr += self.controller.debug(indentstr+" ")
         else:
             outstr += indentstr+" Controller: "+str(self.controller)+"\n"
@@ -479,9 +479,9 @@ class MewloRouteGroup(object):
         """Initial preparation, invoked by parent."""
 
         self.parent = parent
-        self.site= site
+        self.site = site
         # we want to propagage controllerroot from parent down
-        if (self.controllerroot==None):
+        if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
         # recursive prepare
         for route in self.routes:

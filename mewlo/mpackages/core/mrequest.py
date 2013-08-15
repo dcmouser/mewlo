@@ -72,7 +72,7 @@ class MewloRequest(object):
     def logevent(self, mevent):
         """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
         # add request field (if it wasn't already set in mevent)
-        missingfields = { "request":self }
+        missingfields = { 'request': self }
         mevent.mergemissings(missingfields)
         # add it via site
         self.site.logevent(mevent)
@@ -91,7 +91,7 @@ class MewloRequest(object):
     @classmethod
     def createrequest_from_pathstring(cls, pathstr):
         """Create a simulated web request from a path string, using werkzeug helper function."""
-        env = create_environ(pathstr, "http://localhost"+pathstr)
+        env = create_environ(pathstr, 'http://localhost'+pathstr)
         # create request
         return cls.createrequest_from_wsgiref_environ(env)
 

@@ -34,16 +34,16 @@ class MewloSite(object):
     """
 
     # class constants
-    DEF_SECTION_config = "config"
-    DEF_CONFIGVAR_pkgdirimps_sitempackages = "pkgdirimps_sitempackages"
-    DEF_CONFIGVAR_controllerroot = "controllerroot"
-    DEF_CONFIGVAR_urlprefix = "urlprefix"
+    DEF_SECTION_config = 'config'
+    DEF_CONFIGVAR_pkgdirimps_sitempackages = 'pkgdirimps_sitempackages'
+    DEF_CONFIGVAR_controllerroot = 'controllerroot'
+    DEF_CONFIGVAR_urlprefix = 'urlprefix'
 
 
 
     def __init__(self, sitemodulename, sitename=None):
         # initialize settings
-        if (sitename==None):
+        if (sitename == None):
             sitename = self.__class__.__name__
         self.sitename = sitename
         self.sitemanager = None
@@ -106,7 +106,7 @@ class MewloSite(object):
 
         packagedirectories = []
         sitepackages = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_pkgdirimps_sitempackages)
-        if (sitepackages==None):
+        if (sitepackages == None):
             pass
         else:
             for sitepackage in sitepackages:
@@ -144,7 +144,7 @@ class MewloSite(object):
         It is critical that this function get called prior to running the system.
         """
 
-        if (eventlist==None):
+        if (eventlist == None):
             eventlist = EventList()
 
         # set the context of the eventlist to this site so all added events properly denote they are from our site
@@ -195,7 +195,7 @@ class MewloSite(object):
 
     def validate(self, eventlist=None):
         """Validate the site and return an EventList with errors and warnings"""
-        if (eventlist==None):
+        if (eventlist == None):
             eventlist = EventList()
         #
         self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
@@ -330,7 +330,7 @@ class MewloSiteManager(object):
     """
 
     # class constants
-    DefMewlo_BasePackage_subdirlist = ["mpackages"]
+    DefMewlo_BasePackage_subdirlist = ['packages']
 
 
     def __init__(self):
@@ -354,7 +354,7 @@ class MewloSiteManager(object):
     def get_package_directory_list(self):
         """Return a list of directories in the base/install path of Mewlo, where addon packages should be scanned"""
         basedir = self.get_installdir()
-        packagedirectories = [basedir+"/"+dir for dir in self.DefMewlo_BasePackage_subdirlist]
+        packagedirectories = [basedir+'/'+dir for dir in self.DefMewlo_BasePackage_subdirlist]
         return packagedirectories
 
 
@@ -452,18 +452,18 @@ class MewloSiteManager(object):
 
 
 
-    def debug(self,indentstr=''):
+    def debug(self, indentstr=""):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = indentstr+"MewloSiteManager reporting in.\n"
         outstr += self.prepeventlist.debug(indentstr+" ")
         outstr += self.debug_sites(indentstr+" ")
         return outstr
 
-    def debug_sites(self,indentstr=" "):
+    def debug_sites(self, indentstr=" "):
         """Debug helper; return string with recursive debug info from child sites."""
-        outstr = indentstr+"Sites:\n"
-        indentstr+=" "
-        if (len(self.sites)==0):
+        outstr = indentstr + "Sites:\n"
+        indentstr += " "
+        if (len(self.sites) == 0):
             outstr += indentstr+"None.\n"
         for site in self.sites:
             outstr += site.debug(indentstr+" ")+"\n"

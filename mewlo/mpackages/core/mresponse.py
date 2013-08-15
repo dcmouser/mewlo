@@ -65,7 +65,7 @@ class MewloResponse(object):
     def add_status_error(self, statuscode, errorstr):
         # set values
         self.set_status(statuscode)
-        self.eventlist.add(EError(errorstr,{"statuscode":statuscode}))
+        self.eventlist.add(EError(errorstr,{'statuscode': statuscode}))
 
     def set_responsedata(self, responsedata, statuscode = 200):
         self.responsedata = responsedata
@@ -106,10 +106,10 @@ class MewloResponse(object):
     def add_errors_to_response(self):
         """Helper funciton to add any pending accumulated errors to the response."""
 
-        if (self.eventlist.count_errors()==0):
+        if (self.eventlist.count_errors() == 0):
             return
         rstr = str(self.eventlist)
-        if (self.responsedata==None):
+        if (self.responsedata == None):
             self.responsedata = rstr
         else:
             self.responsedata.append(rstr)
