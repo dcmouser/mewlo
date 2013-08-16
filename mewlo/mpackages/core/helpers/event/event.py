@@ -9,10 +9,6 @@ from ..debugging import smart_dotted_idpath, compute_traceback_astext, calc_call
 
 # python imports
 import sys
-#import traceback
-
-
-
 
 
 
@@ -32,7 +28,7 @@ class Event(object):
 
     def __init__(self, fields=None, defaultfields=None):
         """Constructor for an Event.  We use a generic fields dictionary to specify all fields for the event, whose values overide an optional defaultfields dictionary. """
-        # start with default fields
+        # start with default fields (note we COPY it)
         if (defaultfields != None):
             self.fields = dict(defaultfields)
         else:
@@ -67,10 +63,11 @@ class Event(object):
             # check field safety?
             self.safetycheck_fields(fields)
 
+
     def mergemissings(self, fields):
         """Merge in missing fields."""
         for fieldname in fields.keys():
-            if (not fieldname in self.fields) or (self.fields[fieldname]==None):
+            if (not fieldname in self.fields) or (self.fields[fieldname] == None):
                 self.fields[fieldname] = fields[fieldname]
                 # check field safety?
                 self.safetycheck_fieldname(fieldname)
@@ -82,11 +79,13 @@ class Event(object):
         if (ourval == fieldval):
             return True
         # if fieldval is a container (list), then return true if ourval is in the list
+        # ATTN: is there a better way to do this with better performance
         try:
             if (ourval in fieldval):
                 return True
         except:
             pass
+        # didn't match
         return False
 
 
@@ -102,7 +101,7 @@ class Event(object):
     def safetycheck_fields(self, fields):
         """
         Check to make sure fields are allowed fieldnames -- helps to catch coding typo errors
-        ATTN: disable on optimization.
+        ATTN: we should disable this on optimization.
         """
         for fieldname in fields.keys():
             self.safetycheck_fieldname(fieldname)
@@ -111,11 +110,14 @@ class Event(object):
     def stringify(self):
         """Return nice formatted string representation of event."""
         retstr = "Event " + str(self.fields)
-        #
         return retstr
 
 
     def as_logline(self):
+        """
+        Return the event string as it should be formatted for saving to log file.
+        ATTN: we probably don't want the EVENT to decide this -- rather the log target, etc.
+        """
         return self.stringify()
 
 
@@ -123,15 +125,8 @@ class Event(object):
     @classmethod
     def calc_traceback_text(cls):
         """Class function to get current stack traceback as text.  Used when creating an event from an exception."""
-
-        # get traceback info
-        exc_info = sys.exc_info()
-        #exceptiontype = exc_info[0]
-        #exceptionvalue = exc_info[1]
-        traceback_object = exc_info[2]
-
-        retstr = compute_traceback_astext(traceback_object,True)
-        return retstr
+        # let debugging cuntion do this for us
+        return compute_traceback_astext()
 
 
 
@@ -163,6 +158,7 @@ class EventList(object):
 
 
     def set_context(self, context):
+        """Set context value -- useful when generating lots of events that all have same parent-set context."""
         self.context = context
 
     def add_context(self, context):
@@ -179,7 +175,7 @@ class EventList(object):
         # if its None just ignore
         if (event == None):
             return
-        # before we add it, we set it's context
+        # before we add it, we set it's context, iff one exists in event list
         if (self.context != None):
             event.setfield('context', self.context)
         # now add it
@@ -190,7 +186,7 @@ class EventList(object):
 
 
     def add_simple(self, msg, fields=None):
-        """Add a simple event."""
+        """Add a simple event -- either from a string msg OR an existing event, which we modify."""
         # if msg is blank or '' then ignore
         if (msg == None or msg == ''):
             return
@@ -209,7 +205,7 @@ class EventList(object):
 
 
     def countfieldmatches(self, fieldname, fieldval):
-        """Count matches of a field."""
+        """Count the number of events that have a matching fieldvalue -- useful for example for counting number of events of type ERROR."""
         matchcount = 0
         for event in self.events:
             if (event.fieldmatches(fieldname, fieldval)):
@@ -224,26 +220,27 @@ class EventList(object):
 
 
 
-    def stringify(self, indentstr=""):
-        """Return a string that is a comma separated join of all events, regardless of type."""
+    def stringify(self, indent=0):
+        """Return a string that is a comma separated join of all events, regardless of type.  Useful for quick debugging."""
         outstr = ""
-        outstr += indentstr+"Events:"
+        outstr += " "*indent + "Events:"
         if (len(self) == 0):
             outstr += " None.\n"
         else:
             outstr += "\n"
             index = 0
+            indent += 1
             for event in self.events:
                 index += 1
                 astr = str(event)
-                outstr += indentstr+" "+str(index)+". "+astr+"\n"
+                outstr += " "*indent + str(index) + ". " + astr + "\n"
         return outstr
 
 
 
 
-    def debug(self, indentstr=""):
-        return self.stringify(indentstr)
+    def dumps(self, indent=0):
+        return self.stringify(indent)
 
 
 
@@ -253,6 +250,7 @@ class EventList(object):
 
 
 # These are shortcut helper functions
+# ATTN: todo -- refactor these to use args,kargs to simplify them
 
 def EFailure(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create failure type event"""
@@ -267,6 +265,7 @@ def EWarning(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_warning })
 
 
+
 def EException(msg="", exp=None, fields=None, flag_traceback=True, obj=None, flag_loc = True, calldepth=0):
     """Helper function to create exception type event with full exception traceback info."""
     # default fields
@@ -278,11 +277,12 @@ def EException(msg="", exp=None, fields=None, flag_traceback=True, obj=None, fla
     return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, defaultfields)
 
 
+
 def EFailureExtend(failure, msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create failure type event by extending another"""
-    if (isinstance(failure,Event)):
+    if (isinstance(failure, Event)):
         # add the simple message of the other failure event
-        addmsg = failure.getfield('msg',"")
+        addmsg = failure.getfield('msg', "")
     else:
         # assume previous failure is stringifyable and add that
         addmsg = str(failure)
@@ -290,6 +290,7 @@ def EFailureExtend(failure, msg="", fields=None, obj=None, flag_loc=False, calld
         msg += " " + addmsg
     # build it
     return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_failure })
+
 
 
 def SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth, defaultfields):

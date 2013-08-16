@@ -118,14 +118,14 @@ class MewloResponse(object):
 
 
 
-    def debug(self, indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         # finalize if its not finalized yet
         self.finalize_response()
         #
-        outstr = indentstr+" MewloResponse reporting in.\n"
-        outstr += indentstr+"  Status: "+self.calc_wsgiref_status_string()+"\n"
-        outstr += indentstr+"  Response Body: "+self.responsedata+"\n"
+        outstr = " "*indent + "MewloResponse reporting in.\n"
+        outstr += " "*indent + " Status: " + self.calc_wsgiref_status_string() + "\n"
+        outstr += " "*indent + " Response Body: " + self.responsedata + "\n"
         return outstr
 
 

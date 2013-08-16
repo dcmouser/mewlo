@@ -6,10 +6,10 @@ Mewlo must have an extremely robust logging system, because aiding administratio
 
 Some features of the logging system:
 
-    Flexible log browsing and searching, including links to "objects" referred to in log entries.
-    Flexible filtering of log events into different log tables and automatic creation of log files/tables.
-    Flexible ways of emailing/alerting on certain log events.
-    Flexible automatic archiving of log events between tables based on age and filters, or deleting of old log events.
+    * Flexible log browsing and searching, including links to "objects" referred to in log entries.
+    * Flexible filtering of log events into different log tables and automatic creation of log files/tables.
+    * Flexible ways of emailing/alerting on certain log events.
+    * Flexible automatic archiving of log events between tables based on age and filters, or deleting of old log events.
 
 One interesting issue with Logging is that for serious sites we usually want to log to a database, BUT there are times when that can be problematic, such as when database connectivity fails, or at early startup.  It would be nice to have a unified system that could smartly fall back on file-based logging for certain early events or when database connection fails.
 

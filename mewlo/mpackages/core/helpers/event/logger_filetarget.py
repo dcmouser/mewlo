@@ -30,7 +30,7 @@ class LogTarget_File(LogTarget):
         # we start out with closed file and will only open on first write
         self.filep = None
         # save the filename and file open mode (could be write or append)
-        self.set_fileinfo(filename,filemode)
+        self.set_fileinfo(filename, filemode)
 
 
     def process(self, logmessage):

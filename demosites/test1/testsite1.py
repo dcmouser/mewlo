@@ -13,18 +13,12 @@ from mewlo.mpackages.core.mcontroller import MewloController
 # helpers
 from mewlo.mpackages.core.helpers.event.logger_filetarget import LogTarget_File
 from mewlo.mpackages.core.helpers.event.logger_pythontarget import LogTarget_Python
-from mewlo.mpackages.core.helpers.event.event import EWarning, EError
-from mewlo.mpackages.core.helpers.debugging import calc_caller_dict
+from mewlo.mpackages.core.helpers.event.event import EWarning
 
-
-# Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live; this is just a way to get the relative directory easily
+# Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live;
+# this is just a way to get the relative directory easily, and we use this in config settings
 import mpackages as pkgdirimp_sitempackages
 import controllers as pkgdirimp_controllers
-
-
-
-
-
 
 
 
@@ -34,34 +28,33 @@ import controllers as pkgdirimp_controllers
 class MewloSite_Test1(MewloSite):
 
     def __init__(self):
-        # call parent class init
+        # call parent constructor
         super(MewloSite_Test1, self).__init__(__name__)
 
 
 
     def add_settings_early(self):
         """This is called by default by the base MewloSite as the first thing to do at startup; here we expect to set some site settings that might be used during startup."""
-
         config = {
             # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
             MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
             MewloSite.DEF_CONFIGVAR_controllerroot: pkgdirimp_controllers,
-            # site prefix
+            # site prefix (this can be used to host multiple sites on the same server)
             MewloSite.DEF_CONFIGVAR_urlprefix: '',
             }
         # add config to settings
-        self.sitesettings.merge_settings_atsection('config',config)
+        self.sitesettings.merge_settings_atsection('config', config)
 
 
 
     def add_routes(self):
         """This is called by default by the base MewloSite near startup, to add routes to the system."""
 
-         # create a routegroup
+        # create a routegroup
         routegroup = MewloRouteGroup()
         # overide the parent import-package-directory for the urls in this group? if we don't it will use the controller root set in SITE config
         # routegroup.set_controllerroot(pkgdirimp_controllers)
-        #
+
         routegroup.append(
             MewloRoute(
                 id = "homepage",
@@ -96,12 +89,12 @@ class MewloSite_Test1(MewloSite):
                         ],
                 controller = MewloController(function="requests.request_sayhello"),
                 # we can pass in any extra data which will just be part of the route that can be examined post-matching
-                extras = [ "whatever we want" ],
-                # we can force the route to simulate as if certain call args were assigned (this works whether there are RouteArgs for these or not; no type checking is performed on them
+                extras = { 'stuff': "whatever we want" },
+                # we can force the route to simulate as if certain url call args were assigned (this works whether there are RouteArgs for these or not; no type checking is performed on them)
                 forcedargs = { 'sign': u"aries" },
                 ))
 
-        from controllers.requests import request_article
+        #from controllers.requests import request_article
         routegroup.append(
             MewloRoute(
                 id  = 'articlepage',
@@ -114,9 +107,8 @@ class MewloSite_Test1(MewloSite):
                             help = "title of article to display",
                             )
                         ],
-#                controller = MewloController(function="requests.request_article"),
-                # another alternative is to import above and then specify the function reference explicitly
-                controller = MewloController(function=request_article),
+                # another way to specify the controller is to pass in the actual function reference (rather than as a string)
+                controller = MewloController(function=pkgdirimp_controllers.requests.request_article),
                 ))
 
         # add routegroup we just created to the site
@@ -127,40 +119,35 @@ class MewloSite_Test1(MewloSite):
     def add_loggers(self):
         """This is called by default by the base MewloSite near startup, to add loggers to the system."""
 
-        # create a single logger
+        # create a single logger (with no filters)
         logger = self.createadd_logger('mytestlogger')
 
-        # now add targets to it
+        # now add some targets (handlers) to it
         logger.add_target(LogTarget_File(filename='testlogout1.txt', filemode='w'))
-        #
-        if (False):
-            # an additional logger to show it will write all loggers
-            logger.add_target(LogTarget_File(filename='testlogout2.txt', filemode='w'))
-        #
+
         if (False):
             # want to test raising an exception on failure to write/open file? uncomment this
             logger.add_target(LogTarget_File(filename=''))
-        #
+
         if (True):
             # let's add standard python logging as a test
             import logging
-            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo','testlogout3.txt')
+            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo', 'testlogout3.txt')
             logger.add_target(LogTarget_Python(pythonlogger))
             pythonlogger.error("This is a manual python test error.")
 
 
 
+
     def pre_runroute_callable(self, route, request):
         """This is called by default when a route is about to be invoked.  Subclassed sites can override it."""
-
-        request.logevent(EWarning("This is a test1 warning called PRE run route:"+request.get_path()))
+        request.logevent(EWarning("This is a test1 warning called PRE run route: " + request.get_path()))
 
 
 
     def post_runroute_callable(self, request):
         """This is called by default after a route has been invoked.  Subclassed sites can override it."""
-
-        request.logevent(EWarning("This is a test2 warning called POST run route: "+request.get_path(), flag_loc=True))
+        request.logevent(EWarning("This is a test2 warning called POST run route: " + request.get_path(), flag_loc=True))
 
 
 
@@ -178,20 +165,21 @@ def main():
     # create a simple site from our test class and a sitemanager that supervises it
     sitemanager = MewloSite_Test1.create_manager_and_simplesite()
 
+    exit
+
     # check if there were any errors encountered during preparation of the site
-    if (sitemanager.prepeventlist.count_errors()==0):
-        # no errors, so let's serve the site
-        # start by displaying some debug info
-        print sitemanager.debug()
+    if (sitemanager.prepeventlist.count_errors()== 0):
+        # no errors, so let's serve the site; start by displaying some debug info
+        print sitemanager.dumps()
         # simulate some simple requests
         print sitemanager.test_submit_path('/help/about')
         print sitemanager.test_submit_path('/page/mystery')
         print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
-        # start serving from web server test
+        # start serving the web server and process all web requests
         sitemanager.create_and_start_webserver_wsgiref()
     else:
         print "Stopping due to sitemanager preparation errors:"
-        print sitemanager.prepeventlist.debug()
+        print sitemanager.prepeventlist.dumps()
 
 
 

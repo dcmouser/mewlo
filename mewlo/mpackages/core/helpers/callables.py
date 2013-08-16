@@ -41,7 +41,7 @@ def find_callable(callableroot, callableobj):
     if (not isinstance(callableobj, basestring)):
         if (callable(callableobj)):
             return callableobj
-        raise TypeError("The provided object ("+str(callableobj)+") is not a 'callable'.")
+        raise TypeError("The provided object '{0}' is not a 'callable'.".format(str(callableobj)))
 
     # ok so we know that callableobj is a string
     callablepath = callableobj
@@ -80,7 +80,7 @@ def find_module_from_dottedpath(callableroot, modulepath):
             mod = find_module_from_dottedpath_relativetopackage(callableroot, modulepath)
         else:
             # no idea what callableroot IS
-            raise LookupError("Unknown callableroot ("+str(callableroot)+") type; not attempting to load modulepath: "+modulepath)
+            raise LookupError("Unknown callableroot '{0}' type; not attempting to load modulepath: '{1}'".format(str(callableroot),modulepath))
     else:
         # no root, so just import the module as a string
         mod = find_module_from_dottedpath_bystring(modulepath)
@@ -135,7 +135,7 @@ def split_dottedpath_modulepath_and_funcname(dottedname):
 
     from string import join
     #
-    modulepath = join(dottedname.split('.')[:-1],'.')
+    modulepath = join(dottedname.split('.')[:-1], '.')
     functionname = dottedname.split('.')[-1]
     #
     return (modulepath, functionname)

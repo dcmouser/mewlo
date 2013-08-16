@@ -9,8 +9,8 @@ It would be nice if we could isolate and wrap the SQL Alchemy functionality in o
 
 We can however, list some desires we have for the ORM codebase:
 
-    A major concern is keeping code and configuration DRY: We don't want to have to repeat field definitions, labels, validation, GUI widget hints, etc.
-    We will want to support database table upgrading when modules are upgraded.
-    We want to support distributed databases, and ability to put different tables on different databases, etc.
-    Good logging and tracking of database operations for performance analysis and debugging.
-    Handle hierarchical class structures well (see Programming Issues to Resolve).
+    * A major concern is keeping code and configuration DRY: We don't want to have to repeat field definitions, labels, validation, GUI widget hints, etc.
+    * We will want to support database table upgrading when modules are upgraded.
+    * We want to support distributed databases, and ability to put different tables on different databases, etc.
+    * Good logging and tracking of database operations for performance analysis and debugging.
+    * Handle hierarchical class structures well (see Programming Issues to Resolve).

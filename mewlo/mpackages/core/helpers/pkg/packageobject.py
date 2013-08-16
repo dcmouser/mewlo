@@ -17,9 +17,9 @@ class PackageObject(object):
         self.package = package
 
 
-    def debug(self,indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+"Base PackageObject reporting in.\n"
+        outstr = " "*indent + "Base PackageObject reporting in.\n"
         return outstr
 
 

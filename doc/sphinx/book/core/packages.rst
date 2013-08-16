@@ -13,14 +13,14 @@ A Package should always be a single self contained directory branch (it can have
 
 A Package needs to implement an API that provides the following:
 
-    Information about the module that can be displayed on a configuration page.
-    Information about any dependencies with other modules or libraries.
-    Configuration pages made available to the system administrator.
-    Version information and update checking url so system can check for updates.
-    Functions to create initial database tables for any models/tables managed by the Package.
-    Functionality to check database table versions, and UPDATING/CHANGING tables when versions change if necessary.
-    Functionality for exposing tests that can be run from admin backend.
-    Functionality for backing up tables before updating.
+    * Information about the module that can be displayed on a configuration page.
+    * Information about any dependencies with other modules or libraries.
+    * Configuration pages made available to the system administrator.
+    * Version information and update checking url so system can check for updates.
+    * Functions to create initial database tables for any models/tables managed by the Package.
+    * Functionality to check database table versions, and UPDATING/CHANGING tables when versions change if necessary.
+    * Functionality for exposing tests that can be run from admin backend.
+    * Functionality for backing up tables before updating.
 
 Descriptive information about the package needs to be available even when module is disabled.
 
@@ -30,9 +30,9 @@ We would like as much as possible of the CORE of Mewlo to be built as "Packages"
 
 There will be 3 places where packages may be installed:
 
-    mewlo/mpackages/core - the base core required packagesthat power Mewlo (required and non-optional)
-    mewlo/mpackages/user - any user-installed optional packagesthat are available for ALL Mewlo sites using this Mewlo install.
-    SpecificSite/packages/user - any user-installed optional packagesthat are localized for this one site application.
+    * mewlo/mpackages/core - the base core required packagesthat power Mewlo (required and non-optional)
+    * mewlo/mpackages/user - any user-installed optional packagesthat are available for ALL Mewlo sites using this Mewlo install.
+    * SpecificSite/packages/user - any user-installed optional packagesthat are localized for this one site application.
 
 
 Example of a good lightweight python plugin system: http://yapsy.sourceforge.net/

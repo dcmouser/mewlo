@@ -35,7 +35,7 @@ class MewloController(object):
         # if they gave us an actual package as root and a function string, we COULD try to do a lookup right now in order to throw an early exception
         # otherwise we will defer lookup until later
         if (True):
-            if (root != None and isinstance(function,basestring)):
+            if (root != None and isinstance(function, basestring)):
                 self.callable = find_callable(root, function)
 
 
@@ -86,7 +86,7 @@ class MewloController(object):
             # add some info and reraise
             # ATTN: we currently use an exception here because we treat this like a fatal error
             # If instead we wanted to simply ignore the error return a 500 status error code and keep serving we could return None from here and log error, etc.
-            reraiseplus(exp, "Error occurred while trying to look up the callable '"+callablestring+"' specified by: ", obj=self)
+            reraiseplus(exp, "Error occurred while trying to look up the callable '{0}' specified by: ".format(callablestring), obj=self)
 
         # success, return it
         return callable
@@ -104,10 +104,10 @@ class MewloController(object):
 
 
 
-    def debug(self, indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+"MewloController:\n"
-        outstr += indentstr+" callable: "+str(self.callable)+"\n"
+        outstr = " "*indent + "MewloController:\n"
+        outstr += " "*indent + " callable: " + str(self.callable) + "\n"
         return outstr
 
 

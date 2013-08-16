@@ -45,7 +45,7 @@ class MewloPackageManager(PackageManager):
 
     def __init__(self, mewlosite):
         # parent constructor
-        super(MewloPackageManager,self).__init__()
+        super(MewloPackageManager, self).__init__()
         # set pointer to mewlosite
         self.mewlosite = mewlosite
         # set file pattern of mewlo package files
@@ -54,7 +54,7 @@ class MewloPackageManager(PackageManager):
 
     def create_package(self, filepath):
         """Create an appropriate child package."""
-        return MewloPackage(self,filepath)
+        return MewloPackage(self, filepath)
 
 
 

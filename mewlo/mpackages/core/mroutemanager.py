@@ -8,7 +8,7 @@ This file contains classes to support hierarchical settings associates with site
 from mcontroller import MewloController
 
 # helper imports
-from helpers.event.event import EFailure,EFailureExtend
+from helpers.event.event import EFailure, EFailureExtend
 
 
 class MewloRouteArg(object):
@@ -33,13 +33,13 @@ class MewloRouteArg(object):
 
 
 
-    def debug(self, indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+"MewloRouteArg '"+self.id+"':\n"
-        outstr += indentstr+" argtype: "+self.get_argtypestr()+"\n"
-        outstr += indentstr+" required: "+str(self.required)+"\n"
-        outstr += indentstr+" positional: "+str(self.required)+"\n"
-        outstr += indentstr+" help: "+str(self.help)+"\n"
+        outstr = " "*indent + "MewloRouteArg '" + self.id + "':\n"
+        outstr += " "*indent + " argtype: " + self.get_argtypestr()+"\n"
+        outstr += " "*indent + " required: " + str(self.required)+"\n"
+        outstr += " "*indent + " positional: " + str(self.required)+"\n"
+        outstr += " "*indent + " help: " + str(self.help)+"\n"
         return outstr
 
 
@@ -73,7 +73,7 @@ class MewloRouteArgFlag(MewloRouteArg):
         try:
             argval = int(argval)
         except Exception as exp:
-            return None, EFailure("Expected boolean value; "+str(exp))
+            return None, EFailure("Expected boolean value; " + str(exp))
         return argval, None
 
 
@@ -122,7 +122,7 @@ class MewloRouteArgInteger(MewloRouteArg):
         try:
             argval = int(argval)
         except Exception as exp:
-            return None, EFailure("Expected integer value; "+str(exp))
+            return None, EFailure("Expected integer value; " + str(exp))
         return argval, None
 
 
@@ -161,7 +161,7 @@ class MewloRoute(object):
         self.controllerroot = None
         #
         # the controller should be a MewloController derived class, or createable from whatever is passed
-        if (isinstance(controller,MewloController)):
+        if (isinstance(controller, MewloController)):
             self.controller = controller
         else:
             self.controller = MewloController(function=controller)
@@ -224,7 +224,7 @@ class MewloRoute(object):
         (didmatch, argdict, failure) = self.match_args(requestextra)
 
         #if (failure):
-        #    print "ATTN: **************** TEST FAILURED ROUTE: "+str(failure)+"\n"
+        #    print "ATTN: **************** TEST FAILURED ROUTE: " + str(failure) + "\n"
 
         # ok, did we match? if so handle it
         if (didmatch):
@@ -251,7 +251,7 @@ class MewloRoute(object):
 
         # remove any trailing '/'
         requestargstringlen = len(requestargstring)
-        if (requestargstringlen>0 and requestargstring[requestargstringlen-1]=='/'):
+        if (requestargstringlen > 0 and requestargstring[requestargstringlen-1] == '/'):
             requestargstring = requestargstring[:requestargstringlen-1]
         # split argstring into '/' separated words
         if (requestargstring == ''):
@@ -292,7 +292,7 @@ class MewloRoute(object):
                     requestargindex += 1
                     if (requestargindex >= requestargcount):
                         # but there are no more args, so this is an error
-                        failure = EFailure("Route arg "+argid+" was found but without an associated value following it.")
+                        failure = EFailure("Route arg '{0}' was found but without an associated value following it.".format(argid))
                         break
                     else:
                         # ok we go its value
@@ -305,7 +305,7 @@ class MewloRoute(object):
                 # we didn't match it, so if it was required, it's an error (if it wasn't required, just skip over it)
                 if (argrequired):
                     # it was required, and is missing, so that's a FAIL
-                    failure = EFailure("Route arg '"+argid+"' was required but not found in request.")
+                    failure = EFailure("Route arg '{0}' was required but not found in request.".format(argid))
                     break
                 else:
                     # no value specified, is there a default setting?
@@ -323,7 +323,7 @@ class MewloRoute(object):
                     argdict[argid] = argval
                 else:
                     # error in value type
-                    failure = EFailureExtend(argcheckfailure, "Route arg '"+argid+"' did not match expected value type.")
+                    failure = EFailureExtend(argcheckfailure, "Route arg '{0}' did not match expected value type.".format(argid))
                     break
 
         # ok we've walked all the route args, if there was no error, we can proceed to final stage, checking for extra args at end of expected route args
@@ -401,23 +401,27 @@ class MewloRoute(object):
 
         if (self.forcedargs == None):
             return
-        for key,val in self.forcedargs.iteritems():
+        for (key, val) in self.forcedargs.iteritems():
             argdict[key] = val
 
 
 
-    def debug(self, indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+"MewloRoute '"+self.id+"':\n"
-        outstr += indentstr+" path: "+self.path+"\n"
+        outstr = " "*indent + "MewloRoute '" + self.id + "':\n"
+        outstr += " "*indent + " path: " + self.path + "\n"
+        indent += 1
         if (self.controller != None):
-            outstr += self.controller.debug(indentstr+" ")
+            outstr += self.controller.dumps(indent)
         else:
-            outstr += indentstr+" Controller: "+str(self.controller)+"\n"
-        outstr += indentstr+" args:\n"
-        indentstr += " "
+            outstr += " "*indent + "Controller: None.\n"
+        outstr += " "*indent + "Route Args: "
+        if (len(self.args)==0):
+            outstr += "None.\n"
+        else:
+            outstr += "\n"
         for routearg in self.args:
-            outstr += routearg.debug(indentstr+" ")
+            outstr += routearg.dumps(indent+1)
         return outstr
 
 
@@ -455,7 +459,7 @@ class MewloRouteGroup(object):
 
     def append(self, routes):
         """Append a new route (or list of routes) (or hierarchical routegroups) to our routes list."""
-        if isinstance(routes,list):
+        if isinstance(routes, list):
             for route in routes:
                 self.routes.append(route)
         else:
@@ -489,12 +493,12 @@ class MewloRouteGroup(object):
 
 
 
-    def debug(self, indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+"MewloRouteGroup reporting in:\n"
-        outstr += indentstr+" Root for controllers: " + str(self.controllerroot)+"\n"
+        outstr = " "*indent + "MewloRouteGroup reporting in:\n"
+        outstr += " "*indent + " Root for controllers: " + str(self.controllerroot) + "\n"
         for route in self.routes:
-            outstr += route.debug(indentstr+" ")+"\n"
+            outstr += route.dumps(indent+1) + "\n"
         return outstr
 
 

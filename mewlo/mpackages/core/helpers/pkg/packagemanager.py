@@ -43,7 +43,7 @@ class PackageManager(object):
 
     def create_package(self, filepath):
         """Create a child package; subclasses will reimplement this to use their preferred child class."""
-        return Package(self,filepath)
+        return Package(self, filepath)
 
 
 
@@ -85,7 +85,7 @@ class PackageManager(object):
 
     def calc_packageinfofile_pattern(self):
         """Given self.filepatternsuffix we create the file match pattern that describes the json info files we need to look for."""
-        return "*_" + self.filepatternsuffix+".json"
+        return '*_' + self.filepatternsuffix + '.json'
 
 
     def findfilepaths(self, dirpath, filepattern):
@@ -118,9 +118,9 @@ class PackageManager(object):
         if (not path in PackageManager.classwide_packagemodules):
             # first we check if path is blank or does not exist
             if (path == ''):
-                return None, EFailure("Failed to load import by path '"+path+"', because a blank path was specified.")
+                return None, EFailure("Failed to load import by path '{0}', because a blank path was specified.".format(path))
             elif (not os.path.isfile(path)):
-                return None, EFailure("Failed to load import by path '"+path+"', because that file does not exist.")
+                return None, EFailure("Failed to load import by path '{0}', because that file does not exist.".format(path))
             else:
                 # then load it dynamically
                 dynamicmodule, failure = importmodule_bypath(path)
@@ -135,26 +135,25 @@ class PackageManager(object):
 
 
 
-    def debug(self, indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+"PackageManager reporting in.\n"
-        indentstr+=" "
-        outstr += indentstr+"Directories to scan:\n"
+        outstr = " "*indent + "PackageManager reporting in.\n"
+        indent += 1
+        outstr += " "*indent + "Directories to scan:\n"
         for dirpath in self.dirlist:
-            outstr += indentstr+" "+dirpath+"\n"
-        outstr += self.debug_packages(indentstr)
+            outstr += " "*indent + " "+dirpath + "\n"
+        outstr += self.debug_packages(indent)
         return outstr
 
 
-    def debug_packages(self, indentstr=""):
+    def debug_packages(self, indent=0):
         """Helper debug function.  Return indented debug of child packages."""
-        outstr = indentstr+"Packages found:\n"
-        indentstr+=" "
-        if (len(self.packages)==0):
-            outstr += indentstr+"None.\n"
+        outstr = " "*indent + "Packages found:\n"
+        indent += 1
+        if (len(self.packages) == 0):
+            outstr += " "*indent + "None.\n"
         for package in self.packages:
-            outstr += package.debug(indentstr+" ")+"\n"
+            outstr += package.dumps(indent+1) + "\n"
         return outstr
-
 
 

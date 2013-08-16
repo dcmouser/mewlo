@@ -5,10 +5,6 @@ This file holds controller functions that will be invoked by route manager
 
 
 
-
-
-
-
 def request_home(request):
     """Show home page."""
     request.response.set_responsedata("In request_home.")
@@ -28,7 +24,7 @@ def request_sayhello(request):
     matchedroute = request.get_route()
     args = request.get_route_parsedargs()
     extras = matchedroute.get_extras()
-    request.response.set_responsedata("In request_sayhello, with args: "+str(args)+" and extras: "+str(extras))
+    request.response.set_responsedata("In request_sayhello, with args: {0} and matched route extras: {1}.".format(str(args), str(extras)))
     return None
 
 
@@ -39,13 +35,3 @@ def request_article(request):
     return None
 
 
-
-
-# test
-class request_test_class(object):
-    def __init__(self):
-        pass
-    @classmethod
-    def testinvoke(cls,request):
-        request.response.set_responsedata("In request_test_class invoke().")
-        return None

@@ -60,7 +60,7 @@ class Package(object):
         self.readytoloadcode = False
 
         # read the json file and parse it into a dictionary
-        self.infodict, failure = readfile_asjson(self.infofilepath,"Package info file")
+        self.infodict, failure = readfile_asjson(self.infofilepath, "Package info file")
         if (failure == None):
             # set readytoloadcode true since the json parsed properly
             self.readytoloadcode = True
@@ -114,7 +114,7 @@ class Package(object):
         name, ext = os.path.splitext(fullname)
         pathtocodemodule_default = name + '.py'
         # override with explicit
-        pathtocodemodule = dir + '/' + self.get_infofile_property('codefile',pathtocodemodule_default)
+        pathtocodemodule = dir + '/' + self.get_infofile_property('codefile', pathtocodemodule_default)
         # return it
         return pathtocodemodule, None
 
@@ -128,23 +128,23 @@ class Package(object):
 
         # module loaded in memory?
         if (self.codemodule == None):
-            return EFailure("No code module imported to instantiate package object from")
+            return EFailure("No code module imported to instantiate package object from.")
 
         # object class defined in info dictionary?
-        packageobject_classname = self.get_infofile_property("codeclass",None)
+        packageobject_classname = self.get_infofile_property("codeclass", None)
         if (packageobject_classname == None):
-            return EFailure("Package info file is missing the 'codeclass' property which defines the class of the MewloPackage derived class in the package module")
+            return EFailure("Package info file is missing the 'codeclass' property which defines the class of the MewloPackage derived class in the package module.")
 
         # does it exist
         if (not packageobject_classname in dir(self.codemodule)):
-            return EFailure("Package class ("+packageobject_classname+") not found in package module ("+self.codemodule.__name__+")")
+            return EFailure("Package class '{0}' not found in package module '{1}'.".format(packageobject_classname, self.codemodule.__name__))
 
         # instantiate it
         try:
             packageobj_class = getattr(self.codemodule, packageobject_classname)
             packageobj = packageobj_class(self)
         except:
-            return EFailure("Package class object ("+packageobject_classname+") was found in package module, but could not be instantiated.")
+            return EFailure("Package class object '{0}' was found in package module, but could not be instantiated.".format(packageobject_classname))
 
         # save it for use
         self.packageobject = packageobj
@@ -178,27 +178,27 @@ class Package(object):
 
 
 
-    def debug(self,indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
 
-        outstr = indentstr+"Package reporting in.\n"
-        indentstr += " "
+        outstr = " "*indent + "Package reporting in.\n"
+        indent += 1
         #
-        outstr += self.eventlist.debug(indentstr)+"\n"
+        outstr += self.eventlist.dumps(indent) + "\n"
         #
-        outstr += indentstr+"Info dictionary ("+self.infofilepath+"):\n"
-        jsonstring = json.dumps(self.infodict, indent=12)
-        outstr += indentstr+" '"+jsonstring+"'\n"
+        outstr += " "*indent + "Info dictionary: " + self.infofilepath + ":\n"
+        jsonstring = json.dumps(self.infodict, indent+1)
+        outstr += " "*indent + " '" + jsonstring + "'\n"
         #
-        outstr += indentstr+"Code module file: "+self.codemodule_path+"\n"
+        outstr += " "*indent + "Code module file: " + self.codemodule_path + "\n"
         #
-        outstr += indentstr+"Code module: "
-        outstr += str(self.codemodule)+"\n"
+        outstr += " "*indent + "Code module: "
+        outstr += str(self.codemodule) + "\n"
         #
-        outstr += indentstr+"Package object: "
-        outstr += str(self.packageobject)+"\n"
+        outstr += " "*indent + "Package object: "
+        outstr += str(self.packageobject) + "\n"
         if (self.packageobject):
-            outstr += self.packageobject.debug(indentstr+" ")
+            outstr += self.packageobject.dumps(indent+1)
         #
         return outstr
 

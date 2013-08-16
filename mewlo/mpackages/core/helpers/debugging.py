@@ -85,8 +85,10 @@ def smart_dotted_idpath_getparentobj(obj):
 
 
 
-def compute_traceback_astext(traceback_object, flag_fulltrace):
+def compute_traceback_astext(traceback_object=None, flag_fulltrace=True):
     """Convert traceback object to nice text.  See http://effbot.org/librarybook/traceback.htm."""
+    if (traceback_object==None):
+        traceback_object = sys.exc_info()[2]
     if (flag_fulltrace):
         tblist = traceback.extract_stack() + traceback.extract_tb(traceback_object)
     else:
@@ -103,7 +105,7 @@ def compute_traceback_astext_fromlist(tblist):
     for file, lineno, function, text in tblist:
         if (retstr != ''):
             retstr += "; "
-        retstr += file + " line #" + str(lineno) + " in " + function + ": " + text
+        retstr += "File '{0}' at line #{1} in function '{2}': {3}".format(file,lineno,function,text)
     return retstr
 
 

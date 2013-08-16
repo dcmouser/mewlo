@@ -133,7 +133,7 @@ class MewloSite(object):
         """Return import of ourself; useful for relative importing."""
         from string import join
         modpath = self.sitemodulename
-        dirpath = join(modpath.split('.')[:-1],'.')
+        dirpath = join(modpath.split('.')[:-1], '.')
         return dirpath
 
 
@@ -148,7 +148,7 @@ class MewloSite(object):
             eventlist = EventList()
 
         # set the context of the eventlist to this site so all added events properly denote they are from our site
-        #eventlist.set_context("Preparing site "+self.get_sitename())
+        #eventlist.set_context("Preparing site " + self.get_sitename())
 
         # before we start preparing -- we validate the site settings which will just log some warnings/errors if any found
         self.validate(eventlist)
@@ -208,7 +208,7 @@ class MewloSite(object):
     def validate_setting_config(self, eventlist, varname, iserror, messagestr):
         """Helper function for the validate() method."""
         if (not self.sitesettings.value_exists(varname, self.DEF_SECTION_config)):
-            estr = "In site "+self.get_sitename()+", site config variable '"+varname+"' not specified; "+messagestr
+            estr = "In site '{0}', site config variable '{1}' not specified; {2}".format(self.get_sitename(),varname,messagestr)
             if (iserror):
                 eventlist.add(EError(estr))
             else:
@@ -265,7 +265,7 @@ class MewloSite(object):
 
 
 
-    def createadd_logger(self,id):
+    def createadd_logger(self, id):
         """Shortcut to create and add and return a logger item."""
         logger = Logger(id)
         self.logmanager.add_logger(logger)
@@ -302,15 +302,16 @@ class MewloSite(object):
 
 
 
-    def debug(self,indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+"MewloSite (" + self.__class__.__name__ +") reporting in.\n"
-        outstr += indentstr+" Site validation:\n"
-        outstr += (self.validate()).debug(indentstr+"  ")
-        outstr += self.sitesettings.debug(indentstr+" ")
-        outstr += self.packagemanager.debug(indentstr+" ")
-        outstr += indentstr+" Controller root: "+str(self.get_controllerroot())+"\n"
-        outstr += self.routes.debug(indentstr+" ")
+        outstr = " "*indent + "MewloSite (" + self.__class__.__name__ + ") reporting in.\n"
+        indent += 1
+        outstr += " "*indent + "Site validation:\n"
+        outstr += (self.validate()).dumps(indent+1)
+        outstr += self.sitesettings.dumps(indent+1)
+        outstr += self.packagemanager.dumps(indent+1)
+        outstr += " "*indent+"Routes:\n"
+        outstr += self.routes.dumps(indent+1)
         return outstr
 
 
@@ -330,7 +331,7 @@ class MewloSiteManager(object):
     """
 
     # class constants
-    DefMewlo_BasePackage_subdirlist = ['packages']
+    DefMewlo_BasePackage_subdirlist = ['mpackages']
 
 
     def __init__(self):
@@ -339,7 +340,7 @@ class MewloSiteManager(object):
         self.prepeventlist = EventList()
 
 
-    def add_site(self,site):
+    def add_site(self, site):
         """Add a site to our list of managed sites."""
         self.sites.append(site)
 
@@ -354,7 +355,7 @@ class MewloSiteManager(object):
     def get_package_directory_list(self):
         """Return a list of directories in the base/install path of Mewlo, where addon packages should be scanned"""
         basedir = self.get_installdir()
-        packagedirectories = [basedir+'/'+dir for dir in self.DefMewlo_BasePackage_subdirlist]
+        packagedirectories = [basedir + '/' + dir for dir in self.DefMewlo_BasePackage_subdirlist]
         return packagedirectories
 
 
@@ -373,7 +374,7 @@ class MewloSiteManager(object):
         """
 
         nowtime = datetime.now()
-        outstr = "MEWLODEBUG ["+nowtime.strftime("%B %d, %Y at %I:%M%p")+"]: "+astr
+        outstr = "MEWLODEBUG [" + nowtime.strftime("%B %d, %Y at %I:%M%p") + "]: " + astr
         print outstr
 
 
@@ -382,13 +383,13 @@ class MewloSiteManager(object):
         """Simulate the submission of a url."""
 
         outstr = ""
-        outstr += "Testing submission of url: "+pathstr+"\n"
+        outstr += "Testing submission of url: " + pathstr + "\n"
         # generate request and debug it
         request = MewloRequest.createrequest_from_pathstring(pathstr)
-        outstr += request.debug()
+        outstr += request.dumps()
         # generate response and debug it
         self.process_request(request)
-        outstr += request.response.debug()
+        outstr += request.response.dumps()
         # return debug text
         return outstr
 
@@ -421,7 +422,7 @@ class MewloSiteManager(object):
 
         if (not ishandled):
             # no site handled it, so this is an error
-            request.response.add_status_error(404,"Page not found or supported on any site: '"+request.get_path()+"'")
+            request.response.add_status_error(404, "Page not found or supported on any site: '{0}'.".format(request.get_path()))
 
         # return response
         return True
@@ -432,8 +433,8 @@ class MewloSiteManager(object):
         """Receive a callback from wsgi web server.  We process it and then send response."""
 
         outstr = "wsgiref_callback:\n"
-        outstr += " "+str(environ)+"\n"
-        outstr += " "+str(start_response)+"\n"
+        outstr += " " + str(environ) + "\n"
+        outstr += " " + str(start_response) + "\n"
         # debug display?
         if (False):
             self.debugmessage(outstr)
@@ -452,21 +453,23 @@ class MewloSiteManager(object):
 
 
 
-    def debug(self, indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+"MewloSiteManager reporting in.\n"
-        outstr += self.prepeventlist.debug(indentstr+" ")
-        outstr += self.debug_sites(indentstr+" ")
+        outstr = " "*indent + "MewloSiteManager reporting in.\n"
+        outstr += self.prepeventlist.dumps(indent+1)
+        outstr += self.debug_sites(indent+1)
         return outstr
 
-    def debug_sites(self, indentstr=" "):
+
+    def debug_sites(self, indent=1):
         """Debug helper; return string with recursive debug info from child sites."""
-        outstr = indentstr + "Sites:\n"
-        indentstr += " "
+        outstr = " "*indent + "Sites: "
         if (len(self.sites) == 0):
-            outstr += indentstr+"None.\n"
+            outstr += "None.\n"
+        else:
+            outstr += "\n"
         for site in self.sites:
-            outstr += site.debug(indentstr+" ")+"\n"
+            outstr += site.dumps(indent+1) + "\n"
         return outstr
 
 

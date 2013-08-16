@@ -1,6 +1,6 @@
 """
 logger_pythontarget.py
-This module defines a derived logging hey class that uses python logger class to do the actual output.
+This module defines a derived logging class that uses python logger class to do the actual output.
 There are two problems with this code as is:
     * first, when writing the log line out, we are only using the level (if found) and the message, and ignoring any other dictionary values passed in.
     * second, the info about the location of the log message which python logging system is capable of capturing, is lost -- as might be expected it always points back to us here.
@@ -60,11 +60,10 @@ class LogTarget_Python(LogTarget):
         loc = logmessage.getfield('loc', None)
 
         if (loc == None):
-            # log it using high level call
+            # log it using high level logger call
             self.logger.log(level, msg)
         else:
-            # fields used for log record
-            # ATTN: here is where if we store log event module,func,lineno,file, this is where we would use it
+            # log it using low-level logger call so we can set location info.
             loggername = self.logger.name
             pathname = loc['filename']
             lineno = loc['lineno']
@@ -91,7 +90,7 @@ class LogTarget_Python(LogTarget):
 
     @classmethod
     def make_simple_pythonlogger_tofile(cls, loggername, filepath):
-        """Class method to make a test file logger via python logging system."""
+        """Class method to make a simple test file logger via python logging system."""
         import logging
         plogger = logging.getLogger(loggername)
         hdlr = logging.FileHandler(filepath)

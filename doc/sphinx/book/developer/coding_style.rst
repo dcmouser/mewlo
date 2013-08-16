@@ -62,6 +62,19 @@ Whitespace:
     * Spaces after the : in dictionary assignment
 
 
+Multiple variable assignment:
+
+    * Lines which involve multiple variables on the left hand side should be enclosed in () as tuples.  e.g. "(a,b) = func(x)", "for (key, val) in dict.iteritems()"
+
+
+Formatting strings with arguments:
+
+    * If a text string (specified using double quotes, see above) has arguments in the middle of it, you should use the string format statement to format it: 'there are {0} apples".format(applecount)'.
+    * Think of this as being motivated by wanting to run string translation tools on such strings.
+    * If the arguments only come at the end of the string, you are free to use string concatenation (+).
+    * When creating debug/log type messages in this way, put surround args in single quotes ' for easier identification, e.g. "Could not find object named '{0}'."
+
+
 Tools:
 
     * https://pypi.python.org/pypi/flake8

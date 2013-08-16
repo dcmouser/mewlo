@@ -5,7 +5,6 @@ This file manages a test package
 
 
 # mewlo imports
-# ATTN: because of the way this file is imported dynamically, it seems it does not support relative imports
 from mewlo.mpackages.core.mpackage import MewloPackageObject
 
 
@@ -23,8 +22,8 @@ class Test_MewloPackageObject(MewloPackageObject):
 
 
 
-    def debug(self,indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        str = indentstr+"Mewlo Test_MewloPackage reporting in.\n"
+        str = " "*indent + "Mewlo Test_MewloPackage reporting in.\n"
         return str
 

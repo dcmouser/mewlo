@@ -37,7 +37,7 @@ Some examples of things we will want to be able to easily do:
     * on severe errors trigger an email to admin
     * log "debug" messages to file only
     * discard warning messages when running in production mode
-    * log messages of type x|y|z to database tables x,y,z
+    * log messages of type x|y|z to database tables x, y, z
 """
 
 
@@ -191,8 +191,7 @@ class LogTarget(object):
 
     def process(self, logmessage):
         """Process the target action (write to file, save to database, emailing, etc.).  This should be overridden by subclass to do actual work."""
-
-        print "Activating base LogTarget action, which is to write log message to screen: "+logmessage.debug()+"\n"
+        print "Activating base LogTarget action, which is to write log message to screen: " + logmessage.dumps() + "\n"
         pass
 
 
@@ -265,7 +264,7 @@ class Logger(object):
     def doesmatch_filters(self, logmessage):
         """Return True if this message matches ANY of the filter(s) for the logger.."""
         # if no filters added, then it's an automatic match
-        if (len(self.filters)==0):
+        if (len(self.filters) == 0):
             return True
         # see if any filter matches it
         for filter in self.filters:

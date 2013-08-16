@@ -79,10 +79,10 @@ class MewloRequest(object):
 
 
 
-    def debug(self, indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr+" MewloRequest reporting in:\n"
-        outstr += indentstr+"  URL: "+self.get_path()+"\n"
+        outstr = " "*indent + "MewloRequest reporting in:\n"
+        outstr += " "*indent + " URL: " + self.get_path() + "\n"
         return outstr
 
 

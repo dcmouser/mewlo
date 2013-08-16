@@ -26,15 +26,15 @@ def readfile_asjson(filepath, nicelabel):
     # open the file and load into a string
     try:
         # open file for reading, and read it into string
-        file = open(filepath,"r")
+        file = open(filepath, 'r')
     except Exception as exp:
-        return None, EException("Failed to open "+nicelabel+" from path '"+filepathh+"'.", exp=exp, flag_traceback=False )
+        return None, EException("Failed to open '{0}' from path '{1}'.".format(nicelabel,filepath), exp=exp, flag_traceback=False )
 
     # read the file
     try:
         jsonstr = file.read()
     except Exception as exp:
-        return None, EException("Opened but failed to read contents of "+nicelabel+" from '"+filepath+"'.", exp=exp, flag_traceback=False )
+        return None, EException("Opened but failed to read contents of '{0}' from path '{1}'.".format(nicelabel,filepath), exp=exp, flag_traceback=False )
     finally:
         file.close()
 
@@ -42,7 +42,7 @@ def readfile_asjson(filepath, nicelabel):
     try:
         jsondict = json.loads(jsonstr)
     except Exception as exp:
-        return None, EException("Syntax error parsing json code in "+nicelabel+" '"+filepath+"'.", exp=exp, flag_traceback=True)
+        return None, EException("Syntax error parsing json code in '{0}' from file '{1}'.".format(nicelabel,filepath), exp=exp, flag_traceback=True)
 
     # success
     return jsondict, None

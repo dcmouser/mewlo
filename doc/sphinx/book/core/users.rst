@@ -8,11 +8,11 @@ The MEWLO approach will be to keep the user model table itself as minimal as pos
 
 Core User model fields:
 
-    ID
-    Username
-    Email Address: I'm still slightly on the fence about whether we should actually have this as a field in the user model, or whether we might use a separate table for this -- see below.
-    Name
-    IsEnabled
+    * ID
+    * Username
+    * Email Address: I'm still slightly on the fence about whether we should actually have this as a field in the user model, or whether we might use a separate table for this -- see below.
+    * Name
+    * IsEnabled
 
 Should Email Address be a field on a user object?  In all frameworks/cms i've seen, email address is a field of the User object.  But this falls into the category of things that can add some inconsistency to the system when we envision cases where a user might specify multiple emails.  In the case of multiple emails, it might still make sense to think of a PRIMARY email (attached to user object) and then SECONDARY emails which are treated completely differently.
 

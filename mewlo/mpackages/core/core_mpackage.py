@@ -24,8 +24,8 @@ class Core_MewloPackageObject(MewloPackageObject):
         super(Core_MewloPackageObject, self).__init__(package)
 
 
-    def debug(self,indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        str = indentstr+"Core_MewloPackageObject reporting in.\n"
+        str = " "*indent + "Core_MewloPackageObject reporting in.\n"
         return str
 

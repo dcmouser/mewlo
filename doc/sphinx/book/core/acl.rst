@@ -21,10 +21,10 @@ Efficiency is also a serious concern for ACL stuff, and may require some clever 
 
 We can think of an ACL system from a few different standpoints:
 
-    Managing ACL role definitions (e.g. "A moderator role allows a person to perform these actions on a group")
-    Managing ACL relationships (e.g. "The superuser role includes the moderator role")
-    Managing ACL assignments (e.g. "This user has the moderator role on this group")
-    Providing support backend and GUI functions for the above as well as general
+    * Managing ACL role definitions (e.g. "A moderator role allows a person to perform these actions on a group")
+    * Managing ACL relationships (e.g. "The superuser role includes the moderator role")
+    * Managing ACL assignments (e.g. "This user has the moderator role on this group")
+    * Providing support backend and GUI functions for the above as well as general
 
 
 
@@ -32,17 +32,17 @@ The ACL system is defined by two main models:
 
 AclItems:
 
-    An AclItem defines a role or permission.  It has a name/label and long description.
-    For efficiency, it is important that AclItems be hierarchically organized and groups.  Therefore the role of forum "moderator" is defined by an AclItem which has many dozens of AclItem permissions as children underneath it.  Assigning the role of "moderator" to a user gives that user all children permissions.
-    So each AclItem should link to all of it's children AclItems.
-    Note importantly that we use Acltems interchangeably both for "permissions" and for "roles", and plan to use them to manage group MEMBERSHIPS.  That is, to record that User X is a member of group Y (or the OWNER of group Y), we will use an AclItem/AclAssignment.
-    Because we may add arbitrary contextual objects (groups, projects, etc.) the CONTEXT object must be able to reference any object.
-    We might also allow some arbitrary properties associated with an item.
+    * An AclItem defines a role or permission.  It has a name/label and long description.
+    * For efficiency, it is important that AclItems be hierarchically organized and groups.  Therefore the role of forum "moderator" is defined by an AclItem which has many dozens of AclItem permissions as children underneath it.  Assigning the role of "moderator" to a user gives that user all children permissions.
+    * So each AclItem should link to all of it's children AclItems.
+    * Note importantly that we use Acltems interchangeably both for "permissions" and for "roles", and plan to use them to manage group MEMBERSHIPS.  That is, to record that User X is a member of group Y (or the OWNER of group Y), we will use an AclItem/AclAssignment.
+    * Because we may add arbitrary contextual objects (groups, projects, etc.) the CONTEXT object must be able to reference any object.
+    * We might also allow some arbitrary properties associated with an item.
 
 
 AclAssignments:
 
-    An AclAssignment is the actual assignment of a role/permission (AclItem) to an entity.  So we might assign a specific AclItem to a specific User.
-    An AclAssignment is not always a simple case of saying that User X has Permission (AclItem) Y.  Often we want to restrict the permission to a specific *context*.  So an AclAssignment can specify an optional context Object, to express things like "User X has Role (AclItem) Y in Project Z".
-    An AclAssignment may also be made to a Group as well as a User.  So that if we have a Group we call "site administrators", then we might say that "GROUP X has Permission Y", meaning that all users in GROUP X have that permission.
-    We might also allow some arbitrary properties associated with an assignment.
+    * An AclAssignment is the actual assignment of a role/permission (AclItem) to an entity.  So we might assign a specific AclItem to a specific User.
+    * An AclAssignment is not always a simple case of saying that User X has Permission (AclItem) Y.  Often we want to restrict the permission to a specific *context*.  So an AclAssignment can specify an optional context Object, to express things like "User X has Role (AclItem) Y in Project Z".
+    * An AclAssignment may also be made to a Group as well as a User.  So that if we have a Group we call "site administrators", then we might say that "GROUP X has Permission Y", meaning that all users in GROUP X have that permission.
+    * We might also allow some arbitrary properties associated with an assignment.

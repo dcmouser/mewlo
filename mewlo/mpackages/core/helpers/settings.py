@@ -23,7 +23,7 @@ class Settings(object):
     def merge_settings_atsection(self, sectionname, settingstoadd):
         """Merge in a new dicitonary into our main dictionary at a specific root section (creating root section if needed)."""
         if not sectionname in self.settingdict:
-            self.settingdict[sectionname]=settingstoadd
+            self.settingdict[sectionname] = settingstoadd
         else:
             self.settingdict[sectionname].update(settingstoadd)
 
@@ -54,8 +54,9 @@ class Settings(object):
 
 
 
-    def debug(self, indentstr=""):
+    def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = indentstr + "MewloSettings:\n"
-        outstr += indentstr+str(self.settingdict)+"\n"
+        outstr = " "*indent + "MewloSettings:\n"
+        indent += 1
+        outstr += " "*indent + str(self.settingdict)+"\n"
         return outstr

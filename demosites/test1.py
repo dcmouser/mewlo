@@ -10,7 +10,6 @@ from test1 import testsite1
 
 
 
-
 # if this python file is run as a script:
 
 def main():
