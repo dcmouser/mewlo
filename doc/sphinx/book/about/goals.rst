@@ -12,3 +12,4 @@ What are the goals of Mewlo?
    * When there is a performance issue somewhere -- the system should detect and report it -- no more wondering why the system is running slowly.
    * Built-in features for assessing performance and detecting bottlenecks.
    * Be super-easy to upgrade modules and addons.
+   * Focused on helping back-end administration -- with utility functions for performing maintenance and batch operations

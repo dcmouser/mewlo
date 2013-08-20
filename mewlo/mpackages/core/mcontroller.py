@@ -50,7 +50,7 @@ class MewloController(object):
 
     def prepare(self, parent, site, eventlist):
         """Do initial preparatory stuff on system startup."""
-        # ATTN: todo - use eventlist
+        # ATTN: todo - use eventlist to catch errors
 
         self.parent = parent
         self.site = site

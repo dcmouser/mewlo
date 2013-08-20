@@ -11,7 +11,8 @@ What is Mewlo?
 
 For more information see:
 
+ * Website: http://www.mewlo.com
+ * Source code: http://github.com/dcmouser/mewlo
  * Forum: http://www.donationcoder.com/forum/index.php?board=309.0
- * Planning docs: https://sites.google.com/site/mewlobook/jesse-s-pages
- * Online discussion on channel #mewlo on efnet.
+ * Irc chat: channel #mewlo on efnet.
  * Correspondence: mouser@donationcoder.com

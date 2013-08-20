@@ -35,3 +35,4 @@ More detailed analysis:
    django
    drupal
    pyramid
+   others

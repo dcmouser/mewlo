@@ -144,6 +144,7 @@ class MewloSite(object):
         It is critical that this function get called prior to running the system.
         """
 
+        # we log errors/warnings to an eventlist and return it; either one we are passed or we create a new one if needed
         if (eventlist == None):
             eventlist = EventList()
 
