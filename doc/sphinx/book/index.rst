@@ -8,6 +8,6 @@ Book Chapters
    related/index
    setup/index
    developer/index
-   showcases/index
    core/index
    secondary/index
+   showcases/index

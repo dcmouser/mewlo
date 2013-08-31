@@ -20,4 +20,3 @@ From here you can learn about the core Mewlo packages.
    url_routes
    users
    verifications
-   widgets

@@ -16,7 +16,7 @@ Call examples:
 In the function it would look like:
 
 def myfunc(a,b):
-	  # success
+    # success
     return (a+b, None)
     # failure
     return (None, "bad args passed")
@@ -49,7 +49,7 @@ After calling a function that returns a failure code, prefer checking for succes
 
     failure = myproc(a,b)
     if failure == None:
-			  # success
+        # success
         stuff to do here
     else:
         # failure

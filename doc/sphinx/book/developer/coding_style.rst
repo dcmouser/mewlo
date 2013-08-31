@@ -86,20 +86,15 @@ Python files:
     * All filenames should be in lowercase using underscores to separate words.
     * The top of each code file should look like (leave out import sections that are not used):
 
-"""
-filename.py
-Description of file.
-"""
-
-# mewlo imports
-imports of mewlo core files
-
-# helper imports
-helper file imports
-
-# 3rd party lib imports
-3rd party lib imports
-
-# python imports
-built in python library imports
-
+            """
+            filename.py
+            Description of file.
+            """ 
+            # mewlo imports
+            imports of mewlo core files 
+            # helper imports
+            helper file imports
+            # 3rd party lib imports
+            3rd party lib imports
+            # python imports
+            built in python library imports

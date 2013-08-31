@@ -36,8 +36,11 @@ What are the goals of the logging system?
 Some examples of things we will want to be able to easily do:
     * on severe errors trigger an email to admin
     * log "debug" messages to file only
+    * turn off certain log messages with minimal cpu impact
     * discard warning messages when running in production mode
     * log messages of type x|y|z to database tables x, y, z
+    * throttle log messages if they start to overwhelm the system
+
 """
 
 
@@ -209,19 +212,13 @@ class Logger(object):
     Logger - responsible for saving/writing a log event to some destination, and matching log events to decide whether to handle them.
     """
 
-    # we can throttle when log messages are generating too rapidly
-    DEF_THROTTLERATE_default_messages_per_sec = 60
 
-
-
-    def __init__(self, id, throttlerate = DEF_THROTTLERATE_default_messages_per_sec):
+    def __init__(self, id):
         self.id = id
         #
         self.filters = []
         self.targets = []
         self.deferredmessages = []
-        #
-        self.throttlerate = throttlerate
         #
         self.parent = None
 
@@ -289,5 +286,5 @@ class Logger(object):
                     # the best thing to do might be to LOG the error here (or add it to error list) and continue
                     # raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception to provide extra info
                     # we probably wouldn't consider this a fatal error that should stop program from executing.
-                    reraiseplus(exp, "Disabling the logger wherre the error occurred: ", obj=target)
+                    reraiseplus(exp, "Disabling the logger where the error occurred: ", obj=target)
 

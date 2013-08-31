@@ -16,6 +16,7 @@ From here you can learn about secondary packages for the Mewlo system.
    form
    forum
    gallery
+   widgets
    javascript
    jobqueue
    mailbox

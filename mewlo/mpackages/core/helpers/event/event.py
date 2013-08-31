@@ -1,6 +1,39 @@
 """
 event.py
-This module contains classes and functions for custom event/error handling
+This module contains classes and functions for custom event/error handling.
+
+Two alternatives were possible for the Event class.
+
+One alternative would be to define lots of specific separate member properties for all (most) fields we may want to record.
+This would be the classic OOP method.
+The advantage is better ability to typecheck fields, less possibility of errors in specifying or missing fields, better function all error checking.
+A disadvantage is that there are a lot of potential fields, it may get a bit messy to have a member property for each one.
+
+The other alternative would be to allow event fields to be open ended, specified as a dictionary.
+The advantage is greater flexibility in adding fields, and easier support of lots of fields.
+If we think we might have to support an "other" dictionary of arbitrary properties, then might be simpler to just have everything be in that dictionary.
+This gives us a unified way of representing fields in a dictionary.
+
+We chose to use the second alternative.  All event fields are represented in a single dictionary.
+
+In order to support better error checking, we have a (possibly optional and turned off for performance) validation function to make sure the field values are valid.
+
+About saving events and their fields: There are cases where we are not logging events to a target with a fixed set of columns.
+In such cases we don't have to worry about arbitrary or unexpected fields, and a web application can invent it's own field property names.
+However, in a more traditional target, writing to a database table, each field corresponds to a column, and most database engines will not allow us to add arbitrary field columns.
+So we must decide how we want to handle such cases.  There are two separate issues we can consider.  First, we must consider how the columns are defined/decided.
+And second we must decide how to handle fields which don't have a dedicated database column.
+Our approach will be as follows:  Database target loggers will specify a mapping from event fields to columns, a list of fields to discard, and then an optional generic text column which will serialize any other fields.
+
+Official Fields (not all will be in every event):
+    type: FAILURE | ERROR | WARNING | EXCEPTION
+    msg: Full text of the event messsage (can be arbitrarily long and contain newlines)
+    exp: Exception object related to the event
+    request: The MewloRequest object associated with the event (note the request object contains the response object)
+    traceback: The traceback object associated with the event
+    statuscode: The http status code associated with an error (we might later want to remove this and just pass request object and let logger grab statuscode from request response)
+    loc: A dictionary containing keys [filename,lineno,function_name] of the event; support functions for adding events can grab this info automatically from callstack
+
 """
 
 
@@ -18,6 +51,7 @@ class Event(object):
     """Base class for event/error class."""
 
     # class constants
+    #
     DEF_SAFE_FIELDNAME_LIST = ['type', 'msg', 'exp', 'request', 'traceback', 'statuscode', 'loc']
     #
     DEF_ETYPE_failure = 'FAILURE'
@@ -250,19 +284,19 @@ class EventList(object):
 
 
 # These are shortcut helper functions
-# ATTN: todo -- refactor these to use args,kargs to simplify them
+# ATTN: todo -- refactor these to use args,kargs to simplify them?
 
 def EFailure(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create failure type event"""
-    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_failure })
+    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_failure })
 
 def EError(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create error type event"""
-    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_error })
+    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_error })
 
 def EWarning(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create warning type event"""
-    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_warning })
+    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_warning })
 
 
 
@@ -274,7 +308,7 @@ def EException(msg="", exp=None, fields=None, flag_traceback=True, obj=None, fla
     if (flag_traceback):
         defaultfields['traceback'] = Event.calc_traceback_text()
     # create event
-    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, defaultfields)
+    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, defaultfields)
 
 
 
@@ -289,11 +323,11 @@ def EFailureExtend(failure, msg="", fields=None, obj=None, flag_loc=False, calld
     if (addmsg != ""):
         msg += " " + addmsg
     # build it
-    return SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_failure })
+    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_failure })
 
 
 
-def SimpleEventBuilder(msg, obj, fields, flag_loc, calldepth, defaultfields):
+def SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth, defaultfields):
     """Internal func. Helper function to create failure type event"""
     # add obj info
     if (obj != None):
