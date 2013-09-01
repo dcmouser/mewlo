@@ -162,24 +162,38 @@ class MewloSite_Test1(MewloSite):
 def main():
     """This function is invoked by the python interpreter if this script itself is executed as the main script."""
 
+
+    # flags for commandline launch
+    flag_debugsite = True
+    flag_runtests = False
+    flag_runserver = False
+
+
     # create a simple site from our test class and a sitemanager that supervises it
     sitemanager = MewloSite_Test1.create_manager_and_simplesite()
 
-    exit
 
-    # check if there were any errors encountered during preparation of the site
-    if (sitemanager.prepeventlist.count_errors()== 0):
-        # no errors, so let's serve the site; start by displaying some debug info
+    # check if there were any errors encountered during preparation of the s
+    if (sitemanager.prepeventlist.count_errors() > 0):
+        print "Stopping due to sitemanager preparation errors:"
+        print sitemanager.prepeventlist.dumps()
+        sys.exit(0)
+
+
+    # start by displaying some debug info
+    if (flag_debugsite):
         print sitemanager.dumps()
+
+    # run tests?
+    if (flag_runtests):
         # simulate some simple requests
         print sitemanager.test_submit_path('/help/about')
         print sitemanager.test_submit_path('/page/mystery')
         print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
-        # start serving the web server and process all web requests
+
+    # start serving the web server and process all web requests
+    if (flag_runserver):
         sitemanager.create_and_start_webserver_wsgiref()
-    else:
-        print "Stopping due to sitemanager preparation errors:"
-        print sitemanager.prepeventlist.dumps()
 
 
 

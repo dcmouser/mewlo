@@ -50,12 +50,13 @@ class MewloPackageManager(PackageManager):
         self.mewlosite = mewlosite
         # set file pattern of mewlo package files
         self.set_filepatternsuffix(self.DefMewlo_Package_filepatternsuffix)
+        # set setuptools entrypoint groupname
+        self.set_setuptools_entrypoint_groupname('mewlo.packages')
 
 
     def create_package(self, filepath):
         """Create an appropriate child package."""
         return MewloPackage(self, filepath)
-
 
 
 

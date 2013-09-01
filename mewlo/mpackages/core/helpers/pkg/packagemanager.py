@@ -30,6 +30,7 @@ class PackageManager(object):
         # stuff
         self.dirlist = []
         self.filepatternsuffix = ''
+        self.setuptools_entrypoint_groupname = ''
         # package collection
         self.packages = []
 
@@ -39,6 +40,9 @@ class PackageManager(object):
 
     def set_filepatternsuffix(self, filepatternsuffix):
         self.filepatternsuffix = filepatternsuffix
+
+    def set_setuptools_entrypoint_groupname(self, setuptools_entrypoint_groupname):
+        self.setuptools_entrypoint_groupname = setuptools_entrypoint_groupname
 
 
     def create_package(self, filepath):
@@ -58,6 +62,8 @@ class PackageManager(object):
         # first find all files
         for dirpath in self.dirlist:
             packagefilepaths += self.findfilepaths(dirpath, filepattern)
+        # setup tools entrypoint loading?
+        packagefilepaths += self.discover_setuptools_entrypoints_packagefilepaths()
         # now for each file, create a package from it
         for filepath in packagefilepaths:
             self.createadd_package_frominfofile(filepath)
@@ -95,6 +101,80 @@ class PackageManager(object):
             for filename in fnmatch.filter(files, filepattern):
                 filepaths.append(os.path.join(path, filename))
         return filepaths
+
+
+
+
+
+
+
+    def discover_setuptools_entrypoints_packagefilepaths(self):
+        """Discover any setuptools based entry-point plugins that are exposing their info."""
+        if (self.setuptools_entrypoint_groupname == ''):
+            return []
+        # init
+        infofilepaths = []
+        filepattern = self.calc_packageinfofile_pattern()
+        #
+        # ok we found some so let's try
+        import pkg_resources
+        import os
+        #
+        for entrypoint in pkg_resources.iter_entry_points(group=self.setuptools_entrypoint_groupname):
+            # Ok get the entrypoint details
+            entrypoint_fullname = entrypoint.name
+            entrypoint_basename = entrypoint_fullname.split('.')[0]
+            entrypoint_obj = entrypoint.load()
+            # if entrypoint_obj is a callable, call it to get data, otherwise it IS the data alread
+            if (hasattr(entrypoint_obj, '__call__')):
+                entrypoint_data = entrypoint_obj()
+            else:
+                entrypoint_data = entrypoint_obj
+            # debug
+            #print "---------> GOT AN ENTRYPOINT OF "+str(entrypoint_obj)+" named: "+entrypoint_fullname + " (" + entrypoint_basename + ") with data: "+str(entrypoint_data)+"\n"
+            # ok now let's handle it
+            if (entrypoint_basename == 'infofiles'):
+                # it's giving us info file (or list of them), so we append to filepaths
+                if (isinstance(entrypoint_data, basestring)):
+                    entrypoint_data = [ enrtypoint_data ]
+                infofilepaths += entrypoint_data
+            elif (entrypoint_basename == 'infofiledirs'):
+                # it's giving us a directory (or list of them) to scan, so scan and add all in their
+                if (isinstance(entrypoint_data, basestring)):
+                    entrypoint_data = [ entrypoint_data ]
+                for apath in entrypoint_data:
+                    infofilepaths += self.findfilepaths(apath, filepattern)
+            elif (entrypoint_basename == 'moduleforpath'):
+                # it's giving us a module (or list of them) to resolve directories from and then treat as infofiledirs
+                if (not hasattr(entrypoint_data, '__iter__')):
+                    entrypoint_data = [ entrypoint_data ]
+                for amod in entrypoint_data:
+                    apath = os.path.abspath(os.path.dirname(amod.__file__))
+                    infofilepaths += self.findfilepaths(apath, filepattern)
+            else:
+                # error bad directive in entry_point
+                emsg = "While trying to load advertised setuptools entrypoints for Mewlo plugins (group='"+self.setuptools_entrypoint_groupname+"'), encountered an enrtypoint key value '"+entrypoint_fullname+"' that was not understood."
+                emsg += " Full entrypoint line: "+str(entrypoint)+"."
+                emsg += " Note that this line causing the error will most likely be located in a python EGG of an INSTALLED site-package; in the egg's setup.py or compiled into entry_points.txt."
+                raise Exception(emsg)
+        #
+        return infofilepaths
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     def load_package_infofiles(self):
@@ -148,7 +228,7 @@ class PackageManager(object):
 
     def debug_packages(self, indent=0):
         """Helper debug function.  Return indented debug of child packages."""
-        outstr = " "*indent + "Packages found:\n"
+        outstr = " "*indent + str(len(self.packages)) + " packages found:\n"
         indent += 1
         if (len(self.packages) == 0):
             outstr += " "*indent + "None.\n"

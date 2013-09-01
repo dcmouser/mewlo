@@ -184,7 +184,7 @@ class Package(object):
         outstr = " "*indent + "Package reporting in.\n"
         indent += 1
         #
-        outstr += self.eventlist.dumps(indent) + "\n"
+        outstr += self.eventlist.dumps(indent)
         #
         outstr += " "*indent + "Info dictionary: " + self.infofilepath + ":\n"
         jsonstring = json.dumps(self.infodict, indent+1)
