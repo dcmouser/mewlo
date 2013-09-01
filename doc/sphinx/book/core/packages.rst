@@ -1,5 +1,5 @@
 Packages / Extensions
-=========================================================
+=====================
 
 
 Every part of Mewlo, including the built-in essential Core components as well as 3rd party plugins/addons and should be arranged in terms of "Packages".

@@ -23,6 +23,7 @@ From here you can learn about secondary packages for the Mewlo system.
    newsletter
    notification
    payment
+   performance
    readtracking
    rpc
    scheduler

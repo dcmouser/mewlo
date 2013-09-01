@@ -6,6 +6,7 @@ From here you can learn about the core Mewlo packages.
 .. toctree::
 
    acl
+   addons
    auth
    avatar
    daemon
