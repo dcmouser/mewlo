@@ -11,7 +11,8 @@ This file defines helper functions for the mewlo setuptools based test plugin, w
 def shelp_readfile_asjson(filepath):
     """
     Read a file and return json dictionary
-    :return: EFailure on error
+    :return: jsondictionary_of_readfile
+    :raises: exception on error parsing or reading file
     """
 
     # python libraries
@@ -40,7 +41,7 @@ def shelp_readfile_asjson(filepath):
         raise
 
     # success
-    return jsondict, None
+    return jsondict
 
 
 

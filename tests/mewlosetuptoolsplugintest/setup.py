@@ -21,7 +21,7 @@ from mewlo.externaltools.setuptoolhelpers import shelp_readfile_asjson, dvalorde
 
 # setup tools wants some author and other information that may unfortunately be duplicative of the json info file data for our plugin, so let's try to read it automatically from that file
 infofilepath = 'mewlosetuptoolsplugintest/mewlotestplug_mpackage.json'
-infofiledict, failure = shelp_readfile_asjson(infofilepath)
+infofiledict = shelp_readfile_asjson(infofilepath)
 
 
 
