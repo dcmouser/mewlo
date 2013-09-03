@@ -16,7 +16,6 @@ from helpers.signals.signals import SignalDispatcher, SignalReceiver
 class MewloSignalDispatcher(SignalDispatcher):
     """The derived signal dispatcher."""
 
-
     def __init__(self, mewlosite):
         """Constructor."""
         # partent constructor

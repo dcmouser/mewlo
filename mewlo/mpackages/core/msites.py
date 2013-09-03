@@ -16,6 +16,7 @@ from helpers.event.logger import LogManager, Logger
 from helpers.settings import Settings
 from helpers.exceptionplus import reraiseplus
 from msignals import MewloSignalDispatcher
+from mregistry import MewloComponentRegistry
 
 # python imports
 import os
@@ -60,6 +61,8 @@ class MewloSite(object):
         self.logmanager = LogManager(self)
         # signal dispatcher
         self.dispatcher = MewloSignalDispatcher(self)
+        # component registry
+        self.registry = MewloComponentRegistry(self)
         #
         # record package of the site for relative imports
         self.sitemodulename = sitemodulename
@@ -315,6 +318,8 @@ class MewloSite(object):
         outstr += " "*indent + "Site validation:\n"
         outstr += (self.validate()).dumps(indent+1)
         outstr += self.sitesettings.dumps(indent+1)
+        outstr += self.dispatcher.dumps(indent+1)
+        outstr += self.registry.dumps(indent+1)
         outstr += self.packagemanager.dumps(indent+1)
         outstr += " "*indent+"Routes:\n"
         outstr += self.routes.dumps(indent+1)

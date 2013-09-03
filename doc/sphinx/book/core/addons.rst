@@ -65,5 +65,21 @@ Mewlo takes a hybrid approach:
    * Additionally, Mewlo provides some helper functions that make it easy to create an egg Setup.py file/function that uses meta information from a mewlo addon package .json info files, to eliminate the need to duplicate meta data when creating Egg distributions for a plugin.
 
 
+
+Addon API?
+==========
+
+What makes up the addon/plugin system?
+
+   * We have a system for auto-discovering and registering "packages" which are addons.
+   * The package level is meant to support meta info, disabling, update checking, database upgrading -- these things happen at the file-group level of packages.
+   * At a finer grain level, we have a signal broadcast/receiver system, which supports return values from signals
+   * What else might we want from an addon api system?
+   * What about facilities for *finding* components (addon objects) that provide certain services, interfaces, etc. Does ZOPE Component Architecture provide a good example for us in this department?
+   * Generic signals could be used to support finding stuff, but perhaps helper functions would be useful if there is a common and frequent api
+
+
+
+
 See also:
     * http://ziade.org/2010/07/25/plugins-system-thoughts-for-an-entry-points-replacement/

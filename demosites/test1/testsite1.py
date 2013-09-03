@@ -182,8 +182,8 @@ def main():
 
 
     # flags for commandline launch
-    flag_debugsite = False
-    flag_runtests = True
+    flag_debugsite = True
+    flag_runtests = False
     flag_runserver = False
 
 

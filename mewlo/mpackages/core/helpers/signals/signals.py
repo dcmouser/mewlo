@@ -73,6 +73,21 @@ class SignalReceiver(object):
 
 
 
+    def dumps(self, indent=0):
+        """Debug information."""
+        outstr = " "*indent + "SignalReceiver (" + self.__class__.__name__  + ") reporting in.\n"
+        indent += 1
+        outstr += " "*indent + "idfilter: "+str(self.idfilter)+"\n"
+        outstr += " "*indent + "sourcefilter: "+str(self.sourcefilter)+"\n"
+        outstr += " "*indent + "extra: "+str(self.extra)+"\n"
+        outstr += " "*indent + "flag_returnsvalue: "+str(self.flag_returnsvalue)+"\n"
+        outstr += " "*indent + "callback: "+str(self.callback)+"\n"
+        return outstr
+
+
+
+
+
 
 
 
@@ -85,6 +100,11 @@ class SignalSender(object):
         # init
         pass
 
+    def dumps(self, indent=0):
+        """Debug information."""
+        outstr = " "*indent + "SignalSender reporting in.\n"
+        return outstr
+
 
 
 class Signal(object):
@@ -94,6 +114,29 @@ class Signal(object):
         """Constructor."""
         # init
         pass
+
+    def dumps(self, indent=0):
+        """Debug information."""
+        outstr = " "*indent + "Signal reporting in.\n"
+        return outstr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -114,7 +157,6 @@ class SignalDispatcher(object):
         self.signals = []
         self.senders = []
         self.receivers = []
-        pass
 
 
 
@@ -180,9 +222,19 @@ class SignalDispatcher(object):
 
 
 
-
-
     def dumps(self, indent=0):
-        return indent*" " + str(self)
+        """Debug information."""
+        outstr = " "*indent + "Signal Dispatcher (" + self.__class__.__name__ + ") reporting in.\n"
+        indent += 1
+        outstr += " "*indent + "Registered Signals: "+str(len(self.signals))+"\n"
+        for signal in self.signals:
+            outstr+=signal.dumps(indent+1)
+        outstr += " "*indent + "Registered Signal Senders: "+str(len(self.senders))+"\n"
+        for sender in self.senders:
+            outstr+=sender.dumps(indent+1)
+        outstr += " "*indent + "Registered Signal Receivers: "+str(len(self.receivers))+"\n"
+        for receiver in self.receivers:
+            outstr+=receiver.dumps(indent+1)
+        return outstr
 
 

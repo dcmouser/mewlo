@@ -7,6 +7,20 @@ This file manages a test package
 # mewlo imports
 from mewlo.mpackages.core.mpackage import MewloPackageObject
 from mewlo.mpackages.core.msignals import MewloSignalReceiver
+from mewlo.mpackages.core.mregistry import MewloComponent
+
+
+
+class Test_MewloPackage_Service(object):
+    """This is a dummy object that we use to test the component registry.  It pretends to be a service, but it does nothing."""
+    def __init__(self):
+        pass
+
+    def dumps(self, indent=0):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        str = " "*indent + "Mewlo Test_MewloPackage_Service reporting in.\n"
+        return str
+
 
 
 
@@ -38,10 +52,24 @@ class Test_MewloPackageObject(MewloPackageObject):
             extra = None
             flag_returnsvalue = True
             signalreceiver = MewloSignalReceiver(mewlosite, callback, idfilter, sourcefilter, extra, flag_returnsvalue)
-            # now hand it off to the site dispatcher
+            # now register it with the site dispatcher
             mewlosite.dispatcher.register_receiver(signalreceiver)
 
+
+        # ATTN: as a test let's add an object to the registry
+        if (True):
+            # create component
+            mewlosite = self.get_mewlosite()
+            features = {'name':'test_plugin_service', 'ctype':'m.c.service', 'ptype':'object'}
+            # CREATE the object that we are registering (the component registry will hold on to it)
+            obj = Test_MewloPackage_Service()
+            # now create the component wrapper around it
+            component = MewloComponent(mewlosite, features, obj)
+            # now register it with the site registry
+            mewlosite.registry.register_component(component)
+
         return None
+
 
 
 

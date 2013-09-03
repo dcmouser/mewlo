@@ -48,3 +48,23 @@ def readfile_asjson(filepath, nicelabel):
     return jsondict, None
 
 
+
+
+
+
+
+
+
+
+
+def does_dict_filter_match(object_features, feature_filter):
+    """Compare feature_filter against objectfeatures, return True if its a match."""
+    # ATTN: we migh want to implement more sophisticated filter "DSL language" in the future
+    # walk keys in feature_filter dictionary, and return False if object does not match on any of them
+    for keys in feature_filter:
+        if (not key in object_features):
+            return False
+        if ((object_features[key] != feature_filter[key]) and (feature_filter[key] != '*')):
+            return False
+    # nothing failed, so it's a match!
+    return True
