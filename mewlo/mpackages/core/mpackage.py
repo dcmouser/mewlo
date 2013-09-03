@@ -25,6 +25,7 @@ class MewloPackage(Package):
     """
 
     def __init__(self, packagemanager, filepath):
+        # parent constructor
         super(MewloPackage, self).__init__(packagemanager, filepath)
 
 
@@ -75,7 +76,14 @@ class MewloPackageObject(PackageObject):
         # parent constructor
         super(MewloPackageObject, self).__init__(package)
 
+    def get_mewlosite(self):
+        # the mewlosite that the packageobject belongs to
+        return self.package.packagemanager.mewlosite
 
+    def prepare(self):
+        # called by Mewlo system when it's ready for us to do any setup stuff
+        # return failure if any, or None on success
+        return None
 
 
 

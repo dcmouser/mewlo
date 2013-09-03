@@ -10,6 +10,7 @@ From here you can learn about extending the Mewlo system.
    code_organization
    coding_style
    coding_todo
+   deprecated
    documentation_style
    error_handling_discussion
    error_handling_policy

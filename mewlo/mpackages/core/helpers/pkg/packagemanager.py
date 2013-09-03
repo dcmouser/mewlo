@@ -87,6 +87,8 @@ class PackageManager(object):
     def instantiate_packages(self):
         """Actually import code modules and instantiate package objects."""
         self.load_package_codemodules()
+        self.prepare_packages()
+
 
 
     def calc_packageinfofile_pattern(self):
@@ -212,6 +214,22 @@ class PackageManager(object):
 
         # return it
         return PackageManager.classwide_packagemodules[path], None
+
+
+
+
+
+
+
+    def prepare_packages(self):
+        """Tell all the package objects to prepare."""
+        for package in self.packages:
+            package.prepare()
+
+
+
+
+
 
 
 

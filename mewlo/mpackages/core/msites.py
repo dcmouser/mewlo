@@ -15,6 +15,7 @@ from helpers.event.event import Event, EventList, EWarning, EError
 from helpers.event.logger import LogManager, Logger
 from helpers.settings import Settings
 from helpers.exceptionplus import reraiseplus
+from msignals import MewloSignalDispatcher
 
 # python imports
 import os
@@ -48,6 +49,7 @@ class MewloSite(object):
         self.sitename = sitename
         self.sitemanager = None
         self.controllerroot = None
+        #
         # create site settings
         self.sitesettings = Settings()
         # collection of mewlo addon packages
@@ -56,6 +58,9 @@ class MewloSite(object):
         self.routes = MewloRouteGroup()
         # log manager
         self.logmanager = LogManager(self)
+        # signal dispatcher
+        self.dispatcher = MewloSignalDispatcher(self)
+        #
         # record package of the site for relative imports
         self.sitemodulename = sitemodulename
 
@@ -240,17 +245,17 @@ class MewloSite(object):
     def pre_runroute_callable(self, route, request):
         """
         Called after a route is matched, but before it is invoked.
-        :return: True to allow route to invoke, or False to prevent it.
+        :return: failure on error
         """
-        return True
+        return None
 
 
     def post_runroute_callable(self, request):
         """
         Called after a route is invoked.
-        :return: False on error
+        :return: failure on error
         """
-        return True
+        return None
 
 
 

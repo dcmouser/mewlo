@@ -87,6 +87,7 @@ def smart_dotted_idpath_getparentobj(obj):
 
 def compute_traceback_astext(traceback_object=None, flag_fulltrace=True):
     """Convert traceback object to nice text.  See http://effbot.org/librarybook/traceback.htm."""
+    import sys
     if (traceback_object==None):
         traceback_object = sys.exc_info()[2]
     if (flag_fulltrace):

@@ -178,6 +178,14 @@ class Package(object):
 
 
 
+    def prepare(self):
+        """Do any preparation after Mewlo is set up."""
+        if (self.packageobject!=None):
+            self.packageobject.prepare()
+
+
+
+
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
 

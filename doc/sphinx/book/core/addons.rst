@@ -5,6 +5,9 @@ Addons
 In Mewlo, there are two levels at which addons/plugins/extensions/modules are defined.
 
 
+First Level
+------------
+
 The first operates at the level of groups of files.  This level is handled through MewloPackage class (described in its own section).
 
 A MewloPackage represents one or more files that are distributed as a downloadable package, maintained by a single entity who is reponsible for releasing updates.
@@ -22,6 +25,8 @@ It is at the package level that we have an API for returning information about t
 A package will have a section in the administration center and/or in configuration options that allows administrator to change options.
 
 
+Second Level
+-------------
 
 The second level involves objects that actually interact with a Mewlo website.  This may be by registering as listeners to signals/events and reacting to them, or by emiting signals, or by making available services that can be invoked by other code.
 
@@ -32,6 +37,7 @@ These objects don't have an api for providing info like version, author, etc.
 
 
 Using SetupTools Eggs and Entrypoints
+--------------------------------------
 
 The Python SetupTools modules have established a general-purpose way for applications to advertise and discover plugins, using a facility known as "entry points" in EGG packages.
 

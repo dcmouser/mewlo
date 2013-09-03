@@ -143,11 +143,29 @@ class MewloSite_Test1(MewloSite):
         """This is called by default when a route is about to be invoked.  Subclassed sites can override it."""
         request.logevent(EWarning("This is a test1 warning called PRE run route: " + request.get_path()))
 
+        # ATTN: test, let's trigger a signale
+        if (True):
+            id = 'signal.site.pre_runroute'
+            message = {'route':route, 'request':request}
+            source = {'site':self, 'func':self.pre_runroute_callable}
+            flag_collectresults = True
+            signalresults = self.dispatcher.broadcast(id, message, source, flag_collectresults)
+
+        return None
+
 
 
     def post_runroute_callable(self, request):
         """This is called by default after a route has been invoked.  Subclassed sites can override it."""
         request.logevent(EWarning("This is a test2 warning called POST run route: " + request.get_path(), flag_loc=True))
+
+        return None
+
+
+
+
+
+
 
 
 
@@ -164,8 +182,8 @@ def main():
 
 
     # flags for commandline launch
-    flag_debugsite = True
-    flag_runtests = False
+    flag_debugsite = False
+    flag_runtests = True
     flag_runserver = False
 
 

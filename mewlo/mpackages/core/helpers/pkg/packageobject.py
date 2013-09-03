@@ -17,6 +17,11 @@ class PackageObject(object):
         self.package = package
 
 
+    def prepare(self):
+        """Do any preparation after Mewlo is set up."""
+        pass
+
+
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "Base PackageObject reporting in.\n"
