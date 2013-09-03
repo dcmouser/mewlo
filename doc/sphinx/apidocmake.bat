@@ -1,1 +1,1 @@
-sphinx-apidoc -f -o _apidoc ..\..\mewlo
+sphinx-apidoc --separate-page -f -o _apidoc ..\..\mewlo

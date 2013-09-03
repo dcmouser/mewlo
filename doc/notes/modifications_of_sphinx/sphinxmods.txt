@@ -1,0 +1,3 @@
+9/3/13
+
+I modified sphinx apidoc.py to allow each module to go on it's own page.
