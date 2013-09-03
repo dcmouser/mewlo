@@ -11,12 +11,14 @@ From here you can learn about the core Mewlo packages.
    avatar
    daemon
    database
+   dispatcher
    file_uploads
    groups
    logging
    navigation
    objects
    packages
+   registry
    settings
    url_routes
    users
