@@ -246,10 +246,8 @@ class PackageManager(object):
 
     def debug_packages(self, indent=0):
         """Helper debug function.  Return indented debug of child packages."""
-        outstr = " "*indent + str(len(self.packages)) + " packages found:\n"
+        outstr = " "*indent + str(len(self.packages)) + " packages found.\n\n"
         indent += 1
-        if (len(self.packages) == 0):
-            outstr += " "*indent + "None.\n"
         for package in self.packages:
             outstr += package.dumps(indent+1) + "\n"
         return outstr

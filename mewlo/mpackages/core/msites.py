@@ -317,9 +317,13 @@ class MewloSite(object):
         indent += 1
         outstr += " "*indent + "Site validation:\n"
         outstr += (self.validate()).dumps(indent+1)
+        outstr += "\n"
         outstr += self.sitesettings.dumps(indent+1)
+        outstr += "\n"
         outstr += self.dispatcher.dumps(indent+1)
+        outstr += "\n"
         outstr += self.registry.dumps(indent+1)
+        outstr += "\n"
         outstr += self.packagemanager.dumps(indent+1)
         outstr += " "*indent+"Routes:\n"
         outstr += self.routes.dumps(indent+1)
