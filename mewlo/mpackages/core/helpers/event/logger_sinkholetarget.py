@@ -1,5 +1,5 @@
 """
-logger_sinkhole.py
+logger_sinkholetarget.py
 This module defines a derived logging class that just swallows messages and does nothing.
 """
 

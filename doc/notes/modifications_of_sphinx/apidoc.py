@@ -89,8 +89,6 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
     """Build the text of the file and write the file."""
     package = path.split(root)[-1]
     text = format_heading(1, '%s Package' % package)
-
-
     # add each module in the package
     for py_file in py_files:
         if shall_skip(path.join(root, py_file)):
@@ -139,10 +137,6 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
 
 
         text += '\n'
-
-
-
-
 
     # build a list of directories that are packages (contain an INITPY file)
     subs = [sub for sub in subs if path.isfile(path.join(root, sub, INITPY))]
