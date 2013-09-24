@@ -6,6 +6,7 @@ This file contains classes to support web server requests
 
 # mewlo imports
 from mresponse import MewloResponse
+from mewlo.mpackages.core.mglobals import mewlosite
 
 # werkzeug imports
 from werkzeug.wrappers import Request
@@ -20,8 +21,6 @@ class MewloRequest(object):
     """
 
     def __init__(self):
-        # init
-        self.site = None
         # for now we use werkzeug to do our heavy lifting
         self.wreq = None
         # misc from request
@@ -44,15 +43,12 @@ class MewloRequest(object):
     def get_route_parsedargs(self):
         return self.parsedargs
 
-    def set_matched(self, route, site):
+    def set_matched(self, route):
         self.route = route
-        self.site = site
 
 
     def get_route(self):
         return self.route
-    def get_site(self):
-        return self.site
 
 
 
@@ -75,7 +71,7 @@ class MewloRequest(object):
         missingfields = { 'request': self }
         mevent.mergemissings(missingfields)
         # add it via site
-        self.site.logevent(mevent)
+        mewlosite().logevent(mevent)
 
 
 

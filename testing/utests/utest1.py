@@ -1,11 +1,12 @@
 # utest1.py
-# unit teests
+# This is a unit test module for mewlo
+#
+# It uses the python unittest framework to manage test running and reporting
 
 
 # mewlo imports
 
 # helper imports
-
 
 # python imports
 import unittest
@@ -17,7 +18,8 @@ import unittest
 class BasicSiteTest(unittest.TestCase):
 
 
-    def testOne(self):
+    def testSimpleSiteInstantiation(self):
+        # Instantiate a test site and see if there were any startup errors
         from testhelpers.testsite1.testsite1 import MewloSite_Test1
         #
         sitemanager = MewloSite_Test1.create_manager_and_simplesite()

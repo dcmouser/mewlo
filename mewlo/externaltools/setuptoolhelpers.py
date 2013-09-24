@@ -1,7 +1,7 @@
 """
 setuptoolshelpers.py
 
-This file defines helper functions for the mewlo setuptools based test plugin, which is used to test one way of autodiscovering plugins for mewlo.
+This file defines helper functions for writing mewlo setuptools based plugins.
 
 """
 

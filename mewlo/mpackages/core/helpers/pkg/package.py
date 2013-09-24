@@ -51,6 +51,11 @@ class Package(object):
         self.eventlist = EventList()
 
 
+    def create_packageobject(self, packageobj_class):
+        """Create an appropriate child package; subclasses will reimplement this to use their preferred child class."""
+        obj = packageobj_class(self)
+        return obj
+
 
     def load_infofile(self):
         """Load the info file (json data) for this package."""
@@ -142,7 +147,8 @@ class Package(object):
         # instantiate it
         try:
             packageobj_class = getattr(self.codemodule, packageobject_classname)
-            packageobj = packageobj_class(self)
+#            packageobj = packageobj_class(self)
+            packageobj = self.create_packageobject(packageobj_class)
         except:
             return EFailure("Package class object '{0}' was found in package module, but could not be instantiated.".format(packageobject_classname))
 

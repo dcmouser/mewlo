@@ -6,6 +6,7 @@ This file contains classes to support hierarchical settings associates with site
 
 # mewlo imports
 from mcontroller import MewloController
+from mewlo.mpackages.core.mglobals import mewlosite
 
 # helper imports
 from helpers.event.event import EFailure, EFailureExtend
@@ -178,21 +179,20 @@ class MewloRoute(object):
         return self.id
 
 
-    def prepare(self, parent, site, eventlist):
+    def prepare(self, parent, eventlist):
         """Prepare any info/caching; this is called before system startup by our parent site."""
 
         self.parent = parent
-        self.site = site
         # root propagation
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
         # prepare controller
         if (self.controller != None):
-            self.controller.prepare(self, site, eventlist)
+            self.controller.prepare(self, eventlist)
 
 
 
-    def process_request(self, request, site):
+    def process_request(self, request):
         """
         Called to see if we this route matches the request.
         :return: True if the request is for this site and we have set request.response
@@ -228,7 +228,7 @@ class MewloRoute(object):
 
         # ok, did we match? if so handle it
         if (didmatch):
-            failure = self.handle_request(request, site, argdict)
+            failure = self.handle_request(request, argdict)
 
         # return flag saying if we matched
         return didmatch
@@ -349,18 +349,18 @@ class MewloRoute(object):
 
 
 
-    def handle_request(self, request, site, argdict):
+    def handle_request(self, request, argdict):
         """We matched against this route, so WE will handle the request."""
 
         # any args in argdict that need to be FORCED?
         self.force_args(argdict)
 
         # update the request and record the matched site, parsed arg dictionary, etc
-        request.set_matched(self, site)
+        request.set_matched(self)
         request.set_route_parsedargs(argdict)
 
         # give site a chance to pre-handle the invocation
-        precall_failure = site.pre_runroute_callable(self, request)
+        precall_failure = mewlosite().pre_runroute_callable(self, request)
         if (precall_failure != None):
             return precall_failure
 
@@ -370,7 +370,7 @@ class MewloRoute(object):
             return call_failure
 
         # give site a chance to do something after we run the route
-        postcall_failure = site.post_runroute_callable(request)
+        postcall_failure = mewlosite().post_runroute_callable(request)
         if (postcall_failure != None):
             return postcall_failure
 
@@ -443,7 +443,6 @@ class MewloRouteGroup(object):
         self.controllerroot = controllerroot
         self.routes = []
         self.parent = None
-        self.site = None
         #
         if (routes != None):
             self.append(routes)
@@ -467,11 +466,11 @@ class MewloRouteGroup(object):
 
 
 
-    def process_request(self, request, site):
+    def process_request(self, request):
         """Walk through the site list and let each site take a chance at processing the request."""
         ishandled = False
         for route in self.routes:
-            ishandled = route.process_request(request, site)
+            ishandled = route.process_request(request)
             if (ishandled):
                 # ok this site handled it
                 break
@@ -479,17 +478,16 @@ class MewloRouteGroup(object):
 
 
 
-    def prepare(self, parent, site, eventlist):
+    def prepare(self, parent, eventlist):
         """Initial preparation, invoked by parent."""
 
         self.parent = parent
-        self.site = site
         # we want to propagage controllerroot from parent down
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
         # recursive prepare
         for route in self.routes:
-            route.prepare(self, site, eventlist)
+            route.prepare(self, eventlist)
 
 
 

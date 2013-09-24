@@ -2,7 +2,10 @@
 discoveryhelper.py
 
 This file defines some helper functions for the mewlo setuptools based test plugin, which is used to test one way of autodiscovering plugins for mewlo.
-We don't need this file if we choose to use the simple way of sepecify entry_points using 'moduleforpath'
+Note that they depend on using the __file__ macro, so this discoveryhelper.py module MUST be in the location where the mpackage source code is.
+
+IMPORTANT: We don't need this file if we choose to use the simple way of sepecify entry_points using 'moduleforpath'.
+In the test code I use, these functions are *not* called or used; they just exist as examples of alternate ways of telling the setuptools plugin which files are mpackage files.
 
 """
 

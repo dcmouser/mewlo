@@ -1,6 +1,6 @@
-# test1.py
-# It's useful to try invoking python test.py from this main demosites directory, in order to verify that relative importing works for the test site, regardless of whether it is run as main script or from an import
-
+# demosite1test.py
+# this just invokes the testsite1/testsite1 script which creates the test site and let's it run its default main()
+# this is NOT part of the test suite just a quick way of testing standalone site script execution
 
 # Mewlo imports
 from testhelpers.testsite1 import testsite1

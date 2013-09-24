@@ -5,11 +5,14 @@ They are custom subclasses from the pkg classes.
 """
 
 
+# mewlo imports
+from mewlo.mpackages.core.mglobals import mewlosite
+
 # helper imports
 from helpers.pkg.packageobject import PackageObject
 from helpers.pkg.packagemanager import PackageManager
 from helpers.pkg.package import Package
-
+from helpers.event.event import EventList, EError, EWarning, EDebug
 
 
 
@@ -28,6 +31,10 @@ class MewloPackage(Package):
         # parent constructor
         super(MewloPackage, self).__init__(packagemanager, filepath)
 
+    def create_packageobject(self, packageobj_class):
+        """Create an appropriate child package."""
+        obj = packageobj_class(self)
+        return obj
 
 
 
@@ -44,21 +51,17 @@ class MewloPackageManager(PackageManager):
     DefMewlo_Package_filepatternsuffix = 'mpackage'
 
 
-    def __init__(self, mewlosite):
+    def __init__(self):
         # parent constructor
         super(MewloPackageManager, self).__init__()
-        # set pointer to mewlosite
-        self.mewlosite = mewlosite
         # set file pattern of mewlo package files
         self.set_filepatternsuffix(self.DefMewlo_Package_filepatternsuffix)
         # set setuptools entrypoint groupname
         self.set_setuptools_entrypoint_groupname('mewlo.packages')
 
-
     def create_package(self, filepath):
         """Create an appropriate child package."""
         return MewloPackage(self, filepath)
-
 
 
 
@@ -76,14 +79,27 @@ class MewloPackageObject(PackageObject):
         # parent constructor
         super(MewloPackageObject, self).__init__(package)
 
-    def get_mewlosite(self):
-        # the mewlosite that the packageobject belongs to
-        return self.package.packagemanager.mewlosite
 
     def prepare(self):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # return failure if any, or None on success
         return None
+
+
+    def log_signalmessage(self, txt, receiverobject, id, message, request, source):
+        # helper function to log a message related to a signal
+        txtplus = txt + " ReceiverObject: "+str(receiverobject)+"; id: "+id+"; message: "+str(message)+"; source: "+str(source)+"; request: "+str(request)
+        # display message onscreen?
+        if (False):
+            print txtplus
+        # log it
+        txtevent = EDebug("Debug logging signal message: " + txtplus, flag_loc=True)
+        if (request != None):
+            request.logevent(txtevent)
+        else:
+            mewlosite().logevent(txtevent)
+
+
 
 
 

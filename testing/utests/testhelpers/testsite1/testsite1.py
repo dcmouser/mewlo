@@ -134,6 +134,7 @@ class MewloSite_Test1(MewloSite):
             import logging
             pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo', 'testlogout3.txt')
             logger.add_target(LogTarget_Python(pythonlogger))
+            # and then as a test, let's create an error message in this log
             pythonlogger.error("This is a manual python test error.")
 
 
@@ -146,10 +147,10 @@ class MewloSite_Test1(MewloSite):
         # ATTN: test, let's trigger a signale
         if (True):
             id = 'signal.site.pre_runroute'
-            message = {'route':route, 'request':request}
+            message = {'route':route}
             source = {'site':self, 'func':self.pre_runroute_callable}
             flag_collectresults = True
-            signalresults = self.dispatcher.broadcast(id, message, source, flag_collectresults)
+            signalresults = self.dispatcher.broadcast(id, message, request, source, flag_collectresults)
 
         return None
 
@@ -183,7 +184,7 @@ def main():
 
     # flags for commandline launch
     flag_debugsite = True
-    flag_runtests = False
+    flag_runtests = True
     flag_runserver = False
 
 

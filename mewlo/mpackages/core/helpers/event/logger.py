@@ -44,6 +44,9 @@ Some examples of things we will want to be able to easily do:
 """
 
 
+# mewlo imports
+from mewlo.mpackages.core.mglobals import mewlosite
+
 # helper imports
 from ..debugging import smart_dotted_idpath
 from ..exceptionplus import reraiseplus
@@ -57,9 +60,9 @@ class LogManager(object):
     LogManager - the main supervisor class that manages a collection of Loggers
     """
 
-    def __init__(self, site):
+    def __init__(self):
         self.loggers = []
-        self.set_parent(site)
+        self.set_parent(mewlosite())
 
 
 
@@ -67,8 +70,6 @@ class LogManager(object):
         self.parent = parent
     def get_parent(self):
         return self.parent
-    def get_site(self):
-        return self.parent.get_site()
 
 
 
@@ -111,8 +112,6 @@ class LogFilter(object):
         self.parent = parent
     def get_parent(self):
         return self.parent
-    def get_site(self):
-        return self.parent.get_site()
 
 
     def add_andfilter(self, filter):
@@ -178,13 +177,11 @@ class LogTarget(object):
         self.isenabled = True
 
 
-
     def set_parent(self, parent):
         self.parent = parent
     def get_parent(self):
         return self.parent
-    def get_site(self):
-        return self.parent.get_site()
+
 
     def set_isenabled(self, flagval):
         self.isenabled = flagval
@@ -223,16 +220,13 @@ class Logger(object):
         self.parent = None
 
 
-
     def set_parent(self, parent):
         self.parent = parent
     def get_parent(self):
         return self.parent
-    def get_site(self):
-        return self.parent.get_site()
+
     def get_id(self):
         return self.id
-
 
 
     def add_filter(self, filter):

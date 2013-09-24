@@ -58,6 +58,7 @@ class Event(object):
     DEF_ETYPE_error = 'ERROR'
     DEF_ETYPE_warning = 'WARNING'
     DEF_ETYPE_exception = 'EXCEPTION'
+    DEF_ETYPE_debug = 'DEBUG'
 
 
     def __init__(self, fields=None, defaultfields=None):
@@ -297,6 +298,10 @@ def EError(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
 def EWarning(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create warning type event"""
     return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_warning })
+
+def EDebug(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
+    """Helper function to create debug type event"""
+    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_debug })
 
 
 

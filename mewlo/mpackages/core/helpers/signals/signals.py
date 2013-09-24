@@ -42,7 +42,7 @@ class SignalReceiver(object):
         self.flag_returnsvalue = flag_returnsvalue
 
 
-    def does_want_signal(self, id, message, source):
+    def does_want_signal(self, id, message, request, source):
         # we will want to be more elaborate about this later, for now we check exact match of id
         if (id == self.idfilter):
             return True
@@ -51,21 +51,21 @@ class SignalReceiver(object):
         return False
 
 
-    def handle_signal(self, id, message, source, flag_collectresults):
+    def handle_signal(self, id, message, request, source, flag_collectresults):
         """
         The receiver MUST receive a call of the form:
             * callback(thisSignalReceiver, id, message, source)
         The self.flag_returnsvalue tells us whether we should expect the callback to return a tuple of (result,failure) format
-        For the format of id,message,source, see broadcast() function below.
+        For the format of id, message, source, see broadcast() function below.
         The thisSignalReceiver reference points to the receiver that was registered to receive the signal; it can be used to maintain and look up arbitrary data.
         """
         # invoke it and expect a tuple return
         if (flag_collectresults and self.flag_returnsvalue):
             # call and return
-            (result, failure) = self.callback(self, id, message, source)
+            (result, failure) = self.callback(self, id, message, request, source)
         else:
             # call and ignore return
-            self.callback(self, id, message, source)
+            self.callback(self, id, message, request, source)
             result = None
             failure = None
         # return result
@@ -190,7 +190,7 @@ class SignalDispatcher(object):
 
 
 
-    def broadcast(self, id, message, source, flag_collectresults = False):
+    def broadcast(self, id, message, request, source, flag_collectresults = False):
         """
         An object calls this function whenever it wants to broadcast a signal to all listeners.
         :id: Dotted string representing signal name
@@ -208,16 +208,15 @@ class SignalDispatcher(object):
         # we will eventually want to be much more efficient about this, and use a hash maybe for signal ids.
         # for now we will just iterate all
         for receiver in self.receivers:
-            if (receiver.does_want_signal(id, message, source)):
+            if (receiver.does_want_signal(id, message, request, source)):
                 # ok it matches, so deliver it
-                result, failure = receiver.handle_signal(id, message, source, flag_collectresults)
+                result, failure = receiver.handle_signal(id, message, request, source, flag_collectresults)
                 # collect results? if so add tuple to result list
                 if (flag_collectresults):
                     retv.append( (receiver, result, failure,) )
 
         # return
         return retv
-
 
 
 

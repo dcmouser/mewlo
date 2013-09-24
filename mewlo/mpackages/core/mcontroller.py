@@ -28,7 +28,6 @@ class MewloController(object):
         #
         self.callable = None
         self.parent = None
-        self.site = None
         #
         self.isenabled = False
         #
@@ -48,12 +47,11 @@ class MewloController(object):
         return self.isenabled
 
 
-    def prepare(self, parent, site, eventlist):
+    def prepare(self, parent, eventlist):
         """Do initial preparatory stuff on system startup."""
         # ATTN: todo - use eventlist to catch errors
 
         self.parent = parent
-        self.site = site
         # we want to propagage callableroot from parent down
         if (self.root == None):
             self.root = parent.get_controllerroot()

@@ -9,6 +9,7 @@ from mpackage import MewloPackageManager
 from mrequest import MewloRequest
 from mresponse import MewloResponse
 from mroutemanager import MewloRouteGroup
+from mewlo.mpackages.core.mglobals import mewlosite, set_mewlosite
 
 # helper imports
 from helpers.event.event import Event, EventList, EWarning, EError
@@ -29,6 +30,9 @@ from datetime import datetime, date, time
 
 
 
+
+
+
 class MewloSite(object):
     """
     The MewloSite class represents a single "site" that handles requests.
@@ -40,7 +44,8 @@ class MewloSite(object):
     DEF_CONFIGVAR_pkgdirimps_sitempackages = 'pkgdirimps_sitempackages'
     DEF_CONFIGVAR_controllerroot = 'controllerroot'
     DEF_CONFIGVAR_urlprefix = 'urlprefix'
-
+    #
+    DefMewlo_BasePackage_subdirlist = ['mpackages']
 
 
     def __init__(self, sitemodulename, sitename=None):
@@ -54,18 +59,22 @@ class MewloSite(object):
         # create site settings
         self.sitesettings = Settings()
         # collection of mewlo addon packages
-        self.packagemanager = MewloPackageManager(self)
+        self.packagemanager = MewloPackageManager()
         # route manager
         self.routes = MewloRouteGroup()
         # log manager
-        self.logmanager = LogManager(self)
+        self.logmanager = LogManager()
         # signal dispatcher
-        self.dispatcher = MewloSignalDispatcher(self)
+        self.dispatcher = MewloSignalDispatcher()
         # component registry
-        self.registry = MewloComponentRegistry(self)
+        self.registry = MewloComponentRegistry()
         #
         # record package of the site for relative imports
         self.sitemodulename = sitemodulename
+        #
+        # set global variable
+        set_mewlosite(self)
+
 
 
 
@@ -76,8 +85,20 @@ class MewloSite(object):
     def get_id(self):
         # generic get_id function used in lots of places to help display debug info
         return self.get_sitename()
-    def get_site(self):
-        return self
+
+
+    def get_installdir(self):
+        """Get the directory path of the mewlo installation from the mewlo package."""
+        import mewlo
+        path = os.path.dirname(os.path.realpath(mewlo.__file__))
+        return path
+
+
+    def get_root_package_directory_list(self):
+        """Return a list of directories in the base/install path of Mewlo, where addon packages should be scanned"""
+        basedir = self.get_installdir()
+        packagedirectories = [basedir + '/' + dir for dir in self.DefMewlo_BasePackage_subdirlist]
+        return packagedirectories
 
 
 
@@ -109,7 +130,7 @@ class MewloSite(object):
 
 
 
-    def get_package_directory_list(self):
+    def get_site_package_directory_list(self):
         """Return a list of absolute directory paths where (addon) packages should be scanned"""
 
         packagedirectories = []
@@ -184,11 +205,11 @@ class MewloSite(object):
 
     def prepare_routes(self, eventlist):
         """Walk all routes and compile/cache/update stuff."""
-        self.routes.prepare(self, self, eventlist)
+        self.routes.prepare(self, eventlist)
 
     def discover_packages(self, eventlist):
         """Discover packages """
-        packagedirectories = self.sitemanager.get_package_directory_list() + self.get_package_directory_list()
+        packagedirectories = self.get_root_package_directory_list() + self.get_site_package_directory_list()
         self.packagemanager.set_directories(packagedirectories)
         self.packagemanager.discover_packages()
 
@@ -269,7 +290,7 @@ class MewloSite(object):
         :return: True if the request is for this site and we have set request.response
         """
 
-        ishandled = self.routes.process_request(request, self)
+        ishandled = self.routes.process_request(request)
         return ishandled
 
 
@@ -345,9 +366,6 @@ class MewloSiteManager(object):
     When supporting multiple sites, the sites are completely independent of one another, and must have completely separate uri prefixes.  They share nothing.
     """
 
-    # class constants
-    DefMewlo_BasePackage_subdirlist = ['mpackages']
-
 
     def __init__(self):
         # the collection of sites that this manager takes care of
@@ -358,20 +376,6 @@ class MewloSiteManager(object):
     def add_site(self, site):
         """Add a site to our list of managed sites."""
         self.sites.append(site)
-
-
-    def get_installdir(self):
-        """Get the directory path of the mewlo installation from the mewlo package."""
-        import mewlo
-        path = os.path.dirname(os.path.realpath(mewlo.__file__))
-        return path
-
-
-    def get_package_directory_list(self):
-        """Return a list of directories in the base/install path of Mewlo, where addon packages should be scanned"""
-        basedir = self.get_installdir()
-        packagedirectories = [basedir + '/' + dir for dir in self.DefMewlo_BasePackage_subdirlist]
-        return packagedirectories
 
 
     def prepare(self):

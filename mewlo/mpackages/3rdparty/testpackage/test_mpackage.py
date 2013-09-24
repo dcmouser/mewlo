@@ -8,7 +8,8 @@ This file manages a test package
 from mewlo.mpackages.core.mpackage import MewloPackageObject
 from mewlo.mpackages.core.msignals import MewloSignalReceiver
 from mewlo.mpackages.core.mregistry import MewloComponent
-
+#
+from mewlo.mpackages.core.mglobals import mewlosite
 
 
 class Test_MewloPackage_Service(object):
@@ -45,42 +46,40 @@ class Test_MewloPackageObject(MewloPackageObject):
         # ATTN: as a test, let's set up a signal listener for ALL signals
         if (True):
             # create receiver
-            mewlosite = self.get_mewlosite()
             callback = self.signalcallback_test
             idfilter = '*'
             sourcefilter = None
             extra = None
             flag_returnsvalue = True
-            signalreceiver = MewloSignalReceiver(mewlosite, callback, idfilter, sourcefilter, extra, flag_returnsvalue)
+            signalreceiver = MewloSignalReceiver(callback, idfilter, sourcefilter, extra, flag_returnsvalue)
             # now register it with the site dispatcher
-            mewlosite.dispatcher.register_receiver(signalreceiver)
+            mewlosite().dispatcher.register_receiver(signalreceiver)
 
 
         # ATTN: as a test let's add an object to the registry
         if (True):
             # create component
-            mewlosite = self.get_mewlosite()
             features = {'name':'test_plugin_service', 'ctype':'m.c.service', 'ptype':'object'}
             # CREATE the object that we are registering (the component registry will hold on to it)
             obj = Test_MewloPackage_Service()
             # now create the component wrapper around it
-            component = MewloComponent(mewlosite, features, obj)
+            component = MewloComponent(features, obj)
             # now register it with the site registry
-            mewlosite.registry.register_component(component)
+            mewlosite().registry.register_component(component)
 
         return None
 
 
 
 
-    def signalcallback_test(self, receiverobject, id, message, source):
+    def signalcallback_test(self, receiverobject, id, message, request, source):
         # we receive a signal callback
         # ATTN: debug test
-        print "ATTN:DEBUG - From within Test_MewloPackageObject, received a signal callback.  ReceiverObject: "+str(receiverobject)+"; id: "+id+"; message: "+str(message)+"; source: "+str(source)+"\n"
+        msg = "ATTN:DEBUG - From within Test_MewloPackageObject, received a signal callback."
+        # log it
+        self.log_signalmessage(msg, receiverobject, id, message, request, source)
         # return (result, failure)
         return (None, None)
-
-
 
 
 

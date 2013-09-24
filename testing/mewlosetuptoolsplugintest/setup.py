@@ -74,9 +74,9 @@ setup (
         'mewlo.packages':
             [
             # we could pass a list of explicit info file paths using a helper function
-            #'infofiles = mewlosetuptoolsplugintest.discoveryhelper:get_infofiles',
+            #'infofiles = mewlosetuptoolsplugintest.setuptools_discoveryhelper:get_infofiles',
             # or we could also pass a list of directories, again using a helper function
-            #'infofiledirs = mewlosetuptoolsplugintest.discoveryhelper:get_infofiledirs',
+            #'infofiledirs = mewlosetuptoolsplugintest.setuptools_discoveryhelper:get_infofiledirs',
 
             # or the simplest way requires no helper functions, just specify a module,
             # and the directory where that module lives (and its subdirs) will be scanned for json info files.

@@ -1,0 +1,19 @@
+//---------------------------------------------------------------------------
+9/24/13
+
+I'm not happy about how the way we send messages to the logging system, and the need to carry around the site and request.
+And the way that events (EDebug, EWarning) are created via macro-like function.
+See Event class.
+
+The Event class itself is not bad per se -- it's more how we invoke the proper logger.
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+9/24/13
+
+There is some ugly stuff involving references to parents in get_parent and get_site called (see loggers).
+
+Sites use a prepare statement to walk hierarchy of objects -- not sure if this is avoidable/ideal.
+//---------------------------------------------------------------------------

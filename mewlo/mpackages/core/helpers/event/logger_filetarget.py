@@ -78,7 +78,7 @@ class LogTarget_File(LogTarget):
 
     def write(self, logmessage):
         """Write out the logmessage to the file."""
-        # ensure file is open. this will throw exception if there is an error opening the file
+        # ensure file is open. this will throw exception if there is an error opening the file, and caller will handle exception by disabling us, etc.
         filep = self.get_openfile()
         # get log line as string
         outline = logmessage.as_logline()
