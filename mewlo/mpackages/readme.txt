@@ -1,0 +1,1 @@
+The mpackages directory (package) organizes all mewlo code into several main subdirectories depending on whether it is core coder or extensions.

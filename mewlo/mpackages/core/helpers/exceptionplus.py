@@ -69,7 +69,10 @@ class ExceptionPlus(Exception):
     def __str__(self):
         # display our custom message created during construction, AND the error for the original exception
         retstr = str(self.origexception)
-        retstr += " [" + super(ExceptionPlus, self).__str__() + "]"
+
+        # ATTN 9/23/13 - not sure about this
+        retstr += " [" + self.get_supers_string_withnewlines() + "]"
+
         # add extr messages
         if (self.extramsg != None):
             retstr += ". "
@@ -78,7 +81,11 @@ class ExceptionPlus(Exception):
         return retstr
 
 
-
+    def get_supers_string_withnewlines(self):
+        # we want the parent exception text, and fixup newlines
+        retstr = super(ExceptionPlus, self).__str__()
+        retstr = retstr.replace('\\n','\n')
+        return retstr
 
 
 

@@ -105,8 +105,12 @@ def compute_traceback_astext_fromlist(tblist):
     #for file, lineno, function, text in traceback.extract_tb(traceback_object):
     for file, lineno, function, text in tblist:
         if (retstr != ''):
-            retstr += "; "
+            # ATTN: here is where we would like to add a newline but i can't figure out how to get it to display a newline when printing this
+            # see __str__ in exceptionplus.py
+            retstr += ";\n"
+            #retstr += ";"
         retstr += "File '{0}' at line #{1} in function '{2}': {3}".format(file,lineno,function,text)
+    #print "**************** TEST EXP = "+retstr
     return retstr
 
 

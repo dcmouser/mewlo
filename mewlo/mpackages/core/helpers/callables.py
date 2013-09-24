@@ -174,7 +174,7 @@ def _UNUSED_do_importmodule_bypath_version1(path):
     try:
         dynamicmodule = imp.load_source(modulename, path)
     except Exception as exp:
-        return None, EException("failed to import module by path", exp=exp)
+        return None, EException("failed to import module by path ("+path+")", exp=exp)
 
     return dynamicmodule, None
 
@@ -199,7 +199,7 @@ def _UNUSED_do_importmodule_bypath_version2(path):
         (file, filename, data) = imp.find_module(name, [dirpath])
         dynamicmodule = imp.load_module(full_name, file, filename, data)
     except Exception as exp:
-        return None, EException("failed to import module by path", exp=exp)
+        return None, EException("failed to import module by path ("+path+")", exp=exp)
 
     # return it
     return dynamicmodule, None
@@ -227,7 +227,7 @@ def do_importmodule_bypath_version3(path):
         # do the import
         dynamicmodule = __import__(name)
     except Exception as exp:
-        return None, EException("Failed to import module by path.", exp=exp)
+        return None, EException("Failed to import module by path ("+path+").", exp=exp)
 
     # reset sys path
     sys.path = oldpath
