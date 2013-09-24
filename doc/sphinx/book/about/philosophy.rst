@@ -6,6 +6,7 @@ It may be valuable to come up with a coherent philosophical approach to design d
 
    * Prefer making maintenance and modification easy over making initial construction fast+easy; do not waste too much time on scaffolding utilities.
    * Be opinionated and enforce conventions that promote readability and predictability over freedom to do things idiosyncratically.
+   * It's all about maintenance -- everything needs to be designed to ease maintenance of data and of code.
    * Prefer verbose names and code that retains clarity over brevity.
    * Have one clear/true/right way to do something over allowing something to be done in a dozen different ways.
    * Prefer strict behavior and throw clear errors, rather than making default assumptions and trying to be "clever" about what user wants.  When in doubt throw an error, don't try to guess what user wants.

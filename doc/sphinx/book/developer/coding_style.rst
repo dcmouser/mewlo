@@ -45,6 +45,13 @@ File formats:
     * The extensions of files should match their format -- do not use a custom file extension to indicate purpose; to indicate purpose use a suffix in filename (e.g. "mytest_mpackage.json" uses suffix "_mpackage" to denote it is a package file).
 
 
+GUI interface:
+
+    * Any GUI or front end pages should be lightweight things that hand off work to back end functions that are not reliant on GUI structures.
+    * That is, all code should be organized and structured for non-GUI processing, and should be easily scriptable.
+    * All output from functions should not assume that they will be displaying to an interactive screen but may be emailed, logged, etc.
+
+
 Quotes:
 
     * See http://stackoverflow.com/questions/56011/single-quotes-vs-double-quotes-in-python
