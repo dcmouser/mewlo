@@ -148,7 +148,7 @@ class MewloSite_Test1(MewloSite):
         if (True):
             id = 'signal.site.pre_runroute'
             message = {'route':route}
-            source = {'site':self, 'func':self.pre_runroute_callable}
+            source = None
             flag_collectresults = True
             signalresults = self.dispatcher.broadcast(id, message, request, source, flag_collectresults)
 

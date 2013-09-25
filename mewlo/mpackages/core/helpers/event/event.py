@@ -42,6 +42,7 @@ from ..debugging import smart_dotted_idpath, compute_traceback_astext, calc_call
 
 # python imports
 import sys
+import logging
 
 
 
@@ -54,11 +55,25 @@ class Event(object):
     #
     DEF_SAFE_FIELDNAME_LIST = ['type', 'msg', 'exp', 'request', 'traceback', 'statuscode', 'loc']
     #
-    DEF_ETYPE_failure = 'FAILURE'
-    DEF_ETYPE_error = 'ERROR'
-    DEF_ETYPE_warning = 'WARNING'
-    DEF_ETYPE_exception = 'EXCEPTION'
     DEF_ETYPE_debug = 'DEBUG'
+    DEF_ETYPE_info = 'INFO'
+    DEF_ETYPE_warning = 'WARNING'
+    DEF_ETYPE_error = 'ERROR'
+    DEF_ETYPE_critical = 'CRITICAL'
+    #
+    DEF_ETYPE_failure = 'FAILURE'
+    DEF_ETYPE_exception = 'EXCEPTION'
+    #
+    DEF_ETYPE_PYTHONLOGGING_MAP = {
+        'DEBUG' : logging.DEBUG,
+        'INFO' : logging.INFO,
+        'WARNING' : logging.WARNING,
+        'ERROR' : logging.DEBUG,
+        'CRITICAL' : logging.ERROR,
+        'FAILURE' : logging.ERROR,
+        'EXCEPTION' : logging.ERROR,
+        }
+
 
 
     def __init__(self, fields=None, defaultfields=None):
@@ -154,6 +169,26 @@ class Event(object):
         ATTN: we probably don't want the EVENT to decide this -- rather the log target, etc.
         """
         return self.stringify()
+
+
+    def calc_pythonlogginglevel(self):
+        """
+        We sometimes want to write out an event as a log message to python logger; in that case we need a logging level.
+        Python logging levels are:
+            DEBUG 	Detailed information, typically of interest only when diagnosing problems.
+            INFO 	Confirmation that things are working as expected.
+            WARNING 	An indication that something unexpected happened, or indicative of some problem in the near future (e.g. ?disk space low?). The software is still working as expected.
+            ERROR 	Due to a more serious problem, the software has not been able to perform some function.
+            CRITICAL 	A serious error, indicating that the program itself may be unable to continue running.
+        """
+        etype = self.getfield('type')
+        if (etype in Event.DEF_ETYPE_PYTHONLOGGING_MAP):
+            pythonlevel = Event.DEF_ETYPE_PYTHONLOGGING_MAP[etype]
+        else:
+            pythonlevel = Logging.Error
+        return pythonlevel
+
+
 
 
 
@@ -302,6 +337,11 @@ def EWarning(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
 def EDebug(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create debug type event"""
     return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_debug })
+
+def EInfo(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
+    """Helper function to create debug type event"""
+    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_info })
+
 
 
 

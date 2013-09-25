@@ -94,10 +94,7 @@ class MewloPackageObject(PackageObject):
             print txtplus
         # log it
         txtevent = EDebug("Debug logging signal message: " + txtplus, flag_loc=True)
-        if (request != None):
-            request.logevent(txtevent)
-        else:
-            mewlosite().logevent(txtevent)
+        mewlosite().logevent(txtevent, request)
 
 
 

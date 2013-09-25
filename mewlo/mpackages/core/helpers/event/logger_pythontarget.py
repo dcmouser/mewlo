@@ -55,7 +55,7 @@ class LogTarget_Python(LogTarget):
         """
 
         # values from the log event
-        level = logmessage.getfield('level', logging.ERROR)
+        level = logmessage.calc_pythonlogginglevel()
         msg = logmessage.getfield('msg', "")
         loc = logmessage.getfield('loc', None)
 
@@ -74,8 +74,6 @@ class LogTarget_Python(LogTarget):
             logrecord = self.logger.makeRecord(loggername, level, pathname, lineno, msg, args, exc_info, func)
             # log record
             self.logger.handle(logrecord)
-
-
 
 
 

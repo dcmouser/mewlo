@@ -67,11 +67,8 @@ class MewloRequest(object):
 
     def logevent(self, mevent):
         """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
-        # add request field (if it wasn't already set in mevent)
-        missingfields = { 'request': self }
-        mevent.mergemissings(missingfields)
         # add it via site
-        mewlosite().logevent(mevent)
+        mewlosite().logevent(mevent,request = self)
 
 
 

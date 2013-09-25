@@ -62,23 +62,13 @@ class LogManager(object):
 
     def __init__(self):
         self.loggers = []
-        self.set_parent(mewlosite())
-
-
-
-    def set_parent(self, parent):
-        self.parent = parent
-    def get_parent(self):
-        return self.parent
-
 
 
     def add_logger(self, logger):
         """Just add a child logger to our collection."""
 
         self.loggers.append(logger)
-        # let logger know it's parent
-        logger.set_parent(self)
+
 
 
 
@@ -104,23 +94,13 @@ class LogFilter(object):
 
     def __init__(self):
         self.andfilters = []
-        self.parent = None
 
-
-
-    def set_parent(self, parent):
-        self.parent = parent
-    def get_parent(self):
-        return self.parent
 
 
     def add_andfilter(self, filter):
         """Add a chained filter which is treated like an AND."""
 
         self.andfilters.append(filter)
-        # let filter know it's parent
-        filter.set_parent(self)
-
 
 
     def doesmatch_full(self, logmessage):
@@ -173,14 +153,7 @@ class LogTarget(object):
     """
 
     def __init__(self):
-        self.parent = None
         self.isenabled = True
-
-
-    def set_parent(self, parent):
-        self.parent = parent
-    def get_parent(self):
-        return self.parent
 
 
     def set_isenabled(self, flagval):
@@ -216,14 +189,6 @@ class Logger(object):
         self.filters = []
         self.targets = []
         self.deferredmessages = []
-        #
-        self.parent = None
-
-
-    def set_parent(self, parent):
-        self.parent = parent
-    def get_parent(self):
-        return self.parent
 
     def get_id(self):
         return self.id
@@ -232,16 +197,13 @@ class Logger(object):
     def add_filter(self, filter):
         """Append a filter.  Multiple appended filters are treated like OR conditions (you can simulate AND by chaining filters together."""
         self.filters.append(filter)
-        # let filter know it's parent logger
-        filter.set_parent(self)
 
 
 
     def add_target(self, target):
         """Append a target.  Targets will be run when the filters match. Multiple appended targets will be run in sequence."""
         self.targets.append(target)
-        # let target know it's parent logger
-        target.set_parent(self)
+
 
 
 

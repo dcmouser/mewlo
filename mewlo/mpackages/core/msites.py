@@ -303,14 +303,20 @@ class MewloSite(object):
 
 
 
-    def logevent(self, mevent):
+    def logevent(self, mevent, request = None):
         """Shortcut to add a log message from an event/failure."""
+        # add request field (if it wasn't already set in mevent)
+        if (request != None):
+            missingfields = { 'request': self }
+            mevent.mergemissings(missingfields)
+        # log it
         self.logmanager.process(mevent)
 
-    def logevents(self, mevents):
+
+    def logevents(self, mevents, request = None):
         """Shortcut to add a log message from a *possible* iterable of events."""
         for mevent in mevents:
-            self.logevent(mevent)
+            self.logevent(mevent, request)
 
 
 
@@ -434,6 +440,14 @@ class MewloSiteManager(object):
 
         # walk through the site list and let each site take a chance at processing the request
         for site in self.sites:
+            # in an early version of mewlo, we used no globals and passed the site around through function calls
+            # however, because we don't practically expect to be handling multiple sites, and to ease code cleanliness,
+            # we now use a site global and expect to process only one request at a time.
+            # We can however, kludge our way to supporting multiple sites under the manager by setting the global per request
+            # ATTN: TODO - use thread locals for this?
+            # Set global variable indicating which site is processing this request
+            set_mewlosite(site)
+            #
             ishandled = site.process_request(request)
             if (ishandled):
                 # ok this site handled it
