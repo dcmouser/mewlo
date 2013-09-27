@@ -2,10 +2,26 @@
 signals.py
 This module contains classes and functions for the signal sending/receiving system.
 
+The Signal system implements a kind of slot-filler, subscriber-receiver model, so that we can have many-to-many signal sending without senders needing to know about recipients.
+
 Here's how it works:
 
-Arbitrary objects can broadcast signals (they send them to the dispatcher).
+A SignalDispatcher object is the central manager of all signals incoming and outgoing.
+
+Arbitrary objects can register (with the dispatcher) in order to broadcast signals (they send them to the dispatcher);
+ note that registering in this case does little -- ATTN:TODO add more about why to do this?
+
 Arbitrary objects can register (with the dispatcher) in order to subscribe to receive signals matching certain criteria.
+
+To receive messages, one creates a SignalReceiver object (essentially a wrapper) which specifies a callback function,
+ a filter to define which singals to send, and additional parameters to pass to the callback function.
+
+To broadcast a signal message, one simply calls the dispatcher broadcast function and provides:
+    * id - a dotted path string representing the signal's name; the most common scenario will be when receivers match on exact signal message names.
+    * message - arbitrary object representing the message contents; convention will dictate the type and contents.
+    * request - reference to the current request being processed (useful to have for various things like logging)
+    * source - a dotted path string representing the signal's "source"; convention may dictate use; can be useful as another field for filtering by recipients.
+    * flag_collectresults - if True then a list collecting the the return values from the recipients will be returned; list is of tuples (returnval, failure)
 
 There are some details of importance:
 
@@ -14,7 +30,10 @@ There are some details of importance:
     * But this puts more burden on subscribers to be careful processing passed signal parameters
     * We favor simplicity and avoid magic stuff that happens automatically; we do not auto-register signals.
     * The closest similar python implementation can be found in Django signals
-    * We want to be as efficient as possible when we can be by
+    * We want to be as efficient as possible when we can be.
+
+
+ATTN:TODO - There is a lot more to implement here.
 
 """
 

@@ -2,6 +2,27 @@
 registry.py
 This module contains classes and functions for managing a component/service registry.
 
+Here's how it works:
+
+A ComponentRegistry object holds a list of "Component" objects.
+A Component object is simply a thin wrapper around an arbitrary object, annotating it with a "feature
+ dictionary.
+This feature dictionary is then used by consumers of the ComponentRegistry, so that they may ask the
+ ComponentRegistry to look up a component that possesses certain features.
+Everything else, from the class of the wrapped Component objects to the kinds of features, is all handled by convention.
+
+This is a very minimalist system for registering objects and making it possible for them to be discovered by other parts of code.
+
+For an alternate way of supporting discovery of objects, one could use the Signal system.
+
+Some fields for the Component "feature" dictionary:
+    * 'name' - should always be specified to aid in debugging (need not be unique)
+    * 'version' - integer numeric version useful for filtering and compatibility checks
+    * ATTN: TODO add more
+
+How to use the feature filter to look up matching components:
+    * ATTN: TODO - We use a generic filtering system (see does_dict_filter_match(); it's also used for log messages).
+
 """
 
 
@@ -25,10 +46,14 @@ class Component(object):
         self.features = features
         self.obj = obj
 
+    def get_features(self):
+        """We use a function here in case subclass wants to override."""
+        return self.features
+
 
     def does_match_feature_filter(self, feature_filter):
         """Return True if feature_filter matches features of the component."""
-        return does_dict_filter_match(self.features, feature_filter)
+        return does_dict_filter_match(self.get_features(), feature_filter)
 
 
 
@@ -36,7 +61,7 @@ class Component(object):
         """Debug information."""
         outstr = " "*indent + "Component (" + self.__class__.__name__  + ") reporting in.\n"
         indent += 1
-        outstr += " "*indent + "features: "+str(self.features)+"\n"
+        outstr += " "*indent + "features: "+str(self.get_features())+"\n"
         outstr += " "*indent + "obj: "+str(self.obj)+"\n"
         if (hasattr(self.obj,'dumps')):
             outstr += self.obj.dumps(indent+1)

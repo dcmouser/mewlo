@@ -22,6 +22,16 @@ class PackageObject(object):
         pass
 
 
+    def startup(self):
+        """Do any startup stuff."""
+        pass
+
+    def shutdown(self):
+        """Do any shutdown stuff."""
+        pass
+
+
+
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "Base PackageObject reporting in.\n"

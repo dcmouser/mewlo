@@ -58,7 +58,7 @@ class LogTarget_File(LogTarget):
         if (self.filep == None):
             return
         # close file and clear it
-        filep.close()
+        self.filep.close()
         self.filep = None
 
 
@@ -87,6 +87,12 @@ class LogTarget_File(LogTarget):
         # flush file right away so file is written before closing
         filep.flush()
 
+
+
+    def shutdown(self):
+        """Shutdown everything, we are about to exit."""
+        self.closefile_ifopen()
+        super(LogTarget_File,self).shutdown()
 
 
 

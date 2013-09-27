@@ -1,16 +1,21 @@
 """
 core_mpackage.py
-This file manages the core Mewlo classes
+This file "manages" the core Mewlo classes.
+
+By "manage" we mean the following:
+
+All code in mewlo, both the core code, and any 3rd party addons/plugins/extensions, is considered to be "managed" by a MewloPackage.
+The MewloPackage provides information about the version of the code release and associated information suitable for doing online update checking,
+ as well as author information, and dependency information between packages, etc.
+
+So this Core_MewloPackageObject is the "manager" or owner of all core mewlo code.
+It doesn't actually *do* anything -- but does describe and version the core code.
+
 """
 
 
 
 # mewlo imports
-# ATTN: 8/13/13 some of the ways we attempt to dynamically import our packages fails on relative imports..
-# but why? i think because the path is not being added when the file is dynamically imported.
-# this isn't a problem for core but it may very well be a problem for dynamically loaded plugin extensions that want to import relative files
-# ATTN: TODO look into this -- it was working fine relative until we tried running unit tests
-
 from mpackage import MewloPackageObject
 
 

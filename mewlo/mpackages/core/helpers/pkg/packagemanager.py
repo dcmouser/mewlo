@@ -1,6 +1,22 @@
 """
 packagemanager.py
 This file supports discovery and loading of modules by path and filename pattern
+
+Note that our term "package" here is not referring to python packages (directories).
+
+The package system here is made up of 3 classes:
+
+    * PackageManager - holds a list of Packages.
+    * Package - a thin wrapper around a package object.
+    * PackageObject - the object that will be subclassed to do real work.
+
+The Package is the thing that is autocreated on discovery of a .json definition file.
+It will be instantiated even if this extension is disabled.
+
+The PackageObject is only instantiated when the extension is enabled.
+
+When coding a new plugin/extension, ONLY a derived PackageObject class would be created.
+
 """
 
 
@@ -88,6 +104,17 @@ class PackageManager(object):
         """Actually import code modules and instantiate package objects."""
         self.load_package_codemodules()
         self.prepare_packages()
+
+
+    def startup_packages(self):
+        """Startup the packages."""
+        for package in self.packages:
+            package.startup()
+
+    def shutdown_packages(self):
+        """Shutdown the packages."""
+        for package in self.packages:
+            package.shutdown()
 
 
 

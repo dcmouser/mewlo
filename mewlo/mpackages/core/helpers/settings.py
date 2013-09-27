@@ -1,6 +1,11 @@
 """
 settings.py
-This file contains classes to support hierarchical settings
+This file contains classes to support hierarchical settings.
+
+We really don't do anything fancy here -- in fact some of it is a bit ugly and could use rewriting.
+
+Essentially we are just maintaining a hierarchical dictionary with some support functions to ease access.
+
 """
 
 

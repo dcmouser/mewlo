@@ -45,11 +45,24 @@ class MewloSite(object):
     DEF_CONFIGVAR_controllerroot = 'controllerroot'
     DEF_CONFIGVAR_urlprefix = 'urlprefix'
     #
-    DefMewlo_BasePackage_subdirlist = ['mpackages']
-
+    DEF_Mewlo_BasePackage_subdirlist = ['mpackages']
+    # so others can interogate state of site and tell when it is shutting down, etc
+    DEF_SITESTATE_INITIALIZE_START = 'initializing'
+    DEF_SITESTATE_INITIALIZE_END = 'initialized'
+    DEF_SITESTATE_PREPARE_START = 'preparing'
+    DEF_SITESTATE_PREPARE_END = 'prepared'
+    DEF_SITESTATE_STARTUP_START = 'starting'
+    DEF_SITESTATE_STARTUP_END = 'started'
+    DEF_SITESTATE_SHUTDOWN_START = 'shuttingdown'
+    DEF_SITESTATE_SHUTDOWN_END = 'shutdown'
 
     def __init__(self, sitemodulename, sitename=None):
         # initialize settings
+        self.state = None
+        self.set_state(self.DEF_SITESTATE_INITIALIZE_START)
+        # set global variable
+        set_mewlosite(self)
+        #
         if (sitename == None):
             sitename = self.__class__.__name__
         self.sitename = sitename
@@ -72,10 +85,13 @@ class MewloSite(object):
         # record package of the site for relative imports
         self.sitemodulename = sitemodulename
         #
-        # set global variable
-        set_mewlosite(self)
+        # update state
+        self.set_state(self.DEF_SITESTATE_INITIALIZE_END)
 
 
+    def set_state(self, stateval):
+        # print "ATTN: DEBUG SITE IS ENTERING STATE: "+stateval
+        self.state = stateval
 
 
     def get_controllerroot(self):
@@ -97,7 +113,7 @@ class MewloSite(object):
     def get_root_package_directory_list(self):
         """Return a list of directories in the base/install path of Mewlo, where addon packages should be scanned"""
         basedir = self.get_installdir()
-        packagedirectories = [basedir + '/' + dir for dir in self.DefMewlo_BasePackage_subdirlist]
+        packagedirectories = [basedir + '/' + dir for dir in self.DEF_Mewlo_BasePackage_subdirlist]
         return packagedirectories
 
 
@@ -173,6 +189,9 @@ class MewloSite(object):
         It is critical that this function get called prior to running the system.
         """
 
+        # update state
+        self.set_state(self.DEF_SITESTATE_PREPARE_START)
+
         # we log errors/warnings to an eventlist and return it; either one we are passed or we create a new one if needed
         if (eventlist == None):
             eventlist = EventList()
@@ -183,20 +202,52 @@ class MewloSite(object):
         # before we start preparing -- we validate the site settings which will just log some warnings/errors if any found
         self.validate(eventlist)
 
-        # misc. stuff
+        # settings
         self.prepare_settings(eventlist)
-        #
+
+        # packages
         self.discover_packages(eventlist)
         self.loadinfos_packages(eventlist)
         self.instantiate_packages(eventlist)
-        #
+
+        # routes
         self.prepare_routes(eventlist)
-        #
+
         # ATTN: TEST 8/11/13 - test log the events
         if (True):
             self.logevents(eventlist)
+
+        # update state
+        self.set_state(self.DEF_SITESTATE_PREPARE_END)
         #
         return eventlist
+
+
+
+
+    def startup(self, eventlist = None):
+        """Startup everything."""
+        # update state
+        self.set_state(self.DEF_SITESTATE_STARTUP_START)
+        self.startup_packages(eventlist)
+        # update state
+        self.set_state(self.DEF_SITESTATE_STARTUP_END)
+        #
+        return eventlist
+
+    def shutdown(self, eventlist = None):
+        """Shutdown everything."""
+        # update state
+        self.set_state(self.DEF_SITESTATE_SHUTDOWN_START)
+        # shutdown packages
+        self.shutdown_packages(eventlist)
+        # shutdown log system
+        self.logmanager.shutdown()
+        # update state
+        self.set_state(self.DEF_SITESTATE_SHUTDOWN_END)
+        # done
+        return eventlist
+
 
 
     def prepare_settings(self, eventlist):
@@ -221,6 +272,12 @@ class MewloSite(object):
         """Load and instantiate packages"""
         self.packagemanager.instantiate_packages()
 
+    def startup_packages(self, eventlist):
+        """Startup packages"""
+        self.packagemanager.startup_packages()
+    def shutdown_packages(self, eventlist):
+        """Startup packages"""
+        self.packagemanager.shutdown_packages()
 
 
     def validate(self, eventlist=None):
@@ -390,6 +447,22 @@ class MewloSiteManager(object):
             # prepare the site
             site.prepare(self.prepeventlist)
         return self.prepeventlist
+
+
+    def startup(self):
+        """Ask all children sites to 'startup'."""
+        for site in self.sites:
+            # prepare the site
+            site.startup(self.prepeventlist)
+        return self.prepeventlist
+
+    def shutdown(self):
+        """Ask all children sites to 'shutdown'."""
+        for site in self.sites:
+            # prepare the site
+            site.shutdown(self.prepeventlist)
+        return self.prepeventlist
+
 
 
     def debugmessage(self, astr):

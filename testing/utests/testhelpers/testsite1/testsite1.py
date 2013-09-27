@@ -203,6 +203,9 @@ def main():
     if (flag_debugsite):
         print sitemanager.dumps()
 
+    # startup sites - we do this before processing any requests
+    sitemanager.startup()
+
     # run tests?
     if (flag_runtests):
         # simulate some simple requests
@@ -212,8 +215,11 @@ def main():
 
     # start serving the web server and process all web requests
     if (flag_runserver):
+        # now process web requests
         sitemanager.create_and_start_webserver_wsgiref()
 
+    # shutdown sites - we do this before exiting
+    sitemanager.shutdown()
 
 
 if __name__ == '__main__':

@@ -70,6 +70,10 @@ class LogManager(object):
         self.loggers.append(logger)
 
 
+    def shutdown(self):
+        """Shutdown everything, we are about to exit."""
+        for logger in self.loggers:
+            logger.shutdown()
 
 
     def process(self, logmessage):
@@ -162,6 +166,10 @@ class LogTarget(object):
         return self.isenabled
 
 
+    def shutdown(self):
+        """Shutdown everything, we are about to exit."""
+        pass
+
     def process(self, logmessage):
         """Process the target action (write to file, save to database, emailing, etc.).  This should be overridden by subclass to do actual work."""
         print "Activating base LogTarget action, which is to write log message to screen: " + logmessage.dumps() + "\n"
@@ -204,6 +212,16 @@ class Logger(object):
         """Append a target.  Targets will be run when the filters match. Multiple appended targets will be run in sequence."""
         self.targets.append(target)
 
+
+
+    def shutdown(self):
+        """Shutdown everything, we are about to exit."""
+        for target in self.targets:
+            # mark it as disabled so we won't call it again after this
+            # note we do this here rather than in target class to avoid potential that derived target will forget to call this
+            target.set_isenabled(False)
+            # shut it down
+            target.shutdown()
 
 
 

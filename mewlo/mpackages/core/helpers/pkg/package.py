@@ -191,6 +191,16 @@ class Package(object):
 
 
 
+    def startup(self):
+        """Do any startup stuff."""
+        if (self.packageobject!=None):
+            self.packageobject.startup()
+    def shutdown(self):
+        """Do any shutdown stuff."""
+        if (self.packageobject!=None):
+            self.packageobject.shutdown()
+
+
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
