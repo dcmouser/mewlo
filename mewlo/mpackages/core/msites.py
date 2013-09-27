@@ -49,8 +49,6 @@ class MewloSite(object):
     # so others can interogate state of site and tell when it is shutting down, etc
     DEF_SITESTATE_INITIALIZE_START = 'initializing'
     DEF_SITESTATE_INITIALIZE_END = 'initialized'
-    DEF_SITESTATE_PREPARE_START = 'preparing'
-    DEF_SITESTATE_PREPARE_END = 'prepared'
     DEF_SITESTATE_STARTUP_START = 'starting'
     DEF_SITESTATE_STARTUP_END = 'started'
     DEF_SITESTATE_SHUTDOWN_START = 'shuttingdown'
@@ -124,14 +122,14 @@ class MewloSite(object):
 
 
 
-    def create_and_prepare_standalone_sitemanager(self):
-        """Create and prepare a single-site sitemananger specifically for this site"""
+    def create_standalone_sitemanager(self):
+        """Create and startup a single-site sitemananger specifically for this site"""
         # create site manager
         mysitemanager = MewloSiteManager()
         # set it to be our site manager
         self.set_and_add_sitemanager(mysitemanager)
-        # ask it to prepare for work
-        eventlist = self.sitemanager.prepare()
+        # ask it to startup for work
+        eventlist = self.sitemanager.startup()
         # return the site manager created
         return self.sitemanager
 
@@ -183,14 +181,14 @@ class MewloSite(object):
 
 
 
-    def prepare(self, eventlist = None):
+    def startup(self, eventlist = None):
         """
         Do preparatory stuff after settings have been set.
         It is critical that this function get called prior to running the system.
         """
 
         # update state
-        self.set_state(self.DEF_SITESTATE_PREPARE_START)
+        self.set_state(self.DEF_SITESTATE_STARTUP_START)
 
         # we log errors/warnings to an eventlist and return it; either one we are passed or we create a new one if needed
         if (eventlist == None):
@@ -199,48 +197,50 @@ class MewloSite(object):
         # set the context of the eventlist to this site so all added events properly denote they are from our site
         #eventlist.set_context("Preparing site " + self.get_sitename())
 
-        # before we start preparing -- we validate the site settings which will just log some warnings/errors if any found
+        # any settings caching or other pre-preparation we need to do
+        self.preprocess_settings(eventlist)
+
+        # validate site and settings first to make sure all is good
         self.validate(eventlist)
 
-        # settings
-        self.prepare_settings(eventlist)
 
+
+        # startup our helpers
+        # startup log system
+        self.startup_logmanager(eventlist)
+        # startup dispatcher
+        self.dispatcher.startup(eventlist)
+        # startup registry
+        self.registry.startup(eventlist)
         # packages
-        self.discover_packages(eventlist)
-        self.loadinfos_packages(eventlist)
-        self.instantiate_packages(eventlist)
-
+        self.startup_packagemanager(eventlist)
         # routes
-        self.prepare_routes(eventlist)
+        self.startup_routes(eventlist)
 
-        # ATTN: TEST 8/11/13 - test log the events
-        if (True):
-            self.logevents(eventlist)
+        # log all startup events
+        self.logevents(eventlist)
 
-        # update state
-        self.set_state(self.DEF_SITESTATE_PREPARE_END)
-        #
-        return eventlist
-
-
-
-
-    def startup(self, eventlist = None):
-        """Startup everything."""
-        # update state
-        self.set_state(self.DEF_SITESTATE_STARTUP_START)
-        self.startup_packages(eventlist)
         # update state
         self.set_state(self.DEF_SITESTATE_STARTUP_END)
         #
         return eventlist
 
+
+
+
+
     def shutdown(self, eventlist = None):
         """Shutdown everything."""
         # update state
         self.set_state(self.DEF_SITESTATE_SHUTDOWN_START)
+        # shutdown routes
+        self.routes.shutdown()
         # shutdown packages
-        self.shutdown_packages(eventlist)
+        self.packagemanager.shutdown()
+        # startup dispatcher
+        self.dispatcher.shutdown()
+        # startup registry
+        self.registry.shutdown()
         # shutdown log system
         self.logmanager.shutdown()
         # update state
@@ -250,46 +250,52 @@ class MewloSite(object):
 
 
 
-    def prepare_settings(self, eventlist):
-        """Prepare some settings."""
-        self.controllerroot = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_controllerroot)
 
-    def prepare_routes(self, eventlist):
+
+    def startup_routes(self, eventlist):
         """Walk all routes and compile/cache/update stuff."""
-        self.routes.prepare(self, eventlist)
+        self.routes.startup(self, eventlist)
 
-    def discover_packages(self, eventlist):
-        """Discover packages """
+    def startup_packagemanager(self, eventlist):
+        """Startup packages."""
         packagedirectories = self.get_root_package_directory_list() + self.get_site_package_directory_list()
         self.packagemanager.set_directories(packagedirectories)
-        self.packagemanager.discover_packages()
+        self.packagemanager.startup(eventlist)
 
-    def loadinfos_packages(self, eventlist):
-        """Load infos for all packages """
-        self.packagemanager.loadinfos_packages()
+    def startup_logmanager(self,eventlist):
+        """Startup logging system."""
+        self.logmanager.startup()
 
-    def instantiate_packages(self, eventlist):
-        """Load and instantiate packages"""
-        self.packagemanager.instantiate_packages()
 
-    def startup_packages(self, eventlist):
-        """Startup packages"""
-        self.packagemanager.startup_packages()
-    def shutdown_packages(self, eventlist):
-        """Startup packages"""
-        self.packagemanager.shutdown_packages()
+
+
+
+
+
+
+
+
+
+    def preprocess_settings(self, eventlist):
+        """We may want to preprocess/cache some settings before we start."""
+        # cache some stuff?
+        self.controllerroot = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_controllerroot)
+
 
 
     def validate(self, eventlist=None):
-        """Validate the site and return an EventList with errors and warnings"""
+        """Validate settings and return an EventList with errors and warnings"""
         if (eventlist == None):
             eventlist = EventList()
         #
         self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
         self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_controllerroot, False, "no site-default specified for controller root.")
         self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_urlprefix, False, "site has no prefix and starts at root (/).")
-        #
+
+        # return events encountered
         return eventlist
+
+
 
 
     def validate_setting_config(self, eventlist, varname, iserror, messagestr):
@@ -387,7 +393,7 @@ class MewloSite(object):
         # we need to apply our early settings
         mysite.setup_early()
         # now create a manager using just this site
-        sitemanager = mysite.create_and_prepare_standalone_sitemanager()
+        sitemanager = mysite.create_standalone_sitemanager()
         # now return the manager
         return sitemanager
 
@@ -441,25 +447,18 @@ class MewloSiteManager(object):
         self.sites.append(site)
 
 
-    def prepare(self):
-        """Ask all children sites to 'prepare'."""
-        for site in self.sites:
-            # prepare the site
-            site.prepare(self.prepeventlist)
-        return self.prepeventlist
+
 
 
     def startup(self):
         """Ask all children sites to 'startup'."""
         for site in self.sites:
-            # prepare the site
             site.startup(self.prepeventlist)
         return self.prepeventlist
 
     def shutdown(self):
         """Ask all children sites to 'shutdown'."""
         for site in self.sites:
-            # prepare the site
             site.shutdown(self.prepeventlist)
         return self.prepeventlist
 

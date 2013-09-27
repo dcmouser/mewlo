@@ -38,7 +38,7 @@ class Test_MewloPackageObject(MewloPackageObject):
 
 
 
-    def prepare(self):
+    def startup(self):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # return failure if any, or None on success
 
@@ -66,6 +66,9 @@ class Test_MewloPackageObject(MewloPackageObject):
             component = MewloComponent(features, obj)
             # now register it with the site registry
             mewlosite().registry.register_component(component)
+
+        # lastly, call the parent startup (important!)
+        super(Test_MewloPackageObject, self).startup()
 
         return None
 

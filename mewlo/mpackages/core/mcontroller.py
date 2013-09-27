@@ -19,7 +19,7 @@ from types import ModuleType
 
 class MewloController(object):
     """
-    The MewloController class stores a hierarchical dictionary of settings
+    The MewloController class handles requests that are routed to it.
     """
 
     def __init__(self, function = None, root = None):
@@ -47,7 +47,7 @@ class MewloController(object):
         return self.isenabled
 
 
-    def prepare(self, parent, eventlist):
+    def startup(self, parent, eventlist):
         """Do initial preparatory stuff on system startup."""
         # ATTN: todo - use eventlist to catch errors
 
@@ -60,6 +60,11 @@ class MewloController(object):
             self.callable = self.find_ourcallable()
         # disable it if it's not set
         self.isenabled = (self.callable != None)
+
+
+    def shutdown(self):
+        """Shutdown of controller."""
+        pass
 
 
 

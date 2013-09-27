@@ -17,10 +17,6 @@ class PackageObject(object):
         self.package = package
 
 
-    def prepare(self):
-        """Do any preparation after Mewlo is set up."""
-        pass
-
 
     def startup(self):
         """Do any startup stuff."""

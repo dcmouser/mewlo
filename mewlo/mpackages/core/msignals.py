@@ -22,6 +22,13 @@ class MewloSignalDispatcher(SignalDispatcher):
         super(MewloSignalDispatcher, self).__init__()
 
 
+    def startup(self, eventlist):
+        """Any startup stuff to do?"""
+        pass
+
+    def shutdown(self):
+        """Any shutdown stuff to do?"""
+        pass
 
 
 

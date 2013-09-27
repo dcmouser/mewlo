@@ -191,6 +191,8 @@ def main():
     # create a simple site from our test class and a sitemanager that supervises it
     sitemanager = MewloSite_Test1.create_manager_and_simplesite()
 
+    # startup sites - this will generate any preparation errors
+    sitemanager.startup()
 
     # check if there were any errors encountered during preparation of the s
     if (sitemanager.prepeventlist.count_errors() > 0):
@@ -202,9 +204,6 @@ def main():
     # start by displaying some debug info
     if (flag_debugsite):
         print sitemanager.dumps()
-
-    # startup sites - we do this before processing any requests
-    sitemanager.startup()
 
     # run tests?
     if (flag_runtests):

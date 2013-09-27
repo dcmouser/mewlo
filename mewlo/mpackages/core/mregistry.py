@@ -34,3 +34,12 @@ class MewloComponentRegistry(ComponentRegistry):
         """Constructor."""
         # partent constructor
         super(MewloComponentRegistry, self).__init__()
+
+
+    def startup(self, eventlist):
+        """Any startup stuff to do?"""
+        pass
+
+    def shutdown(self):
+        """Any shutdown stuff to do?"""
+        pass

@@ -19,16 +19,25 @@ class BasicSiteTest(unittest.TestCase):
 
 
     def testSimpleSiteInstantiation(self):
+        """A simple test that just creates a small sample site and checks for errors."""
+
         # Instantiate a test site and see if there were any startup errors
         from testhelpers.testsite1.testsite1 import MewloSite_Test1
-        #
         sitemanager = MewloSite_Test1.create_manager_and_simplesite()
-        #
+
+        # startup site - this will generate any preparation errors
+        sitemanager.startup()
+
+        # check for errors
         if (sitemanager.prepeventlist.count_errors() > 0):
             print "Site manager preparation error events:"
             print sitemanager.prepeventlist.dumps()
-        #
+
+        # fail or pass test depending on if there were any preparation errors
         self.failIf(sitemanager.prepeventlist.count_errors() > 0)
+
+        # shutdown
+        sitemanager.shutdown()
 
 
     def testTwo(self):

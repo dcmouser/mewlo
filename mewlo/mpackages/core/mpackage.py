@@ -80,7 +80,7 @@ class MewloPackageObject(PackageObject):
         super(MewloPackageObject, self).__init__(package)
 
 
-    def prepare(self):
+    def startup(self):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # return failure if any, or None on success
         return None

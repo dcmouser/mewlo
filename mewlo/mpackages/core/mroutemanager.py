@@ -179,16 +179,23 @@ class MewloRoute(object):
         return self.id
 
 
-    def prepare(self, parent, eventlist):
-        """Prepare any info/caching; this is called before system startup by our parent site."""
+    def startup(self, parent, eventlist):
+        """Startup any info/caching; this is called before system startup by our parent site."""
 
         self.parent = parent
         # root propagation
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
-        # prepare controller
+        # startup controller
         if (self.controller != None):
-            self.controller.prepare(self, eventlist)
+            self.controller.startup(self, eventlist)
+
+
+    def shutdown(self):
+        """Any shutdown procedures to perform?"""
+        if (self.controller != None):
+            self.controller.shutdown()
+
 
 
 
@@ -478,16 +485,22 @@ class MewloRouteGroup(object):
 
 
 
-    def prepare(self, parent, eventlist):
+    def startup(self, parent, eventlist):
         """Initial preparation, invoked by parent."""
 
         self.parent = parent
         # we want to propagage controllerroot from parent down
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
-        # recursive prepare
+        # recursive startup
         for route in self.routes:
-            route.prepare(self, eventlist)
+            route.startup(self, eventlist)
+
+
+    def shutdown(self):
+        """Shutdown, invoked by parent."""
+        for route in self.routes:
+            route.shutdown()
 
 
 

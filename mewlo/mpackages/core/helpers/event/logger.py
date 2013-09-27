@@ -70,6 +70,12 @@ class LogManager(object):
         self.loggers.append(logger)
 
 
+    def startup(self):
+        """Startup everything, we are about to exit."""
+        for logger in self.loggers:
+            logger.startup()
+
+
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
         for logger in self.loggers:
@@ -99,6 +105,14 @@ class LogFilter(object):
     def __init__(self):
         self.andfilters = []
 
+
+    def startup(self):
+        """Any initial startup to do?"""
+        pass
+
+    def shutdown(self):
+        """Shutdown everything, we are about to exit."""
+        pass
 
 
     def add_andfilter(self, filter):
@@ -166,6 +180,10 @@ class LogTarget(object):
         return self.isenabled
 
 
+    def startup(self):
+        """Any initial startup to do?"""
+        pass
+
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
         pass
@@ -213,9 +231,18 @@ class Logger(object):
         self.targets.append(target)
 
 
+    def startup(self):
+        """Any initial startup stuff to do?"""
+        for filter in self.filters:
+            filter.startup()
+        for target in self.targets:
+            target.startup()
+
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
+        for filter in self.filters:
+            filter.shutdown()
         for target in self.targets:
             # mark it as disabled so we won't call it again after this
             # note we do this here rather than in target class to avoid potential that derived target will forget to call this

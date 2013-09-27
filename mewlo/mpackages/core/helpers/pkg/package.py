@@ -184,13 +184,6 @@ class Package(object):
 
 
 
-    def prepare(self):
-        """Do any preparation after Mewlo is set up."""
-        if (self.packageobject!=None):
-            self.packageobject.prepare()
-
-
-
     def startup(self):
         """Do any startup stuff."""
         if (self.packageobject!=None):

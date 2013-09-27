@@ -67,6 +67,23 @@ class PackageManager(object):
 
 
 
+    def startup(self, eventlist):
+        """Scan for packages and instantiate and start them up."""
+        self.discover_packages()
+        #
+        self.loadinfos_packages()
+        #
+        self.instantiate_packages()
+        #
+        self.startup_packages()
+
+
+    def shutdown(self):
+        """Shutdown the packages."""
+        self.shutdown_packages()
+
+
+
     def discover_packages(self):
         """Scan all package directories and discover packages."""
 
@@ -84,26 +101,14 @@ class PackageManager(object):
         for filepath in packagefilepaths:
             self.createadd_package_frominfofile(filepath)
 
-
-
-    def createadd_package_frominfofile(self, infofilepath):
-        """Given a path to an infofile, create a package from it."""
-        pkg = self.create_package(infofilepath)
-        if (pkg != None):
-            self.packages.append(pkg)
-
-
-
     def loadinfos_packages(self):
         """Load all the info files."""
         self.load_package_infofiles()
 
-
-
     def instantiate_packages(self):
         """Actually import code modules and instantiate package objects."""
         self.load_package_codemodules()
-        self.prepare_packages()
+        self.startup_packages()
 
 
     def startup_packages(self):
@@ -115,6 +120,17 @@ class PackageManager(object):
         """Shutdown the packages."""
         for package in self.packages:
             package.shutdown()
+
+
+
+
+
+
+    def createadd_package_frominfofile(self, infofilepath):
+        """Given a path to an infofile, create a package from it."""
+        pkg = self.create_package(infofilepath)
+        if (pkg != None):
+            self.packages.append(pkg)
 
 
 
@@ -244,14 +260,6 @@ class PackageManager(object):
 
 
 
-
-
-
-
-    def prepare_packages(self):
-        """Tell all the package objects to prepare."""
-        for package in self.packages:
-            package.prepare()
 
 
 
