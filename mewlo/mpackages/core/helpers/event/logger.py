@@ -45,7 +45,7 @@ Some examples of things we will want to be able to easily do:
 
 
 # mewlo imports
-from mewlo.mpackages.core.mglobals import mewlosite
+from mewlo.mpackages.core.mglobals import mewlosite, debugmode
 
 # helper imports
 from ..debugging import smart_dotted_idpath
@@ -84,9 +84,13 @@ class LogManager(object):
 
     def process(self, logmessage):
         """Process a logmessage(Event), by allowing each of our attached loggers to handle it."""
-
+        wrotecount = 0
         for logger in self.loggers:
-            logger.process(logmessage)
+            wrotecount += logger.process(logmessage)
+        # if debug mode, and no one else handled it, print it
+        if (wrotecount==0):
+            if (debugmode()):
+                print str(logmessage)
 
 
 
@@ -191,7 +195,8 @@ class LogTarget(object):
     def process(self, logmessage):
         """Process the target action (write to file, save to database, emailing, etc.).  This should be overridden by subclass to do actual work."""
         print "Activating base LogTarget action, which is to write log message to screen: " + logmessage.dumps() + "\n"
-        pass
+        # return 1 to say it was written by target
+        return 1
 
 
 
@@ -254,8 +259,10 @@ class Logger(object):
 
     def process(self, logmessage):
         """Process a logmessage(Event).  This may involve ignoring it if it doesn't match our filters, or sending it to Targets immediately if it does."""
+        wrotecount = 0
         if (self.doesmatch_filters(logmessage)):
-            self.run_targets(logmessage)
+            wrotecount += self.run_targets(logmessage)
+        return wrotecount
 
 
 
@@ -275,10 +282,11 @@ class Logger(object):
 
     def run_targets(self, logmessage):
         """Run ALL registered targets on the message."""
+        wrotecount = 0
         for target in self.targets:
             if (target.get_isenabled()):
                 try:
-                    target.process(logmessage)
+                    wrotecount += target.process(logmessage)
                 except IOError as exp:
                     # first thing we need to do is disable this target, in case we get recursively called or decide to keep running
                     target.set_isenabled(False)
@@ -288,4 +296,4 @@ class Logger(object):
                     # raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception to provide extra info
                     # we probably wouldn't consider this a fatal error that should stop program from executing.
                     reraiseplus(exp, "Disabling the logger where the error occurred: ", obj=target)
-
+        return wrotecount

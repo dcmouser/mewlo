@@ -1,0 +1,60 @@
+current todos:
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+Make a roadmap.
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+Make settings to enable and disable plugins and obey them.
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+Decide how to handle startup messages vs log messages.
+
+This is an odd one.
+In the current code, when we startup and validate a site, the startup functions RETURN a list of events/messages.
+We check this code for any errors or warnings, and optionally display them.
+That is, errors at validation/startup time are returned and not sent to log.
+But a question arises, should we be logging these message in addition (or instead)?
+One problem with trying to log them is that by their nature they may occur early before log system is setup.
+A problem with not logging them as they are encountered is that a crashing error would not have any info in log file.
+
+Some ideas:
+
+1. have the log system be the very FIRST thing that is set up, with a catchall file logger that is the first thing setup and checked, and a hard exit with message if it fails to set up properly
+have this catch all serious startup errors -- maybe even have this file be a special one which overwrites on each run. 
+
+2. explicitly log startup (debug) messages
+
+3. return warnings and errors from startup procedure as before
+//---------------------------------------------------------------------------
+
+
+
+
+
+
+//---------------------------------------------------------------------------
+Change all print statements in testing to some generic log/output function.
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+Landmark 1:
+Proper debug logging
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+Idea:
+
+Have a fallback file logger that is always set up.
+when debugging is enabled, ALL messages log to that file, regardless of where else it is logged.
+when debugging is disabled, NOTHING gets logged to that file.
+//---------------------------------------------------------------------------

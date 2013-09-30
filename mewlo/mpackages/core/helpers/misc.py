@@ -7,6 +7,8 @@ This module contains misclenaeous helper functions.
 # helper imports
 from event.event import EFailure, EException
 
+# python imports
+import re
 
 
 
@@ -68,3 +70,28 @@ def does_dict_filter_match(object_features, feature_filter):
             return False
     # nothing failed, so it's a match!
     return True
+
+
+
+
+
+
+def resolve_expand_string(patternstring, replacementdict, depthcount=0):
+    """Do recursive replacement in string with patterns."""
+
+    def resolve_expand_string_replacevar(match):
+        """Recursive call to expand contents."""
+        if (depthcount>99):
+            # bailout of out-of-control recursion
+            return retv
+        # recursively expand
+        retv = resolve_expand_string(replacementdict[match.group(1)], replacementdict, depthcount+1)
+        return retv
+
+
+    regexpat = r'\$\{([a-zA-Z0-9\_\-]+)\}'
+    retv = re.sub(regexpat, resolve_expand_string_replacevar, patternstring)
+    return retv
+
+
+

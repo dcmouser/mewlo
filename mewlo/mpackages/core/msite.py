@@ -1,6 +1,6 @@
 """
-msites.py
-This file contains classes to handle Mewlo sites and site manager.
+msite.py
+This file contains classes to handle Mewlo site class.
 """
 
 
@@ -9,15 +9,16 @@ from mpackage import MewloPackageManager
 from mrequest import MewloRequest
 from mresponse import MewloResponse
 from mroutemanager import MewloRouteGroup
-from mewlo.mpackages.core.mglobals import mewlosite, set_mewlosite
+from mglobals import mewlosite, set_mewlosite, debugmode
 
 # helper imports
-from helpers.event.event import Event, EventList, EWarning, EError
+from helpers.event.event import Event, EventList, EWarning, EError, EDebug
 from helpers.event.logger import LogManager, Logger
 from helpers.settings import Settings
 from helpers.exceptionplus import reraiseplus
 from msignals import MewloSignalDispatcher
 from mregistry import MewloComponentRegistry
+from helpers.misc import resolve_expand_string
 
 # python imports
 import os
@@ -45,6 +46,11 @@ class MewloSite(object):
     DEF_CONFIGVAR_controllerroot = 'controllerroot'
     DEF_CONFIGVAR_urlprefix = 'urlprefix'
     #
+    DEF_SECTION_alias = 'alias'
+    DEF_ALIASVAR_siteurl = 'siteurl'
+    DEF_ALIASVAR_sitefilepath = 'sitefilepath'
+    DEF_ALIASVAR_logfilepath = 'logfilepath'
+    #
     DEF_Mewlo_BasePackage_subdirlist = ['mpackages']
     # so others can interogate state of site and tell when it is shutting down, etc
     DEF_SITESTATE_INITIALIZE_START = 'initializing'
@@ -54,27 +60,32 @@ class MewloSite(object):
     DEF_SITESTATE_SHUTDOWN_START = 'shuttingdown'
     DEF_SITESTATE_SHUTDOWN_END = 'shutdown'
 
-    def __init__(self, sitemodulename, sitename=None):
+    def __init__(self, sitemodulename):
+        # Nothing that could fail should be done in this __init__ -- save that for later functions
         # initialize settings
-        self.state = None
-        self.set_state(self.DEF_SITESTATE_INITIALIZE_START)
+
+        # setup log manager -- let's do this first so that log manager can receive messages
+        self.logmanager = LogManager()
+
+        # set site name
+        self.sitename = self.__class__.__name__
+
         # set global variable
         set_mewlosite(self)
-        #
-        if (sitename == None):
-            sitename = self.__class__.__name__
-        self.sitename = sitename
+
+        # now update site state
+        self.set_state(self.DEF_SITESTATE_INITIALIZE_START)
+
+        # init other stuff
         self.sitemanager = None
         self.controllerroot = None
         #
         # create site settings
-        self.sitesettings = Settings()
+        self.settings = Settings()
         # collection of mewlo addon packages
         self.packagemanager = MewloPackageManager()
         # route manager
         self.routes = MewloRouteGroup()
-        # log manager
-        self.logmanager = LogManager()
         # signal dispatcher
         self.dispatcher = MewloSignalDispatcher()
         # component registry
@@ -87,9 +98,55 @@ class MewloSite(object):
         self.set_state(self.DEF_SITESTATE_INITIALIZE_END)
 
 
+
+
+
+
+
+    def debuglog(self, msg, request = None):
+        """
+        Shortcut to log a debug message.
+        ATTN: TODO - rewrite this.
+        """
+        self.logevent(msg, request)
+
+
+    def logevent(self, mevent, request = None):
+        """Shortcut to add a log message from an event/failure."""
+        # convert it to an event if its just a plain string
+        if (isinstance(mevent, basestring)):
+            mevent = EDebug(mevent)
+        # add request field (if it wasn't already set in mevent)
+        if (request != None):
+            missingfields = { 'request': self }
+            mevent.mergemissings(missingfields)
+        # log it
+        self.logmanager.process(mevent)
+
+
+    def logevents(self, mevents, request = None):
+        """Shortcut to add a log message from a *possible* iterable of events."""
+        for mevent in mevents:
+            self.logevent(mevent, request)
+
+
+
+
+
     def set_state(self, stateval):
         # print "ATTN: DEBUG SITE IS ENTERING STATE: "+stateval
         self.state = stateval
+        if (debugmode()):
+            self.debuglog("Site changes to state '{0}'.".format(stateval))
+
+
+    def set_sitemanager(self, sitemanager):
+        """Set sitemanager reference."""
+        self.sitemanager = sitemanager
+
+
+
+
 
 
     def get_controllerroot(self):
@@ -118,29 +175,9 @@ class MewloSite(object):
 
     def merge_settings(self, settings):
         """Merge in some settings to our site settings."""
-        self.sitesettings.merge_settings(settings)
+        self.settings.merge_settings(settings)
 
 
-
-    def create_standalone_sitemanager(self):
-        """Create and startup a single-site sitemananger specifically for this site"""
-        # create site manager
-        mysitemanager = MewloSiteManager()
-        # set it to be our site manager
-        self.set_and_add_sitemanager(mysitemanager)
-        # ask it to startup for work
-        eventlist = self.sitemanager.startup()
-        # return the site manager created
-        return self.sitemanager
-
-
-
-    def set_and_add_sitemanager(self, sitemanager):
-        """Shortcut to quickly add a site manager to the site, and tell it that it belongs to this site."""
-        # initialize settings
-        self.sitemanager = sitemanager
-        # register the site with the site manager
-        self.sitemanager.add_site(self)
 
 
 
@@ -148,7 +185,7 @@ class MewloSite(object):
         """Return a list of absolute directory paths where (addon) packages should be scanned"""
 
         packagedirectories = []
-        sitepackages = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_pkgdirimps_sitempackages)
+        sitepackages = self.settings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_pkgdirimps_sitempackages)
         if (sitepackages == None):
             pass
         else:
@@ -181,6 +218,9 @@ class MewloSite(object):
 
 
 
+
+
+
     def startup(self, eventlist = None):
         """
         Do preparatory stuff after settings have been set.
@@ -204,18 +244,19 @@ class MewloSite(object):
         self.validate(eventlist)
 
 
-
         # startup our helpers
-        # startup log system
+        #
+        # log system
         self.startup_logmanager(eventlist)
-        # startup dispatcher
+        # dispatcher
         self.dispatcher.startup(eventlist)
-        # startup registry
+        # registry
         self.registry.startup(eventlist)
         # packages
         self.startup_packagemanager(eventlist)
         # routes
         self.startup_routes(eventlist)
+
 
         # log all startup events
         self.logevents(eventlist)
@@ -224,6 +265,7 @@ class MewloSite(object):
         self.set_state(self.DEF_SITESTATE_STARTUP_END)
         #
         return eventlist
+
 
 
 
@@ -241,10 +283,10 @@ class MewloSite(object):
         self.dispatcher.shutdown()
         # startup registry
         self.registry.shutdown()
-        # shutdown log system
-        self.logmanager.shutdown()
         # update state
         self.set_state(self.DEF_SITESTATE_SHUTDOWN_END)
+        # shutdown log system
+        self.logmanager.shutdown()
         # done
         return eventlist
 
@@ -279,7 +321,7 @@ class MewloSite(object):
     def preprocess_settings(self, eventlist):
         """We may want to preprocess/cache some settings before we start."""
         # cache some stuff?
-        self.controllerroot = self.sitesettings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_controllerroot)
+        self.controllerroot = self.settings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_controllerroot)
 
 
 
@@ -300,7 +342,7 @@ class MewloSite(object):
 
     def validate_setting_config(self, eventlist, varname, iserror, messagestr):
         """Helper function for the validate() method."""
-        if (not self.sitesettings.value_exists(varname, self.DEF_SECTION_config)):
+        if (not self.settings.value_exists(varname, self.DEF_SECTION_config)):
             estr = "In site '{0}', site config variable '{1}' not specified; {2}".format(self.get_sitename(),varname,messagestr)
             if (iserror):
                 eventlist.add(EError(estr))
@@ -311,6 +353,7 @@ class MewloSite(object):
 
     def setup_early(self):
         """Do early setup stuff.  Most of the functions invoked here are empty and are intended for subclasses to override."""
+        self.add_default_settings()
         self.add_settings_early()
         self.add_loggers()
         self.add_routes()
@@ -326,6 +369,31 @@ class MewloSite(object):
     def add_routes(self):
         """Does nothing in base class, but subclass can overide."""
         pass
+
+
+
+    def add_default_settings(self):
+        """Set some default overrideable settings."""
+        self.set_default_settings_aliases()
+
+    def set_default_settings_aliases(self):
+        """Set default alias settings."""
+        appurl = ''
+        appfilepath = self.get_sitefilepath()
+        aliases = {
+            MewloSite.DEF_ALIASVAR_siteurl: appurl,
+            MewloSite.DEF_ALIASVAR_sitefilepath: appfilepath,
+            MewloSite.DEF_ALIASVAR_logfilepath: '${sitefilepath}/logging',
+            }
+        self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_alias, aliases)
+
+
+    def get_sitefilepath(self):
+        """Return the path where this site.
+        The derived site should return this.
+            return os.path.dirname(os.path.realpath(__file__))
+        """
+        raise Exception("Derived site class should implement the function get_sitefilepath.")
 
 
 
@@ -358,44 +426,30 @@ class MewloSite(object):
 
 
 
-    def createadd_logger(self, id):
-        """Shortcut to create and add and return a logger item."""
-        logger = Logger(id)
+    def add_logger(self, logger):
+        """Just ask the logmanager to add the logger."""
         self.logmanager.add_logger(logger)
         return logger
 
-
-
-    def logevent(self, mevent, request = None):
-        """Shortcut to add a log message from an event/failure."""
-        # add request field (if it wasn't already set in mevent)
-        if (request != None):
-            missingfields = { 'request': self }
-            mevent.mergemissings(missingfields)
-        # log it
-        self.logmanager.process(mevent)
-
-
-    def logevents(self, mevents, request = None):
-        """Shortcut to add a log message from a *possible* iterable of events."""
-        for mevent in mevents:
-            self.logevent(mevent, request)
 
 
 
 
 
     @classmethod
-    def create_manager_and_simplesite(cls):
-        """This is a convenience (class) helper function to aid in testing of MewloSite derived classes."""
-        # create instance of site -- we do it this way so it will create the DERIVED class
-        mysite = cls()
-        # we need to apply our early settings
-        mysite.setup_early()
-        # now create a manager using just this site
-        sitemanager = mysite.create_standalone_sitemanager()
+    def create_manager_and_instantiate_site(cls):
+        """
+        This is a convenience (class) helper function to aid in testing of MewloSite derived classes.
+        So the following two lines of code are equivelent:
+            sitemanager = MewloSiteManager(MewloSite_Test1)
+            sitemanager = MewloSite_Test1.create_manager_and_instantiate_site()
+        I find the former more readable; the only advantage of the latter is that it does not require us to import MewloSitemanager.
+        """
+        # create site manager and ask it to instantiate and take ownership of the site defined by the class
+        sitemanager = MewloSiteManager(cls)
         # now return the manager
         return sitemanager
+
 
 
 
@@ -408,7 +462,7 @@ class MewloSite(object):
         outstr += " "*indent + "Site validation:\n"
         outstr += (self.validate()).dumps(indent+1)
         outstr += "\n"
-        outstr += self.sitesettings.dumps(indent+1)
+        outstr += self.settings.dumps(indent+1)
         outstr += "\n"
         outstr += self.dispatcher.dumps(indent+1)
         outstr += "\n"
@@ -418,6 +472,31 @@ class MewloSite(object):
         outstr += " "*indent+"Routes:\n"
         outstr += self.routes.dumps(indent+1)
         return outstr
+
+
+
+    def alias_to_filepath(self, alias):
+        """Convert an alias to a file path."""
+        # ATTN: TODO
+        return alias
+
+    def alias_to_url(self, alias):
+        """Convert an alias to a url."""
+        # ATTN: TODO
+        return alias
+
+    def resolvealias(self, alias):
+        """Resolve an alias."""
+        resolvedstr = resolve_expand_string(alias, self.settings.get_value(MewloSite.DEF_SECTION_alias))
+        # ATTN: TODO
+        return resolvedstr
+
+
+
+
+
+
+
 
 
 
@@ -436,10 +515,13 @@ class MewloSiteManager(object):
     """
 
 
-    def __init__(self):
+    def __init__(self, siteclass=None):
         # the collection of sites that this manager takes care of
         self.sites = list()
         self.prepeventlist = EventList()
+        # if a siteclass was pased, create it
+        if (siteclass!=None):
+            self.create_add_site_from_class(siteclass)
 
 
     def add_site(self, site):
@@ -461,6 +543,30 @@ class MewloSiteManager(object):
         for site in self.sites:
             site.shutdown(self.prepeventlist)
         return self.prepeventlist
+
+
+
+
+
+
+    def create_add_site_from_class(self, siteclass):
+        """Instatiate a site class and set it to be owned by use."""
+        # instantiate the site
+        site = siteclass()
+        # tell the site we are the sitemanager for it
+        site.set_sitemanager(self)
+        # early setup stuff for site
+        site.setup_early()
+        # take ownership of the site
+        self.add_site(site)
+        # retuen the newly created site
+        return site
+
+
+
+
+
+
 
 
 

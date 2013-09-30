@@ -43,7 +43,7 @@ class LogTarget_Python(LogTarget):
         Called by logger parent to actually do the work.
         We overide this in our subclass to do actual work.
         """
-        self.write(logmessage)
+        return self.write(logmessage)
 
 
 
@@ -74,7 +74,8 @@ class LogTarget_Python(LogTarget):
             logrecord = self.logger.makeRecord(loggername, level, pathname, lineno, msg, args, exc_info, func)
             # log record
             self.logger.handle(logrecord)
-
+        # return 1 saying it was written
+        return 1
 
 
 

@@ -38,7 +38,7 @@ class LogTarget_File(LogTarget):
         Called by logger parent to actually do the work.
         We overide this in our subclass to do actual work.
         """
-        self.write(logmessage)
+        return self.write(logmessage)
 
 
 
@@ -86,6 +86,8 @@ class LogTarget_File(LogTarget):
         print(outline, file=filep)
         # flush file right away so file is written before closing
         filep.flush()
+        # return 1 saying it was written
+        return 1
 
 
 

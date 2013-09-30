@@ -11,7 +11,7 @@ from logger import LogTarget
 
 
 class LogTarget_Sinkhole(LogTarget):
-    """Target that hands off log writing duties to standard python logging classes."""
+    """Target that just absorbs messages and do nothing."""
 
 
     def __init__(self):
@@ -25,5 +25,5 @@ class LogTarget_Sinkhole(LogTarget):
         Called by logger parent to actually do the work.
         We overide this in our subclass to do actual work.
         """
-        pass
+        return 0
 

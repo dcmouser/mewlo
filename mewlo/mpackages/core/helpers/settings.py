@@ -42,6 +42,7 @@ class Settings(object):
 
 
 
+
     def get_sectionvalue(self, propertysection, propertyname, defaultval=None):
         """Lookup value from our settings dictionary at a certain root section, and return it or default if not found."""
         if (propertysection in self.settingdict):

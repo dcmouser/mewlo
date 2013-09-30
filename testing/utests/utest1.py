@@ -5,8 +5,10 @@
 
 
 # mewlo imports
+from mewlo.mpackages.core.msite import MewloSiteManager
 
 # helper imports
+from testhelpers.testsite1.testsite1 import MewloSite_Test1
 
 # python imports
 import unittest
@@ -21,9 +23,8 @@ class BasicSiteTest(unittest.TestCase):
     def testSimpleSiteInstantiation(self):
         """A simple test that just creates a small sample site and checks for errors."""
 
-        # Instantiate a test site and see if there were any startup errors
-        from testhelpers.testsite1.testsite1 import MewloSite_Test1
-        sitemanager = MewloSite_Test1.create_manager_and_simplesite()
+        # Create a site manager and ask it to instantiate a site of the class we specify
+        sitemanager = MewloSiteManager(MewloSite_Test1)
 
         # startup site - this will generate any preparation errors
         sitemanager.startup()
@@ -36,12 +37,9 @@ class BasicSiteTest(unittest.TestCase):
         # fail or pass test depending on if there were any preparation errors
         self.failIf(sitemanager.prepeventlist.count_errors() > 0)
 
-        # shutdown
+        # shutdown sitemanager and site
         sitemanager.shutdown()
 
-
-    def testTwo(self):
-        self.failUnless(True)
 
 
 

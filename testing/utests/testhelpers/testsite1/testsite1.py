@@ -6,11 +6,12 @@ This class defines a test site (and will run a debug test of it if started as ma
 
 
 # Mewlo imports
-from mewlo.mpackages.core.msites import MewloSite
+from mewlo.mpackages.core.msite import MewloSite, MewloSiteManager
 from mewlo.mpackages.core.mroutemanager import *
 from mewlo.mpackages.core.mcontroller import MewloController
 
 # helpers
+from mewlo.mpackages.core.helpers.event.logger import Logger
 from mewlo.mpackages.core.helpers.event.logger_filetarget import LogTarget_File
 from mewlo.mpackages.core.helpers.event.logger_pythontarget import LogTarget_Python
 from mewlo.mpackages.core.helpers.event.event import EWarning
@@ -20,7 +21,8 @@ from mewlo.mpackages.core.helpers.event.event import EWarning
 import mpackages as pkgdirimp_sitempackages
 import controllers as pkgdirimp_controllers
 
-
+# python imports
+import os
 
 
 
@@ -43,7 +45,8 @@ class MewloSite_Test1(MewloSite):
             MewloSite.DEF_CONFIGVAR_urlprefix: '',
             }
         # add config to settings
-        self.sitesettings.merge_settings_atsection('config', config)
+        self.settings.merge_settings_atsection('config', config)
+
 
 
 
@@ -116,14 +119,16 @@ class MewloSite_Test1(MewloSite):
 
 
 
+
+
     def add_loggers(self):
         """This is called by default by the base MewloSite near startup, to add loggers to the system."""
 
         # create a single logger (with no filters)
-        logger = self.createadd_logger('mytestlogger')
+        logger = self.add_logger(Logger('mytestlogger'))
 
         # now add some targets (handlers) to it
-        logger.add_target(LogTarget_File(filename='testlogout1.txt', filemode='w'))
+        logger.add_target(LogTarget_File(filename=self.resolvealias('${logfilepath}/testlogout1.txt'), filemode='w'))
 
         if (False):
             # want to test raising an exception on failure to write/open file? uncomment this
@@ -132,10 +137,12 @@ class MewloSite_Test1(MewloSite):
         if (True):
             # let's add standard python logging as a test
             import logging
-            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo', 'testlogout3.txt')
+            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolvealias('${logfilepath}/testlogout3.txt'))
             logger.add_target(LogTarget_Python(pythonlogger))
             # and then as a test, let's create an error message in this log
             pythonlogger.error("This is a manual python test error.")
+
+
 
 
 
@@ -164,7 +171,9 @@ class MewloSite_Test1(MewloSite):
 
 
 
-
+    def get_sitefilepath(self):
+        """Return path to ourself."""
+        return os.path.dirname(os.path.realpath(__file__))
 
 
 
@@ -188,8 +197,8 @@ def main():
     flag_runserver = False
 
 
-    # create a simple site from our test class and a sitemanager that supervises it
-    sitemanager = MewloSite_Test1.create_manager_and_simplesite()
+    # Create a site manager and ask it to instantiate a site of the class we specify
+    sitemanager = MewloSiteManager(MewloSite_Test1)
 
     # startup sites - this will generate any preparation errors
     sitemanager.startup()

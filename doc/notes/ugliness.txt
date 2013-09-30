@@ -1,23 +1,13 @@
 //---------------------------------------------------------------------------
 9/24/13
 
-Sites use a prepare statement to walk hierarchy of objects -- not sure if this is avoidable/ideal.
+Routemanager (and log system) uses the startup function to walk a hierarchy of objects and set parenting hierarchy info; this is done so that we can track the hierarchy no matter what order the objects are created.
+Is there a better way to do this?
 //---------------------------------------------------------------------------
 
 
 
-//---------------------------------------------------------------------------
-9/26/13
-we now have a set of prepare functions and then a startup() and shutdown() set of functions.
 
-prepare and startup seem nearly identical in purpose -- should we merge them?
-
-the only case that can be made to not do this would be to say that the prepare() code loads and creates  all dynamic objects, etc,
-while the startup() calls can let objects inquire about each other, knowing that they all have been loaded.
-
-but perhaps it makes more sense to think of these as two phases inside the startup() code,
-i.e. that prepare() is something we do inside startup()
-//---------------------------------------------------------------------------
 
 
 
@@ -34,5 +24,7 @@ can we rename it to something similar like "packs"?
 9/27/13
 i'd like to standardize all startup and shutdown functions to take an eventlist and report issues.
 and create debug log entries with startup reports.
+
+alternatively, rethink how we are treating these startup events specially, and ask if we really want to do that, or if we shouldnt let them use normal logging for errors
 //---------------------------------------------------------------------------
 
