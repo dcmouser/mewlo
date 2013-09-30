@@ -44,10 +44,13 @@ class MewloSite(object):
     DEF_SECTION_config = 'config'
     DEF_CONFIGVAR_pkgdirimps_sitempackages = 'pkgdirimps_sitempackages'
     DEF_CONFIGVAR_controllerroot = 'controllerroot'
-    DEF_CONFIGVAR_urlprefix = 'urlprefix'
+    DEF_CONFIGVAR_siteurl_relative = 'siteurl_relative'
+    DEF_CONFIGVAR_siteurl_absolute = 'siteurl_absolute'
+    DEF_CONFIGVAR_sitefilepath = 'sitefilepath',
     #
-    DEF_SECTION_alias = 'alias'
-    DEF_ALIASVAR_siteurl = 'siteurl'
+    DEF_SECTION_aliases = 'aliases'
+    DEF_ALIASVAR_siteurl_relative = 'siteurl_relative'
+    DEF_ALIASVAR_siteurl_absolute = 'siteurl_absolute'
     DEF_ALIASVAR_sitefilepath = 'sitefilepath'
     DEF_ALIASVAR_logfilepath = 'logfilepath'
     #
@@ -332,7 +335,9 @@ class MewloSite(object):
         #
         self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
         self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_controllerroot, False, "no site-default specified for controller root.")
-        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_urlprefix, False, "site has no prefix and starts at root (/).")
+        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_siteurl_relative, False, "site has no relative url specified; assumed to start at root (/).")
+        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_siteurl_absolute, True, "site has no absolute url address.")
+        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_sitefilepath, True, "site has no filepath specified for it's home directory.")
 
         # return events encountered
         return eventlist
@@ -353,8 +358,8 @@ class MewloSite(object):
 
     def setup_early(self):
         """Do early setup stuff.  Most of the functions invoked here are empty and are intended for subclasses to override."""
-        self.add_default_settings()
         self.add_settings_early()
+        self.add_default_settings()
         self.add_loggers()
         self.add_routes()
 
@@ -376,24 +381,16 @@ class MewloSite(object):
         """Set some default overrideable settings."""
         self.set_default_settings_aliases()
 
+
     def set_default_settings_aliases(self):
         """Set default alias settings."""
-        appurl = ''
-        appfilepath = self.get_sitefilepath()
         aliases = {
-            MewloSite.DEF_ALIASVAR_siteurl: appurl,
-            MewloSite.DEF_ALIASVAR_sitefilepath: appfilepath,
+            MewloSite.DEF_ALIASVAR_siteurl_absolute: self.settings.get_sectionvalue(self.DEF_SECTION_config, MewloSite.DEF_CONFIGVAR_siteurl_absolute),
+            MewloSite.DEF_ALIASVAR_siteurl_relative: self.settings.get_sectionvalue(self.DEF_SECTION_config, MewloSite.DEF_CONFIGVAR_siteurl_relative,''),
+            MewloSite.DEF_ALIASVAR_sitefilepath: self.settings.get_sectionvalue(self.DEF_SECTION_config, MewloSite.DEF_CONFIGVAR_sitefilepath),
             MewloSite.DEF_ALIASVAR_logfilepath: '${sitefilepath}/logging',
             }
-        self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_alias, aliases)
-
-
-    def get_sitefilepath(self):
-        """Return the path where this site.
-        The derived site should return this.
-            return os.path.dirname(os.path.realpath(__file__))
-        """
-        raise Exception("Derived site class should implement the function get_sitefilepath.")
+        self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_aliases, aliases)
 
 
 
@@ -487,7 +484,7 @@ class MewloSite(object):
 
     def resolvealias(self, alias):
         """Resolve an alias."""
-        resolvedstr = resolve_expand_string(alias, self.settings.get_value(MewloSite.DEF_SECTION_alias))
+        resolvedstr = resolve_expand_string(alias, self.settings.get_value(MewloSite.DEF_SECTION_aliases))
         # ATTN: TODO
         return resolvedstr
 

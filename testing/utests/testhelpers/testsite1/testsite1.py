@@ -41,8 +41,10 @@ class MewloSite_Test1(MewloSite):
             # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
             MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
             MewloSite.DEF_CONFIGVAR_controllerroot: pkgdirimp_controllers,
+            MewloSite.DEF_CONFIGVAR_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
             # site prefix (this can be used to host multiple sites on the same server)
-            MewloSite.DEF_CONFIGVAR_urlprefix: '',
+            MewloSite.DEF_CONFIGVAR_siteurl_relative: '/mewlo',
+            MewloSite.DEF_CONFIGVAR_siteurl_absolute: 'http://127.0.0.1/mewlo',
             }
         # add config to settings
         self.settings.merge_settings_atsection('config', config)
@@ -150,7 +152,6 @@ class MewloSite_Test1(MewloSite):
     def pre_runroute_callable(self, route, request):
         """This is called by default when a route is about to be invoked.  Subclassed sites can override it."""
         request.logevent(EWarning("This is a test1 warning called PRE run route: " + request.get_path()))
-
         # ATTN: test, let's trigger a signale
         if (True):
             id = 'signal.site.pre_runroute'
@@ -158,22 +159,15 @@ class MewloSite_Test1(MewloSite):
             source = None
             flag_collectresults = True
             signalresults = self.dispatcher.broadcast(id, message, request, source, flag_collectresults)
-
         return None
-
 
 
     def post_runroute_callable(self, request):
         """This is called by default after a route has been invoked.  Subclassed sites can override it."""
         request.logevent(EWarning("This is a test2 warning called POST run route: " + request.get_path(), flag_loc=True))
-
         return None
 
 
-
-    def get_sitefilepath(self):
-        """Return path to ourself."""
-        return os.path.dirname(os.path.realpath(__file__))
 
 
 

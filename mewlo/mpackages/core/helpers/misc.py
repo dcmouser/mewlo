@@ -78,6 +78,7 @@ def does_dict_filter_match(object_features, feature_filter):
 
 def resolve_expand_string(patternstring, replacementdict, depthcount=0):
     """Do recursive replacement in string with patterns."""
+    #print "ATTN:DEBUG Asked to exp '"+patternstring+"' with :" + str(replacementdict)
 
     def resolve_expand_string_replacevar(match):
         """Recursive call to expand contents."""
