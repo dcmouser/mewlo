@@ -6,9 +6,22 @@ This module contains misclenaeous helper functions.
 
 # helper imports
 from event.event import EFailure, EException
+from exceptionplus import reraiseplus
 
 # python imports
 import re
+
+
+
+
+
+def get_value_from_dict(thedict, keyname, defaultval=None):
+    if (keyname in thedict):
+        return thedict[keyname]
+    return defaultval
+
+
+
 
 
 
@@ -78,7 +91,7 @@ def does_dict_filter_match(object_features, feature_filter):
 
 def resolve_expand_string(patternstring, replacementdict, depthcount=0):
     """Do recursive replacement in string with patterns."""
-    #print "ATTN:DEBUG Asked to exp '"+patternstring+"' with :" + str(replacementdict)
+    # print "ATTN:DEBUG Asked to exp '"+patternstring+"' with :" + str(replacementdict)
 
     def resolve_expand_string_replacevar(match):
         """Recursive call to expand contents."""
@@ -86,7 +99,10 @@ def resolve_expand_string(patternstring, replacementdict, depthcount=0):
             # bailout of out-of-control recursion
             return retv
         # recursively expand
-        retv = resolve_expand_string(replacementdict[match.group(1)], replacementdict, depthcount+1)
+        try:
+            retv = resolve_expand_string(replacementdict[match.group(1)], replacementdict, depthcount+1)
+        except Exception as exp:
+            reraiseplus(exp, "Could not find a key '{0}' in alias replacement dictionary: {1}".format(match.group(1),replacementdict))
         return retv
 
 

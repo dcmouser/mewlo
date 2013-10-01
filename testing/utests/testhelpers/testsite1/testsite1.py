@@ -37,17 +37,56 @@ class MewloSite_Test1(MewloSite):
 
     def add_settings_early(self):
         """This is called by default by the base MewloSite as the first thing to do at startup; here we expect to set some site settings that might be used during startup."""
+
+        # config settings
         config = {
             # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
-            MewloSite.DEF_CONFIGVAR_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
-            MewloSite.DEF_CONFIGVAR_controllerroot: pkgdirimp_controllers,
-            MewloSite.DEF_CONFIGVAR_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
-            # site prefix (this can be used to host multiple sites on the same server)
-            MewloSite.DEF_CONFIGVAR_siteurl_relative: '/mewlo',
-            MewloSite.DEF_CONFIGVAR_siteurl_absolute: 'http://127.0.0.1/mewlo',
+            MewloSite.DEF_SETTINGNAME_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
+            MewloSite.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
+            MewloSite.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
+            MewloSite.DEF_SETTINGNAME_siteurl_internal: '/mewlo',
+            MewloSite.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1/mewlo',
             }
-        # add config to settings
-        self.settings.merge_settings_atsection('config', config)
+        self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_config, config)
+
+        # package settings
+        packagesettings = {
+            'mouser.mewlotestplug' : {
+                'enabled': False,
+                },
+            'mouser.testpackage' : {
+                'enabled': False,
+                }
+            }
+        self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_packages, packagesettings)
+
+
+
+
+
+
+
+    def add_loggers(self):
+        """This is called by default by the base MewloSite near startup, to add loggers to the system."""
+
+        # create a single logger (with no filters); multiple loggers are supported because each logger can have filters that define what this logger filters out
+        logger = self.add_logger(Logger('mytestlogger'))
+
+        # now add some targets (handlers) to it
+        logger.add_target(LogTarget_File(filename=self.resolvealias('${logfilepath}/testlogout1.txt'), filemode='w'))
+
+        if (False):
+            # want to test raising an exception on failure to write/open file? uncomment this
+            logger.add_target(LogTarget_File(filename=''))
+
+        if (True):
+            # let's add standard python logging as a test
+            import logging
+            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolvealias('${logfilepath}/testlogout3.txt'))
+            logger.add_target(LogTarget_Python(pythonlogger))
+            # and then as a test, let's create an error message in this log
+            pythonlogger.error("This is a manual python test error.")
+
 
 
 
@@ -123,26 +162,26 @@ class MewloSite_Test1(MewloSite):
 
 
 
-    def add_loggers(self):
-        """This is called by default by the base MewloSite near startup, to add loggers to the system."""
 
-        # create a single logger (with no filters)
-        logger = self.add_logger(Logger('mytestlogger'))
 
-        # now add some targets (handlers) to it
-        logger.add_target(LogTarget_File(filename=self.resolvealias('${logfilepath}/testlogout1.txt'), filemode='w'))
 
-        if (False):
-            # want to test raising an exception on failure to write/open file? uncomment this
-            logger.add_target(LogTarget_File(filename=''))
 
-        if (True):
-            # let's add standard python logging as a test
-            import logging
-            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolvealias('${logfilepath}/testlogout3.txt'))
-            logger.add_target(LogTarget_Python(pythonlogger))
-            # and then as a test, let's create an error message in this log
-            pythonlogger.error("This is a manual python test error.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

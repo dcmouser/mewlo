@@ -86,12 +86,13 @@ class LogManager(object):
         """Process a logmessage(Event), by allowing each of our attached loggers to handle it."""
         wrotecount = 0
         for logger in self.loggers:
-            wrotecount += logger.process(logmessage)
+            wrotecount += logger.process(logmessage, wrotecount)
         # if debug mode, and no one else handled it, print it
         if (wrotecount==0):
             if (debugmode()):
                 print str(logmessage)
-
+        # return if true
+        return wrotecount
 
 
 
@@ -125,15 +126,15 @@ class LogFilter(object):
         self.andfilters.append(filter)
 
 
-    def doesmatch_full(self, logmessage):
+    def doesmatch_full(self, logmessage, wrotecount):
         """Check if the logmessage matches our filter (or ALL of them if there are multiple chained with us."""
 
         # first check against ourself, if fail, then no point going any further
-        if (not self.doesmatch_us(logmessage)):
+        if (not self.doesmatch_us(logmessage, wrotecount)):
             # doesn't match our condition
             return False
         # it matched us, now let's make sure it matches ALL of our AND filters (if any)
-        if (not self.doesmatch_andchains(logmessage)):
+        if (not self.doesmatch_andchains(logmessage, wrotecount)):
             # doesn't match one of our registered AND chain of filters
             return False
         # it's good!
@@ -141,19 +142,19 @@ class LogFilter(object):
 
 
 
-    def doesmatch_andchains(self, logmessage):
+    def doesmatch_andchains(self, logmessage, wrotecount):
         """Check if logmessages matches any attached "AND" chained filters (we may have none)."""
 
         # test ALL and reject if any reject
         for filter in self.andfilters:
-            if (not filter.doesmatch_full(logmessage)):
+            if (not filter.doesmatch_full(logmessage, wrotecount)):
                 return False
         # it matched ALL, so it's good
         return True
 
 
 
-    def doesmatch(self, logmessage):
+    def doesmatch_us(self, logmessage, wrotecount):
         """This is the exposed public function to check if a logmessage matches the filter. It will normally be implemented by a subclass."""
 
         # parent class just returns True so it will always match
@@ -257,23 +258,23 @@ class Logger(object):
 
 
 
-    def process(self, logmessage):
+    def process(self, logmessage, wrotecount):
         """Process a logmessage(Event).  This may involve ignoring it if it doesn't match our filters, or sending it to Targets immediately if it does."""
-        wrotecount = 0
-        if (self.doesmatch_filters(logmessage)):
-            wrotecount += self.run_targets(logmessage)
-        return wrotecount
+        thiswrotecount = 0
+        if (self.doesmatch_filters(logmessage, wrotecount)):
+            thiswrotecount = self.run_targets(logmessage)
+        return thiswrotecount
 
 
 
-    def doesmatch_filters(self, logmessage):
+    def doesmatch_filters(self, logmessage, wrotecount):
         """Return True if this message matches ANY of the filter(s) for the logger.."""
         # if no filters added, then it's an automatic match
         if (len(self.filters) == 0):
             return True
         # see if any filter matches it
         for filter in self.filters:
-            if (filter.doesmatch_full(logmessage)):
+            if (filter.doesmatch_full(logmessage, wrotecount)):
                 return True
         # nothing matched, so it's false
         return False
@@ -282,11 +283,11 @@ class Logger(object):
 
     def run_targets(self, logmessage):
         """Run ALL registered targets on the message."""
-        wrotecount = 0
+        thiswrotecount = 0
         for target in self.targets:
             if (target.get_isenabled()):
                 try:
-                    wrotecount += target.process(logmessage)
+                    thiswrotecount += target.process(logmessage)
                 except IOError as exp:
                     # first thing we need to do is disable this target, in case we get recursively called or decide to keep running
                     target.set_isenabled(False)
@@ -296,4 +297,4 @@ class Logger(object):
                     # raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception to provide extra info
                     # we probably wouldn't consider this a fatal error that should stop program from executing.
                     reraiseplus(exp, "Disabling the logger where the error occurred: ", obj=target)
-        return wrotecount
+        return thiswrotecount

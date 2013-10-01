@@ -28,3 +28,13 @@ and create debug log entries with startup reports.
 alternatively, rethink how we are treating these startup events specially, and ask if we really want to do that, or if we shouldnt let them use normal logging for errors
 //---------------------------------------------------------------------------
 
+
+
+//---------------------------------------------------------------------------
+10/1/13
+if you look in misc.py you will see some functions that return Events for exceptions
+and some functions that raise exceptions.
+
+we need a systematic explanation of when/why some functions catch exceptions and return them as events vs those which pass exceptions up the chain
+and a systematic documentation to make this clear for any given function at a glance.
+//---------------------------------------------------------------------------

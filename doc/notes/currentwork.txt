@@ -1,4 +1,5 @@
-current todos:
+//---------------------------------------------------------------------------
+CURRENT WORKING-ON LIST:
 //---------------------------------------------------------------------------
 
 
@@ -7,9 +8,8 @@ Make a roadmap.
 //---------------------------------------------------------------------------
 
 
-
 //---------------------------------------------------------------------------
-Make settings to enable and disable plugins and obey them.
+Make settings to enable and disable plugins and obey these settings.
 //---------------------------------------------------------------------------
 
 
@@ -32,28 +32,9 @@ have this catch all serious startup errors -- maybe even have this file be a spe
 2. explicitly log startup (debug) messages
 
 3. return warnings and errors from startup procedure as before
-//---------------------------------------------------------------------------
 
 
-
-
-
-
-//---------------------------------------------------------------------------
-Change all print statements in testing to some generic log/output function.
-//---------------------------------------------------------------------------
-
-
-
-//---------------------------------------------------------------------------
-Landmark 1:
-Proper debug logging
-//---------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------
 Idea:
-
 Have a fallback file logger that is always set up.
 when debugging is enabled, ALL messages log to that file, regardless of where else it is logged.
 when debugging is disabled, NOTHING gets logged to that file.

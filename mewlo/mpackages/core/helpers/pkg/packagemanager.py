@@ -67,15 +67,19 @@ class PackageManager(object):
 
 
 
-    def startup(self, eventlist):
+    def performdiscovery(self, eventlist):
         """Scan for packages and instantiate and start them up."""
         self.discover_packages()
         #
-        self.loadinfos_packages()
+        self.load_package_infofiles()
+
+
+    def instantiate_and_startup(self, eventlist):
         #
         self.instantiate_packages()
         #
         self.startup_packages()
+
 
 
     def shutdown(self):
@@ -101,9 +105,13 @@ class PackageManager(object):
         for filepath in packagefilepaths:
             self.createadd_package_frominfofile(filepath)
 
-    def loadinfos_packages(self):
-        """Load all the info files."""
-        self.load_package_infofiles()
+
+
+    def load_package_infofiles(self):
+        """Load the infofiles for all packages found."""
+        for package in self.packages:
+            package.load_infofile()
+
 
     def instantiate_packages(self):
         """Actually import code modules and instantiate package objects."""
@@ -216,16 +224,6 @@ class PackageManager(object):
 
 
 
-
-
-
-
-
-
-    def load_package_infofiles(self):
-        """Load the infofiles for all packages found."""
-        for package in self.packages:
-            package.load_infofile()
 
 
     def load_package_codemodules(self):

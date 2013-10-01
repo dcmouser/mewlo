@@ -44,11 +44,19 @@ class Package(object):
         self.codemodule_path = ''
         self.codemodule = None
         self.packageobject = None
-        # last error, for debug display
+        #
         self.readytoloadcode = False
         self.readytorun = False
         self.enabled = False
+        self.enabledisablereason = "n/a"
+        #
         self.eventlist = EventList()
+
+
+    def set_enabled(self, val, reason):
+        """Set the disabled flag for the package.  If False than the code for the package will not be loaded and run."""
+        self.enabled = val
+        self.enabledisablereason = reason
 
 
     def create_packageobject(self, packageobj_class):
@@ -86,7 +94,10 @@ class Package(object):
         self.codemodule_path = ''
         self.packageobject = None
         self.readytorun = False
-        self.enabled = False
+
+        if (not self.enabled):
+            # it's disabled, do nothing
+            return
 
         # get path to code module
         self.codemodule_path, failure = self.get_pathtocodemodule()
@@ -101,7 +112,6 @@ class Package(object):
         if (failure == None):
             # success so mark it as ready to run
             self.readytorun = True
-            self.enabled = True
         else:
             # failed; add the error message to our eventlist, and continue with this package marked as not useable
             self.eventlist.add(failure)
@@ -147,7 +157,6 @@ class Package(object):
         # instantiate it
         try:
             packageobj_class = getattr(self.codemodule, packageobject_classname)
-#            packageobj = packageobj_class(self)
             packageobj = self.create_packageobject(packageobj_class)
         except:
             return EFailure("Package class object '{0}' was found in package module, but could not be instantiated.".format(packageobject_classname))
@@ -159,7 +168,7 @@ class Package(object):
 
 
 
-    def get_infofile_property(self, propertyname, defaultval):
+    def get_infofile_property(self, propertyname, defaultval=None):
         """Lookup property in our info dict and return it, or defaultval if not found."""
 
         if (self.infodict == None):
@@ -198,10 +207,12 @@ class Package(object):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
 
-        outstr = " "*indent + "Package reporting in.\n"
+        outstr = " "*indent + "Package reporting in:\n"
         indent += 1
         #
         outstr += self.eventlist.dumps(indent)
+        #
+        outstr += " "*indent + "Enabled: " + str(self.enabled) + " ("+self.enabledisablereason+").\n"
         #
         outstr += " "*indent + "Info dictionary: " + self.infofilepath + ":\n"
         jsonstring = json.dumps(self.infodict, indent+1)

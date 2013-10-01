@@ -11,14 +11,18 @@ from mresponse import MewloResponse
 from mroutemanager import MewloRouteGroup
 from mglobals import mewlosite, set_mewlosite, debugmode
 
+
 # helper imports
 from helpers.event.event import Event, EventList, EWarning, EError, EDebug
 from helpers.event.logger import LogManager, Logger
 from helpers.settings import Settings
-from helpers.exceptionplus import reraiseplus
+from helpers.event.logger_filetarget import LogTarget_File
+from helpers.misc import get_value_from_dict
+
 from msignals import MewloSignalDispatcher
 from mregistry import MewloComponentRegistry
 from helpers.misc import resolve_expand_string
+
 
 # python imports
 import os
@@ -41,18 +45,21 @@ class MewloSite(object):
     """
 
     # class constants
+    # setting sections
     DEF_SECTION_config = 'config'
-    DEF_CONFIGVAR_pkgdirimps_sitempackages = 'pkgdirimps_sitempackages'
-    DEF_CONFIGVAR_controllerroot = 'controllerroot'
-    DEF_CONFIGVAR_siteurl_relative = 'siteurl_relative'
-    DEF_CONFIGVAR_siteurl_absolute = 'siteurl_absolute'
-    DEF_CONFIGVAR_sitefilepath = 'sitefilepath',
-    #
     DEF_SECTION_aliases = 'aliases'
-    DEF_ALIASVAR_siteurl_relative = 'siteurl_relative'
-    DEF_ALIASVAR_siteurl_absolute = 'siteurl_absolute'
-    DEF_ALIASVAR_sitefilepath = 'sitefilepath'
-    DEF_ALIASVAR_logfilepath = 'logfilepath'
+    DEF_SECTION_packages = 'packages'
+    # settings
+    DEF_SETTINGNAME_pkgdirimps_sitempackages = 'pkgdirimps_sitempackages'
+    DEF_SETTINGNAME_controllerroot = 'controllerroot'
+    DEF_SETTINGNAME_siteurl_internal = 'siteurl_internal'
+    DEF_SETTINGNAME_siteurl_absolute = 'siteurl_absolute'
+    DEF_SETTINGNAME_sitefilepath = 'sitefilepath'
+    DEF_SETTINGNAME_default_logfilename = 'logfilename'
+    DEF_SETTINGNAME_logfilepath = 'logfilepath'
+    # default values
+    DEF_SETTINGVAL_default_logfilename_defaultvalue = '${logfilepath}/mewlo.log'
+    DEF_SETTINGVAL_default_package_settings = { 'enabled': False }
     #
     DEF_Mewlo_BasePackage_subdirlist = ['mpackages']
     # so others can interogate state of site and tell when it is shutting down, etc
@@ -66,6 +73,7 @@ class MewloSite(object):
     def __init__(self, sitemodulename):
         # Nothing that could fail should be done in this __init__ -- save that for later functions
         # initialize settings
+        self.fallbacklogger = None
 
         # setup log manager -- let's do this first so that log manager can receive messages
         self.logmanager = LogManager()
@@ -77,7 +85,7 @@ class MewloSite(object):
         set_mewlosite(self)
 
         # now update site state
-        self.set_state(self.DEF_SITESTATE_INITIALIZE_START)
+        self.set_state(MewloSite.DEF_SITESTATE_INITIALIZE_START)
 
         # init other stuff
         self.sitemanager = None
@@ -98,7 +106,7 @@ class MewloSite(object):
         self.sitemodulename = sitemodulename
         #
         # update state
-        self.set_state(self.DEF_SITESTATE_INITIALIZE_END)
+        self.set_state(MewloSite.DEF_SITESTATE_INITIALIZE_END)
 
 
 
@@ -171,7 +179,7 @@ class MewloSite(object):
     def get_root_package_directory_list(self):
         """Return a list of directories in the base/install path of Mewlo, where addon packages should be scanned"""
         basedir = self.get_installdir()
-        packagedirectories = [basedir + '/' + dir for dir in self.DEF_Mewlo_BasePackage_subdirlist]
+        packagedirectories = [basedir + '/' + dir for dir in MewloSite.DEF_Mewlo_BasePackage_subdirlist]
         return packagedirectories
 
 
@@ -188,7 +196,7 @@ class MewloSite(object):
         """Return a list of absolute directory paths where (addon) packages should be scanned"""
 
         packagedirectories = []
-        sitepackages = self.settings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_pkgdirimps_sitempackages)
+        sitepackages = self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_pkgdirimps_sitempackages)
         if (sitepackages == None):
             pass
         else:
@@ -231,7 +239,7 @@ class MewloSite(object):
         """
 
         # update state
-        self.set_state(self.DEF_SITESTATE_STARTUP_START)
+        self.set_state(MewloSite.DEF_SITESTATE_STARTUP_START)
 
         # we log errors/warnings to an eventlist and return it; either one we are passed or we create a new one if needed
         if (eventlist == None):
@@ -265,7 +273,7 @@ class MewloSite(object):
         self.logevents(eventlist)
 
         # update state
-        self.set_state(self.DEF_SITESTATE_STARTUP_END)
+        self.set_state(MewloSite.DEF_SITESTATE_STARTUP_END)
         #
         return eventlist
 
@@ -277,7 +285,7 @@ class MewloSite(object):
     def shutdown(self, eventlist = None):
         """Shutdown everything."""
         # update state
-        self.set_state(self.DEF_SITESTATE_SHUTDOWN_START)
+        self.set_state(MewloSite.DEF_SITESTATE_SHUTDOWN_START)
         # shutdown routes
         self.routes.shutdown()
         # shutdown packages
@@ -287,7 +295,7 @@ class MewloSite(object):
         # startup registry
         self.registry.shutdown()
         # update state
-        self.set_state(self.DEF_SITESTATE_SHUTDOWN_END)
+        self.set_state(MewloSite.DEF_SITESTATE_SHUTDOWN_END)
         # shutdown log system
         self.logmanager.shutdown()
         # done
@@ -303,9 +311,14 @@ class MewloSite(object):
 
     def startup_packagemanager(self, eventlist):
         """Startup packages."""
+        # discover packages and load info files so we can learn about them
         packagedirectories = self.get_root_package_directory_list() + self.get_site_package_directory_list()
         self.packagemanager.set_directories(packagedirectories)
-        self.packagemanager.startup(eventlist)
+        self.packagemanager.performdiscovery(eventlist)
+        # ok now that we have disocvered the packages, we should DISABLE/ENABLE them all
+        self.preprocess_packages(eventlist)
+        # and now we can load and start them up
+        self.packagemanager.instantiate_and_startup(eventlist)
 
     def startup_logmanager(self,eventlist):
         """Startup logging system."""
@@ -314,9 +327,33 @@ class MewloSite(object):
 
 
 
+    def preprocess_packages(self, eventlist):
+        """Before we instantiate packages, we preprocess them using our settings, which may disable/enabe them."""
+        # let's enable or disable the package
+        for package in self.packagemanager.packages:
+            (enabled, reason) = self.should_enable_package(package,eventlist)
+            package.set_enabled(enabled, reason)
 
 
-
+    def should_enable_package(self, package, eventlist):
+        """Do settings say to disable this package? Return tuple of (enabled, reasonstring)."""
+        # ATTN:TODO - inter-dependency of packaged
+        reason = "n/a"
+        packageid = package.get_infofile_property('uniqueid')
+        # is the package REQUIRED?
+        if (package.get_infofile_property('required')):
+            enabled = True
+            reason = "required package"
+        else:
+            # get any settings for the package
+            packagesettings = self.get_settings_forpackage(packageid)
+            enabled = get_value_from_dict(packagesettings,'enabled')
+            if (enabled==None):
+                enabled = get_value_from_dict(MewloSite.DEF_SETTINGVAL_default_package_settings,'enabled')
+                reason = "default for packages"
+            else:
+                reason = "specified in site settings"
+        return (enabled, reason)
 
 
 
@@ -324,7 +361,7 @@ class MewloSite(object):
     def preprocess_settings(self, eventlist):
         """We may want to preprocess/cache some settings before we start."""
         # cache some stuff?
-        self.controllerroot = self.settings.get_sectionvalue(self.DEF_SECTION_config, self.DEF_CONFIGVAR_controllerroot)
+        self.controllerroot = self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_controllerroot)
 
 
 
@@ -333,11 +370,12 @@ class MewloSite(object):
         if (eventlist == None):
             eventlist = EventList()
         #
-        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
-        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_controllerroot, False, "no site-default specified for controller root.")
-        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_siteurl_relative, False, "site has no relative url specified; assumed to start at root (/).")
-        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_siteurl_absolute, True, "site has no absolute url address.")
-        self.validate_setting_config(eventlist, self.DEF_CONFIGVAR_sitefilepath, True, "site has no filepath specified for it's home directory.")
+        self.validate_setting_config(eventlist, MewloSite.DEF_SETTINGNAME_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
+        self.validate_setting_config(eventlist, MewloSite.DEF_SETTINGNAME_controllerroot, False, "no site-default specified for controller root.")
+        # required stuff
+        self.validate_setting_config(eventlist, MewloSite.DEF_SETTINGNAME_siteurl_internal, True, "site has no relative url specified; assumed to start at root (/).")
+        self.validate_setting_config(eventlist, MewloSite.DEF_SETTINGNAME_siteurl_absolute, True, "site has no absolute url address.")
+        self.validate_setting_config(eventlist, MewloSite.DEF_SETTINGNAME_sitefilepath, True, "site has no filepath specified for it's home directory.")
 
         # return events encountered
         return eventlist
@@ -347,7 +385,7 @@ class MewloSite(object):
 
     def validate_setting_config(self, eventlist, varname, iserror, messagestr):
         """Helper function for the validate() method."""
-        if (not self.settings.value_exists(varname, self.DEF_SECTION_config)):
+        if (not self.settings.value_exists(varname, MewloSite.DEF_SECTION_config)):
             estr = "In site '{0}', site config variable '{1}' not specified; {2}".format(self.get_sitename(),varname,messagestr)
             if (iserror):
                 eventlist.add(EError(estr))
@@ -362,6 +400,8 @@ class MewloSite(object):
         self.add_default_settings()
         self.add_loggers()
         self.add_routes()
+        # we add fallback loggers at END, after user-site added loggers
+        self.add_fallback_loggers()
 
     def add_settings_early(self):
         """Does nothing in base class, but subclass can overide."""
@@ -379,18 +419,59 @@ class MewloSite(object):
 
     def add_default_settings(self):
         """Set some default overrideable settings."""
+        self.set_default_settings_config()
         self.set_default_settings_aliases()
+
+
+    def set_default_settings_config(self):
+        """Set default config settings."""
+        config = {
+            MewloSite.DEF_SETTINGNAME_default_logfilename: MewloSite.DEF_SETTINGVAL_default_logfilename_defaultvalue,
+            }
+        self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_config, config)
 
 
     def set_default_settings_aliases(self):
         """Set default alias settings."""
         aliases = {
-            MewloSite.DEF_ALIASVAR_siteurl_absolute: self.settings.get_sectionvalue(self.DEF_SECTION_config, MewloSite.DEF_CONFIGVAR_siteurl_absolute),
-            MewloSite.DEF_ALIASVAR_siteurl_relative: self.settings.get_sectionvalue(self.DEF_SECTION_config, MewloSite.DEF_CONFIGVAR_siteurl_relative,''),
-            MewloSite.DEF_ALIASVAR_sitefilepath: self.settings.get_sectionvalue(self.DEF_SECTION_config, MewloSite.DEF_CONFIGVAR_sitefilepath),
-            MewloSite.DEF_ALIASVAR_logfilepath: '${sitefilepath}/logging',
+            MewloSite.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_siteurl_absolute),
+            MewloSite.DEF_SETTINGNAME_siteurl_internal: self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_siteurl_internal),
+            MewloSite.DEF_SETTINGNAME_sitefilepath: self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_sitefilepath),
+            MewloSite.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
             }
         self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_aliases, aliases)
+
+
+
+
+    def add_fallback_loggers(self):
+        """Create any default fallback loggers that we should always put in place."""
+        # We create a fallback default file logger that will log everything from current run to file, and reset each run
+        # ATTN:TODO - we will want to later change this to logrotate or something
+
+        # create a single logger (with no filters); multiple loggers are supported because each logger can have filters that define what this logger filters out
+        self.fallbacklogger = self.add_logger(Logger('FallbackLogger'))
+
+        # now add some targets (handlers) to it
+        fpath = self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_default_logfilename)
+        self.fallbacklogger.add_target(LogTarget_File(filename=self.resolvealias(fpath), filemode='w'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -472,30 +553,30 @@ class MewloSite(object):
 
 
 
-    def alias_to_filepath(self, alias):
-        """Convert an alias to a file path."""
-        # ATTN: TODO
-        return alias
-
-    def alias_to_url(self, alias):
-        """Convert an alias to a url."""
-        # ATTN: TODO
-        return alias
-
     def resolvealias(self, alias):
         """Resolve an alias."""
         resolvedstr = resolve_expand_string(alias, self.settings.get_value(MewloSite.DEF_SECTION_aliases))
-        # ATTN: TODO
         return resolvedstr
 
 
+    def absolute_filepath(self, relpath):
+        """Shortcut to resolve a filepath given a relative path."""
+        return self.resolvealias('${sitefilepath}' + relpath)
+
+    def absolute_url(self, relpath):
+        """Shortcut to resolve a url given a relative path."""
+        return self.resolvealias('${siteurl_absolute}' + relpath)
+
+    def internal_url(self, relpath):
+        """Shortcut to resolve a url given a relative path."""
+        return self.resolvealias('${siteurl_internal}' + relpath)
 
 
 
-
-
-
-
+    def get_settings_forpackage(self, packageid):
+        """Given a package id, lookup its settings."""
+        retv = self.settings.get_sectionvalue(MewloSite.DEF_SECTION_packages, packageid,{})
+        return retv
 
 
 

@@ -340,7 +340,7 @@ class MewloRoute(object):
                 # there are extra parts, is this allowed?
                 if (self.allow_extra_args):
                     # ok consume the extra args and store them as a list in the argdict assigned to a special arg id
-                    argdict[self.DEF_ARGID_extraargs] = requestargs[requestargindex:]
+                    argdict[MewloRoute.DEF_ARGID_extraargs] = requestargs[requestargindex:]
                 else:
                     # extra args are considered errors
                     failure = EFailure("Extra args found at end of request after matching all expected args in route.")

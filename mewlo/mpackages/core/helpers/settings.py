@@ -9,6 +9,10 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 """
 
 
+# helper imports
+from misc import get_value_from_dict
+
+
 
 class Settings(object):
     """
@@ -36,9 +40,8 @@ class Settings(object):
 
     def get_value(self, propertyname, defaultval=None):
         """Lookup value from our settings dictionary and return it or default if not found."""
-        if (propertyname in self.settingdict):
-            return self.settingdict[propertyname]
-        return defaultval
+        return get_value_from_dict(self.settingdict,propertyname,defaultval)
+
 
 
 
