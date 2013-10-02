@@ -258,9 +258,9 @@ class MewloSite(object):
         # log system
         self.logmanager.startup(eventlist)
         # dispatcher
-        self.dispatcher.startup(eventlist)
+        self.dispatcher.startup()
         # registry
-        self.registry.startup(eventlist)
+        self.registry.startup()
         # packages (will load and instantiate enabled packages)
         self.packagemanager.startup(eventlist)
         # routes
@@ -282,6 +282,7 @@ class MewloSite(object):
 
     def shutdown(self, eventlist = None):
         """Shutdown everything."""
+        #print "*** IN SITE SHUTDOWN ***"
         # update state
         self.set_state(MewloSite.DEF_SITESTATE_SHUTDOWN_START)
         # shutdown routes

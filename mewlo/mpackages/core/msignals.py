@@ -22,16 +22,6 @@ class MewloSignalDispatcher(SignalDispatcher):
         super(MewloSignalDispatcher, self).__init__()
 
 
-    def startup(self, eventlist):
-        """Any startup stuff to do?"""
-        pass
-
-    def shutdown(self):
-        """Any shutdown stuff to do?"""
-        pass
-
-
-
 
 
 
@@ -43,10 +33,10 @@ class MewloSignalDispatcher(SignalDispatcher):
 class MewloSignalReceiver(SignalReceiver):
     """The object receives signals from dispatcher."""
 
-    def __init__(self, callback, idfilter, sourcefilter, extra = None, flag_returnsvalue = True):
+    def __init__(self, owner, callback, idfilter, sourcefilter, extra = None, flag_returnsvalue = True):
         """Constructor."""
         # partent constructor
-        super(MewloSignalReceiver, self).__init__(callback, idfilter, sourcefilter, extra, flag_returnsvalue)
+        super(MewloSignalReceiver, self).__init__(owner, callback, idfilter, sourcefilter, extra, flag_returnsvalue)
 
 
 

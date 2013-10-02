@@ -55,7 +55,7 @@ class MewloSite_Test1(MewloSite):
                 'enabled': True,
                 },
             'mouser.testpackage' : {
-                'enabled': False,
+                'enabled': True,
                 }
             }
         self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_packages, packagesettings)

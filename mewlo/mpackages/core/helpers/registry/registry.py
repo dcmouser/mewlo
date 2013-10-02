@@ -40,11 +40,22 @@ from ..misc import does_dict_filter_match
 class Component(object):
     """A component object that can be added to the ComponentRegsitry."""
 
-    def __init__(self, features, obj):
+    def __init__(self, owner, features, obj):
         """Constructor."""
         # init
+        self.owner = owner
         self.features = features
         self.obj = obj
+
+
+    def startup(self):
+        #print "**** IN COMPONENT STARTUP ****"
+        pass
+
+    def shutdown(self):
+        #print "**** IN COMPONENT SHUTDOWN ****"
+        pass
+
 
     def get_features(self):
         """We use a function here in case subclass wants to override."""
@@ -85,6 +96,15 @@ class ComponentRegistry(object):
 
 
 
+    def startup(self):
+        #print "** REGISTRY IS STARTING UP. **"
+        pass
+
+    def shutdown(self):
+        #print "** REGISTRY IS SHUTTING DOWN. **"
+        self.unregister_all()
+
+
 
     def register_component(self, component):
         """
@@ -121,6 +141,25 @@ class ComponentRegistry(object):
         # return the first match
         return matches[0]
 
+
+
+    def unregister_byowner(self, owner):
+        """Unregister anything owned by the specified ownerobject."""
+        self.components= [x for x in self.components if not self.shutdown_obj_ifownedby(x,owner)]
+
+    def shutdown_obj_ifownedby(self, obj, owner):
+        """If a component has the owner specified, shut it down and return True; otherwise return False."""
+        if (obj.owner != owner):
+            return False
+        obj.shutdown()
+        return True
+
+    def unregister_all(self):
+        """Shutdown all registered components."""
+        #print "***SHUTTING DOWN REGISTERED COMPONENTS: "+str(len(self.components))
+        for component in self.components:
+            component.shutdown()
+        self.components = []
 
 
 

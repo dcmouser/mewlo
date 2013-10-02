@@ -42,7 +42,6 @@ class Test_MewloPackageObject(MewloPackageObject):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # return failure if any, or None on success
 
-
         # ATTN: as a test, let's set up a signal listener for ALL signals
         if (True):
             # create receiver
@@ -51,7 +50,7 @@ class Test_MewloPackageObject(MewloPackageObject):
             sourcefilter = None
             extra = None
             flag_returnsvalue = True
-            signalreceiver = MewloSignalReceiver(callback, idfilter, sourcefilter, extra, flag_returnsvalue)
+            signalreceiver = MewloSignalReceiver(self, callback, idfilter, sourcefilter, extra, flag_returnsvalue)
             # now register it with the site dispatcher
             mewlosite().dispatcher.register_receiver(signalreceiver)
 
@@ -63,7 +62,7 @@ class Test_MewloPackageObject(MewloPackageObject):
             # CREATE the object that we are registering (the component registry will hold on to it)
             obj = Test_MewloPackage_Service()
             # now create the component wrapper around it
-            component = MewloComponent(features, obj)
+            component = MewloComponent(self, features, obj)
             # now register it with the site registry
             mewlosite().registry.register_component(component)
 
@@ -71,6 +70,18 @@ class Test_MewloPackageObject(MewloPackageObject):
         super(Test_MewloPackageObject, self).startup()
 
         return None
+
+
+
+
+
+    def shutdown(self):
+        # called by Mewlo system when it's ready for us to do any shutdown
+        # here we want to unregister any signals and components
+        mewlosite().registry.unregister_byowner(self)
+        mewlosite().dispatcher.unregister_byowner(self)
+        pass
+
 
 
 
@@ -83,6 +94,13 @@ class Test_MewloPackageObject(MewloPackageObject):
         self.log_signalmessage(msg, receiverobject, id, message, request, source)
         # return (result, failure)
         return (None, None)
+
+
+
+
+
+
+
 
 
 

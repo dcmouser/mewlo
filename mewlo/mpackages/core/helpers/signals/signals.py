@@ -51,14 +51,25 @@ ATTN:TODO - There is a lot more to implement here.
 class SignalReceiver(object):
     """The object receives signals from dispatcher."""
 
-    def __init__(self, callback, idfilter, sourcefilter, extra = None, flag_returnsvalue = True):
+    def __init__(self, owner, callback, idfilter, sourcefilter, extra = None, flag_returnsvalue = True):
         """Constructor."""
         # init
+        self.owner = owner
         self.callback = callback
         self.idfilter = idfilter
         self.sourcefilter = sourcefilter
         self.extra = extra
         self.flag_returnsvalue = flag_returnsvalue
+
+
+    def startup(self):
+        #print "**** IN SIGNALRECEIVER STARTUP ****"
+        pass
+
+    def shutdown(self):
+        #print "**** IN SIGNALRECEIVER SHUTDOWN ****"
+        pass
+
 
 
     def does_want_signal(self, id, message, request, source):
@@ -179,6 +190,15 @@ class SignalDispatcher(object):
 
 
 
+    def startup(self):
+        #print "** SIGNAL DISPATCHER IS STARTING UP. **"
+        pass
+
+
+    def shutdown(self):
+        #print "** SIGNAL DISPATCHER IS SHUTTING DOWN. **"
+        self.unregister_all()
+
 
     def register_sender(self, sender):
         """
@@ -237,6 +257,25 @@ class SignalDispatcher(object):
         # return
         return retv
 
+
+
+    def unregister_byowner(self, owner):
+        """Unregister anything owned by the specified ownerobject."""
+        self.receivers = [x for x in self.receivers if not self.shutdown_obj_ifownedby(x,owner)]
+
+    def shutdown_obj_ifownedby(self, obj, owner):
+        """If a component has the owner specified, shut it down and return True; otherwise return False."""
+        if (obj.owner != owner):
+            return False
+        obj.shutdown()
+        return True
+
+    def unregister_all(self):
+        """Shutdown all registered receivers."""
+        #print "***SHUTTING DOWN REGISTERED RECEIVERS: "+str(len(self.receivers))
+        for receiver in self.receivers:
+            receiver.shutdown()
+        self.receivers = []
 
 
 
