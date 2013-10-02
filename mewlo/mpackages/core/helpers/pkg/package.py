@@ -53,10 +53,25 @@ class Package(object):
         self.eventlist = EventList()
 
 
-    def set_enabled(self, val, reason):
+    def do_enabledisable(self, flag_enable, reason, eventlist):
         """Set the disabled flag for the package.  If False than the code for the package will not be loaded and run."""
-        self.enabled = val
+        alreadyenabled = self.enabled
+        # change state
+        self.enabled = flag_enable
         self.enabledisablereason = reason
+        # do stuff on change of state
+        if (alreadyenabled == flag_enable):
+            # nothing to do, it's already where we want it
+            pass
+        elif (flag_enable):
+            # we want to enable this package that is currently not enabled
+            # ATTN: todo - do we want to OVERRIDE/IGNORE any settings that say to disable this package when we are told to explicitly enable it? I say yes.
+            self.startup()
+        elif (not flag_enable):
+            # we want to disable this package that is currently enabled
+            self.shutdown()
+        return None
+
 
 
     def create_packageobject(self, packageobj_class):
@@ -195,12 +210,19 @@ class Package(object):
 
     def startup(self):
         """Do any startup stuff."""
-        if (self.packageobject!=None):
-            self.packageobject.startup()
+        if (self.readytoloadcode):
+            # load the code module
+            self.load_codemodule()
+            if (self.packageobject!=None):
+                # now start it up
+                self.packageobject.startup()
+
     def shutdown(self):
         """Do any shutdown stuff."""
         if (self.packageobject!=None):
             self.packageobject.shutdown()
+            # and now release the packageobject payload to garbage collection
+            self.packageobject = None
 
 
 

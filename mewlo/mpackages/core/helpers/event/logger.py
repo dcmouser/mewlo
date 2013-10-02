@@ -70,7 +70,7 @@ class LogManager(object):
         self.loggers.append(logger)
 
 
-    def startup(self):
+    def startup(self, eventlist):
         """Startup everything, we are about to exit."""
         for logger in self.loggers:
             logger.startup()

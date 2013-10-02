@@ -38,3 +38,11 @@ and some functions that raise exceptions.
 we need a systematic explanation of when/why some functions catch exceptions and return them as events vs those which pass exceptions up the chain
 and a systematic documentation to make this clear for any given function at a glance.
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+10/1/13
+take a look at a file like package.py
+note that its impossible to distinguish between api functions meant to be called by someone, vs helper functions used by these.
+//---------------------------------------------------------------------------

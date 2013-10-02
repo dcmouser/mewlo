@@ -23,6 +23,7 @@ When coding a new plugin/extension, ONLY a derived PackageObject class would be 
 # helper imports
 from ..callables import importmodule_bypath
 from ..event.event import EFailure
+from ..misc import get_value_from_dict
 
 # python imports
 import imp
@@ -47,6 +48,8 @@ class PackageManager(object):
         self.dirlist = []
         self.filepatternsuffix = ''
         self.setuptools_entrypoint_groupname = ''
+        self.packagesettings = {}
+        self.default_packagesettings = {}
         # package collection
         self.packages = []
 
@@ -60,35 +63,36 @@ class PackageManager(object):
     def set_setuptools_entrypoint_groupname(self, setuptools_entrypoint_groupname):
         self.setuptools_entrypoint_groupname = setuptools_entrypoint_groupname
 
+    def set_packagesettings(self, packagesettings):
+        self.packagesettings = packagesettings
+
+    def set_default_packagesettings(self, default_packagesettings):
+        self.default_packagesettings = default_packagesettings
+
 
     def create_package(self, filepath):
         """Create a child package; subclasses will reimplement this to use their preferred child class."""
-        return Package(self, filepath)
+        pkg = Package(self, filepath)
+        return pkg
+
+    def createadd_package_frominfofile(self, infofilepath):
+        """Given a path to an infofile, create a package from it."""
+        pkg = self.create_package(infofilepath)
+        if (pkg != None):
+            self.packages.append(pkg)
+            # load the info file related to it
+            pkg.load_infofile()
+        return pkg
 
 
 
-    def performdiscovery(self, eventlist):
-        """Scan for packages and instantiate and start them up."""
-        self.discover_packages()
-        #
-        self.load_package_infofiles()
-
-
-    def instantiate_and_startup(self, eventlist):
-        #
-        self.instantiate_packages()
-        #
-        self.startup_packages()
 
 
 
-    def shutdown(self):
-        """Shutdown the packages."""
-        self.shutdown_packages()
 
 
 
-    def discover_packages(self):
+    def discover_packages(self, eventlist):
         """Scan all package directories and discover packages."""
 
         # init
@@ -103,28 +107,23 @@ class PackageManager(object):
         packagefilepaths += self.discover_setuptools_entrypoints_packagefilepaths()
         # now for each file, create a package from it
         for filepath in packagefilepaths:
-            self.createadd_package_frominfofile(filepath)
+            # create the package wrapper from the file
+            pkg = self.createadd_package_frominfofile(filepath)
 
 
 
-    def load_package_infofiles(self):
-        """Load the infofiles for all packages found."""
+
+
+    def startup(self, eventlist):
+        """Startup packages."""
+        # discover the packages in the package directories
+        self.discover_packages(eventlist)
+        # ok now that we have disocvered the packages, we walk them and apply any settings the might enable or disable them
         for package in self.packages:
-            package.load_infofile()
+            self.startup_package_auto(package, eventlist)
 
 
-    def instantiate_packages(self):
-        """Actually import code modules and instantiate package objects."""
-        self.load_package_codemodules()
-        self.startup_packages()
-
-
-    def startup_packages(self):
-        """Startup the packages."""
-        for package in self.packages:
-            package.startup()
-
-    def shutdown_packages(self):
+    def shutdown(self):
         """Shutdown the packages."""
         for package in self.packages:
             package.shutdown()
@@ -134,11 +133,7 @@ class PackageManager(object):
 
 
 
-    def createadd_package_frominfofile(self, infofilepath):
-        """Given a path to an infofile, create a package from it."""
-        pkg = self.create_package(infofilepath)
-        if (pkg != None):
-            self.packages.append(pkg)
+
 
 
 
@@ -226,11 +221,6 @@ class PackageManager(object):
 
 
 
-    def load_package_codemodules(self):
-        """Load the code modules for all packages found."""
-        for package in self.packages:
-            if (package.readytoloadcode):
-                package.load_codemodule()
 
 
     def loadimport(self, path):
@@ -257,6 +247,43 @@ class PackageManager(object):
         return PackageManager.classwide_packagemodules[path], None
 
 
+
+
+
+
+    def get_settings_forpackage(self, packageid):
+        """Given a package id, lookup its settings."""
+        retv = get_value_from_dict(self.packagesettings,packageid,{})
+        return retv
+
+
+
+    def startup_package_auto(self, package, eventlist):
+        """Before we instantiate a package, we preprocess it using our settings, which may disable/enabe them."""
+        # let's enable or disable the package based on our settings
+        (flag_enable, reason) = self.should_enable_package(package, eventlist)
+        package.do_enabledisable(flag_enable, reason, eventlist)
+
+
+    def should_enable_package(self, package, eventlist):
+        """Do settings say to disable this package? Return tuple of (flag_enable, reasonstring)."""
+        # ATTN:TODO - inter-dependency of packaged
+        reason = "n/a"
+        packageid = package.get_infofile_property('uniqueid')
+        # is the package REQUIRED?
+        if (package.get_infofile_property('required')):
+            flag_enable = True
+            reason = "required package"
+        else:
+            # get any settings for the package
+            packagesettings = self.get_settings_forpackage(packageid)
+            flag_enable = get_value_from_dict(packagesettings,'enabled')
+            if (flag_enable==None):
+                flag_enable = get_value_from_dict(self.default_packagesettings,'enabled')
+                reason = "default for packages"
+            else:
+                reason = "specified in site settings"
+        return (flag_enable, reason)
 
 
 

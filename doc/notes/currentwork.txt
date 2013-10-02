@@ -4,6 +4,12 @@ CURRENT WORKING-ON LIST:
 
 
 //---------------------------------------------------------------------------
+handle package dependencies?
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
 Make a roadmap.
 //---------------------------------------------------------------------------
 
@@ -38,4 +44,23 @@ Idea:
 Have a fallback file logger that is always set up.
 when debugging is enabled, ALL messages log to that file, regardless of where else it is logged.
 when debugging is disabled, NOTHING gets logged to that file.
+//---------------------------------------------------------------------------
+
+
+
+
+//---------------------------------------------------------------------------
+split site and sitemanager file
+split logger file
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+support runtime enabling/disabling, loading/unloading of packages.
+issues:
+1. startup and shutdown code for package objects
+2. how to know if enabling a package should result in its code being instantiated, or if we haven't gotten to that yet
+3. removing any signals or broadcasters for unloading stuff
+4. does this require we re-arrange enabling/disabling into one procedure (Activate/DeActivate)
 //---------------------------------------------------------------------------

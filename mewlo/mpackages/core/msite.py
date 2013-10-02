@@ -245,8 +245,6 @@ class MewloSite(object):
         if (eventlist == None):
             eventlist = EventList()
 
-        # set the context of the eventlist to this site so all added events properly denote they are from our site
-        #eventlist.set_context("Preparing site " + self.get_sitename())
 
         # any settings caching or other pre-preparation we need to do
         self.preprocess_settings(eventlist)
@@ -258,15 +256,15 @@ class MewloSite(object):
         # startup our helpers
         #
         # log system
-        self.startup_logmanager(eventlist)
+        self.logmanager.startup(eventlist)
         # dispatcher
         self.dispatcher.startup(eventlist)
         # registry
         self.registry.startup(eventlist)
         # packages
-        self.startup_packagemanager(eventlist)
+        self.packagemanager.startup(eventlist)
         # routes
-        self.startup_routes(eventlist)
+        self.routes.startup(self, eventlist)
 
 
         # log all startup events
@@ -305,55 +303,14 @@ class MewloSite(object):
 
 
 
-    def startup_routes(self, eventlist):
-        """Walk all routes and compile/cache/update stuff."""
-        self.routes.startup(self, eventlist)
-
-    def startup_packagemanager(self, eventlist):
-        """Startup packages."""
-        # discover packages and load info files so we can learn about them
-        packagedirectories = self.get_root_package_directory_list() + self.get_site_package_directory_list()
-        self.packagemanager.set_directories(packagedirectories)
-        self.packagemanager.performdiscovery(eventlist)
-        # ok now that we have disocvered the packages, we should DISABLE/ENABLE them all
-        self.preprocess_packages(eventlist)
-        # and now we can load and start them up
-        self.packagemanager.instantiate_and_startup(eventlist)
-
-    def startup_logmanager(self,eventlist):
-        """Startup logging system."""
-        self.logmanager.startup()
 
 
 
 
-    def preprocess_packages(self, eventlist):
-        """Before we instantiate packages, we preprocess them using our settings, which may disable/enabe them."""
-        # let's enable or disable the package
-        for package in self.packagemanager.packages:
-            (enabled, reason) = self.should_enable_package(package,eventlist)
-            package.set_enabled(enabled, reason)
 
 
-    def should_enable_package(self, package, eventlist):
-        """Do settings say to disable this package? Return tuple of (enabled, reasonstring)."""
-        # ATTN:TODO - inter-dependency of packaged
-        reason = "n/a"
-        packageid = package.get_infofile_property('uniqueid')
-        # is the package REQUIRED?
-        if (package.get_infofile_property('required')):
-            enabled = True
-            reason = "required package"
-        else:
-            # get any settings for the package
-            packagesettings = self.get_settings_forpackage(packageid)
-            enabled = get_value_from_dict(packagesettings,'enabled')
-            if (enabled==None):
-                enabled = get_value_from_dict(MewloSite.DEF_SETTINGVAL_default_package_settings,'enabled')
-                reason = "default for packages"
-            else:
-                reason = "specified in site settings"
-        return (enabled, reason)
+
+
 
 
 
@@ -362,7 +319,10 @@ class MewloSite(object):
         """We may want to preprocess/cache some settings before we start."""
         # cache some stuff?
         self.controllerroot = self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_controllerroot)
-
+        # package manager init
+        self.packagemanager.set_directories( self.get_root_package_directory_list() + self.get_site_package_directory_list() )
+        self.packagemanager.set_packagesettings( self.settings.get_value(MewloSite.DEF_SECTION_packages) )
+        self.packagemanager.set_default_packagesettings(MewloSite.DEF_SETTINGVAL_default_package_settings)
 
 
     def validate(self, eventlist=None):
@@ -570,14 +530,6 @@ class MewloSite(object):
     def internal_url(self, relpath):
         """Shortcut to resolve a url given a relative path."""
         return self.resolvealias('${siteurl_internal}' + relpath)
-
-
-
-    def get_settings_forpackage(self, packageid):
-        """Given a package id, lookup its settings."""
-        retv = self.settings.get_sectionvalue(MewloSite.DEF_SECTION_packages, packageid,{})
-        return retv
-
 
 
 

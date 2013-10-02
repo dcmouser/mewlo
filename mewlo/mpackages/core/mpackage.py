@@ -13,7 +13,7 @@ from helpers.pkg.packageobject import PackageObject
 from helpers.pkg.packagemanager import PackageManager
 from helpers.pkg.package import Package
 from helpers.event.event import EventList, EError, EWarning, EDebug
-
+from helpers.misc import get_value_from_dict
 
 
 
@@ -50,7 +50,6 @@ class MewloPackageManager(PackageManager):
     # class constants
     DefMewlo_Package_filepatternsuffix = 'mpackage'
 
-
     def __init__(self):
         # parent constructor
         super(MewloPackageManager, self).__init__()
@@ -59,9 +58,19 @@ class MewloPackageManager(PackageManager):
         # set setuptools entrypoint groupname
         self.set_setuptools_entrypoint_groupname('mewlo.packages')
 
+
     def create_package(self, filepath):
         """Create an appropriate child package."""
         return MewloPackage(self, filepath)
+
+
+
+
+
+
+
+
+
 
 
 
