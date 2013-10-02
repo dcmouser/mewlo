@@ -261,7 +261,7 @@ class MewloSite(object):
         self.dispatcher.startup(eventlist)
         # registry
         self.registry.startup(eventlist)
-        # packages
+        # packages (will load and instantiate enabled packages)
         self.packagemanager.startup(eventlist)
         # routes
         self.routes.startup(self, eventlist)
@@ -323,6 +323,11 @@ class MewloSite(object):
         self.packagemanager.set_directories( self.get_root_package_directory_list() + self.get_site_package_directory_list() )
         self.packagemanager.set_packagesettings( self.settings.get_value(MewloSite.DEF_SECTION_packages) )
         self.packagemanager.set_default_packagesettings(MewloSite.DEF_SETTINGVAL_default_package_settings)
+
+
+
+
+
 
 
     def validate(self, eventlist=None):

@@ -64,3 +64,10 @@ issues:
 3. removing any signals or broadcasters for unloading stuff
 4. does this require we re-arrange enabling/disabling into one procedure (Activate/DeActivate)
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+10/2/13
+json errors no longer reporting line number for syntax error
+//---------------------------------------------------------------------------

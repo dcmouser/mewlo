@@ -16,7 +16,9 @@
 
 	"license": "BSD",
 
-	"requires": [],
+	"requires": {
+			"packages": ["mouser.mewlotestplug"]
+		},
 
 	"codefile": "test_mpackage.py",
 	"codeclass": "Test_MewloPackageObject"

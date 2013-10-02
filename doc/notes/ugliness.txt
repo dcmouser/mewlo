@@ -45,4 +45,6 @@ and a systematic documentation to make this clear for any given function at a gl
 10/1/13
 take a look at a file like package.py
 note that its impossible to distinguish between api functions meant to be called by someone, vs helper functions used by these.
+move all "internal" functions to _ prefixes?
+by internal i mean functions not meant to be called from outside the class
 //---------------------------------------------------------------------------

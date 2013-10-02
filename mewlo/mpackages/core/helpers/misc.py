@@ -112,3 +112,10 @@ def resolve_expand_string(patternstring, replacementdict, depthcount=0):
 
 
 
+def append_text(mainstring, newstring, separator = "; "):
+    """Add some text to a string which is accumulating it."""
+    if (mainstring==None or mainstring==''):
+        return newstring
+    return mainstring + separator + newstring
+
+

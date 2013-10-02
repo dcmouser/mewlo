@@ -23,7 +23,8 @@ When coding a new plugin/extension, ONLY a derived PackageObject class would be 
 # helper imports
 from ..callables import importmodule_bypath
 from ..event.event import EFailure
-from ..misc import get_value_from_dict
+from ..misc import get_value_from_dict, append_text
+from package import Package
 
 # python imports
 import imp
@@ -87,6 +88,24 @@ class PackageManager(object):
 
 
 
+    def startup(self, eventlist):
+        """Startup packages."""
+        # discover the packages in the package directories
+        self.discover_packages(eventlist)
+        # ok now that we have disocvered the packages, we walk them and apply any settings the might enable or disable them
+        for package in self.packages:
+            self.startup_package_auto(package, eventlist)
+
+
+
+    def shutdown(self):
+        """Shutdown the packages."""
+        for package in self.packages:
+            package.shutdown()
+
+
+
+
 
 
 
@@ -109,30 +128,6 @@ class PackageManager(object):
         for filepath in packagefilepaths:
             # create the package wrapper from the file
             pkg = self.createadd_package_frominfofile(filepath)
-
-
-
-
-
-    def startup(self, eventlist):
-        """Startup packages."""
-        # discover the packages in the package directories
-        self.discover_packages(eventlist)
-        # ok now that we have disocvered the packages, we walk them and apply any settings the might enable or disable them
-        for package in self.packages:
-            self.startup_package_auto(package, eventlist)
-
-
-    def shutdown(self):
-        """Shutdown the packages."""
-        for package in self.packages:
-            package.shutdown()
-
-
-
-
-
-
 
 
 
@@ -261,35 +256,86 @@ class PackageManager(object):
     def startup_package_auto(self, package, eventlist):
         """Before we instantiate a package, we preprocess it using our settings, which may disable/enabe them."""
         # let's enable or disable the package based on our settings
-        (flag_enable, reason) = self.should_enable_package(package, eventlist)
+        (flag_enable, reason) = self.should_enable_package(package, eventlist, [])
         package.do_enabledisable(flag_enable, reason, eventlist)
 
 
-    def should_enable_package(self, package, eventlist):
+    def should_enable_package(self, package, eventlist, assumegoodlist):
         """Do settings say to disable this package? Return tuple of (flag_enable, reasonstring)."""
-        # ATTN:TODO - inter-dependency of packaged
+        packageid = package.get_infofile_property(Package.DEF_INFOFIELD_uniqueid)
+        #
         reason = "n/a"
-        packageid = package.get_infofile_property('uniqueid')
         # is the package REQUIRED?
-        if (package.get_infofile_property('required')):
+        if (package.get_infofile_property(Package.DEF_INFOFIELD_required)):
             flag_enable = True
             reason = "required package"
         else:
             # get any settings for the package
             packagesettings = self.get_settings_forpackage(packageid)
-            flag_enable = get_value_from_dict(packagesettings,'enabled')
+            flag_enable = get_value_from_dict(packagesettings,Package.DEF_INFOFIELD_enabled)
             if (flag_enable==None):
-                flag_enable = get_value_from_dict(self.default_packagesettings,'enabled')
+                flag_enable = get_value_from_dict(self.default_packagesettings,Package.DEF_INFOFIELD_enabled)
                 reason = "default for packages"
             else:
                 reason = "specified in site settings"
+        # now if we want to enable this package but it REQUIRES any other packages, make sure they are found and enabled, otherwise force disabled
+        if (flag_enable):
+            (dependencies_met, failurereason) = self.check_package_dependencies(package, assumegoodlist)
+            if (not dependencies_met):
+                flag_enable = False
+                reason = "forcing disabled due to dependencies failure: " + failurereason
         return (flag_enable, reason)
 
 
+    def will_enable_package_byid(self, packageid, assumegoodlist):
+        """Check if package will be enabled, by id."""
+        package = self.findpackage_byid(packageid)
+        if (package==None):
+            return (False,"Package not found.".format(packageid))
+        # hand it off to normal package enable test
+        eventlist = []
+        return self.should_enable_package(package, eventlist, assumegoodlist)
+
+
+
+    def check_package_dependencies(self, package, assumegoodlist):
+        """Check whether this package has its dependenices met.  Return tuple (dependencies_met, reasontext)."""
+        reason = ""
+        result = True
+        packageid = package.get_infofile_property(Package.DEF_INFOFIELD_uniqueid)
+        # is this package already on our assumed good list? if so just return and and say good (this avoids circular dependencies)
+        if (packageid in assumegoodlist):
+            return (True,"")
+        # add this packageid to our list of assumed good
+        assumegoodlist.append(packageid)
+        # first get the list of what this package requires
+        requiredict = package.get_infofile_property(Package.DEF_INFOFIELD_requires)
+        if (requiredict != None):
+            # ok let's check for required PACKAGES (not python packages but our packages)
+            requiredpackages = get_value_from_dict(requiredict, Package.DEF_INFOFIELD_requiredpackages)
+            if (requiredpackages != None):
+                # ok we need to check required packages
+                # ATTN: TODO - we may want to check version infor here later
+                for packageid in requiredpackages:
+                    (required_package_enabled, thisreason) = self.will_enable_package_byid(packageid, assumegoodlist)
+                    if (not required_package_enabled):
+                        result = False
+                        thisreason = "Required package '{0}' was disabled due to: ".format(packageid) + thisreason
+                        reason = append_text(reason, thisreason, " ;")
+        # if we fell down to here, all requirements are met
+        return (result, reason)
 
 
 
 
+    def findpackage_byid(self, packageid):
+        """Return the package object for the package specified by id, or None if not found."""
+        #ATTN: TODO - cache this info in a dictionary for faster lookup?
+        for package in self.packages:
+            apackageid = package.get_infofile_property(Package.DEF_INFOFIELD_uniqueid)
+            if (packageid == apackageid):
+                return package
+        return None
 
 
 

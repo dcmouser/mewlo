@@ -33,6 +33,14 @@ class Package(object):
     If an addon cannot be located/loaded/etc., the error information will be stores in this eventlist, and the addon will be disabled.
     """
 
+    # class constants
+    DEF_INFOFIELD_required = 'required'
+    DEF_INFOFIELD_requires = 'requires'
+    DEF_INFOFIELD_uniqueid = 'uniqueid'
+    DEF_INFOFIELD_enabled = 'enabled'
+    DEF_INFOFIELD_requiredpackages = 'packages'
+
+
     def __init__(self, packagemanager, filepath):
         # keep pointer to package manager
         self.packagemanager = packagemanager

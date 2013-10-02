@@ -52,7 +52,7 @@ class MewloSite_Test1(MewloSite):
         # package settings
         packagesettings = {
             'mouser.mewlotestplug' : {
-                'enabled': False,
+                'enabled': True,
                 },
             'mouser.testpackage' : {
                 'enabled': False,
