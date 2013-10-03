@@ -6,7 +6,7 @@ They are custom subclasses from the pkg classes.
 
 
 # mewlo imports
-from mewlo.mpackages.core.mglobals import mewlosite
+import mglobals
 
 # helper imports
 from helpers.pkg.packageobject import PackageObject
@@ -103,7 +103,7 @@ class MewloPackageObject(PackageObject):
             print txtplus
         # log it
         txtevent = EDebug("Debug logging signal message: " + txtplus, flag_loc=True)
-        mewlosite().logevent(txtevent, request)
+        mglobals.mewlosite().logevent(txtevent, request)
 
 
 

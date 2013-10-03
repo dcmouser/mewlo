@@ -5,8 +5,8 @@ This file contains classes to support web server requests
 
 
 # mewlo imports
-from mresponse import MewloResponse
-from mewlo.mpackages.core.mglobals import mewlosite
+import mresponse
+import mglobals
 
 # werkzeug imports
 from werkzeug.wrappers import Request
@@ -27,7 +27,7 @@ class MewloRequest(object):
         self.parsedargs = None
         self.route = None
         # note that a request contains a response, to be filled in during processing of request
-        self.response = MewloResponse(self)
+        self.response = mresponse.MewloResponse(self)
 
 
 
@@ -68,7 +68,7 @@ class MewloRequest(object):
     def logevent(self, mevent):
         """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
         # add it via site
-        mewlosite().logevent(mevent,request = self)
+        mglobals.mewlosite().logevent(mevent,request = self)
 
 
 

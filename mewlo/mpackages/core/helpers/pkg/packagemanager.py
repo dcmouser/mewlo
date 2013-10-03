@@ -91,10 +91,17 @@ class PackageManager(object):
     def startup(self, eventlist):
         """Startup packages."""
         # discover the packages in the package directories
+        failures = []
         self.discover_packages(eventlist)
         # ok now that we have disocvered the packages, we walk them and apply any settings the might enable or disable them
         for package in self.packages:
-            self.startup_package_auto(package, eventlist)
+            failure = self.startup_package_auto(package, eventlist)
+            if (failure != None):
+                # if we get a hard failure here, we add it to our list of failures, and to the eventlist
+                eventlist.add(failure)
+                failures.append(failure)
+        # return failures
+        return failures
 
 
 
@@ -255,12 +262,21 @@ class PackageManager(object):
 
     def startup_package_auto(self, package, eventlist):
         """Before we instantiate a package, we preprocess it using our settings, which may disable/enabe them."""
-        # let's enable or disable the package based on our settings
-        (flag_enable, reason) = self.should_enable_package(package, eventlist, [])
-        package.do_enabledisable(flag_enable, reason, eventlist)
+        # let's see if user WANTS this package enabled or disabled based on settings
+        (flag_enable, reason) = self.want_enable_package(package, eventlist)
+        # if they want it enabled, lets see if it meets initial dependency check if not, its a failure
+        if (flag_enable):
+            (dependencies_met, failurereason) = self.check_package_dependencies(package, None, [])
+            if (not dependencies_met):
+                # dependency fail, disable it and return the dependency error
+                flag_enable = False
+                package.do_enabledisable(flag_enable, reason, eventlist)
+                return EFailure(failurereason)
+        failure = package.do_enabledisable(flag_enable, reason, eventlist)
+        return failure
 
 
-    def should_enable_package(self, package, eventlist, assumegoodlist):
+    def want_enable_package(self, package, eventlist):
         """Do settings say to disable this package? Return tuple of (flag_enable, reasonstring)."""
         packageid = package.get_infofile_property(Package.DEF_INFOFIELD_uniqueid)
         #
@@ -274,35 +290,38 @@ class PackageManager(object):
             packagesettings = self.get_settings_forpackage(packageid)
             flag_enable = get_value_from_dict(packagesettings,Package.DEF_INFOFIELD_enabled)
             if (flag_enable==None):
-                flag_enable = get_value_from_dict(self.default_packagesettings,Package.DEF_INFOFIELD_enabled)
-                reason = "default for packages"
+                flag_enable = get_value_from_dict(self.default_packagesettings, Package.DEF_INFOFIELD_enabled)
+                reason = "default enable/disable state for packages"
             else:
-                reason = "specified in site settings"
-        # now if we want to enable this package but it REQUIRES any other packages, make sure they are found and enabled, otherwise force disabled
-        if (flag_enable):
-            (dependencies_met, failurereason) = self.check_package_dependencies(package, assumegoodlist)
-            if (not dependencies_met):
-                flag_enable = False
-                reason = "forcing disabled due to dependencies failure: " + failurereason
+                if (flag_enable):
+                    reason = "explicitly enabled in site settings"
+                else:
+                    reason = "explicitly disabled in site settings"
         return (flag_enable, reason)
 
 
-    def will_enable_package_byid(self, packageid, assumegoodlist):
+
+    def will_enable_package_byid(self, packageid, requirer, assumegoodlist):
         """Check if package will be enabled, by id."""
         package = self.findpackage_byid(packageid)
         if (package==None):
-            return (False,"Package not found.".format(packageid))
-        # hand it off to normal package enable test
+            return (False,"Package not found".format(packageid))
         eventlist = []
-        return self.should_enable_package(package, eventlist, assumegoodlist)
+        (flag_enable, reason) = self.want_enable_package(package, eventlist)
+        if (flag_enable):
+            (dependencies_met, reason) = self.check_package_dependencies(package, requirer, assumegoodlist)
+            if (not dependencies_met):
+                flag_enable = false
+        return (flag_enable, reason)
 
 
-
-    def check_package_dependencies(self, package, assumegoodlist):
+    def check_package_dependencies(self, package, requirer, assumegoodlist):
         """Check whether this package has its dependenices met.  Return tuple (dependencies_met, reasontext)."""
         reason = ""
         result = True
         packageid = package.get_infofile_property(Package.DEF_INFOFIELD_uniqueid)
+        if (requirer==None):
+            requirer = "Package '{0}'".format(packageid)
         # is this package already on our assumed good list? if so just return and and say good (this avoids circular dependencies)
         if (packageid in assumegoodlist):
             return (True,"")
@@ -317,10 +336,10 @@ class PackageManager(object):
                 # ok we need to check required packages
                 # ATTN: TODO - we may want to check version infor here later
                 for packageid in requiredpackages:
-                    (required_package_enabled, thisreason) = self.will_enable_package_byid(packageid, assumegoodlist)
+                    (required_package_enabled, thisreason) = self.will_enable_package_byid(packageid, requirer, assumegoodlist)
                     if (not required_package_enabled):
                         result = False
-                        thisreason = "Required package '{0}' was disabled due to: ".format(packageid) + thisreason
+                        thisreason = "{0} depends on package '{1}', which is not enabled because: ".format(requirer, packageid) + thisreason
                         reason = append_text(reason, thisreason, " ;")
         # if we fell down to here, all requirements are met
         return (result, reason)

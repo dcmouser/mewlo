@@ -6,7 +6,8 @@ This class defines a test site (and will run a debug test of it if started as ma
 
 
 # Mewlo imports
-from mewlo.mpackages.core.msite import MewloSite, MewloSiteManager
+from mewlo.mpackages.core.msite import MewloSite
+import mewlo.mpackages.core.msitemanager as msitemanager
 from mewlo.mpackages.core.mroutemanager import *
 from mewlo.mpackages.core.mcontroller import MewloController
 
@@ -22,16 +23,16 @@ import mpackages as pkgdirimp_sitempackages
 import controllers as pkgdirimp_controllers
 
 # python imports
-import os
+import os, sys
 
 
 
 # the test1 demo site class
 class MewloSite_Test1(MewloSite):
 
-    def __init__(self):
+    def __init__(self, debugmode):
         # call parent constructor
-        super(MewloSite_Test1, self).__init__(__name__)
+        super(MewloSite_Test1, self).__init__(__name__, debugmode)
 
 
 
@@ -49,7 +50,7 @@ class MewloSite_Test1(MewloSite):
             }
         self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_config, config)
 
-        # package settings
+        # extension package settings
         packagesettings = {
             'mouser.mewlotestplug' : {
                 'enabled': True,
@@ -223,7 +224,6 @@ class MewloSite_Test1(MewloSite):
 def main():
     """This function is invoked by the python interpreter if this script itself is executed as the main script."""
 
-
     # flags for commandline launch
     flag_debugsite = True
     flag_runtests = True
@@ -231,7 +231,7 @@ def main():
 
 
     # Create a site manager and ask it to instantiate a site of the class we specify
-    sitemanager = MewloSiteManager(MewloSite_Test1)
+    sitemanager = msitemanager.MewloSiteManager(flag_debugsite, MewloSite_Test1)
 
     # startup sites - this will generate any preparation errors
     sitemanager.startup()

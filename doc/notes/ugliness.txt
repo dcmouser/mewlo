@@ -48,3 +48,8 @@ note that its impossible to distinguish between api functions meant to be called
 move all "internal" functions to _ prefixes?
 by internal i mean functions not meant to be called from outside the class
 //---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+reduce use of the "from x import y" stuff, as it makes circular dependencies
+//---------------------------------------------------------------------------

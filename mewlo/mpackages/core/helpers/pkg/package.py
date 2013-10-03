@@ -4,12 +4,11 @@ Works with packagemanager.py to support our package/extension/addon system
 """
 
 
-# mewlo imports
-from ..misc import readfile_asjson
-
 # helper imports
+from ..misc import readfile_asjson
 from ..event.event import EventList, EFailure
 from ..exceptionplus import ExceptionPlus
+
 
 # python imports
 import json
@@ -62,11 +61,13 @@ class Package(object):
 
 
     def do_enabledisable(self, flag_enable, reason, eventlist):
-        """Set the disabled flag for the package.  If False than the code for the package will not be loaded and run."""
+        """
+        Set the disabled flag for the package.  If False than the code for the package will not be loaded and run.
+        return None on success, or failure on error.
+        """
+        retv = None
         alreadyenabled = self.enabled
-        # change state
-        self.enabled = flag_enable
-        self.enabledisablereason = reason
+
         # do stuff on change of state
         if (alreadyenabled == flag_enable):
             # nothing to do, it's already where we want it
@@ -74,11 +75,16 @@ class Package(object):
         elif (flag_enable):
             # we want to enable this package that is currently not enabled
             # ATTN: todo - do we want to OVERRIDE/IGNORE any settings that say to disable this package when we are told to explicitly enable it? I say yes.
-            self.startup()
+            retv = self.startup()
         elif (not flag_enable):
             # we want to disable this package that is currently enabled
-            self.shutdown()
-        return None
+            retv = self.shutdown()
+        # change state on absence of error
+        if (retv==None):
+            self.enabled = flag_enable
+            self.enabledisablereason = reason
+        # return
+        return retv
 
 
 
@@ -117,10 +123,6 @@ class Package(object):
         self.codemodule_path = ''
         self.packageobject = None
         self.readytorun = False
-
-        if (not self.enabled):
-            # it's disabled, do nothing
-            return
 
         # get path to code module
         self.codemodule_path, failure = self.get_pathtocodemodule()
@@ -202,20 +204,6 @@ class Package(object):
 
 
 
-    def update_queue_check(self):
-        """Update: check online for new version. ATTN: UNFINISHED."""
-        pass
-
-    def update_queue_download(self):
-        """Update: download a downloaded new version. ATTN: UNFINISHED."""
-        pass
-
-    def update_queue_install(self):
-        """Update: install a new version. ATTN: UNFINISHED."""
-        pass
-
-
-
     def startup(self):
         """Do any startup stuff."""
         if (self.readytoloadcode):
@@ -223,7 +211,12 @@ class Package(object):
             self.load_codemodule()
             if (self.packageobject!=None):
                 # now start it up
-                self.packageobject.startup()
+                failure = self.packageobject.checkusable()
+                if (failure!=None):
+                    return failure
+                failure = self.packageobject.startup()
+                return failure
+        # ATTN: do we want to throw an error/failure in this case where the code module is not ready to run?
 
     def shutdown(self):
         """Do any shutdown stuff."""

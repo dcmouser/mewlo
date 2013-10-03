@@ -5,7 +5,7 @@
 
 
 # mewlo imports
-from mewlo.mpackages.core.msite import MewloSiteManager
+import mewlo.mpackages.core.msitemanager as msitemanager
 
 # helper imports
 from testhelpers.testsite1.testsite1 import MewloSite_Test1
@@ -23,8 +23,11 @@ class BasicSiteTest(unittest.TestCase):
     def testSimpleSiteInstantiation(self):
         """A simple test that just creates a small sample site and checks for errors."""
 
+        # start up in debug mode?
+        debugmode = True
+
         # Create a site manager and ask it to instantiate a site of the class we specify
-        sitemanager = MewloSiteManager(MewloSite_Test1)
+        sitemanager = msitemanager.MewloSiteManager(debugmode, MewloSite_Test1)
 
         # startup site - this will generate any preparation errors
         sitemanager.startup()

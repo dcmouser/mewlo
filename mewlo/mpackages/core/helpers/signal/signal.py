@@ -1,5 +1,5 @@
 """
-signals.py
+signal.py
 This module contains classes and functions for the signal sending/receiving system.
 
 The Signal system implements a kind of slot-filler, subscriber-receiver model, so that we can have many-to-many signal sending without senders needing to know about recipients.

@@ -1,0 +1,4 @@
+//---------------------------------------------------------------------------
+Add support for unzipping an addon extension into a proper directory,
+ to install it.  and for deleting it to uninstall it.
+//---------------------------------------------------------------------------

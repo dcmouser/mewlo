@@ -16,7 +16,7 @@ This file contains classes to handle Mewlo sites and site manager.any globals th
 # But as a point of fact, i think we prefer to have NO globals other than the site, and let the site object hold anything else that might otherwise be considered a "global"
 MewloGlobals = {
     'site': None,
-    'flag_debugmode_enabled': True,
+    #'flag_debugmode_enabled': True,
     }
 
 
@@ -34,10 +34,13 @@ def set_mewlosite(val):
 
 
 def debugmode():
-    #ATTN: might it be better to have this ask the SITE if its debugging?
-    global MewloGlobals
-    return MewloGlobals['flag_debugmode_enabled']
+    #ATTN: do we want to use a true global or ask the site for its setting?
+    return mewlosite().get_debugmode()
+    #global MewloGlobals
+    #return MewloGlobals['flag_debugmode_enabled']
+
 def set_debugmode(val):
-    #ATTN: might it be better to have this ask the SITE if its debugging?
-    global MewloGlobals
-    MewloGlobals['flag_debugmode_enabled'] = val
+    #ATTN: do we want to use a true global or ask the site for its setting?
+    mewlosite().get_debugmode()
+    #global MewloGlobals
+    #MewloGlobals['flag_debugmode_enabled'] = val

@@ -5,8 +5,8 @@ This file contains classes to support hierarchical settings associates with site
 
 
 # mewlo imports
-from mcontroller import MewloController
-from mewlo.mpackages.core.mglobals import mewlosite
+import mcontroller
+import mglobals
 
 # helper imports
 from helpers.event.event import EFailure, EFailureExtend
@@ -162,10 +162,10 @@ class MewloRoute(object):
         self.controllerroot = None
         #
         # the controller should be a MewloController derived class, or createable from whatever is passed
-        if (isinstance(controller, MewloController)):
+        if (isinstance(controller, mcontroller.MewloController)):
             self.controller = controller
         else:
-            self.controller = MewloController(function=controller)
+            self.controller = mcontroller.MewloController(function=controller)
 
 
 
@@ -367,7 +367,7 @@ class MewloRoute(object):
         request.set_route_parsedargs(argdict)
 
         # give site a chance to pre-handle the invocation
-        precall_failure = mewlosite().pre_runroute_callable(self, request)
+        precall_failure = mglobals.mewlosite().pre_runroute_callable(self, request)
         if (precall_failure != None):
             return precall_failure
 
@@ -377,7 +377,7 @@ class MewloRoute(object):
             return call_failure
 
         # give site a chance to do something after we run the route
-        postcall_failure = mewlosite().post_runroute_callable(request)
+        postcall_failure = mglobals.mewlosite().post_runroute_callable(request)
         if (postcall_failure != None):
             return postcall_failure
 

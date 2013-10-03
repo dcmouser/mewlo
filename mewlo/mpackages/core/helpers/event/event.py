@@ -286,7 +286,7 @@ class EventList(object):
 
     def count_errors(self):
         """Shorthand to count the number of events of error type."""
-        return self.countfieldmatches('type', Event.DEF_ETYPE_error)
+        return self.countfieldmatches('type', [Event.DEF_ETYPE_error, Event.DEF_ETYPE_failure])
 
 
 

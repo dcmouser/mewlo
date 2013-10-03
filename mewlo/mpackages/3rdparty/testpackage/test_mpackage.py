@@ -5,11 +5,13 @@ This file manages a test package
 
 
 # mewlo imports
-from mewlo.mpackages.core.mpackage import MewloPackageObject
-from mewlo.mpackages.core.msignals import MewloSignalReceiver
-from mewlo.mpackages.core.mregistry import MewloComponent
-#
-from mewlo.mpackages.core.mglobals import mewlosite
+import mewlo.mpackages.core.mpackage as mpackage
+import mewlo.mpackages.core.msignal as msignal
+import mewlo.mpackages.core.mregistry as mregistry
+import mewlo.mpackages.core.mglobals as mglobals
+
+# helper imports
+from mewlo.mpackages.core.helpers.event.event import EFailure
 
 
 class Test_MewloPackage_Service(object):
@@ -25,7 +27,10 @@ class Test_MewloPackage_Service(object):
 
 
 
-class Test_MewloPackageObject(MewloPackageObject):
+
+
+
+class Test_MewloPackageObject(mpackage.MewloPackageObject):
     """
     The Test_MewloPackage class defines a test mewlo "package" aka extension/plugin/addon.
     """
@@ -50,9 +55,9 @@ class Test_MewloPackageObject(MewloPackageObject):
             sourcefilter = None
             extra = None
             flag_returnsvalue = True
-            signalreceiver = MewloSignalReceiver(self, callback, idfilter, sourcefilter, extra, flag_returnsvalue)
+            signalreceiver = msignal.MewloSignalReceiver(self, callback, idfilter, sourcefilter, extra, flag_returnsvalue)
             # now register it with the site dispatcher
-            mewlosite().dispatcher.register_receiver(signalreceiver)
+            mglobals.mewlosite().dispatcher.register_receiver(signalreceiver)
 
 
         # ATTN: as a test let's add an object to the registry
@@ -62,13 +67,14 @@ class Test_MewloPackageObject(MewloPackageObject):
             # CREATE the object that we are registering (the component registry will hold on to it)
             obj = Test_MewloPackage_Service()
             # now create the component wrapper around it
-            component = MewloComponent(self, features, obj)
+            component = mregistry.MewloComponent(self, features, obj)
             # now register it with the site registry
-            mewlosite().registry.register_component(component)
+            mglobals.mewlosite().registry.register_component(component)
 
         # lastly, call the parent startup (important!)
         super(Test_MewloPackageObject, self).startup()
 
+        # success
         return None
 
 
@@ -78,9 +84,9 @@ class Test_MewloPackageObject(MewloPackageObject):
     def shutdown(self):
         # called by Mewlo system when it's ready for us to do any shutdown
         # here we want to unregister any signals and components
-        mewlosite().registry.unregister_byowner(self)
-        mewlosite().dispatcher.unregister_byowner(self)
-        pass
+        mglobals.mewlosite().registry.unregister_byowner(self)
+        mglobals.mewlosite().dispatcher.unregister_byowner(self)
+        return None
 
 
 
@@ -99,6 +105,30 @@ class Test_MewloPackageObject(MewloPackageObject):
 
 
 
+
+
+
+    def checkusable(self):
+        """
+        See base class for documentation.
+        """
+        return None
+        #return EFailure("The package 'test_mpackage' needs to run a database update before it can run.")
+
+    def generate_update_choices(self):
+        """
+        Here we want to return a list of update choices to present the user.
+        ATTN: TODO - figure out the format of how to return this information.
+        """
+        return None
+
+    def run_update(self, updatechoice):
+        """
+        Here we want to run an update.
+        ATTN: TODO - figure out the format of the updatechoice stuff.
+        :return: None on success, or failure event if not.
+        """
+        return None
 
 
 

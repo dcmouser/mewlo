@@ -44,9 +44,6 @@ Some examples of things we will want to be able to easily do:
 """
 
 
-# mewlo imports
-from mewlo.mpackages.core.mglobals import mewlosite, debugmode
-
 # helper imports
 from ..debugging import smart_dotted_idpath
 from ..exceptionplus import reraiseplus
@@ -60,9 +57,13 @@ class LogManager(object):
     LogManager - the main supervisor class that manages a collection of Loggers
     """
 
-    def __init__(self):
+    def __init__(self, debugmode):
         self.loggers = []
+        self.debugmode = debugmode
 
+
+    def set_debugmode(self, val):
+        self.debugmode = val
 
     def add_logger(self, logger):
         """Just add a child logger to our collection."""
@@ -89,7 +90,7 @@ class LogManager(object):
             wrotecount += logger.process(logmessage, wrotecount)
         # if debug mode, and no one else handled it, print it
         if (wrotecount==0):
-            if (debugmode()):
+            if (self.debugmode):
                 print str(logmessage)
         # return if true
         return wrotecount

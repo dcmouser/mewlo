@@ -1,0 +1,13 @@
+//---------------------------------------------------------------------------
+split larger module files with multiple classes (site, etc.)
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+right now we have a single global signal dispatcher.
+receivers register for messages with it, and can set filters on what they get signaled about
+but with huge numbers of signals this might be a lot of checking
+should we instead have receivers attach to specific sender slots?
+
+it's possible that we could emulate the efficiency of this using a hash system in the single global dispatcher
+//---------------------------------------------------------------------------

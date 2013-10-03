@@ -3,7 +3,7 @@
 # this is NOT part of the test suite just a quick way of testing standalone site script execution
 
 # Mewlo imports
-from testhelpers.testsite1 import testsite1
+import testhelpers.testsite1.testsite1 as testsite1
 
 
 

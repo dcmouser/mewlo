@@ -1,11 +1,11 @@
 """
-msignals.py
+msignal.py
 This module contains classes and functions for the signal sending/receiving system.
 """
 
 
 # helper imports
-from helpers.signals.signals import SignalDispatcher, SignalReceiver
+from helpers.signal.signal import SignalDispatcher, SignalReceiver
 
 # python imports
 
