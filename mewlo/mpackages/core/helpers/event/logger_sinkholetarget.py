@@ -16,7 +16,7 @@ class LogTarget_Sinkhole(LogTarget):
 
     def __init__(self):
         # parent constructor
-        super(LogTarget_Python, self).__init__()
+        super(LogTarget_Sinkhole, self).__init__()
 
 
 

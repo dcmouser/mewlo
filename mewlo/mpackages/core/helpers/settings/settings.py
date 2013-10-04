@@ -10,7 +10,7 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 
 
 # helper imports
-from misc import get_value_from_dict
+from ..misc import get_value_from_dict
 
 
 
@@ -23,43 +23,56 @@ class Settings(object):
         self.settingdict = {}
 
 
+    def remove_all(self):
+        """Clear contents of settings."""
+        self.settingdict = {}
+
+    def remove_property(self, propertyname):
+        """Clear contents of one property."""
+        del self.settingdict[propertyname]
+
+
     def merge_settings(self, settingstoadd):
         """Just merge in a new dicitonary into our main dictionary."""
         self.settingdict.update(settingstoadd)
 
 
 
-    def merge_settings_atsection(self, sectionname, settingstoadd):
+    def merge_settings_property(self, propertyname, settingstoadd):
         """Merge in a new dicitonary into our main dictionary at a specific root section (creating root section if needed)."""
-        if not sectionname in self.settingdict:
-            self.settingdict[sectionname] = settingstoadd
+        if not propertyname in self.settingdict:
+            self.settingdict[propertyname] = settingstoadd
         else:
-            self.settingdict[sectionname].update(settingstoadd)
+            # merge the new settings with old, e.g. union of arrays or dictionaries, etc
+            self.settingdict[propertyname].update(settingstoadd)
 
+
+    def set_property(self, propertyname, value):
+        """Set and overwrite a value at a section, replacing whatever was there."""
+        self.settingdict[propertyname] = value
 
 
     def get_value(self, propertyname, defaultval=None):
         """Lookup value from our settings dictionary and return it or default if not found."""
-        return get_value_from_dict(self.settingdict,propertyname,defaultval)
+        return get_value_from_dict(self.settingdict, propertyname, defaultval)
 
 
-
-
-
-    def get_sectionvalue(self, propertysection, propertyname, defaultval=None):
+    def get_subvalue(self, propertyname, propertysubname, defaultval=None):
         """Lookup value from our settings dictionary at a certain root section, and return it or default if not found."""
-        if (propertysection in self.settingdict):
-            if (propertyname in self.settingdict[propertysection]):
-                return self.settingdict[propertysection][propertyname]
+        if (propertyname in self.settingdict):
+            if (propertysubname in self.settingdict[propertyname]):
+                return self.settingdict[propertyname][propertysubname]
         return defaultval
 
 
 
-    def value_exists(self, propertyname, propertysection=None):
+    def value_exists(self, propertyname, propertysubname=None):
         """Return true if the item existing in our settings dictionary (at specific root section if specified)."""
-        if (propertysection == None):
+        if (propertysubname == None):
             return (propertyname in self.settingdict)
-        return (propertyname in self.settingdict[propertysection])
+        if (not propertyname in self.settingdict):
+            return False
+        return (propertysubname in self.settingdict[propertyname])
 
 
 

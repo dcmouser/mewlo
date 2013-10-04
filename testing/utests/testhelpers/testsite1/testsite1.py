@@ -48,7 +48,7 @@ class MewloSite_Test1(MewloSite):
             MewloSite.DEF_SETTINGNAME_siteurl_internal: '/mewlo',
             MewloSite.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1/mewlo',
             }
-        self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_config, config)
+        self.settings.merge_settings_property(MewloSite.DEF_SECTION_config, config)
 
         # extension package settings
         packagesettings = {
@@ -59,7 +59,7 @@ class MewloSite_Test1(MewloSite):
                 'enabled': True,
                 }
             }
-        self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_packages, packagesettings)
+        self.settings.merge_settings_property(MewloSite.DEF_SECTION_packages, packagesettings)
 
 
 

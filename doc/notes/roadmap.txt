@@ -1,0 +1,6 @@
+Roadmap
+=======
+
+1. finish extension system with update checking and db updating
+2. persistent settings (like db extension plugins)
+

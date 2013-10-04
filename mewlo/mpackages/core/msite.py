@@ -16,7 +16,8 @@ import mregistry
 # helper imports
 from helpers.event.event import Event, EventList, EWarning, EError, EDebug
 from helpers.event.logger import LogManager, Logger
-from helpers.settings import Settings
+from helpers.settings.settings import Settings
+from helpers.settings.dbsettings import DbSettings
 from helpers.event.logger_filetarget import LogTarget_File
 from helpers.misc import get_value_from_dict
 from helpers.misc import resolve_expand_string
@@ -204,7 +205,7 @@ class MewloSite(object):
         """Return a list of absolute directory paths where (addon) packages should be scanned"""
 
         packagedirectories = []
-        sitepackages = self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_pkgdirimps_sitempackages)
+        sitepackages = self.settings.get_subvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_pkgdirimps_sitempackages)
         if (sitepackages == None):
             pass
         else:
@@ -327,7 +328,7 @@ class MewloSite(object):
     def preprocess_settings(self, eventlist):
         """We may want to preprocess/cache some settings before we start."""
         # cache some stuff?
-        self.controllerroot = self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_controllerroot)
+        self.controllerroot = self.settings.get_subvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_controllerroot)
         # package manager init
         self.packagemanager.set_directories( self.get_root_package_directory_list() + self.get_site_package_directory_list() )
         self.packagemanager.set_packagesettings( self.settings.get_value(MewloSite.DEF_SECTION_packages) )
@@ -359,7 +360,7 @@ class MewloSite(object):
 
     def validate_setting_config(self, eventlist, varname, iserror, messagestr):
         """Helper function for the validate() method."""
-        if (not self.settings.value_exists(varname, MewloSite.DEF_SECTION_config)):
+        if (not self.settings.value_exists(MewloSite.DEF_SECTION_config, varname)):
             estr = "In site '{0}', site config variable '{1}' not specified; {2}".format(self.get_sitename(),varname,messagestr)
             if (iserror):
                 eventlist.add(EError(estr))
@@ -402,18 +403,18 @@ class MewloSite(object):
         config = {
             MewloSite.DEF_SETTINGNAME_default_logfilename: MewloSite.DEF_SETTINGVAL_default_logfilename_defaultvalue,
             }
-        self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_config, config)
+        self.settings.merge_settings_property(MewloSite.DEF_SECTION_config, config)
 
 
     def set_default_settings_aliases(self):
         """Set default alias settings."""
         aliases = {
-            MewloSite.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_siteurl_absolute),
-            MewloSite.DEF_SETTINGNAME_siteurl_internal: self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_siteurl_internal),
-            MewloSite.DEF_SETTINGNAME_sitefilepath: self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_sitefilepath),
+            MewloSite.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_subvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_siteurl_absolute),
+            MewloSite.DEF_SETTINGNAME_siteurl_internal: self.settings.get_subvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_siteurl_internal),
+            MewloSite.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_sitefilepath),
             MewloSite.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
             }
-        self.settings.merge_settings_atsection(MewloSite.DEF_SECTION_aliases, aliases)
+        self.settings.merge_settings_property(MewloSite.DEF_SECTION_aliases, aliases)
 
 
 
@@ -427,7 +428,7 @@ class MewloSite(object):
         self.fallbacklogger = self.add_logger(Logger('FallbackLogger'))
 
         # now add some targets (handlers) to it
-        fpath = self.settings.get_sectionvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_default_logfilename)
+        fpath = self.settings.get_subvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_default_logfilename)
         self.fallbacklogger.add_target(LogTarget_File(filename=self.resolvealias(fpath), filemode='w'))
 
 

@@ -17,3 +17,10 @@ http://codex.wordpress.org/Creating_Tables_with_Plugins#Creating_or_Updating_the
 //---------------------------------------------------------------------------
 we want to support console based utilties for a website
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+the important of a testing framework that will submit many requests at once
+//---------------------------------------------------------------------------
+
