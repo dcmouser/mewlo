@@ -137,23 +137,6 @@ class SignalSender(object):
 
 
 
-class Signal(object):
-    """The object that represents a kind of signal."""
-
-    def __init__(self):
-        """Constructor."""
-        # init
-        pass
-
-    def dumps(self, indent=0):
-        """Debug information."""
-        outstr = " "*indent + "Signal reporting in.\n"
-        return outstr
-
-
-
-
-
 
 
 

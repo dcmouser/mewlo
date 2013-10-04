@@ -6,7 +6,7 @@ This file contains classes to handle Mewlo site class.
 
 # mewlo imports
 import mpackage
-import mroutemanager
+import mroute
 import mglobals
 import msitemanager
 import msignal
@@ -97,7 +97,7 @@ class MewloSite(object):
         # collection of mewlo addon packages
         self.packagemanager = mpackage.MewloPackageManager()
         # route manager
-        self.routes = mroutemanager.MewloRouteGroup()
+        self.routes = mroute.MewloRouteGroup()
         # signal dispatcher
         self.dispatcher = msignal.MewloSignalDispatcher()
         # component registry

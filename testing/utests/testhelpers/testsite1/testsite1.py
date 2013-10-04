@@ -6,10 +6,10 @@ This class defines a test site (and will run a debug test of it if started as ma
 
 
 # Mewlo imports
+from mewlo.mpackages.core.msitemanager import MewloSiteManager
 from mewlo.mpackages.core.msite import MewloSite
-import mewlo.mpackages.core.msitemanager as msitemanager
-from mewlo.mpackages.core.mroutemanager import *
 from mewlo.mpackages.core.mcontroller import MewloController
+from mewlo.mpackages.core.mroute import *
 
 # helpers
 from mewlo.mpackages.core.helpers.event.logger import Logger
@@ -231,7 +231,7 @@ def main():
 
 
     # Create a site manager and ask it to instantiate a site of the class we specify
-    sitemanager = msitemanager.MewloSiteManager(flag_debugsite, MewloSite_Test1)
+    sitemanager = MewloSiteManager(flag_debugsite, MewloSite_Test1)
 
     # startup sites - this will generate any preparation errors
     sitemanager.startup()

@@ -1,6 +1,6 @@
 """
-mroutemanager.py
-This file contains classes to support hierarchical settings associates with sites
+mroute.py
+This file contains classes to support routes
 """
 
 
