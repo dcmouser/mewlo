@@ -1,0 +1,20 @@
+Mewlo Database System
+======================
+
+Goals:
+
+	* As little "magic" as possible
+	* Use object-oriented interface (Active Record) as much as possible in cases where it won't effect speed
+	* But don't try to get too convoluted; when speed is important use lower-level db access.
+	* Support multiple databases in same web application (i.e. different models saved to different databases).
+	* Built-in support for profiling database access times, and detecting slow/expensive/memory-intensive db calls.
+	* Assume we will move mewlo to a non-python language eventually, and code accordingly.
+	* Abstract and hide the underlying database engine as much as possible so that db stuff is centralized someplace.
+	* We still don't know if we want database engine type we want to use.
+
+Database Engine Thoughts:
+
+	* MongoDb is a nice non-traditional (non-rdbms) nosql oop database, which seems pretty mature and performance focused.
+	* MongoDb has a medium-level api interface that we could use directly and would be easy to migrate if we moved languages.
+	* SqlAlchemy provides a very nice high-level api for using sql-based database engines.  Very featureful but moving away from python would require complete rewrite.
+

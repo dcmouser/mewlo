@@ -93,8 +93,12 @@ class MewloSite(object):
         self.sitemanager = None
         self.controllerroot = None
         #
-        # create site settings
+        # create (non-db-persistent) site settings -- these are set by configuration at runtime
         self.settings = Settings()
+        #
+        # create persistent(db) package settings
+        self.packagesettings = DbSettings()
+        #
         # collection of mewlo addon packages
         self.packagemanager = mpackage.MewloPackageManager()
         # route manager
@@ -121,6 +125,9 @@ class MewloSite(object):
         """Return the debubmode."""
         return self.debugmode
 
+
+    def get_packagesettings(self):
+        return self.packagesettings
 
 
     def debuglog(self, msg, request = None):
@@ -254,6 +261,8 @@ class MewloSite(object):
         if (eventlist == None):
             eventlist = EventList()
 
+        # first are main settings -- this startup usually does nothing since these settings are not persistent
+        self.settings.startup(eventlist)
 
         # any settings caching or other pre-preparation we need to do
         self.preprocess_settings(eventlist)
@@ -264,6 +273,8 @@ class MewloSite(object):
 
         # startup our helpers
         #
+        # package settings -- these are persistent and let packages (extensions/plugins) store persistent settings
+        self.packagesettings.startup(eventlist)
         # log system
         self.logmanager.startup(eventlist)
         # dispatcher

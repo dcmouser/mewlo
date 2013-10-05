@@ -90,9 +90,15 @@ class MewloPackageObject(PackageObject):
 
 
     def startup(self):
+        # parent
+        super(MewloPackageObject, self).startup()
+
+
+    def prepare(self):
         # called by Mewlo system when it's ready for us to do any setup stuff
-        # return failure if any, or None on success
-        return None
+        self.packagesettings = mglobals.mewlosite().get_packagesettings()
+        # parent
+        return super(MewloPackageObject, self).prepare()
 
 
     def log_signalmessage(self, txt, receiverobject, id, message, request, source):
@@ -106,7 +112,13 @@ class MewloPackageObject(PackageObject):
         mglobals.mewlosite().logevent(txtevent, request)
 
 
+    def log_event(self, event, request = None):
+        mglobals.mewlosite().logevent(event, request)
 
+
+    def get_databaseversion(self):
+        dbversion = self.packagesettings.get_subvalue(self.get_settingkey(),'database_version')
+        return dbversion
 
 
 

@@ -40,6 +40,14 @@ class DbSettings(settings.Settings):
         self.sync_timestamp_all = None
 
 
+    def startup(self, eventlist):
+        """Any initial startup stuff to do?"""
+        # parent constructor
+        super(DbSettings, self).startup(eventlist)
+        # ATTN: TO DO - set up database and open it
+
+
+
     def merge_settings(self, settingstoadd):
         """Just merge in a new dicitonary into our main dictionary."""
         self.db_lock()

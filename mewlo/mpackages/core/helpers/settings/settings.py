@@ -22,6 +22,9 @@ class Settings(object):
     def __init__(self):
         self.settingdict = {}
 
+    def startup(self, eventlist):
+        """Any initial startup stuff to do?"""
+        pass
 
     def remove_all(self):
         """Clear contents of settings."""

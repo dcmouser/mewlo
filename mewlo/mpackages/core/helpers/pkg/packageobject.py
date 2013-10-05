@@ -15,7 +15,16 @@ class PackageObject(object):
 
     def __init__(self, package):
         self.package = package
+        # default name
+        self.settingkey = self.__class__.__name__
 
+
+    def get_settingkey(self):
+        return self.settingkey
+
+    def prepare(self):
+        """Befire any other functions are called, we 'prepare' the packageobject.  Return None on success or failure on error."""
+        return None
 
 
     def startup(self):
