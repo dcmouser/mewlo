@@ -6,6 +6,7 @@
 
 # mewlo imports
 import mewlo.mpackages.core.msitemanager as msitemanager
+import mewlo.mpackages.core.mglobals as mglobals
 
 # helper imports
 from testhelpers.testsite1.testsite1 import MewloSite_Test1
@@ -31,6 +32,9 @@ class BasicSiteTest(unittest.TestCase):
 
         # startup site - this will generate any preparation errors
         sitemanager.startup()
+
+        # test of db stuff
+        mglobals.mewlosite().dbmanager.testcreate('meep')
 
         # check for errors
         if (sitemanager.prepeventlist.count_errors() > 0):

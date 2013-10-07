@@ -50,8 +50,8 @@ class MewloSite_Test1(MewloSite):
             }
         self.settings.merge_settings_property(MewloSite.DEF_SECTION_config, config)
 
-        # extension package settings
-        packagesettings = {
+        # extension package config
+        packageconfig = {
             'mouser.mewlotestplug' : {
                 'enabled': True,
                 },
@@ -59,8 +59,30 @@ class MewloSite_Test1(MewloSite):
                 'enabled': True,
                 }
             }
-        self.settings.merge_settings_property(MewloSite.DEF_SECTION_packages, packagesettings)
+        self.settings.merge_settings_property(MewloSite.DEF_SECTION_packages, packageconfig)
 
+        # database config
+        databaseconfig = {
+            'default' : {
+                #'url' : 'sqlite:///${dbfilepath}/mewlo_testsite1.sqlite',
+                'url' : 'sqlite:///E:\\WebsiteHttp\\mewlo\\testing\\utests\\testhelpers\\testsite1\\database\\mewlo_testsite1.sqlite',
+                'table_prefix': 'mewlo_'
+                },
+            'mstry' : {
+                'url' : 'mysql://mewlo_user:mewlo_pass@localhost:3306/mewlo_testsite1',
+                'table_prefix': 'mewlo_'
+                },
+            'mstry2': {
+                'engine': 'mysql',
+                'host': '127.0.0.1',
+                'port' : 3306,
+                'username': 'mewlo_user',
+                'password': 'mewlo_pass',
+                'database_name' : 'mewlo_testsite1',
+                'table_prefix': 'mewlo_'
+                }
+            }
+        self.settings.merge_settings_property(MewloSite.DEF_SECTION_database, databaseconfig)
 
 
 
@@ -246,6 +268,9 @@ def main():
     # start by displaying some debug info
     if (flag_debugsite):
         print sitemanager.dumps()
+
+
+
 
     # run tests?
     if (flag_runtests):

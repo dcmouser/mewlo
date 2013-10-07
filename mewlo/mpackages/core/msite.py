@@ -11,6 +11,7 @@ import mglobals
 import msitemanager
 import msignal
 import mregistry
+import mdbmanager
 
 
 # helper imports
@@ -48,6 +49,7 @@ class MewloSite(object):
     DEF_SECTION_config = 'config'
     DEF_SECTION_aliases = 'aliases'
     DEF_SECTION_packages = 'packages'
+    DEF_SECTION_database = 'database'
     # settings
     DEF_SETTINGNAME_pkgdirimps_sitempackages = 'pkgdirimps_sitempackages'
     DEF_SETTINGNAME_controllerroot = 'controllerroot'
@@ -56,6 +58,7 @@ class MewloSite(object):
     DEF_SETTINGNAME_sitefilepath = 'sitefilepath'
     DEF_SETTINGNAME_default_logfilename = 'logfilename'
     DEF_SETTINGNAME_logfilepath = 'logfilepath'
+    DEF_SETTINGNAME_dbfilepath = 'dbfilepath'
     # default values
     DEF_SETTINGVAL_default_logfilename_defaultvalue = '${logfilepath}/mewlo.log'
     DEF_SETTINGVAL_default_package_settings = { 'enabled': False }
@@ -95,6 +98,9 @@ class MewloSite(object):
         #
         # create (non-db-persistent) site settings -- these are set by configuration at runtime
         self.settings = Settings()
+        #
+        # database manager
+        self.dbmanager = mdbmanager.MewloDatabaseManager()
         #
         # create persistent(db) package settings
         self.packagesettings = DbSettings()
@@ -248,6 +254,17 @@ class MewloSite(object):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
     def startup(self, eventlist = None):
         """
         Do preparatory stuff after settings have been set.
@@ -273,14 +290,16 @@ class MewloSite(object):
 
         # startup our helpers
         #
+        # database manager
+        self.dbmanager.startup(eventlist)
         # package settings -- these are persistent and let packages (extensions/plugins) store persistent settings
         self.packagesettings.startup(eventlist)
         # log system
         self.logmanager.startup(eventlist)
         # dispatcher
-        self.dispatcher.startup()
+        self.dispatcher.startup(eventlist)
         # registry
-        self.registry.startup()
+        self.registry.startup(eventlist)
         # packages (will load and instantiate enabled packages)
         self.packagemanager.startup(eventlist)
         # routes
@@ -313,6 +332,8 @@ class MewloSite(object):
         self.dispatcher.shutdown()
         # startup registry
         self.registry.shutdown()
+        # database manager
+        self.dbmanager.shutdown()
         # update state
         self.set_state(MewloSite.DEF_SITESTATE_SHUTDOWN_END)
         # shutdown log system
@@ -344,6 +365,28 @@ class MewloSite(object):
         self.packagemanager.set_directories( self.get_root_package_directory_list() + self.get_site_package_directory_list() )
         self.packagemanager.set_packagesettings( self.settings.get_value(MewloSite.DEF_SECTION_packages) )
         self.packagemanager.set_default_packagesettings(MewloSite.DEF_SETTINGVAL_default_package_settings)
+        # database manager init
+        self.dbmanager.set_databasesettings( self.settings.get_value(MewloSite.DEF_SECTION_database) )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -424,6 +467,7 @@ class MewloSite(object):
             MewloSite.DEF_SETTINGNAME_siteurl_internal: self.settings.get_subvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_siteurl_internal),
             MewloSite.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_sitefilepath),
             MewloSite.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
+            MewloSite.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
             }
         self.settings.merge_settings_property(MewloSite.DEF_SECTION_aliases, aliases)
 
@@ -527,6 +571,8 @@ class MewloSite(object):
         outstr += (self.validate()).dumps(indent+1)
         outstr += "\n"
         outstr += self.settings.dumps(indent+1)
+        outstr += "\n"
+        outstr += self.dbmanager.dumps(indent+1)
         outstr += "\n"
         outstr += self.dispatcher.dumps(indent+1)
         outstr += "\n"

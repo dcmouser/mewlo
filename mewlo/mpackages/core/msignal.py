@@ -22,6 +22,13 @@ class MewloSignalDispatcher(SignalDispatcher):
         super(MewloSignalDispatcher, self).__init__()
 
 
+    def startup(self, eventlist):
+        # parent func
+        super(MewloSignalDispatcher, self).startup()
+
+    def shutdown(self):
+        # parent func
+        super(MewloSignalDispatcher, self).shutdown()
 
 
 

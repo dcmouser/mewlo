@@ -1,5 +1,5 @@
-Mewlo Database System
-======================
+Mewlo Database / Model System
+=============================
 
 Goals:
 
@@ -18,3 +18,13 @@ Database Engine Thoughts:
 	* MongoDb has a medium-level api interface that we could use directly and would be easy to migrate if we moved languages.
 	* SqlAlchemy provides a very nice high-level api for using sql-based database engines.  Very featureful but moving away from python would require complete rewrite.
 
+
+The Primary Guiding Principle of our Database/Model System is: DRY (Don't Repeat Yourself):
+
+	* There should be one clear place, in code, in the model class, where the complete information for model fields is specified.
+	* This specification of fields should completely specify the database table, enough to generate a Create statement for the database, including indices.
+	* This specification comprehensive information about how the fields should be presented in user interfaces.
+	* This includes validation and display widget information both for gathering these fields on a form (labels, widget types, validation, help hints, etc.).
+	* This also included widget hints for presenting admin tabular views of data, searching for it, etc.
+	* It should include additional information that will allow us to validate the entire table at any point (e.g. it might specify constraints, etc.)
+	* This information should be engine-neutral to the extent possible.

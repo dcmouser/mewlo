@@ -35,3 +35,11 @@ class MewloComponentRegistry(ComponentRegistry):
         # partent constructor
         super(MewloComponentRegistry, self).__init__()
 
+
+    def startup(self, eventlist):
+        # parent func
+        super(MewloComponentRegistry, self).startup()
+
+    def shutdown(self):
+        # parent func
+        super(MewloComponentRegistry, self).shutdown()
