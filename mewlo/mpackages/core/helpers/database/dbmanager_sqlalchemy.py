@@ -7,10 +7,14 @@ This is our database helper module
 
 
 # mewlo imports
+# ATTN: THIS SHOULD NOT BE FOUND IN A HELPERS MODULE
+import mewlo.mpackages.core.mglobals as mglobals
 
 # helper imports
 import dbmanager
 from ..event.event import EFailure
+from ..misc import get_value_from_dict
+
 
 # python imports
 
@@ -44,8 +48,10 @@ class DbmSqlAlchemyHelper(object):
                 self.url = self.resolve(self.dbsettings['url'])
             else:
                 raise EFailure("Could not get 'url' for about database connections.")
+            # logging flag?
+            flag_enablelogging = get_value_from_dict(self.dbsettings, 'flag_enablelogging', True)
             # create it!
-            self.engine = sqlalchemy.create_engine(self.url)
+            self.engine = sqlalchemy.create_engine(self.url, echo=flag_enablelogging)
             self.metadata = sqlalchemy.MetaData()
             self.metadata.bind = self.engine
         return self.engine
@@ -61,14 +67,25 @@ class DbmSqlAlchemyHelper(object):
     def getmake_session(self):
         """Return self.session or create it if None."""
         if (self.session == None):
-            self.session = sqlalchemy.orm.sessionmaker(bind=self.getmake_engine())
+            Session = sqlalchemy.orm.sessionmaker(bind=self.getmake_engine())
+            self.session = Session()
         return self.session
 
     def resolve(self, text):
         return self.dbmanager.resolve(text)
 
 
-
+    def shutdown(self):
+        """Shutdown any sqlalchemy stuff."""
+        if (self.engine!=None):
+            self.engine.dispose()
+            self.engine=None
+        if (self.session!=None):
+            self.session.close()
+            self.session=None
+        if (self.connection!=None):
+            self.connection.close()
+            self.connection=None
 
 
 
@@ -96,12 +113,15 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
         # create helpers
         for idname in self.databasesettings.keys():
             self.alchemyhelpers[idname] = DbmSqlAlchemyHelper(self, self.databasesettings[idname])
-
+        # let's put in place some log catchers
+        self.setup_logcatchers()
 
     def shutdown(self):
         # call parent func
         super(DatabaseManagerSqlAlchemy,self).shutdown()
-        pass
+        # shutdown helpers
+        for idname in self.alchemyhelpers.keys():
+            self.alchemyhelpers[idname].shutdown()
 
 
 
@@ -120,14 +140,22 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
 
 
 
-    def testcreate(self, idname):
+    def setup_logcatchers(self):
+        """Catch sqlalchemy log statements and route to Mewlo."""
+        mglobals.mewlosite().logmanager.hook_pythonlogger('sqlalchemy')
+
+
+
+
+
+    def dbtest(self, idname):
         """Test function."""
         sqlahelper = self.get_sqlahelper(idname)
         engine = sqlahelper.getmake_engine()
         connection = sqlahelper.getmake_connection()
         session = sqlahelper.getmake_session()
-        print " engine: "+str(engine)
-        print " connection: "+str(connection)
-        print " session: "+str(session)
+        #print " engine: "+str(engine)
+        #print " connection: "+str(connection)
+        #print " session: "+str(session)
 
 

@@ -49,6 +49,8 @@ from ..debugging import smart_dotted_idpath
 from ..exceptionplus import reraiseplus
 from event import Event
 
+# python imports
+import logging
 
 
 
@@ -85,17 +87,31 @@ class LogManager(object):
 
     def process(self, logmessage):
         """Process a logmessage(Event), by allowing each of our attached loggers to handle it."""
+        #print "PROCESSING MESSAGE "+str(logmessage)+ " for "+str(len(self.loggers))+" loggers."
         wrotecount = 0
         for logger in self.loggers:
             wrotecount += logger.process(logmessage, wrotecount)
         # if debug mode, and no one else handled it, print it
         if (wrotecount==0):
             if (self.debugmode):
-                print str(logmessage)
+                # echo it on screen if there are no loggers registered?
+                if (False):
+                    print str(logmessage)
         # return if true
         return wrotecount
 
 
+    def hook_pythonlogger(self, pythonlogger_name, pythonlogger_level=logging.DEBUG):
+        """Hook into python logging system to catch python error messages and create events from them for mewlo logging."""
+        # ATTN: TODO
+        #logging.basicConfig(level=logging.DEBUG)
+        # ok get/create the logger, and set its log level
+        logger = logging.getLogger(pythonlogger_name)
+        logger.setLevel(logging.DEBUG)
+        # now we add a handler that calls into us
+        loghandler = PythonLogHandler(self)
+        logger.addHandler(loghandler)
+        pass
 
 
 
@@ -264,6 +280,9 @@ class Logger(object):
         thiswrotecount = 0
         if (self.doesmatch_filters(logmessage, wrotecount)):
             thiswrotecount = self.run_targets(logmessage)
+        else:
+            print "LOGGER IS SKIPPING MESSAGE."
+            pass
         return thiswrotecount
 
 
@@ -299,3 +318,40 @@ class Logger(object):
                     # we probably wouldn't consider this a fatal error that should stop program from executing.
                     reraiseplus(exp, "Disabling the logger where the error occurred: ", obj=target)
         return thiswrotecount
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class PythonLogHandler(logging.Handler):
+    """A custom log handler we use to route python log messages to the log manager."""
+
+    def __init__(self, logmanager):
+        # run the regular Handler __init__
+        logging.Handler.__init__(self)
+        self.logmanager = logmanager
+
+    def emit(self, record):
+        # record.message is the log message
+        msg = self.format(record)
+        level = record.levelname
+        eventtype='DEBUG'
+        #
+        event = Event({'msg':msg, 'type':eventtype})
+        #print "EMITTING: "+msg
+        self.logmanager.process(event)
+

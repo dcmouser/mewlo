@@ -528,7 +528,6 @@ class MewloSite(object):
         Run the request through the routes and handle it if it matches any.
         :return: True if the request is for this site and we have set request.response
         """
-
         ishandled = self.routes.process_request(request)
         return ishandled
 

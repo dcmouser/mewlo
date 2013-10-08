@@ -54,6 +54,7 @@ class LogTarget_Python(LogTarget):
         ATTN:TODO - instead of str(logmessage) we should strip out the dictionary keys and write them.
         """
 
+
         # values from the log event
         level = logmessage.calc_pythonlogginglevel()
         msg = logmessage.getfield('msg', "")
@@ -88,7 +89,7 @@ class LogTarget_Python(LogTarget):
 
 
     @classmethod
-    def make_simple_pythonlogger_tofile(cls, loggername, filepath):
+    def make_simple_pythonlogger_tofile(cls, loggername, filepath, level=logging.DEBUG):
         """Class method to make a simple test file logger via python logging system."""
         import logging
         plogger = logging.getLogger(loggername)
@@ -96,6 +97,6 @@ class LogTarget_Python(LogTarget):
         formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s [filepath=%(pathname)s] [filename=%(filename)s] [funcname=%(funcName)s] [module=%(module)s] [lineno=%(lineno)d]")
         hdlr.setFormatter(formatter)
         plogger.addHandler(hdlr)
-        plogger.setLevel(logging.WARNING)
+        plogger.setLevel(level)
         return plogger
 

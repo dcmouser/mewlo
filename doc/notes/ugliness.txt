@@ -51,5 +51,13 @@ by internal i mean functions not meant to be called from outside the class
 
 
 //---------------------------------------------------------------------------
+10/3/13
 reduce use of the "from x import y" stuff, as it makes circular dependencies
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+10/8/13
+See mglobals for some SERIOUSLY evil python ugliness and problematic thing going on with python reloading modules and wiping out class/module state.
 //---------------------------------------------------------------------------

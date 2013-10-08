@@ -185,7 +185,7 @@ class Event(object):
         if (etype in Event.DEF_ETYPE_PYTHONLOGGING_MAP):
             pythonlevel = Event.DEF_ETYPE_PYTHONLOGGING_MAP[etype]
         else:
-            pythonlevel = Logging.Error
+            pythonlevel = logging.ERROR
         return pythonlevel
 
 

@@ -11,6 +11,7 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 
 # helper imports
 import settings
+from ..database.dbmodel_settingsdict import DbModel_SettingsDictionary
 
 # python imports
 import datetime
@@ -279,25 +280,42 @@ class DbSettings(settings.Settings):
 
     def db_remove_allproperties(self):
         """Remove all properties (rows) from the database table."""
-        # ATTN: TODO
-        pass
+        DbModel_SettingsDictionary.delete_all()
 
     def db_remove_property(self, propertyname):
         """Remove a specific property (row) from the database table."""
-        # ATTN: TODO
-        pass
+        DbModel_SettingsDictionary.delete_bykey({'keyname':propertyname})
+
 
     def db_loadproperty(self, propertyname):
         """Load a specific property (row) from the database table and unserialize it into self.settingdict[propertyname]."""
-        # ATTN: TODO
-        pass
+        # lookup row in database
+        dictrow = DbModel_SettingsDictionary.find_one_bykey({'keyname':propertyname}, None)
+        if (dictrow == None):
+            propdict = {}
+        else:
+            propdict = dictrow.unserialize()
+        # set it
+        self.settingdict[propertyname] = propdict
+
 
     def db_saveproperty(self, propertyname):
         """Serialize and then save self.settingdict[propertyname] into the appropriate database row."""
-        # ATTN: TODO
-        pass
+        # create new model for setting row
+        dictrow = DbModel_SettingsDictionary()
+        dictrow.name = propertyname
+        dictrow.serialize(get_value_from_dict(self.settingdict, propertyname, None))
+        # save it
+        dictrow.save()
+
 
     def db_loadallproperties(self):
         """Load all database rows and unserialize into self.settingdict."""
-        # ATTN: TODO
-        pass
+        # load all into memory
+        dictrows = DbModel_SettingsDictionary.find_all()
+        # clear current dictionary
+        settingdict = {}
+        # convert all
+        for dictrow in dictrows:
+            self.settingdict[propertyname] = dictrow.unserialize()
+
