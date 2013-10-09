@@ -76,4 +76,9 @@ def db():
     return mewlosite().dbmanager
 
 
+def notfinished(msg):
+    """Shortcut function to log a not finished message."""
+    from helpers.event.event import EWarning
+    mewlosite().logevent(EWarning(msg))
+
 

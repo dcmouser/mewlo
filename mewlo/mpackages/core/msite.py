@@ -12,6 +12,7 @@ import msitemanager
 import msignal
 import mregistry
 import mdbmanager
+import mnav
 
 
 # helper imports
@@ -113,6 +114,8 @@ class MewloSite(object):
         self.dispatcher = msignal.MewloSignalDispatcher()
         # component registry
         self.registry = mregistry.MewloComponentRegistry()
+        # navnode manager
+        self.navnodes = mnav.NavNodeManager()
         #
         # record package of the site for relative imports
         self.sitemodulename = sitemodulename
@@ -300,10 +303,13 @@ class MewloSite(object):
         self.dispatcher.startup(eventlist)
         # registry
         self.registry.startup(eventlist)
+        # nav nodes
+        self.navnodes.startup(eventlist)
         # packages (will load and instantiate enabled packages)
         self.packagemanager.startup(eventlist)
         # routes
         self.routes.startup(self, eventlist)
+
 
 
         # log all startup events
@@ -332,6 +338,8 @@ class MewloSite(object):
         self.dispatcher.shutdown()
         # startup registry
         self.registry.shutdown()
+        # navnode manager
+        self.navnodes.shutdown()
         # database manager
         self.dbmanager.shutdown()
         # update state
@@ -429,6 +437,7 @@ class MewloSite(object):
         self.add_default_settings()
         self.add_loggers()
         self.add_routes()
+        self.add_navnodes()
         # we add fallback loggers at END, after user-site added loggers
         self.add_fallback_loggers()
 
@@ -441,6 +450,10 @@ class MewloSite(object):
         pass
 
     def add_routes(self):
+        """Does nothing in base class, but subclass can overide."""
+        pass
+
+    def add_navnodes(self):
         """Does nothing in base class, but subclass can overide."""
         pass
 
@@ -571,11 +584,15 @@ class MewloSite(object):
         outstr += "\n"
         outstr += self.settings.dumps(indent+1)
         outstr += "\n"
+        outstr += self.logmanager.dumps(indent+1)
+        outstr += "\n"
         outstr += self.dbmanager.dumps(indent+1)
         outstr += "\n"
         outstr += self.dispatcher.dumps(indent+1)
         outstr += "\n"
         outstr += self.registry.dumps(indent+1)
+        outstr += "\n"
+        outstr += self.navnodes.dumps(indent+1)
         outstr += "\n"
         outstr += self.packagemanager.dumps(indent+1)
         outstr += " "*indent+"Routes:\n"

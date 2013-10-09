@@ -10,6 +10,7 @@ from mewlo.mpackages.core.msitemanager import MewloSiteManager
 from mewlo.mpackages.core.msite import MewloSite
 from mewlo.mpackages.core.mcontroller import MewloController
 from mewlo.mpackages.core.mroute import *
+from mewlo.mpackages.core.mnav import NavNode, NavLink
 
 # helpers
 from mewlo.mpackages.core.helpers.event.logger import Logger
@@ -175,6 +176,30 @@ class MewloSite_Test1(MewloSite):
 
 
 
+
+    def add_navnodes(self):
+        """Create navigational structure for site pages."""
+
+        # create some test NavNodes
+        nodes = [
+            NavNode('home', {
+                'title': 'The ${sitename} home page',
+                'children': ['about','register','login','logout'],
+                }),
+            NavNode('about'),
+            NavNode('register', {
+                'visible': False,
+                }),
+            NavNode('login', {
+                'visible': lambda pageinfo: not pageinfo.isloggedin,
+                }),
+            NavNode('logout', {
+                'visible': lambda pageinfo: pageinfo.isloggedin,
+                }),
+            ]
+
+        # add nodes to site
+        self.navnodes.add_nodes(nodes)
 
 
 

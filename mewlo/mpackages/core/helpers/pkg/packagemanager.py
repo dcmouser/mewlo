@@ -365,12 +365,7 @@ class PackageManager(object):
         outstr += " "*indent + "Directories to scan:\n"
         for dirpath in self.dirlist:
             outstr += " "*indent + " "+dirpath + "\n"
-        outstr += self.debug_packages(indent)
-        return outstr
-
-
-    def debug_packages(self, indent=0):
-        """Helper debug function.  Return indented debug of child packages."""
+        #
         outstr = " "*indent + str(len(self.packages)) + " packages found.\n\n"
         indent += 1
         for package in self.packages:

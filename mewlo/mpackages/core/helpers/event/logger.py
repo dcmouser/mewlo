@@ -109,9 +109,23 @@ class LogManager(object):
         logger = logging.getLogger(pythonlogger_name)
         logger.setLevel(logging.DEBUG)
         # now we add a handler that calls into us
-        loghandler = PythonLogHandler(self)
+        loghandler = PythonLogHandler(self, pythonlogger_name)
         logger.addHandler(loghandler)
         pass
+
+
+
+    def dumps(self, indent=0):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        outstr = " "*indent + "LogManager reporting in.\n"
+        indent += 1
+        #
+        outstr += " "*indent + str(len(self.loggers)) + " loggers attached:\n"
+        indent += 1
+        for logger in self.loggers:
+            outstr += logger.dumps(indent+1)
+        return outstr
+
 
 
 
@@ -178,7 +192,17 @@ class LogFilter(object):
         return True
 
 
-
+    def dumps(self, indent=0):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        outstr = " "*indent + "LogFilter (" + self.__class__.__name__  + ") reporting in.\n"
+        indent += 1
+        #
+        if (len(self.andfilters)>0):
+            outstr += " "*indent + str(len(self.andfilters)) + " and_filters attached:\n"
+            indent += 1
+            for andfilter in self.andfilters:
+                outstr += andfilter.dumps(indent+1)
+        return outstr
 
 
 
@@ -218,6 +242,10 @@ class LogTarget(object):
 
 
 
+    def dumps(self, indent=0):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        outstr = " "*indent + "LogTarget (" + self.__class__.__name__  + ") reporting in.\n"
+        return outstr
 
 
 
@@ -320,6 +348,25 @@ class Logger(object):
         return thiswrotecount
 
 
+    def dumps(self, indent=0):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        outstr = " "*indent + "Logger (" + self.__class__.__name__  + ") reporting in.\n"
+        indent += 1
+        #
+        if (len(self.filters)>0):
+            outstr += " "*indent + str(len(self.filters)) + " logfilters attached:\n"
+            indent += 1
+            for filter in self.filters:
+                outstr += filter.dumps(indent+1)
+        #
+        if (len(self.targets)>0):
+            outstr += " "*indent + str(len(self.targets)) + " logtargets attached:\n"
+            indent += 1
+            for target in self.targets:
+                outstr += target.dumps(indent+1)
+        #
+        return outstr
+
 
 
 
@@ -340,18 +387,19 @@ class Logger(object):
 class PythonLogHandler(logging.Handler):
     """A custom log handler we use to route python log messages to the log manager."""
 
-    def __init__(self, logmanager):
+    def __init__(self, logmanager, label):
         # run the regular Handler __init__
         logging.Handler.__init__(self)
         self.logmanager = logmanager
+        self.label = label
 
     def emit(self, record):
         # record.message is the log message
         msg = self.format(record)
         level = record.levelname
-        eventtype='DEBUG'
+        eventtype = Event.pythonlogginglevel_to_eventlevel(level)
         #
-        event = Event({'msg':msg, 'type':eventtype})
+        event = Event({'msg':msg, 'type':eventtype, 'source':self.label})
         #print "EMITTING: "+msg
         self.logmanager.process(event)
 

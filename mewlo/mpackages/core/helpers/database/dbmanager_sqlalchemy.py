@@ -142,6 +142,7 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
 
     def setup_logcatchers(self):
         """Catch sqlalchemy log statements and route to Mewlo."""
+        # ATTN:TODO - find a way to not have to call a MEWLO thing here, since we are in helper directory and supposed to be independent of mewlo here
         mglobals.mewlosite().logmanager.hook_pythonlogger('sqlalchemy')
 
 
@@ -154,8 +155,5 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
         engine = sqlahelper.getmake_engine()
         connection = sqlahelper.getmake_connection()
         session = sqlahelper.getmake_session()
-        #print " engine: "+str(engine)
-        #print " connection: "+str(connection)
-        #print " session: "+str(session)
 
 

@@ -53,7 +53,7 @@ class Event(object):
 
     # class constants
     #
-    DEF_SAFE_FIELDNAME_LIST = ['type', 'msg', 'exp', 'request', 'traceback', 'statuscode', 'loc']
+    DEF_SAFE_FIELDNAME_LIST = ['type', 'msg', 'exp', 'request', 'traceback', 'statuscode', 'loc', 'source']
     #
     DEF_ETYPE_debug = 'DEBUG'
     DEF_ETYPE_info = 'INFO'
@@ -68,10 +68,16 @@ class Event(object):
         'DEBUG' : logging.DEBUG,
         'INFO' : logging.INFO,
         'WARNING' : logging.WARNING,
-        'ERROR' : logging.DEBUG,
+        'ERROR' : logging.ERROR,
         'CRITICAL' : logging.ERROR,
         'FAILURE' : logging.ERROR,
         'EXCEPTION' : logging.ERROR,
+        }
+    DEF_ETYPE_PYTHONLOGGING_REVERSEMAP = {
+        logging.DEBUG : 'DEBUG',
+        logging.INFO : 'INFO',
+        logging.WARNING : 'WARNING',
+        logging.ERROR : 'ERROR'
         }
 
 
@@ -188,7 +194,14 @@ class Event(object):
             pythonlevel = logging.ERROR
         return pythonlevel
 
-
+    @classmethod
+    def pythonlogginglevel_to_eventlevel(cls, pythonlevel):
+        """Convert from a python logging level to our internal mewlo level."""
+        if (pythonlevel in Event.DEF_ETYPE_PYTHONLOGGING_REVERSEMAP):
+            eventlevel = Event.DEF_ETYPE_PYTHONLOGGING_REVERSEMAP[pythonlevel]
+        else:
+            eventlevel = Event.DEF_ETYPE_info
+        return eventlevel
 
 
 
