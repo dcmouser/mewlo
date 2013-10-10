@@ -28,3 +28,16 @@ The Primary Guiding Principle of our Database/Model System is: DRY (Don't Repeat
 	* This also included widget hints for presenting admin tabular views of data, searching for it, etc.
 	* It should include additional information that will allow us to validate the entire table at any point (e.g. it might specify constraints, etc.)
 	* This information should be engine-neutral to the extent possible.
+
+
+
+In model classes:
+	
+	* We have a definedb() function in model classes that defines the database table -- but when should we call it?
+	* How do we avoid having to pass around dbmanager reference?
+	* How do we divide work between model and manager
+	* Can we avoid using any class local data -- since we have an issue with that getting corrupted on module reload
+	* Should we divide every model into a Model and a ModelManager, where the ModelManager acts like class static functions, but is basically an instantiated sinlgeton?
+	* If we do that, would that make it easier to have drop-in replacements for classes?
+	* If we do that, how do we keep track of the ModelManager objects?
+

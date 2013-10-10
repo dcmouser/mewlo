@@ -27,13 +27,22 @@ class MewloGlobalClass:
     #
     @classmethod
     def onimport(cls):
-        # This is so evil.. Python is reloading this module randomly after we dynamically import a module by pathname
-        # Which means it RESETS global and class data.  This means that NO module can EVER rely on any module-level persistent data being preserved?!
-        # So we save and load it to system state on reload.  F*CKING RIDICULOUS.  PYTHON IS MAGIC!! MAGICALLY FUCKED.
+        # This is so evil.. In certain weird situations python does some very f*cked up stuff and reloads modules or reloads and shadows them
+        # See here for why this is happening:
+        #  http://stackoverflow.com/questions/4798589/what-could-cause-a-python-module-to-be-imported-twice
+        # It's important we not let this happen and overwrite our global/class/static data.
+        # We could employ a workaround hiding a copy of our globals in system and restoring it on reload.
+        # For now we shall DETECT this occuring and raise an execption
+        # Hopefully it will never happen but if it does we want to catch it early.
         import sys
         try:
             # try to retrieve saved data from sys module
             MewloGlobalClass.globals = sys.mewloglobals
+            # if we are here, it means this python evilness is in play
+            msg = "\n\n\n\n\n----------------------> MEWLO WARNING - DETECTED THAT PYTHON IS MULTIPLY RELOADING MODULESS <---------------------------"
+            msg += "THIS CAN HAVE UNPREDICTABLE EFFECTS.  See mewlo.mpackages.core.mglobals for more information.\n\n\n\n\n"
+            print msg
+            raise Exception(msg)
         except AttributeError:
             # on exception, it's first time, so store reference to our data in sys module
             sys.mewloglobals = MewloGlobalClass.globals

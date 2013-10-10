@@ -185,8 +185,11 @@ class MewloSite_Test1(MewloSite):
             NavNode('home', {
                 'title': 'The ${sitename} home page',
                 'children': ['about','register','login','logout'],
+                'route': 'homepage',
                 }),
-            NavNode('about'),
+            NavNode('about', {
+                'route': 'aboutpage',
+                }),
             NavNode('register', {
                 'visible': False,
                 }),

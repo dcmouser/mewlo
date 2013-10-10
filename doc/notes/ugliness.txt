@@ -61,3 +61,10 @@ reduce use of the "from x import y" stuff, as it makes circular dependencies
 10/8/13
 See mglobals for some SERIOUSLY evil python ugliness and problematic thing going on with python reloading modules and wiping out class/module state.
 //---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+10/9/13
+Do we want to make our internal logging system more like python built-in logging system?
+Or even rewrite ours to use the built in one for most work?
+//---------------------------------------------------------------------------

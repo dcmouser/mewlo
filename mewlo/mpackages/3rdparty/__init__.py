@@ -1,5 +1,4 @@
 # package
 """
-This package is a directory where optional mpackage extensions to mewlo are placed.
-It is treated the same as the usr subdirectory, but is intended for site owners to place OFFICIAL addon optional extensions.
+This package collects modules that are used by Mewlo but do not have any dependencies on, or references to, mewlo code.
 """
