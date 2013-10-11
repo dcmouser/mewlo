@@ -11,7 +11,7 @@ import mglobals
 import msitemanager
 import msignal
 import mregistry
-import mdbmanager
+import database.mdbmanager as mdbmanager
 import mnav
 
 
@@ -19,7 +19,7 @@ import mnav
 from helpers.event.event import Event, EventList, EWarning, EError, EDebug
 from helpers.event.logger import LogManager, Logger
 from helpers.settings.settings import Settings
-from helpers.settings.dbsettings import DbSettings
+from database.dbsettings import DbSettings
 from helpers.event.logger_filetarget import LogTarget_File
 from helpers.misc import get_value_from_dict
 from helpers.misc import resolve_expand_string

@@ -94,6 +94,14 @@ class MewloPackageObject(PackageObject):
         super(MewloPackageObject, self).startup()
 
 
+    def shutdown(self):
+        super(MewloPackageObject, self).shutdown()
+        # here we want to unregister any signals and components
+        mglobals.mewlosite().registry.unregister_byowner(self)
+        mglobals.mewlosite().dispatcher.unregister_byowner(self)
+
+
+
     def prepare(self):
         # called by Mewlo system when it's ready for us to do any setup stuff
         self.packagesettings = mglobals.mewlosite().get_packagesettings()

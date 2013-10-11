@@ -75,6 +75,15 @@ class DbModel(object):
 
 
 
+
+
+
+
+
+
+
+
+
     @classmethod
     def definedb(cls):
         """This class-level function defines the database fields for this model -- the columns, etc."""
@@ -88,4 +97,7 @@ class DbModel(object):
         self.fields = fields
         # register with database manager?
         # ATTN: TODO
+
+
+
 

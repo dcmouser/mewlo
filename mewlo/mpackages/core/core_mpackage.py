@@ -17,7 +17,8 @@ It doesn't actually *do* anything -- but does describe and version the core code
 
 # mewlo imports
 import mpackage
-
+import mglobals
+import database.dbmodel_settingsdict as dbmodel_settingsdict
 
 
 
@@ -30,6 +31,45 @@ class Core_MewloPackageObject(mpackage.MewloPackageObject):
     def __init__(self, package):
         # parent constructor
         super(Core_MewloPackageObject, self).__init__(package)
+
+
+    def startup(self):
+        # called by Mewlo system when it's ready for us to do any setup stuff
+        # return failure if any, or None on success
+        retv = self.setup_everything()
+        if (retv != None):
+            return retv
+        #
+        return None
+
+
+    def shutdown(self):
+        # called by Mewlo system when it's ready for us to do any shutdown
+        super(Core_MewloPackageObject, self).shutdown()
+        return None
+
+
+
+
+
+    def setup_everything(self):
+        # called by Mewlo system when it's ready for us to do any setup stuff
+        # let's register database classes
+        self.setup_databaseclasses()
+        return None
+
+
+
+
+    def setup_databaseclasses(self):
+        # called by Mewlo system when it's ready for us to do any setup stuff
+        # let's register database classes
+        # test
+        retv = mglobals.db().register_modelclass(self, dbmodel_settingsdict.DbModel_SettingsDictionary)
+        return None
+
+
+
 
 
     def dumps(self, indent=0):

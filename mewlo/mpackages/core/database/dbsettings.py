@@ -10,8 +10,8 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 
 
 # helper imports
-import settings
-from ..database.dbmodel_settingsdict import DbModel_SettingsDictionary
+from ..helpers.settings import settings
+from dbmodel_settingsdict import DbModel_SettingsDictionary
 
 # python imports
 import datetime

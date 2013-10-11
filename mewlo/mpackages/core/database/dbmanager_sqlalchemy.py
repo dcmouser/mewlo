@@ -12,8 +12,8 @@ import mewlo.mpackages.core.mglobals as mglobals
 
 # helper imports
 import dbmanager
-from ..event.event import EFailure
-from ..misc import get_value_from_dict
+from ..helpers.event.event import EFailure
+from ..helpers.misc import get_value_from_dict
 
 
 # python imports
@@ -28,12 +28,13 @@ import sqlalchemy.orm
 
 class DbmSqlAlchemyHelper(object):
     """Helper for DatabaseManagerSqlAlchemy that holds engine, metadata, session, connection, data."""
+
     def __init__(self, dbmanager, dbsettings):
         """constructor."""
         # save settings
         self.dbsettings = dbsettings
-        # init
         self.dbmanager = dbmanager
+        # init
         self.engine = None
         self.metadata = None
         self.connection = None
@@ -45,7 +46,7 @@ class DbmSqlAlchemyHelper(object):
         if (self.engine == None):
             # create it
             if ('url' in self.dbsettings):
-                self.url = self.resolve(self.dbsettings['url'])
+                self.url = self.resolvealias(self.dbsettings['url'])
             else:
                 raise EFailure("Could not get 'url' for about database connections.")
             # logging flag?
@@ -71,8 +72,8 @@ class DbmSqlAlchemyHelper(object):
             self.session = Session()
         return self.session
 
-    def resolve(self, text):
-        return self.dbmanager.resolve(text)
+    def resolvealias(self, text):
+        return self.dbmanager.resolvealias(text)
 
 
     def shutdown(self):

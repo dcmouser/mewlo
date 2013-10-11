@@ -41,13 +41,29 @@ class Test_MewloPackageObject(mpackage.MewloPackageObject):
         super(Test_MewloPackageObject, self).__init__(package)
 
 
-
-
-
     def startup(self):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # return failure if any, or None on success
+        retv = self.setup_everything()
+        if (retv != None):
+            return retv
+        #
+        return None
 
+
+
+    def shutdown(self):
+        # called by Mewlo system when it's ready for us to do any shutdown
+        super(Test_MewloPackageObject, self).shutdown()
+        return None
+
+
+
+
+
+
+
+    def setup_everything(self):
         # ATTN: as a test, let's set up a signal listener for ALL signals
         if (True):
             # create receiver
@@ -64,11 +80,11 @@ class Test_MewloPackageObject(mpackage.MewloPackageObject):
         # ATTN: as a test let's add an object to the registry
         if (True):
             # create component
-            features = {'name':'test_plugin_service', 'ctype':'m.c.service', 'ptype':'object'}
+            features = {'ctype':'m.c.service', 'ptype':'object'}
             # CREATE the object that we are registering (the component registry will hold on to it)
             obj = Test_MewloPackage_Service()
             # now create the component wrapper around it
-            component = mregistry.MewloComponent(self, features, obj)
+            component = mregistry.MewloComponent('test_plugin_service', self, features, obj)
             # now register it with the site registry
             mglobals.mewlosite().registry.register_component(component)
 
@@ -81,13 +97,6 @@ class Test_MewloPackageObject(mpackage.MewloPackageObject):
 
 
 
-
-    def shutdown(self):
-        # called by Mewlo system when it's ready for us to do any shutdown
-        # here we want to unregister any signals and components
-        mglobals.mewlosite().registry.unregister_byowner(self)
-        mglobals.mewlosite().dispatcher.unregister_byowner(self)
-        return None
 
 
 

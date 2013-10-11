@@ -40,12 +40,15 @@ from ..misc import does_dict_filter_match
 class Component(object):
     """A component object that can be added to the ComponentRegsitry."""
 
-    def __init__(self, owner, features, obj):
+    def __init__(self, id, owner, features, obj):
         """Constructor."""
         # init
+        self.id = id
         self.owner = owner
         self.features = features
         self.obj = obj
+        # add id to features
+        self.features['id'] = id
 
 
     def startup(self):
@@ -93,6 +96,7 @@ class ComponentRegistry(object):
         """Constructor."""
         # init
         self.components = []
+        self.componenthash = {}
 
 
 
@@ -111,6 +115,39 @@ class ComponentRegistry(object):
         Add a component to the registry.
         """
         self.components.append(component)
+        # store it in component hash
+        id = component.id
+        if (id!=None and id!=''):
+            self.componenthash[id] = component
+
+
+
+
+
+
+
+    def register_class(self, owner, classobj):
+        """Proxy for registering a class object, creates a simple component around it."""
+        id = self.idfromclassobject(classobj)
+        component = Component(id, owner, {'type':'classwrapper'}, classobj)
+        return self.register_component(component)
+
+
+    def get_class(self, id):
+        """Proxy for registering a class object, creates a simple component around it."""
+        id = self.idfromclassobject(classobj)
+        component = self.getid(id)
+        if (component != None):
+            return component.obj
+        return None
+
+
+    def idfromclassobject(self, obj):
+        id = '_classobj:' + obj.__name__
+        return id
+
+
+
 
 
 
@@ -141,6 +178,10 @@ class ComponentRegistry(object):
         # return the first match
         return matches[0]
 
+    def getid(self, id):
+        if (id in componenthash):
+            return componenthash[id]
+        return None
 
 
     def unregister_byowner(self, owner):
@@ -160,6 +201,7 @@ class ComponentRegistry(object):
         for component in self.components:
             component.shutdown()
         self.components = []
+        self.componenthash = {}
 
 
 

@@ -20,10 +20,10 @@ from helpers.registry.registry import Component, ComponentRegistry
 class MewloComponent(Component):
     """The derived Component."""
 
-    def __init__(self, owner, features, obj):
+    def __init__(self, id, owner, features, obj):
         """Constructor."""
         # partent constructor
-        super(MewloComponent, self).__init__(owner, features, obj)
+        super(MewloComponent, self).__init__(id, owner, features, obj)
 
 
 

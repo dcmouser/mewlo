@@ -41,3 +41,18 @@ In model classes:
 	* If we do that, would that make it easier to have drop-in replacements for classes?
 	* If we do that, how do we keep track of the ModelManager objects?
 
+
+
+
+
+Database Model Classes as Tables vs Instantiated Database Model Managers
+
+	* A common approach in frameworks is to have a "Model" class that represents a database table
+	* Instantiated objects of this class represent rows/object
+	* Static/class functions handle the table-wide functions of finding rows/objects etc.
+	* But an alternative is to not use class/static functions of the model class for this purpose.
+	* Instead, have two separate classes, one is the Model, and one is the ModelManager
+	* The ModelManager would be instantiated and be in charge of table-wide stuff, and of defining the table mappings with the Model object, etc.
+	* One advantage of this is that it makes it more natural to think about instantiating multiple copies of a manager, to handle tables that are nearly identical (think about having multiple log file tables).
+	* It also seems perhaps cleaner in terms of preserving data for the manager object vs relying on class-based variables.
+	* In the case of python, a class is an object, so the differences are much smaller, but i think the principle is valid.

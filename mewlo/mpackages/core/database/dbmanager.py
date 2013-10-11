@@ -45,7 +45,7 @@ class DatabaseManager(object):
         return outstr
 
 
-    def resolve(self, text):
+    def resolvealias(self, text):
         return text
 
 
