@@ -128,25 +128,23 @@ class ComponentRegistry(object):
 
     def register_class(self, owner, classobj):
         """Proxy for registering a class object, creates a simple component around it."""
-        id = self.idfromclassobject(classobj)
+        id = self.idfromclassobjectname(classobj.__name__)
+        #print "IN REGISTERCLASS with "+classobj.__name__
         component = Component(id, owner, {'type':'classwrapper'}, classobj)
         return self.register_component(component)
 
 
     def get_class(self, id):
         """Proxy for registering a class object, creates a simple component around it."""
-        id = self.idfromclassobject(classobj)
-        component = self.getid(id)
+        component = self.getid(self.idfromclassobjectname(id))
         if (component != None):
             return component.obj
         return None
 
 
-    def idfromclassobject(self, obj):
-        id = '_classobj:' + obj.__name__
+    def idfromclassobjectname(self, objname):
+        id = '_classobj:' + objname
         return id
-
-
 
 
 
@@ -178,9 +176,10 @@ class ComponentRegistry(object):
         # return the first match
         return matches[0]
 
+
     def getid(self, id):
-        if (id in componenthash):
-            return componenthash[id]
+        if (id in self.componenthash):
+            return self.componenthash[id]
         return None
 
 

@@ -13,6 +13,7 @@ import msignal
 import mregistry
 import database.mdbmanager as mdbmanager
 import mnav
+import database.dbmodel_settingsdict as dbmodel_settingsdict
 
 
 # helper imports
@@ -290,25 +291,32 @@ class MewloSite(object):
         # validate site and settings first to make sure all is good
         self.validate(eventlist)
 
-
         # startup our helpers
-        #
-        # database manager
-        self.dbmanager.startup(eventlist)
-        # package settings -- these are persistent and let packages (extensions/plugins) store persistent settings
-        self.packagesettings.startup(eventlist)
-        # log system
-        self.logmanager.startup(eventlist)
-        # dispatcher
-        self.dispatcher.startup(eventlist)
+
         # registry
         self.registry.startup(eventlist)
+
+        # do early database startup stuff
+        self.startup_database_stuff(eventlist)
+
+        # log system
+        self.logmanager.startup(eventlist)
+
+        # dispatcher
+        self.dispatcher.startup(eventlist)
+
         # nav nodes
         self.navnodes.startup(eventlist)
-        # packages (will load and instantiate enabled packages)
-        self.packagemanager.startup(eventlist)
+
         # routes
         self.routes.startup(self, eventlist)
+
+        # package settings -- these are persistent and let packages (extensions/plugins) store persistent settings
+        self.packagesettings.startup(eventlist)
+
+        # packages (will load and instantiate enabled packages)
+        self.packagemanager.startup(eventlist)
+
 
 
 
@@ -330,22 +338,32 @@ class MewloSite(object):
         #print "*** IN SITE SHUTDOWN ***"
         # update state
         self.set_state(MewloSite.DEF_SITESTATE_SHUTDOWN_START)
-        # shutdown routes
-        self.routes.shutdown()
+
         # shutdown packages
         self.packagemanager.shutdown()
+
+        # package settings shutdown
+        self.packagesettings.shutdown()
+
+        # shutdown routes
+        self.routes.shutdown()
         # startup dispatcher
         self.dispatcher.shutdown()
-        # startup registry
-        self.registry.shutdown()
         # navnode manager
         self.navnodes.shutdown()
-        # database manager
-        self.dbmanager.shutdown()
+
+        # startup registry
+        self.registry.shutdown()
+
+        # database stuff
+        self.shutdown_database_stuff()
+
         # update state
         self.set_state(MewloSite.DEF_SITESTATE_SHUTDOWN_END)
+
         # shutdown log system
         self.logmanager.shutdown()
+
         # done
         return eventlist
 
@@ -356,6 +374,19 @@ class MewloSite(object):
 
 
 
+
+
+    def startup_database_stuff(self, eventlist):
+        # database manager
+        self.dbmanager.startup(eventlist)
+        # now core database objects
+        retv = mglobals.db().register_modelclass(self, dbmodel_settingsdict.DbModel_SettingsDictionary)
+
+
+    def shutdown_database_stuff(self):
+        # database manager
+        self.dbmanager.shutdown()
+        # now core database objects
 
 
 
@@ -597,6 +628,9 @@ class MewloSite(object):
         outstr += self.packagemanager.dumps(indent+1)
         outstr += " "*indent+"Routes:\n"
         outstr += self.routes.dumps(indent+1)
+        outstr += "\n"
+        outstr += self.packagesettings.dumps(indent+1)
+        outstr += "\n"
         return outstr
 
 

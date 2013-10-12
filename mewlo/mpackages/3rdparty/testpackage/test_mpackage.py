@@ -126,8 +126,11 @@ class Test_MewloPackageObject(mpackage.MewloPackageObject):
         databaseversion = self.get_databaseversion()
         if (databaseversion == None):
             self.log_event("Package 'test_mpackage' reporting that it has not yet been installed.")
+            self.set_databaseversion(2)
         else:
             self.log_event("Package 'test_mpackage' reporting that it's installed database version is: {0}.".format(databaseversion))
+
+        #
         return None
         #return EFailure("The package 'test_mpackage' needs to run a database update before it can run.")
 

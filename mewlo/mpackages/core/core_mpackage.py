@@ -55,7 +55,7 @@ class Core_MewloPackageObject(mpackage.MewloPackageObject):
     def setup_everything(self):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # let's register database classes
-        self.setup_databaseclasses()
+        ##self.setup_databaseclasses()
         return None
 
 
@@ -65,7 +65,7 @@ class Core_MewloPackageObject(mpackage.MewloPackageObject):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # let's register database classes
         # test
-        retv = mglobals.db().register_modelclass(self, dbmodel_settingsdict.DbModel_SettingsDictionary)
+        #retv = mglobals.db().register_modelclass(self, dbmodel_settingsdict.DbModel_SettingsDictionary)
         return None
 
 

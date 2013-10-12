@@ -12,6 +12,8 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 # helper imports
 from ..helpers.settings import settings
 from dbmodel_settingsdict import DbModel_SettingsDictionary
+import mewlo.mpackages.core.mglobals as mglobals
+from ..helpers.misc import get_value_from_dict
 
 # python imports
 import datetime
@@ -36,6 +38,8 @@ class DbSettings(settings.Settings):
     def __init__(self):
         # parent constructor
         super(DbSettings, self).__init__()
+        # init
+        self.dbmodelclass = None
         # keep track of date of last database sync
         self.sync_timestamps = {}
         self.sync_timestamp_all = None
@@ -46,6 +50,15 @@ class DbSettings(settings.Settings):
         # parent constructor
         super(DbSettings, self).startup(eventlist)
         # ATTN: TO DO - set up database and open it
+        # ATTN:TODO - FIX THIS to use a derived version of DbModel_SettingsDictionary with proper dbtablename
+        self.dbmodelclass = mglobals.mewlosite().registry.get_class('DbModel_SettingsDictionary');
+        #print "MODELCLASS: "+str(self.dbmodelclass)
+
+
+
+    def shutdown(self):
+        """Shutdown."""
+        # pass
 
 
 
@@ -71,7 +84,7 @@ class DbSettings(settings.Settings):
             retv = super(DbSettings, self).merge_settings_property(propertyname, settingstoadd)
             self.sync_save_properties([propertyname])
         except Exception as exp:
-            raise exp
+            raise
         finally:
             self.db_unlock()
         return retv
@@ -163,7 +176,7 @@ class DbSettings(settings.Settings):
         for propertyname in self.settingdict:
             self.update_sync_timestamp(propertyname, safesynctime)
         # and the setting saying all updated at this time
-        update_sync_timestamp_all(safesynctime)
+        self.update_sync_timestamp_all(safesynctime)
 
 
     def sync_load_properties(self, propertynames):
@@ -254,8 +267,6 @@ class DbSettings(settings.Settings):
 
 
 
-
-
     def db_lock(self):
         """Lock the db, while we read it, run a function, and then write out new values."""
         # ATTN: TODO
@@ -280,21 +291,22 @@ class DbSettings(settings.Settings):
 
     def db_remove_allproperties(self):
         """Remove all properties (rows) from the database table."""
-        DbModel_SettingsDictionary.delete_all()
+        self.dbmodelclass.delete_all()
 
     def db_remove_property(self, propertyname):
         """Remove a specific property (row) from the database table."""
-        DbModel_SettingsDictionary.delete_bykey({'keyname':propertyname})
+        self.dbmodelclass.delete_bykey({'keyname':propertyname})
 
 
     def db_loadproperty(self, propertyname):
         """Load a specific property (row) from the database table and unserialize it into self.settingdict[propertyname]."""
         # lookup row in database
-        dictrow = DbModel_SettingsDictionary.find_one_bykey({'keyname':propertyname}, None)
+        dictrow = self.dbmodelclass.find_one_bykey({'keyname':propertyname}, None)
+        #print "DEBUGGING ONE db_loadproperty dictrow = "+str(dictrow)
         if (dictrow == None):
             propdict = {}
         else:
-            propdict = dictrow.unserialize()
+            propdict = dictrow.get_unserializeddict()
         # set it
         self.settingdict[propertyname] = propdict
 
@@ -302,9 +314,10 @@ class DbSettings(settings.Settings):
     def db_saveproperty(self, propertyname):
         """Serialize and then save self.settingdict[propertyname] into the appropriate database row."""
         # create new model for setting row
-        dictrow = DbModel_SettingsDictionary()
-        dictrow.name = propertyname
-        dictrow.serialize(get_value_from_dict(self.settingdict, propertyname, None))
+        dictrow = self.dbmodelclass.new()
+        dictrow.keyname = propertyname
+        dictrow.storeserialize_dict(get_value_from_dict(self.settingdict, propertyname, None))
+        #print "ATTN:DEBUG - IN db_saveproperty with keyname = {0} and serialized = {1}.".format(dictrow.keyname, dictrow.serializeddict)
         # save it
         dictrow.save()
 
@@ -312,10 +325,12 @@ class DbSettings(settings.Settings):
     def db_loadallproperties(self):
         """Load all database rows and unserialize into self.settingdict."""
         # load all into memory
-        dictrows = DbModel_SettingsDictionary.find_all()
+        dictrows = self.dbmodelclass.find_all()
         # clear current dictionary
         settingdict = {}
         # convert all
         for dictrow in dictrows:
-            self.settingdict[propertyname] = dictrow.unserialize()
+            #print "DEBUGGING All ONE dictrow = "+str(dictrow)
+            propertyname = dictrow.get_propertyname()
+            self.settingdict[propertyname] = dictrow.get_unserializeddict()
 

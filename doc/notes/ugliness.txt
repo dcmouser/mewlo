@@ -68,3 +68,11 @@ See mglobals for some SERIOUSLY evil python ugliness and problematic thing going
 Do we want to make our internal logging system more like python built-in logging system?
 Or even rewrite ours to use the built in one for most work?
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+10/11/13
+we have another naming clash --
+we call two different kinds of things settings, specifically dbsettings.
+//---------------------------------------------------------------------------

@@ -41,9 +41,6 @@ class BasicSiteTest(unittest.TestCase):
         # create sitemanager and start it up
         sitemanager = self.makesitemanager()
 
-        # test of db stuff
-        mglobals.mewlosite().dbmanager.dbtest('meep')
-
         # shutdown sitemanager and site
         sitemanager.shutdown()
 

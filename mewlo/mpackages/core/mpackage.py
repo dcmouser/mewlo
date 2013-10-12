@@ -128,6 +128,8 @@ class MewloPackageObject(PackageObject):
         dbversion = self.packagesettings.get_subvalue(self.get_settingkey(),'database_version')
         return dbversion
 
+    def set_databaseversion(self, val):
+        self.packagesettings.set_subvalue(self.get_settingkey(),'database_version',val)
 
 
 

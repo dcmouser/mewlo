@@ -67,6 +67,10 @@ class Settings(object):
                 return self.settingdict[propertyname][propertysubname]
         return defaultval
 
+    def set_subvalue(self, propertyname, propertysubname, val):
+        """Set propery sub value."""
+        settingstoadd = {propertysubname:val}
+        self.merge_settings_property(propertyname,settingstoadd)
 
 
     def value_exists(self, propertyname, propertysubname=None):
@@ -81,7 +85,7 @@ class Settings(object):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloSettings:\n"
+        outstr = " "*indent + "Settings ({0}):\n".format(self.__class__.__name__)
         indent += 1
         outstr += " "*indent + str(self.settingdict)+"\n"
         return outstr

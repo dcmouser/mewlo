@@ -20,10 +20,38 @@ import dbfield
 class DbModel_SettingsDictionary(dbmodel.DbModel):
     """Database model where each row is a serialized dictioary setting."""
 
+    # class variables
+    dbtablename = 'settings'
+    dbschemaname = 'default'
+
+
+
     def __init__(self):
         """Constructor."""
+        # ATTN: NOTE THIS IS *NOT* CALLED WHEN INSTANTIATING MODELS VIA SQLALCHEMY ORM
+        # parent function
+        super(DbModel_SettingsDictionary,self).__init__()
         # init
-        pass
+        self.keyname = 'testkeyname'
+        self.serializeddict = None
+
+
+
+
+    def get_unserializeddict(self):
+        """Unserialized the loaded key string."""
+        serializedtext = self.serialized_dict
+        if (serializedtext==None):
+            return None
+        return self.unserialize(serializedtext)
+
+    def get_propertyname(self):
+        print "DIR FOR DICTROW:"+str(self.__dict__)
+        return self.keyname
+
+    def storeserialize_dict(self, datadict):
+        """Unserialized the loaded key string."""
+        self.serialized_dict = self.serialize(datadict)
 
 
 
@@ -47,5 +75,4 @@ class DbModel_SettingsDictionary(dbmodel.DbModel):
             ]
         # now register fields
         cls.register_fields(fields)
-
 
