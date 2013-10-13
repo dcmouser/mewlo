@@ -76,6 +76,7 @@ class Component(object):
         outstr = " "*indent + "Component (" + self.__class__.__name__  + ") reporting in.\n"
         indent += 1
         outstr += " "*indent + "features: "+str(self.get_features())+"\n"
+        outstr += " "*indent + "owner: "+str(self.owner)+"\n"
         outstr += " "*indent + "obj: "+str(self.obj)+"\n"
         if (hasattr(self.obj,'dumps')):
             outstr += self.obj.dumps(indent+1)

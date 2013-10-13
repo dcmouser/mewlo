@@ -97,5 +97,7 @@ class LogTarget_File(LogTarget):
         super(LogTarget_File,self).shutdown()
 
 
+    def get_nicelabel(self):
+        return self.__class__.__name__ + " ({0})".format(self.filename)
 
 

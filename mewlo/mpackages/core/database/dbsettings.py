@@ -33,12 +33,14 @@ class DbSettings(settings.Settings):
     Strategy:
         * All requests will be handled by the normal code for using an in-memory dictionary to store and retrieve values.
         * We will keep the in-memory dictionary synchronized with a database table behind the scenes.
+        * We must allow that other processes may be trying to modify the data at the same time as us, so we only trust our cached values IFF the database supports a way of telling when a row was last written
+        * Furthermore, some operations require a read and then write of a row, and we would like to lock the table/row during such operations.
     """
 
     def __init__(self, dbmodelclassname):
         # parent constructor
         super(DbSettings, self).__init__()
-        # init
+        # init - record the class name we use and clear some values
         self.dbmodelclassname = dbmodelclassname
         self.dbmodelclass = None
         # keep track of date of last database sync
@@ -46,15 +48,13 @@ class DbSettings(settings.Settings):
         self.sync_timestamp_all = None
 
 
+
     def startup(self, eventlist):
         """Any initial startup stuff to do?"""
         # parent constructor
         super(DbSettings, self).startup(eventlist)
-        # ATTN: TO DO - set up database and open it
-        # ATTN:TODO - FIX THIS to use a derived version of DbModel_SettingsDictionary with proper dbtablename
+        # get the partner modelclass to use to actually do the settings database storage
         self.dbmodelclass = mglobals.mewlosite().registry.get_class(self.dbmodelclassname);
-        #print "MODELCLASS: "+str(self.dbmodelclass)
-
 
 
     def shutdown(self):
@@ -65,11 +65,11 @@ class DbSettings(settings.Settings):
 
     def merge_settings(self, settingstoadd):
         """Just merge in a new dicitonary into our main dictionary."""
-        self.db_lock()
+        self.db_lock(settingstoadd.keys())
         try:
-            self.sync_load_properties(settingstoadd.keys())
+            self.sync_load_keys(settingstoadd.keys())
             retv = super(DbSettings, self).merge_settings(settingstoadd)
-            self.sync_save_properties(settingstoadd.keys())
+            self.sync_save_keys(settingstoadd.keys())
         except Exception as exp:
             raise exp
         finally:
@@ -77,13 +77,13 @@ class DbSettings(settings.Settings):
         return retv
 
 
-    def merge_settings_property(self, propertyname, settingstoadd):
+    def merge_settings_key(self, keyname, settingstoadd):
         """Merge in a new dicitonary into our main dictionary at a specific root section (creating root section if needed)."""
-        self.db_lock()
+        self.db_lock(settingstoadd.keys())
         try:
-            self.sync_load_properties([propertyname])
-            retv = super(DbSettings, self).merge_settings_property(propertyname, settingstoadd)
-            self.sync_save_properties([propertyname])
+            self.sync_load_keys([keyname])
+            retv = super(DbSettings, self).merge_settings_key(keyname, settingstoadd)
+            self.sync_save_keys([keyname])
         except Exception as exp:
             raise
         finally:
@@ -91,29 +91,29 @@ class DbSettings(settings.Settings):
         return retv
 
 
-    def set_property(self, propertyname, value):
+    def set_key(self, keyname, value):
         """Set and overwrite a value at a section, replacing whatever was there."""
-        retv = super(DbSettings, self).set_property(propertyname, value)
-        self.sync_save_properties([propertyname])
+        retv = super(DbSettings, self).set_key(keyname, value)
+        self.sync_save_keys([keyname])
 
 
-    def get_value(self, propertyname, defaultval=None):
+    def get_value(self, keyname, defaultval=None):
         """Lookup value from our settings dictionary and return it or default if not found."""
-        self.sync_load_properties([propertyname])
-        return super(DbSettings, self).get_value(propertyname, defaultval)
+        self.sync_load_keys([keyname])
+        return super(DbSettings, self).get_value(keyname, defaultval)
 
 
-    def get_subvalue(self, propertyname, propertysubname, defaultval=None):
+    def get_subvalue(self, keyname, keysubname, defaultval=None):
         """Lookup value from our settings dictionary at a certain root section, and return it or default if not found."""
-        self.sync_load_properties([propertyname])
-        return super(DbSettings, self).get_subvalue(propertyname, propertysubname, defaultval)
+        self.sync_load_keys([keyname])
+        return super(DbSettings, self).get_subvalue(keyname, keysubname, defaultval)
 
 
 
-    def value_exists(self, propertyname, propertysubname=None):
+    def value_exists(self, keyname, keysubname=None):
         """Return true if the item existing in our settings dictionary (at specific root section if specified)."""
-        self.sync_load_properties([propertyname])
-        return super(DbSettings, self).value_exists(propertyname, propertysubname)
+        self.sync_load_keys([keyname])
+        return super(DbSettings, self).value_exists(keyname, keysubname)
 
 
     def remove_all(self):
@@ -124,18 +124,39 @@ class DbSettings(settings.Settings):
         safesynctime = self.get_synctime()
         update_sync_timestamp_all(safesynctime)
         # clear contents of the database
-        self.db_remove_allproperties()
+        self.db_remove_allkeys()
         # now hand off to parent class
         return super(DbSettings, self).remove_all()
 
-    def remove_property(self, propertyname):
-        """Clear contents of one property."""
+
+    def remove_key(self, keyname):
+        """Clear contents of one key."""
+        # we are just removing an entire row
         # clear timestamps for section
-        del self.sync_timestamps[propertyname]
-        # clear propertyname in the database
-        self.db_remove_property(propertyname)
+        del self.sync_timestamps[keyname]
+        # clear keyname in the database
+        self.db_remove_key(keyname)
         # now hand off to parent class
-        return super(DbSettings, self).remove_property(propertyname)
+        return super(DbSettings, self).remove_key(keyname, keysubname)
+
+
+    def remove_subkey(self, keyname, keysubname):
+        """Clear contents of one subkey."""
+        # this is basically a load, followed by a modification, then a save; almost identical to a set_subvalue or merge
+        self.db_lock([keyname])
+        try:
+            # load to get most recent values
+            self.sync_load_keys([keyname])
+            # now hand off to parent class
+            retv = super(DbSettings, self).remove_subkey(keyname, keysubname)
+            # now save
+            self.sync_save_keys([keyname])
+        except Exception as exp:
+            raise exp
+        finally:
+            self.db_unlock()
+        return retv
+
 
 
 
@@ -171,57 +192,64 @@ class DbSettings(settings.Settings):
         # clear current contents
         self.settingdict = {}
         self.sync_timestamps = {}
-        # load ALL properties
-        self.db_loadallproperties()
+        # load ALL keys
+        self.db_loadallkeys()
         # now update for each section to say we loaded it now
-        for propertyname in self.settingdict:
-            self.update_sync_timestamp(propertyname, safesynctime)
+        for keyname in self.settingdict:
+            self.update_sync_timestamp(keyname, safesynctime)
         # and the setting saying all updated at this time
         self.update_sync_timestamp_all(safesynctime)
 
 
-    def sync_load_properties(self, propertynames):
-        """Load one "section" into memory.
-        We probably treat each section as a row, so this means a row. """
+    def sync_load_keys(self, keynames):
+        """Load one or more sections (row) into memory."""
         # NOTE: Ideally we would have some way of knowing whether the in-memory dictionary is already sync'd with database without having to always reload.
         # on a coarse scale, we might do this by saving the date of the last read of the table, and not bothering to re-load if we know the table wasn't updated since then
-        for propertyname in propertynames:
-            if (not self.is_alreadysynced(propertyname)):
+        for keyname in keynames:
+            if (not self.is_alreadysynced(keyname)):
                 # needs reloading
                 # get synctime we will use below, BEFORE we access the database, to be conservative
                 safesynctime = self.get_synctime()
-                # load property
-                self.db_loadproperty(propertyname)
+                # load key
+                self.db_loadkey(keyname)
                 # now update last sync time
-                self.update_sync_timestamp(propertyname, safesynctime)
+                self.update_sync_timestamp(keyname, safesynctime)
 
 
-    def sync_save_properties(self, propertynames):
+    def sync_save_keys(self, keynames):
         """Save one "section" to the database (overwriting whatever is there -- including removing values no longer references).
         We probably treat each section as a row, so this means a row."""
-        for propertyname in propertynames:
+        for keyname in keynames:
             # get synctime we will use below, BEFORE we access the database, to be conservative
             safesynctime = self.get_synctime()
-            # load property
-            self.db_saveproperty(propertyname)
+            # load key
+            self.db_savekey(keyname)
             # now update last sync time
-            self.update_sync_timestamp(propertyname, safesynctime)
+            self.update_sync_timestamp(keyname, safesynctime)
 
 
 
-    def is_alreadysynced(self, propertyname):
+
+
+
+
+
+
+
+
+    def is_alreadysynced(self, keyname):
         """Return True if we are confident that the database is unchanged since our last sync (i.e. if we know our in-memory dictionary is up to date)."""
-        dbtimestamp = self.db_get_lastmodificationtime(propertyname)
-        propertytimestamp = self.get_sync_timestamp(propertyname)
-        if (dbtimestamp != None and propertytimestamp != None):
+        dbtimestamp = self.db_get_lastmodificationtime(keyname)
+        keytimestamp = self.get_sync_timestamp(keyname)
+        if (dbtimestamp != None and keytimestamp != None):
             # we have some times to compare
-            if (dbtimestamp<=propertytimestamp):
+            if (dbtimestamp<=keytimestamp):
                 return True
         # no, or don't know
         return False
 
     def is_alreadysynced_all(self):
-        """Return true if all properties are sync'd already."""
+        """Return true if all keys are sync'd already."""
         dbtimestamp = self.db_get_lastmodificationtime_latest()
         if (dbtimestamp != None and self.sync_timestamp_all != None):
             # we have some times to compare
@@ -232,11 +260,11 @@ class DbSettings(settings.Settings):
 
 
 
-    def update_sync_timestamp(self, propertyname, synctime):
+    def update_sync_timestamp(self, keyname, synctime):
         """Update our internal record of when we last sync'd with database."""
         if (synctime==None):
             synctime = self.get_synctime()
-        self.sync_timestamps[propertyname] = synctime
+        self.sync_timestamps[keyname] = synctime
 
     def update_sync_timestamp_all(self, synctime):
         """Update our internal record of when we last sync'd with database."""
@@ -245,11 +273,11 @@ class DbSettings(settings.Settings):
         self.sync_timestamp_all = synctime
 
 
-    def get_sync_timestamp(self, propertyname):
+    def get_sync_timestamp(self, keyname):
         """Return datetime-compatible timestamp of when section was last loaded/saved, or None if we can't determine."""
         # note that it is impossible for timestamp_all to be more recent than an individual timestamp
-        if (propertyname in self.sync_timestamps):
-            return self.sync_timestamps[propertyname]
+        if (keyname in self.sync_timestamps):
+            return self.sync_timestamps[keyname]
         # having no entry for this section, we can return timestamp_all rather than None, since any db changes before timestamp_all are already in memory
         return self.sync_timestamp_all
 
@@ -268,70 +296,96 @@ class DbSettings(settings.Settings):
 
 
 
-    def db_lock(self):
+
+
+
+
+
+
+
+
+    def db_lock(self, keynames):
         """Lock the db, while we read it, run a function, and then write out new values."""
         # ATTN: TODO
         pass
+
 
     def db_unlock(self):
         """Unlock the db after previous lock."""
         # ATTN: TODO
         pass
 
-    def db_get_lastmodificationtime(self, propertyname):
+
+    def db_get_lastmodificationtime(self, keyname):
         """Return datetime-compatible time of last database table modification, or None if we can't determine."""
         # Note that its fine to estimate this as long as we are conservative; that is if we aren't tracking modifcation date per section, we can return modification date of the whole table
-        # ATTN:TODO - do per-property date estimage
+        # ATTN:TODO - do per-key date estimage
         # For now, just return a conservative estimate: the last modification date of table as a whole
         return self.db_get_lastmodificationtime_latest()
+
 
     def db_get_lastmodificationtime_latest(self):
         """Return the most datetime-compatible time of most recent database table modification, or None if we can't determine."""
         # ATTN:TODO
         return None
 
-    def db_remove_allproperties(self):
-        """Remove all properties (rows) from the database table."""
+
+    def db_remove_allkeys(self):
+        """Remove all keys (rows) from the database table."""
         self.dbmodelclass.delete_all()
 
-    def db_remove_property(self, propertyname):
-        """Remove a specific property (row) from the database table."""
-        self.dbmodelclass.delete_bykey({'keyname':propertyname})
+
+    def db_remove_key(self, keyname):
+        """Remove a specific key (row) from the database table."""
+        self.dbmodelclass.delete_bykey({'keyname':keyname})
 
 
-    def db_loadproperty(self, propertyname):
-        """Load a specific property (row) from the database table and unserialize it into self.settingdict[propertyname]."""
+    def db_loadkey(self, keyname):
+        """Load a specific key (row) from the database table and unserialize it into self.settingdict[keyname]."""
         # lookup row in database
-        dictrow = self.dbmodelclass.find_one_bykey({'keyname':propertyname}, None)
-        #print "DEBUGGING ONE db_loadproperty dictrow = "+str(dictrow)
-        if (dictrow == None):
+        modelobj = self.dbmodelclass.find_one_bykey({'keyname':keyname}, None)
+        if (modelobj == None):
             propdict = {}
         else:
-            propdict = dictrow.get_unserializeddict()
+            propdict = modelobj.get_unserialized_dict()
         # set it
-        self.settingdict[propertyname] = propdict
+        self.settingdict[keyname] = propdict
 
 
-    def db_saveproperty(self, propertyname):
-        """Serialize and then save self.settingdict[propertyname] into the appropriate database row."""
-        # create new model for setting row
-        dictrow = self.dbmodelclass.new()
-        dictrow.keyname = propertyname
-        dictrow.storeserialize_dict(get_value_from_dict(self.settingdict, propertyname, None))
-        #print "ATTN:DEBUG - IN db_saveproperty with keyname = {0} and serialized = {1}.".format(dictrow.keyname, dictrow.serializeddict)
-        # save it
-        dictrow.save()
+    def db_savekey(self, keyname):
+        """Serialize and then save self.settingdict[keyname] into the appropriate database row."""
+        # we want to add a new row OR replace an existing one
+        # ATTN: ideally we want to prevent against the rare case of someone else deleting the row as we are modifying it for save
+        # so for now we load, change, save; but later we might want to use a db atomic update
+        #
+        self.db_lock([keyname])
+        try:
+            # try to load it first
+            modelobj = self.dbmodelclass.find_one_bykey({'keyname':keyname}, None)
+            # if not found, create a new one
+            if (modelobj == None):
+                modelobj = self.dbmodelclass.new()
+            # now modify it with new values
+            modelobj.keyname = keyname
+            modelobj.store_serialize_dict(get_value_from_dict(self.settingdict, keyname, None))
+            # and save it
+            modelobj.save()
+        except Exception as exp:
+            raise exp
+        finally:
+            self.db_unlock()
 
 
-    def db_loadallproperties(self):
+
+    def db_loadallkeys(self):
         """Load all database rows and unserialize into self.settingdict."""
         # load all into memory
-        dictrows = self.dbmodelclass.find_all()
+        modelobjs = self.dbmodelclass.find_all()
         # clear current dictionary
-        settingdict = {}
+        self.settingdict = {}
         # convert all
-        for dictrow in dictrows:
-            #print "DEBUGGING All ONE dictrow = "+str(dictrow)
-            propertyname = dictrow.get_propertyname()
-            self.settingdict[propertyname] = dictrow.get_unserializeddict()
+        for modelobj in modelobjs:
+            #print "DEBUGGING All ONE modelobj = "+str(modelobj)
+            keyname = modelobj.keyname
+            self.settingdict[keyname] = modelobj.get_unserialized_dict()
 

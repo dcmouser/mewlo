@@ -13,7 +13,7 @@ import msignal
 import mregistry
 import database.mdbmanager as mdbmanager
 import mnav
-import database.dbmodel_settingsdict as dbmodel_settingsdict
+from database.dbmodel_settings import DbModel_Settings
 
 
 # helper imports
@@ -387,8 +387,9 @@ class MewloSite(object):
         # database manager
         self.dbmanager.startup(eventlist)
         # now core database objects
-        mglobals.db().create_modelclass(self,dbmodel_settingsdict.DbModel_SettingsDictionary, MewloSite.DEF_DBCLASSNAME_PackageSettings, MewloSite.DEF_DBTABLENAME_PackageSettings)
-        mglobals.db().create_modelclass(self,dbmodel_settingsdict.DbModel_SettingsDictionary, MewloSite.DEF_DBCLASSNAME_MainSettings, MewloSite.DEF_DBTABLENAME_MainSettings)
+        mglobals.db().create_modelclass(self, DbModel_Settings, MewloSite.DEF_DBCLASSNAME_PackageSettings, MewloSite.DEF_DBTABLENAME_PackageSettings)
+        # ATTN: Test
+        mglobals.db().create_modelclass(self, DbModel_Settings, MewloSite.DEF_DBCLASSNAME_MainSettings, MewloSite.DEF_DBTABLENAME_MainSettings)
 
 
     def shutdown_database_stuff(self):
@@ -509,7 +510,7 @@ class MewloSite(object):
         config = {
             MewloSite.DEF_SETTINGNAME_default_logfilename: MewloSite.DEF_SETTINGVAL_default_logfilename_defaultvalue,
             }
-        self.settings.merge_settings_property(MewloSite.DEF_SECTION_config, config)
+        self.settings.merge_settings_key(MewloSite.DEF_SECTION_config, config)
 
 
     def set_default_settings_aliases(self):
@@ -521,7 +522,7 @@ class MewloSite(object):
             MewloSite.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
             MewloSite.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
             }
-        self.settings.merge_settings_property(MewloSite.DEF_SECTION_aliases, aliases)
+        self.settings.merge_settings_key(MewloSite.DEF_SECTION_aliases, aliases)
 
 
 
@@ -632,6 +633,7 @@ class MewloSite(object):
         outstr += self.registry.dumps(indent+1)
         outstr += "\n"
         outstr += self.navnodes.dumps(indent+1)
+        outstr += "\n"
         outstr += "\n"
         outstr += self.packagemanager.dumps(indent+1)
         outstr += " "*indent+"Routes:\n"

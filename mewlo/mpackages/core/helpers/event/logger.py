@@ -240,11 +240,14 @@ class LogTarget(object):
         # return 1 to say it was written by target
         return 1
 
+    def get_nicelabel(self):
+        return self.__class__.__name__
 
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "LogTarget (" + self.__class__.__name__  + ") reporting in.\n"
+        logtargetlabel = self.get_nicelabel()
+        outstr = " "*indent + "{0} reporting in.\n".format(logtargetlabel)
         return outstr
 
 
@@ -350,7 +353,7 @@ class Logger(object):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "Logger (" + self.__class__.__name__  + ") reporting in.\n"
+        outstr = " "*indent + "Logger '{0}' reporting in.\n".format(self.id)
         indent += 1
         #
         if (len(self.filters)>0):

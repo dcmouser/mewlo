@@ -56,7 +56,7 @@ class DbfUniqueKeyname(DbField):
 
     def convert_to_sqlalchemy_column(self):
         """Convert field to sqlalchemy column."""
-        return sqlalchemy.Column(self.id, sqlalchemy.String(64))
+        return sqlalchemy.Column(self.id, sqlalchemy.String(64), unique = True)
 
 
 

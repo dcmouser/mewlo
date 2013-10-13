@@ -508,6 +508,7 @@ class MewloRouteGroup(object):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloRouteGroup reporting in:\n"
         outstr += " "*indent + " Root for controllers: " + str(self.controllerroot) + "\n"
+        outstr += "\n"
         for route in self.routes:
             outstr += route.dumps(indent+1) + "\n"
         return outstr

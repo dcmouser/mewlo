@@ -30,9 +30,13 @@ class Settings(object):
         """Clear contents of settings."""
         self.settingdict = {}
 
-    def remove_property(self, propertyname):
-        """Clear contents of one property."""
-        del self.settingdict[propertyname]
+    def remove_key(self, keyname):
+        """Clear contents of one key."""
+        del self.settingdict[keyname]
+
+    def remove_subkey(self, keyname, keysubname):
+        """Clear contents of one key."""
+        del self.settingdict[keyname][keysubname]
 
 
     def merge_settings(self, settingstoadd):
@@ -41,45 +45,45 @@ class Settings(object):
 
 
 
-    def merge_settings_property(self, propertyname, settingstoadd):
+    def merge_settings_key(self, keyname, settingstoadd):
         """Merge in a new dicitonary into our main dictionary at a specific root section (creating root section if needed)."""
-        if not propertyname in self.settingdict:
-            self.settingdict[propertyname] = settingstoadd
+        if not keyname in self.settingdict:
+            self.settingdict[keyname] = settingstoadd
         else:
             # merge the new settings with old, e.g. union of arrays or dictionaries, etc
-            self.settingdict[propertyname].update(settingstoadd)
+            self.settingdict[keyname].update(settingstoadd)
 
 
-    def set_property(self, propertyname, value):
+    def set_key(self, keyname, value):
         """Set and overwrite a value at a section, replacing whatever was there."""
-        self.settingdict[propertyname] = value
+        self.settingdict[keyname] = value
 
 
-    def get_value(self, propertyname, defaultval=None):
+    def get_value(self, keyname, defaultval=None):
         """Lookup value from our settings dictionary and return it or default if not found."""
-        return get_value_from_dict(self.settingdict, propertyname, defaultval)
+        return get_value_from_dict(self.settingdict, keyname, defaultval)
 
 
-    def get_subvalue(self, propertyname, propertysubname, defaultval=None):
+    def get_subvalue(self, keyname, keysubname, defaultval=None):
         """Lookup value from our settings dictionary at a certain root section, and return it or default if not found."""
-        if (propertyname in self.settingdict):
-            if (propertysubname in self.settingdict[propertyname]):
-                return self.settingdict[propertyname][propertysubname]
+        if (keyname in self.settingdict):
+            if (keysubname in self.settingdict[keyname]):
+                return self.settingdict[keyname][keysubname]
         return defaultval
 
-    def set_subvalue(self, propertyname, propertysubname, val):
+    def set_subvalue(self, keyname, keysubname, val):
         """Set propery sub value."""
-        settingstoadd = {propertysubname:val}
-        self.merge_settings_property(propertyname,settingstoadd)
+        settingstoadd = {keysubname:val}
+        self.merge_settings_key(keyname,settingstoadd)
 
 
-    def value_exists(self, propertyname, propertysubname=None):
+    def value_exists(self, keyname, keysubname=None):
         """Return true if the item existing in our settings dictionary (at specific root section if specified)."""
-        if (propertysubname == None):
-            return (propertyname in self.settingdict)
-        if (not propertyname in self.settingdict):
+        if (keysubname == None):
+            return (keyname in self.settingdict)
+        if (not keyname in self.settingdict):
             return False
-        return (propertysubname in self.settingdict[propertyname])
+        return (keysubname in self.settingdict[keyname])
 
 
 

@@ -76,3 +76,28 @@ Or even rewrite ours to use the built in one for most work?
 we have another naming clash --
 we call two different kinds of things settings, specifically dbsettings.
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+10/13/13
+The database files are a bit of a mess, and we're veering off the keeping separate of non-mewlo and mewlo classes,
+and in the case of database manager, the sqlalchemy vs non-sqlalchemy stuff.
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+10/13/13
+We have made sure database stuff can be fully accessed at low (sqlalchemy) level.
+For most stuff this is already possible.  One exception is the "mapper" and "table" functions for models and sqlalchemy, which currently cannot be overwridden by model classes.
+Consider restructuring database division of labor.
+Our first idea was to make an sqlalchemy-specific derived MANAGER, and leave the models neutral about the back-end engine.
+But this may be untenable, and it may make more sense to let the MODELS be sql-alchemy derived and leave the manager neutral?
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+10/13/13
+Refactor the settings class so that we dont need to INTERCEPT normal settings functions, but use pre/post op functions
+//---------------------------------------------------------------------------

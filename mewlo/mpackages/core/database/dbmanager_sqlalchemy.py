@@ -158,12 +158,6 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
         mglobals.mewlosite().logmanager.hook_pythonlogger('sqlalchemy')
 
 
-    def store_dbdata_inclass(self, modelclass, sqlalchemytable, sqlahelper):
-        """Store data in class regarding datbase access for it."""
-        # ATTN: TODO - some of this may not be needed, this may be automatically added to the class itself by sqlalchemy
-        modelclass.dbsqlatable = sqlalchemytable
-        modelclass.dbsqlahelper = sqlahelper
-        modelclass.dbmanager = self
 
 
 
@@ -184,15 +178,6 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
 
 
 
-
-
-
-
-
-    def get_model_dbsession(self, modelobj):
-        """Shortcut to get info from class object."""
-        sqlahelper = modelobj.__class__.dbsqlahelper
-        return sqlahelper.getmake_session()
 
 
     def get_modelclass_dbsession(self, modelclass):
@@ -208,32 +193,59 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
 
 
 
-    def model_save(self, modelobj):
-        """Save the model object."""
-        session = self.get_model_dbsession(modelobj)
+
+
+
+
+    # Real-work database functions
+
+
+
+
+
+    def model_add(self, modelobj):
+        """Add the model object."""
+        session = modelobj.dbsession()
         session.add(modelobj)
         session.commit()
         return None
 
 
+    def model_update(self, modelobj):
+        """Update the model object -- for sqlalchemy this is same as add()?"""
+        # ATTN: Check into the session merge() function.
+        return self.model_add(modelobj)
+
+
+    def model_delete(self, modelobj):
+        """Delete the model object."""
+        session = modelobj.dbsession()
+        session.delete(modelobj)
+        session.commit()
+        return None
+
+
+
     def modelclass_deleteall(self, modelclass):
         """Delete all items (rows) in the table."""
+        # ATTN: Unfinished
         pass
 
 
     def modelclass_delete_bykey(self, modelclass, keydict):
         """Delete all items (rows) matching key dictionary settings."""
+        # ATTN: Unfinished
         pass
+
 
 
     def modelclass_find_one_bykey(self, modelclass, keydict, defaultval):
         """Find and return an instance object for the single row specified by keydict.
         :return: defaultval if not found
         """
-        session = self.get_modelclass_dbsession(modelclass)
+        session = modelclass.dbsession()
         query = session.query(modelclass).filter_by(**keydict)
         result = query.first()
-        #print "RESULT FROM FIND ONE with '{0}' is {1}.".format(str(keydict),str(result))
         if (result!=None):
             return result
         return defaultval

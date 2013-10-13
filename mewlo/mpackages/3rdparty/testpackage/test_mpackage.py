@@ -13,6 +13,11 @@ import mewlo.mpackages.core.mglobals as mglobals
 # helper imports
 from mewlo.mpackages.core.helpers.event.event import EFailure
 
+# python imports
+import datetime
+
+
+
 
 class Test_MewloPackage_Service(object):
     """This is a dummy object that we use to test the component registry.  It pretends to be a service, but it does nothing."""
@@ -80,7 +85,7 @@ class Test_MewloPackageObject(mpackage.MewloPackageObject):
         # ATTN: as a test let's add an object to the registry
         if (True):
             # create component
-            features = {'ctype':'m.c.service', 'ptype':'object'}
+            features = {'type':'custom', 'ptype':'object'}
             # CREATE the object that we are registering (the component registry will hold on to it)
             obj = Test_MewloPackage_Service()
             # now create the component wrapper around it
@@ -129,7 +134,14 @@ class Test_MewloPackageObject(mpackage.MewloPackageObject):
             self.set_databaseversion(2)
         else:
             self.log_event("Package 'test_mpackage' reporting that it's installed database version is: {0}.".format(databaseversion))
-
+        # TEST: some things to help us test package settings stuff
+        usecount = self.packagesettings.get_subvalue(self.get_settingkey(),'usecount',0)
+        self.packagesettings.set_subvalue(self.get_settingkey(),'usecount',usecount+1)
+        self.packagesettings.set_subvalue(self.get_settingkey(),'date_lastuse',datetime.datetime.now())
+        if (self.packagesettings.value_exists(self.get_settingkey(),'toggleval')):
+            self.packagesettings.remove_subkey(self.get_settingkey(),'toggleval')
+        else:
+            self.packagesettings.set_subvalue(self.get_settingkey(),'toggleval',1)
         #
         return None
         #return EFailure("The package 'test_mpackage' needs to run a database update before it can run.")

@@ -363,13 +363,13 @@ class PackageManager(object):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "PackageManager reporting in.\n"
+        outstr = " "*indent + "PackageManager reporting in ({0} packages found).\n".format(len(self.packages))
         indent += 1
-        outstr += " "*indent + "Directories to scan:\n"
+        outstr += " "*indent + "Directories scanned:\n"
         for dirpath in self.dirlist:
             outstr += " "*indent + " "+dirpath + "\n"
+        outstr += "\n"
         #
-        outstr = " "*indent + str(len(self.packages)) + " packages found.\n\n"
         indent += 1
         for package in self.packages:
             outstr += package.dumps(indent+1) + "\n"

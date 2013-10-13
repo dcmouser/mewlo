@@ -74,7 +74,7 @@ class MewloDatabaseManager(DatabaseManagerSqlAlchemy):
         # build table object and save it
         modeltable = sqlalchemy.Table(dbtablename, metadata, *sqlalchemycolumns)
         # store/cache some of the object references in the class itself
-        modelclass.store_dbdata(modeltable, sqlahelper, self)
+        modelclass.setclass_dbinfo(modeltable, sqlahelper, self)
         # now ask sqlalchemy to map the class and table together, the key part of using sqlalchemy ORM
         sqlalchemy.orm.mapper(modelclass, modeltable)
         # create table if it doesn't exist
