@@ -11,7 +11,7 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 
 # helper imports
 from ..helpers.settings import settings
-from dbmodel_settingsdict import DbModel_SettingsDictionary
+#from dbmodel_settingsdict import DbModel_SettingsDictionary
 import mewlo.mpackages.core.mglobals as mglobals
 from ..helpers.misc import get_value_from_dict
 
@@ -35,10 +35,11 @@ class DbSettings(settings.Settings):
         * We will keep the in-memory dictionary synchronized with a database table behind the scenes.
     """
 
-    def __init__(self):
+    def __init__(self, dbmodelclassname):
         # parent constructor
         super(DbSettings, self).__init__()
         # init
+        self.dbmodelclassname = dbmodelclassname
         self.dbmodelclass = None
         # keep track of date of last database sync
         self.sync_timestamps = {}
@@ -51,7 +52,7 @@ class DbSettings(settings.Settings):
         super(DbSettings, self).startup(eventlist)
         # ATTN: TO DO - set up database and open it
         # ATTN:TODO - FIX THIS to use a derived version of DbModel_SettingsDictionary with proper dbtablename
-        self.dbmodelclass = mglobals.mewlosite().registry.get_class('DbModel_SettingsDictionary');
+        self.dbmodelclass = mglobals.mewlosite().registry.get_class(self.dbmodelclassname);
         #print "MODELCLASS: "+str(self.dbmodelclass)
 
 

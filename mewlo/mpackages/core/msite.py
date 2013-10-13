@@ -73,6 +73,13 @@ class MewloSite(object):
     DEF_SITESTATE_STARTUP_END = 'started'
     DEF_SITESTATE_SHUTDOWN_START = 'shuttingdown'
     DEF_SITESTATE_SHUTDOWN_END = 'shutdown'
+    #
+    # database classes
+    DEF_DBCLASSNAME_PackageSettings = 'DbModel_Settings_Package'
+    DEF_DBTABLENAME_PackageSettings = 'settings_package'
+    DEF_DBCLASSNAME_MainSettings = 'DbModel_Settings_Main'
+    DEF_DBTABLENAME_MainSettings = 'settings_main'
+
 
     def __init__(self, sitemodulename, debugmode):
         # Nothing that could fail should be done in this __init__ -- save that for later functions
@@ -105,7 +112,7 @@ class MewloSite(object):
         self.dbmanager = mdbmanager.MewloDatabaseManager()
         #
         # create persistent(db) package settings
-        self.packagesettings = DbSettings()
+        self.packagesettings = DbSettings(MewloSite.DEF_DBCLASSNAME_PackageSettings)
         #
         # collection of mewlo addon packages
         self.packagemanager = mpackage.MewloPackageManager()
@@ -380,7 +387,8 @@ class MewloSite(object):
         # database manager
         self.dbmanager.startup(eventlist)
         # now core database objects
-        retv = mglobals.db().register_modelclass(self, dbmodel_settingsdict.DbModel_SettingsDictionary)
+        mglobals.db().create_modelclass(self,dbmodel_settingsdict.DbModel_SettingsDictionary, MewloSite.DEF_DBCLASSNAME_PackageSettings, MewloSite.DEF_DBTABLENAME_PackageSettings)
+        mglobals.db().create_modelclass(self,dbmodel_settingsdict.DbModel_SettingsDictionary, MewloSite.DEF_DBCLASSNAME_MainSettings, MewloSite.DEF_DBTABLENAME_MainSettings)
 
 
     def shutdown_database_stuff(self):

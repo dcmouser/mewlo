@@ -80,22 +80,29 @@ class MewloDatabaseManager(DatabaseManagerSqlAlchemy):
         # create table if it doesn't exist
         metadata.create_all()
 
-        # test stuff
-#        session = sqlahelper.getmake_session()
-#        obj = modelclass()
-#        session.add(obj)
-#        session.commit()
 
 
 
 
     def convert_dbfields_to_sqlalchemy_columns(self, fields):
         """Given a list of our internal fields, build sqlalchemy columns."""
-        # ATTN: Unfinished
-        columns = [
-            sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
-            sqlalchemy.Column('keyname', sqlalchemy.String(50)),
-            sqlalchemy.Column('serialized_dict', sqlalchemy.Text()),
-            ]
+        columns = []
+        for field in fields:
+            columns.append(field.convert_to_sqlalchemy_column())
         return columns
+
+
+
+
+    def create_modelclass(self, owner, baseclass, classname, tablename, schemaname='default'):
+        """Create a new *CLASS* based on another model class, with a custom classname and tablename."""
+        # create the new class
+        newclass = type(classname, (baseclass,),{})
+        # set table info
+        newclass.set_dbnames(tablename, schemaname)
+        # now register it
+        self.register_modelclass(owner,newclass)
+        # and return it
+        return newclass
+
 
