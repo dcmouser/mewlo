@@ -103,15 +103,17 @@ class LogManager(object):
 
     def hook_pythonlogger(self, pythonlogger_name, pythonlogger_level=logging.DEBUG):
         """Hook into python logging system to catch python error messages and create events from them for mewlo logging."""
-        # ATTN: TODO
-        #logging.basicConfig(level=logging.DEBUG)
         # ok get/create the logger, and set its log level
         logger = logging.getLogger(pythonlogger_name)
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(pythonlogger_level)
         # now we add a handler that calls into us
         loghandler = PythonLogHandler(self, pythonlogger_name)
         logger.addHandler(loghandler)
-        pass
+        return logger
+
+
+
+
 
 
 
@@ -218,6 +220,8 @@ class LogTarget(object):
 
     def __init__(self):
         self.isenabled = True
+        self.startedup = False
+        self.logqueue = []
 
 
     def set_isenabled(self, flagval):
@@ -228,10 +232,11 @@ class LogTarget(object):
 
     def startup(self):
         """Any initial startup to do?"""
-        pass
+        self.startedup = True
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
+        self.flushqueue()
         pass
 
     def process(self, logmessage):
@@ -242,6 +247,23 @@ class LogTarget(object):
 
     def get_nicelabel(self):
         return self.__class__.__name__
+
+    def get_startedup(self):
+        return self.startedup
+
+
+    def queuelog(self, logmessage):
+        self.logqueue.append(logmessage)
+        # ATTN: DISABLED FOR NOW
+        pass
+
+    def flushqueue(self):
+        # process log queue
+        for logmessage in self.logqueue:
+            self.process(logmessage, True)
+        # clear it
+        self.logqueue = []
+
 
 
     def dumps(self, indent=0):
@@ -338,7 +360,7 @@ class Logger(object):
         for target in self.targets:
             if (target.get_isenabled()):
                 try:
-                    thiswrotecount += target.process(logmessage)
+                    thiswrotecount += target.process(logmessage, False)
                 except IOError as exp:
                     # first thing we need to do is disable this target, in case we get recursively called or decide to keep running
                     target.set_isenabled(False)

@@ -63,15 +63,17 @@ class MewloDatabaseManager(DatabaseManagerSqlAlchemy):
         # first tell the class to define it's fields
         modelclass.definedb()
         # now get fields
-        fields = modelclass.get_fields()
+        fieldlist = modelclass.get_fieldlist()
+        #print "MAPPING MODELCLASS FOR "+modelclass.__name__+" fieldlist: "+str(fieldlist)
         # now convert the fields to sqlalchemy columns
-        sqlalchemycolumns = self.convert_dbfields_to_sqlalchemy_columns(fields)
+        sqlalchemycolumns = self.convert_dbfields_to_sqlalchemy_columns(fieldlist)
         # ok now create an sqlalchemy Table object from columns
         dbtablename = modelclass.get_dbtablename()
         dbschemaname = modelclass.get_dbschemaname()
         sqlahelper = self.get_sqlahelper(dbschemaname)
         metadata = sqlahelper.getmake_metadata()
         # build table object and save it
+        #print "Tablename for modelclass is '{0}'.".format(dbtablename)
         modeltable = sqlalchemy.Table(dbtablename, metadata, *sqlalchemycolumns)
         # store/cache some of the object references in the class itself
         modelclass.setclass_dbinfo(modeltable, sqlahelper, self)
@@ -93,16 +95,19 @@ class MewloDatabaseManager(DatabaseManagerSqlAlchemy):
 
 
 
-
     def create_modelclass(self, owner, baseclass, classname, tablename, schemaname='default'):
         """Create a new *CLASS* based on another model class, with a custom classname and tablename."""
         # create the new class
-        newclass = type(classname, (baseclass,),{})
+        if (classname==None):
+            targetclass = baseclass
+        else:
+            #print "Creating class {0} from class {1}.".format(classname,baseclass.__name__)
+            targetclass = type(classname, (baseclass,),{})
         # set table info
-        newclass.set_dbnames(tablename, schemaname)
+        targetclass.set_dbnames(tablename, schemaname)
         # now register it
-        self.register_modelclass(owner,newclass)
+        self.register_modelclass(owner, targetclass)
         # and return it
-        return newclass
+        return targetclass
 
 

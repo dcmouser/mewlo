@@ -33,12 +33,12 @@ class LogTarget_File(LogTarget):
         self.set_fileinfo(filename, filemode)
 
 
-    def process(self, logmessage):
+    def process(self, logmessage, flag_isfromqueue):
         """
         Called by logger parent to actually do the work.
         We overide this in our subclass to do actual work.
         """
-        return self.write(logmessage)
+        return self.write(logmessage, flag_isfromqueue)
 
 
 
@@ -76,7 +76,7 @@ class LogTarget_File(LogTarget):
 
 
 
-    def write(self, logmessage):
+    def write(self, logmessage, flag_isfromqueue):
         """Write out the logmessage to the file."""
         # ensure file is open. this will throw exception if there is an error opening the file, and caller will handle exception by disabling us, etc.
         filep = self.get_openfile()

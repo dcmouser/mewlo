@@ -628,12 +628,12 @@ class MewloSite(object):
         outstr += "\n"
         outstr += self.dbmanager.dumps(indent+1)
         outstr += "\n"
+        outstr += "\n"
         outstr += self.dispatcher.dumps(indent+1)
         outstr += "\n"
         outstr += self.registry.dumps(indent+1)
         outstr += "\n"
         outstr += self.navnodes.dumps(indent+1)
-        outstr += "\n"
         outstr += "\n"
         outstr += self.packagemanager.dumps(indent+1)
         outstr += " "*indent+"Routes:\n"

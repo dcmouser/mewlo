@@ -62,7 +62,7 @@ class DbModel_Settings(dbmodel.DbModel):
     def definedb(cls):
         """This class-level function defines the database fields for this model -- the columns, etc."""
         # define fields list
-        cls.fields = [
+        fieldlist = [
             # standard primary id number field
             dbfield.DbfPrimaryId('id', {
                 'label': "The primary key and id# for this row"
@@ -76,5 +76,5 @@ class DbModel_Settings(dbmodel.DbModel):
                 'label': "The serialzed text version of the dictionary/array data being stored"
                 })
             ]
-
+        cls.register_fieldlist(fieldlist)
 

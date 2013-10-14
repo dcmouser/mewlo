@@ -27,8 +27,8 @@ class DbModel(object):
     dbsqlahelper = None
     dbmanager = None
     #
-    fields = []
-
+    fieldlist = []
+    fielddict = {}
 
 
     # ATTN: NOTE __INIT__ IS *NOT* CALLED WHEN INSTANTIATING MODELS VIA SQLALCHEMY ORM SO WE AVOID IT WHERE POSSIBLE
@@ -101,11 +101,21 @@ class DbModel(object):
         cls.dbschemaname = schemaname
 
     @classmethod
-    def get_fields(cls):
+    def get_fieldlist(cls):
         """Return the database fields."""
-        return cls.fields
+        return cls.fieldlist
 
+    @classmethod
+    def get_fielddict(cls):
+        """Return the database fields."""
+        return cls.fielddict
 
+    @classmethod
+    def register_fieldlist(cls, fieldlist):
+        """save fields."""
+        cls.fieldlist = fieldlist
+        for field in fieldlist:
+            cls.fielddict[field.id] = field
 
 
 

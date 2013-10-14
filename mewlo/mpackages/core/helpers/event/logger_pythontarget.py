@@ -38,17 +38,17 @@ class LogTarget_Python(LogTarget):
 
 
 
-    def process(self, logmessage):
+    def process(self, logmessage, flag_isfromqueue):
         """
         Called by logger parent to actually do the work.
         We overide this in our subclass to do actual work.
         """
-        return self.write(logmessage)
+        return self.write(logmessage, flag_isfromqueue)
 
 
 
 
-    def write(self, logmessage):
+    def write(self, logmessage, flag_isfromqueue):
         """
         Write out the logmessage to the python logger.
         ATTN:TODO - instead of str(logmessage) we should strip out the dictionary keys and write them.

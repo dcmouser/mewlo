@@ -84,7 +84,7 @@ class NavNode(object):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
 
         outstr = " "*indent + "Navnode {0} reporting in:\n".format(self.id)
-        outstr += " "*indent + " properties: "+str(self.properties)
+        outstr += " "*indent + " properties: {0}\n".format(str(self.properties))
         #
         return outstr
 

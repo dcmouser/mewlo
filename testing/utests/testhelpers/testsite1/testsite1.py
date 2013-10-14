@@ -11,6 +11,8 @@ from mewlo.mpackages.core.msite import MewloSite
 from mewlo.mpackages.core.mcontroller import MewloController
 from mewlo.mpackages.core.mroute import *
 from mewlo.mpackages.core.mnav import NavNode, NavLink
+from mewlo.mpackages.core.database import dbmodel_log
+from mewlo.mpackages.core.log.logtarget_database import LogTarget_Database
 
 # helpers
 from mewlo.mpackages.core.helpers.event.logger import Logger
@@ -25,6 +27,7 @@ import controllers as pkgdirimp_controllers
 
 # python imports
 import os, sys
+import logging
 
 
 
@@ -64,6 +67,9 @@ class MewloSite_Test1(MewloSite):
 
         # database config
         databaseconfig = {
+            'settings' : {
+                'sqlalchemy_loglevel' : logging.DEBUG,
+                },
             'default' : {
                 'url' : 'sqlite:///${dbfilepath}/mewlo_testsite1.sqlite',
                 'table_prefix': 'mewlo_',
@@ -95,12 +101,16 @@ class MewloSite_Test1(MewloSite):
             logger.add_target(LogTarget_File(filename=''))
 
         if (True):
-            # let's add standard python logging as a test
+            # let's add standard python logging as a test, and route that to file
             import logging
             pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolvealias('${logfilepath}/testlogout3.txt'))
             logger.add_target(LogTarget_Python(pythonlogger))
             # and then as a test, let's create an error message in this log
             pythonlogger.error("This is a manual python test error.")
+
+        if (True):
+            # let's add a database logger
+            logger.add_target(LogTarget_Database(baseclass=dbmodel_log.DbModel_Log, tablename='log'))
 
 
 

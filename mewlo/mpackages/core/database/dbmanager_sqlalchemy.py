@@ -17,7 +17,7 @@ from ..helpers.misc import get_value_from_dict
 
 
 # python imports
-
+import logging
 
 # library imports
 import sqlalchemy
@@ -28,6 +28,9 @@ import sqlalchemy.orm
 
 class DbmSqlAlchemyHelper(object):
     """Helper for DatabaseManagerSqlAlchemy that holds engine, metadata, session, connection, data."""
+
+
+
 
     def __init__(self, dbmanager, dbsettings):
         """constructor."""
@@ -88,12 +91,13 @@ class DbmSqlAlchemyHelper(object):
 
     def shutdown(self):
         """Shutdown any sqlalchemy stuff."""
+        if (self.session!=None):
+            self.session.commit()
+            self.session.close()
+            self.session=None
         if (self.engine!=None):
             self.engine.dispose()
             self.engine=None
-        if (self.session!=None):
-            self.session.close()
-            self.session=None
         if (self.connection!=None):
             self.connection.close()
             self.connection=None
@@ -109,6 +113,10 @@ class DbmSqlAlchemyHelper(object):
 class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
     """Derived DatabaseManager class built for sqlalchemy."""
 
+    # class vars
+    DEF_SqlAlchemyLoggerName = 'sqlalchemy'
+
+
     def __init__(self):
         """constructor."""
         # call parent func
@@ -116,6 +124,8 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
         # init
         # helpers for different databases
         self.alchemyhelpers = {}
+        self.sqlalchemylogger = None
+        self.sqlalchemy_loglevel = logging.NOTSET
 
 
 
@@ -125,6 +135,8 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
         # create helpers
         for idname in self.databasesettings.keys():
             self.alchemyhelpers[idname] = DbmSqlAlchemyHelper(self, self.databasesettings[idname])
+        # settings
+        self.sqlalchemy_loglevel = get_value_from_dict(self.databasesettings['settings'],'sqlalchemy_loglevel',logging.DEBUG)
         # let's put in place some log catchers
         self.setup_logcatchers()
 
@@ -155,14 +167,25 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
     def setup_logcatchers(self):
         """Catch sqlalchemy log statements and route to Mewlo."""
         # ATTN:TODO - find a way to not have to call a MEWLO thing here, since we are in helper directory and supposed to be independent of mewlo here
-        mglobals.mewlosite().logmanager.hook_pythonlogger('sqlalchemy')
+        self.sqlalchemylogger = mglobals.mewlosite().logmanager.hook_pythonlogger(DatabaseManagerSqlAlchemy.DEF_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
 
 
 
 
 
+    def set_sqlalchemydebuglevel(self, level):
+        """Helper to set debugging level of sql alchemy."""
+        # ok get/create the logger, and set its log level
+        self.sqlalchemylogger.setLevel(level)
 
 
+    def sqlalchemydebuglevel_temporarydisable(self):
+        """Helper to set debugging level of sql alchemy."""
+        self.set_sqlalchemydebuglevel(logging.NOTSET)
+
+    def sqlalchemydebuglevel_donetemporarydisable(self):
+        """Helper to set debugging level of sql alchemy."""
+        self.set_sqlalchemydebuglevel(self.sqlalchemy_loglevel)
 
 
 
@@ -207,7 +230,8 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
         """Add the model object."""
         session = modelobj.dbsession()
         session.add(modelobj)
-        session.commit()
+        # doing a commit after every operation is a HUGE slowdown
+        #session.commit()
         return None
 
 
@@ -221,7 +245,8 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
         """Delete the model object."""
         session = modelobj.dbsession()
         session.delete(modelobj)
-        session.commit()
+        # doing a commit after every operation is a HUGE slowdown
+        #session.commit()
         return None
 
 

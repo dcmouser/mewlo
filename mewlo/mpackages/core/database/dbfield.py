@@ -7,6 +7,7 @@ The DbField class handles one column of a model.
 
 
 # helper imports
+from ..helpers.misc import get_value_from_dict
 
 # python imports
 
@@ -68,8 +69,51 @@ class DbfSerialized(DbField):
         # call parent function
         super(DbfSerialized, self).__init__(id, properties)
 
+    def convert_to_sqlalchemy_column(self):
+        """Convert field to sqlalchemy column."""
+        return sqlalchemy.Column(self.id, sqlalchemy.Text())
+
+
+
+
+class DbfText(DbField):
+    """Unlimited length text field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfText, self).__init__(id, properties)
 
     def convert_to_sqlalchemy_column(self):
         """Convert field to sqlalchemy column."""
         return sqlalchemy.Column(self.id, sqlalchemy.Text())
 
+
+
+class DbfString(DbField):
+    """Unlimited length text field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfString, self).__init__(id, properties)
+
+    def convert_to_sqlalchemy_column(self):
+        """Convert field to sqlalchemy column."""
+        return sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))
+
+
+
+
+
+
+class DbfSqla(DbField):
+    """A dbf field that is passed a prebuilt sql alchemy column."""
+    def __init__(self, id, properties, sqlacolumn):
+        """Constructor."""
+        # call parent function
+        super(DbfPrimaryId, self).__init__(id, properties)
+        # record passed in sqlacolumn
+        self.sqlacolumn = sqlacolumn
+
+    def convert_to_sqlalchemy_column(self):
+        """Convert field to sqlalchemy column."""
+        return self.sqlacolumn
