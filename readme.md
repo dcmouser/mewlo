@@ -9,7 +9,8 @@ What is Mewlo?
 
  * Mewlo is an Open Source Python web framework which allows coders to build custom community-based web services.
  * The aim of Mewlo is to provide the best implementation of the common infrastructure used on such sites.  This includes robust user and group accounts, social-website features (user profiles, messaging, forums, etc.), and it offers strong support for community moderators to manage users and site content.  It is designed to perform well on large sites.
- * Note that Mewlo is a framework for coders, it's not a content management system for non-coders.  One should *NOT* expect to set up a Mewlo site without writing a single line of code, the way you would set up a content management system or blog.
+ * Mewlo occupies the ground somewhere between a low-level, general-purpose web framework (like Django, Pyramid, Yii) and a high-level Content Management system, like Drupal.
+ * Mewlo is a framework for coders. One should *NOT* expect to set up a Mewlo site without writing a single line of code, the way you would set up a content management system or blog.  Most configuration and customization is done through code rather than interactive configuration.
 
 
 
