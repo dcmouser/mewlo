@@ -39,7 +39,7 @@ def request_sayhello_template(request):
     args = request.get_route_parsedargs()
     extras = matchedroute.get_extras()
     # create template
-    template = mewlosite().templater.from_file('${siteviewpath}/hello.jn2')
+    template = mewlosite().templates.from_file('${siteviewpath}/hello.jn2')
     templateargs = {'args':args, 'name':args['name'], 'age':args['age']}
     # render template
     renderedtext = template.render_string(templateargs)

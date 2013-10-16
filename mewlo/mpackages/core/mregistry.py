@@ -36,7 +36,8 @@ class MewloComponentRegistry(ComponentRegistry):
         super(MewloComponentRegistry, self).__init__()
 
 
-    def startup(self, eventlist):
+    def startup(self, mewlosite, eventlist):
+        self.mewlosite = mewlosite
         # parent func
         super(MewloComponentRegistry, self).startup()
 

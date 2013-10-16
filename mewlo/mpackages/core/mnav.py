@@ -25,13 +25,15 @@ class NavNodeManager(object):
         self.nodes = []
 
 
-    def startup(self, eventlist):
+    def startup(self, mewlosite, eventlist):
         """Called at start of application."""
-        pass
+        self.mewlosite = mewlosite
 
     def shutdown(self):
         """Called at shutdown of application."""
         pass
+
+
 
 
     def add_nodes(self, nodestoadd):

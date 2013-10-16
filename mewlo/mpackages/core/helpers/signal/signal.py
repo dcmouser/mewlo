@@ -163,7 +163,6 @@ class SignalDispatcher(object):
     """The signal dispatcher."""
 
 
-
     def __init__(self):
         """Constructor."""
         # init

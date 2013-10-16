@@ -64,16 +64,7 @@ class LogManager(object):
         self.debugmode = debugmode
 
 
-    def set_debugmode(self, val):
-        self.debugmode = val
-
-    def add_logger(self, logger):
-        """Just add a child logger to our collection."""
-
-        self.loggers.append(logger)
-
-
-    def startup(self, eventlist):
+    def startup(self):
         """Startup everything, we are about to exit."""
         for logger in self.loggers:
             logger.startup()
@@ -83,6 +74,16 @@ class LogManager(object):
         """Shutdown everything, we are about to exit."""
         for logger in self.loggers:
             logger.shutdown()
+
+
+
+    def set_debugmode(self, val):
+        self.debugmode = val
+
+    def add_logger(self, logger):
+        """Just add a child logger to our collection."""
+        self.loggers.append(logger)
+
 
 
     def process(self, logmessage):

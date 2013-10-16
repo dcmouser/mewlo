@@ -59,6 +59,18 @@ class MewloPackageManager(PackageManager):
         self.set_setuptools_entrypoint_groupname('mewlo.packages')
 
 
+    def startup(self, mewlosite, eventlist):
+        """Any initial startup stuff to do?"""
+        self. mewlosite = mewlosite
+        # parent
+        super(MewloPackageManager,self).startup(eventlist)
+
+    def shutdown(self):
+        """Shutdown"""
+        # parent
+        super(MewloPackageManager,self).shutdown()
+
+
     def create_package(self, filepath):
         """Create an appropriate child package."""
         return MewloPackage(self, filepath)
@@ -104,7 +116,7 @@ class MewloPackageObject(PackageObject):
 
     def prepare(self):
         # called by Mewlo system when it's ready for us to do any setup stuff
-        self.packagesettings = mglobals.mewlosite().get_packagesettings()
+        self.packagesettings = mglobals.mewlosite().packagesettings
         # parent
         return super(MewloPackageObject, self).prepare()
 

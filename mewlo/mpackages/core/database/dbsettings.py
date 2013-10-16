@@ -10,7 +10,7 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 
 
 # helper imports
-from ..helpers.settings import settings
+from ..msettings import MewloSettings
 #from dbmodel_settingsdict import DbModel_SettingsDictionary
 import mewlo.mpackages.core.mglobals as mglobals
 from ..helpers.misc import get_value_from_dict
@@ -20,7 +20,7 @@ import datetime
 
 
 
-class DbSettings(settings.Settings):
+class DbSettings(MewloSettings):
     """
     The DbSettings class provides a Settings-object interface to settings that are backed in a database.
     We have some desires for it:
@@ -49,10 +49,10 @@ class DbSettings(settings.Settings):
 
 
 
-    def startup(self, eventlist):
+    def startup(self, mewlosite, eventlist):
         """Any initial startup stuff to do?"""
         # parent constructor
-        super(DbSettings, self).startup(eventlist)
+        super(DbSettings, self).startup(mewlosite, eventlist)
         # get the partner modelclass to use to actually do the settings database storage
         self.dbmodelclass = mglobals.mewlosite().registry.get_class(self.dbmodelclassname);
 

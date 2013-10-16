@@ -1,6 +1,7 @@
 Mewlo Templating
 =================
 
+
 It is common practice in designing web applications to separate the main logic of an application from the textual/html output page contents.
 
 In such cases, one often use some form of "template library" that allows the output page files to contain some minimal logic and variable substitutions, and which facilitates the reuse of common blocks (like headers, footers, sidebars, etc.).
@@ -18,7 +19,8 @@ What Template Library Features are Important to Us?
     * We need to be able to invoke mewlo functions from the template files.
     * We want minimal "magic", and minimal "silent" erroring. 
     * In terms of maintenance and the possibility of moving Mewlo from Python to another language, we might favor a small simple codebase for the template library, at the cost of having to do more support at the Mewlo framework level.
-    * We want to be able to easily manage/replace asset files and let users override subsets of them.
+    * We want to be able to easily manage/replace asset files and let users override subsets of them.  This is perhaps the key non-trivial issue that concerns us, and it is discussed in a separate section of the documentation entitled "Asset Files".
+
 
 
 Issues to Reolve

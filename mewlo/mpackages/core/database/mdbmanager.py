@@ -4,7 +4,9 @@ This module contains Mewlo database manager class.
 """
 
 # mewlo imports
+import dbmodel_settings
 from dbmanager_sqlalchemy import DatabaseManagerSqlAlchemy
+from mewlo.mpackages.core.msettings import MewloSettings
 import mewlo.mpackages.core.mglobals as mglobals
 
 # library imports
@@ -23,10 +25,11 @@ class MewloDatabaseManager(DatabaseManagerSqlAlchemy):
 
 
 
-    def startup(self, eventlist):
+    def startup(self, mewlosite, eventlist):
+        self.mewlosite = mewlosite
         # parent func
         super(MewloDatabaseManager, self).startup()
-        pass
+        self.startup_database_stuff(eventlist)
 
     def shutdown(self):
         # parent func
@@ -39,9 +42,21 @@ class MewloDatabaseManager(DatabaseManagerSqlAlchemy):
 
 
 
-    def resolvealias(self, text):
+    def startup_database_stuff(self, eventlist):
+        # now core database objects
+        mglobals.db().create_modelclass(self, dbmodel_settings.DbModel_Settings, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
+        # ATTN: Test
+        mglobals.db().create_modelclass(self, dbmodel_settings.DbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
+
+
+
+
+
+
+
+    def resolve(self, text):
         """Sometimes database engine configuration settings will use mewlo aliases like {$databasedirectory}, etc.  This resolves them."""
-        return mglobals.mewlosite().resolvealias(text)
+        return self.mewlosite.resolve(text)
 
 
 

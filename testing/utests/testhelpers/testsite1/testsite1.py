@@ -13,6 +13,7 @@ from mewlo.mpackages.core.mroute import *
 from mewlo.mpackages.core.mnav import NavNode, NavLink
 from mewlo.mpackages.core.database import dbmodel_log
 from mewlo.mpackages.core.log.logtarget_database import LogTarget_Database
+from mewlo.mpackages.core.msettings import MewloSettings
 
 # helpers
 from mewlo.mpackages.core.helpers.event.logger import Logger
@@ -46,13 +47,13 @@ class MewloSite_Test1(MewloSite):
         # config settings
         config = {
             # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
-            MewloSite.DEF_SETTINGNAME_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
-            MewloSite.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
-            MewloSite.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
-            MewloSite.DEF_SETTINGNAME_siteurl_internal: '/mewlo',
-            MewloSite.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1/mewlo',
+            MewloSettings.DEF_SETTINGNAME_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
+            MewloSettings.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
+            MewloSettings.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
+            MewloSettings.DEF_SETTINGNAME_siteurl_internal: '/mewlo',
+            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1/mewlo',
             }
-        self.settings.merge_settings_key(MewloSite.DEF_SECTION_config, config)
+        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
 
         # extension package config
         packageconfig = {
@@ -63,7 +64,7 @@ class MewloSite_Test1(MewloSite):
                 'enabled': True,
                 }
             }
-        self.settings.merge_settings_key(MewloSite.DEF_SECTION_packages, packageconfig)
+        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_packages, packageconfig)
 
         # database config
         databaseconfig = {
@@ -80,7 +81,7 @@ class MewloSite_Test1(MewloSite):
                 'table_prefix': 'mewlo_'
                 },
             }
-        self.settings.merge_settings_key(MewloSite.DEF_SECTION_database, databaseconfig)
+        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_database, databaseconfig)
 
 
 
@@ -94,7 +95,7 @@ class MewloSite_Test1(MewloSite):
         logger = self.add_logger(Logger('mytestlogger'))
 
         # now add some targets (handlers) to it
-        logger.add_target(LogTarget_File(filename=self.resolvealias('${logfilepath}/testlogout1.txt'), filemode='w'))
+        logger.add_target(LogTarget_File(filename=self.resolve('${logfilepath}/testlogout1.txt'), filemode='w'))
 
         if (False):
             # want to test raising an exception on failure to write/open file? uncomment this
@@ -103,7 +104,7 @@ class MewloSite_Test1(MewloSite):
         if (True):
             # let's add standard python logging as a test, and route that to file
             import logging
-            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolvealias('${logfilepath}/testlogout3.txt'))
+            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolve('${logfilepath}/testlogout3.txt'))
             logger.add_target(LogTarget_Python(pythonlogger))
             # and then as a test, let's create an error message in this log
             pythonlogger.error("This is a manual python test error.")

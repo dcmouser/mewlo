@@ -22,7 +22,8 @@ class MewloSignalDispatcher(SignalDispatcher):
         super(MewloSignalDispatcher, self).__init__()
 
 
-    def startup(self, eventlist):
+    def startup(self, mewlosite, eventlist):
+        self.mewlosite = mewlosite
         # parent func
         super(MewloSignalDispatcher, self).startup()
 

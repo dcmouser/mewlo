@@ -59,7 +59,7 @@ class DbmSqlAlchemyHelper(object):
         if (self.engine == None):
             # create it
             if ('url' in self.dbsettings):
-                self.url = self.resolvealias(self.dbsettings['url'])
+                self.url = self.resolve(self.dbsettings['url'])
             else:
                 raise EFailure("Could not get 'url' for about database connections.")
             # logging flag?
@@ -85,8 +85,8 @@ class DbmSqlAlchemyHelper(object):
             self.session = Session()
         return self.session
 
-    def resolvealias(self, text):
-        return self.dbmanager.resolvealias(text)
+    def resolve(self, text):
+        return self.dbmanager.resolve(text)
 
 
     def shutdown(self):
@@ -139,6 +139,7 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
         self.sqlalchemy_loglevel = get_value_from_dict(self.databasesettings['settings'],'sqlalchemy_loglevel',logging.DEBUG)
         # let's put in place some log catchers
         self.setup_logcatchers()
+
 
     def shutdown(self):
         # call parent func

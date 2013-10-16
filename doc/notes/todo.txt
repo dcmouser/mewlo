@@ -1,12 +1,13 @@
-//---------------------------------------------------------------------------
-Add support for unzipping an addon extension into a proper directory,
- to install it.  and for deleting it to uninstall it.
-//---------------------------------------------------------------------------
-
-
 
 //---------------------------------------------------------------------------
 10/11/13
 Write a more general purpose template/alias replacer, with support not just for global alias list,
  but local alias dictionaries, as well as the use of fallback defaults.
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+10/16/13
+simplify mewlosite -- move some stuff to helpers
 //---------------------------------------------------------------------------
