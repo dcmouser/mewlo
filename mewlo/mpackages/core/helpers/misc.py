@@ -10,12 +10,14 @@ from exceptionplus import reraiseplus
 
 # python imports
 import re
+import pickle
 
 
 
 
 
 def get_value_from_dict(thedict, keyname, defaultval=None):
+    """Very simple function to get value from dictionary or fall back to default value."""
     if (keyname in thedict):
         return thedict[keyname]
     return defaultval
@@ -117,5 +119,66 @@ def append_text(mainstring, newstring, separator = "; "):
     if (mainstring==None or mainstring==''):
         return newstring
     return mainstring + separator + newstring
+
+
+
+
+
+def serialize_for_readability(obj):
+    """
+    Serialize an object (usually a list or dictionary), and if there are objects we can't serialize, just serialize them as a string.
+    That is, we don't mind if objects in the list/dictionary can't be unserialized as objects, we just care about top level separation.
+    """
+    try:
+        # first we try a direct simple pickle
+        serializedtext = pickle.dumps(obj)
+    except Exception as exp:
+        # ok we hit an exception here, so now walk list/dictionary and use strings for objects
+        safeobj = serialize_for_readability_makesafe(obj)
+        serializedtext = pickle.dumps(safeobj)
+    #
+    return serializedtext
+
+
+def serialize_for_readability_makesafe(obj):
+    """
+    Helper function for serialize_for_readability(obj) that converts items of a list/dictionary into simpler objects
+    """
+    try:
+        if (isinstance(obj, list)):
+            # it's a list
+            safeobj = []
+            for item in obj:
+                safeobj.append(serialize_for_readability_makesafe(item))
+        elif (isinstance(obj, dict)):
+            # it's a dict
+            safeobj = {}
+            for key in obj.keys():
+                safeobj[key] = serialize_for_readability_makesafe(obj[key])
+        elif (isinstance(obj, tuple)):
+            # it's a tuple
+            safeobj = ()
+            for item in obj:
+                safeobj += serialize_for_readability_makesafe(item)
+        elif (isinstance(obj, (int, str, float, bool))):
+            # its primitive type we can use directly
+            safeobj = obj
+        elif ((hasattr(obj,'logserialize'))):
+            # use custom logserialize function
+            safeobj = obj.logserialize()
+            pass
+        elif ((hasattr(obj,'dumps'))):
+            # use default dumpes function
+            # ATTN: do we really want to do this? It could result is a BIG text blob for some objects..
+            safeobj = obj.dumps()
+        else:
+            # something else
+            safeobj = str(obj)
+    except Exception as exp:
+        # couldnt do anything with it, so return a simple string with it's name
+        #safeobj = 'UNKNOWNOBJECT'
+        raise
+    #
+    return safeobj
 
 

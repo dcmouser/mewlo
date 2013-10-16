@@ -1,0 +1,1 @@
+The views folder is for template views.

@@ -32,12 +32,17 @@ STEP 3 - Install required helper packages
 -----------------------------------------
 
 Install the Werkzeug package which is temporarily being used to do some lower-level request+response work:
-  On windows:
   pip install Werkzeug
+
+
+Install the jinja2 template package which is used for template output
+  pip install jinja2
+
+
 
 To build documentation:
 	pip install Sphinx
-	pip install rst2pdf <--- this fails in my virtualenv
+	pip install rst2pdf <--- this fails in my (ms windows-based) virtualenv
 
 
 
@@ -45,12 +50,11 @@ STEP 4 - Testing
 ----------------
 
 After activating the virtualenvironment (using batch file or whatever),
-go into the demosites/test1 directory and run:
-	python testsite1.py
+go into the testing/utests directory and run:
+	python utest1.py
+or:
+	python demosite1.py
 
-This will run the testsite1.py script, which defines a test website with some test routes.
-Running it should first display some debug information, and then start a webserver on your localhost at port 8080
-To test, open up your web browser and point to:
-  http://127.0.0.1:8080/test/hello/name/mouser
+
 
 

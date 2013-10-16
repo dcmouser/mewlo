@@ -13,14 +13,15 @@ import msignal
 import mregistry
 import database.mdbmanager as mdbmanager
 import mnav
-from database.dbmodel_settings import DbModel_Settings
+import database.dbmodel_settings as dbmodel_settings
+import database.dbsettings as dbsettings
+import mtemplater
 
 
 # helper imports
 from helpers.event.event import Event, EventList, EWarning, EError, EDebug
 from helpers.event.logger import LogManager, Logger
 from helpers.settings.settings import Settings
-from database.dbsettings import DbSettings
 from helpers.event.logger_filetarget import LogTarget_File
 from helpers.misc import get_value_from_dict
 from helpers.misc import resolve_expand_string
@@ -61,6 +62,7 @@ class MewloSite(object):
     DEF_SETTINGNAME_default_logfilename = 'logfilename'
     DEF_SETTINGNAME_logfilepath = 'logfilepath'
     DEF_SETTINGNAME_dbfilepath = 'dbfilepath'
+    DEF_SETTINGNAME_siteviewfilepath = 'siteviewpath'
     # default values
     DEF_SETTINGVAL_default_logfilename_defaultvalue = '${logfilepath}/mewlo.log'
     DEF_SETTINGVAL_default_package_settings = { 'enabled': False }
@@ -112,7 +114,7 @@ class MewloSite(object):
         self.dbmanager = mdbmanager.MewloDatabaseManager()
         #
         # create persistent(db) package settings
-        self.packagesettings = DbSettings(MewloSite.DEF_DBCLASSNAME_PackageSettings)
+        self.packagesettings = dbsettings.DbSettings(MewloSite.DEF_DBCLASSNAME_PackageSettings)
         #
         # collection of mewlo addon packages
         self.packagemanager = mpackage.MewloPackageManager()
@@ -124,6 +126,8 @@ class MewloSite(object):
         self.registry = mregistry.MewloComponentRegistry()
         # navnode manager
         self.navnodes = mnav.NavNodeManager()
+        # templater
+        self.templater = mtemplater.MewloTemplater(self)
         #
         # record package of the site for relative imports
         self.sitemodulename = sitemodulename
@@ -162,7 +166,7 @@ class MewloSite(object):
             mevent = EDebug(mevent)
         # add request field (if it wasn't already set in mevent)
         if (request != None):
-            missingfields = { 'request': self }
+            missingfields = { 'request': request }
             mevent.mergemissings(missingfields)
         # log it
         self.logmanager.process(mevent)
@@ -324,6 +328,8 @@ class MewloSite(object):
         # packages (will load and instantiate enabled packages)
         self.packagemanager.startup(eventlist)
 
+        # templater
+        self.templater.startup(eventlist)
 
 
 
@@ -345,6 +351,9 @@ class MewloSite(object):
         #print "*** IN SITE SHUTDOWN ***"
         # update state
         self.set_state(MewloSite.DEF_SITESTATE_SHUTDOWN_START)
+
+        # templater
+        self.templater.shutdown()
 
         # shutdown packages
         self.packagemanager.shutdown()
@@ -387,9 +396,9 @@ class MewloSite(object):
         # database manager
         self.dbmanager.startup(eventlist)
         # now core database objects
-        mglobals.db().create_modelclass(self, DbModel_Settings, MewloSite.DEF_DBCLASSNAME_PackageSettings, MewloSite.DEF_DBTABLENAME_PackageSettings)
+        mglobals.db().create_modelclass(self, dbmodel_settings.DbModel_Settings, MewloSite.DEF_DBCLASSNAME_PackageSettings, MewloSite.DEF_DBTABLENAME_PackageSettings)
         # ATTN: Test
-        mglobals.db().create_modelclass(self, DbModel_Settings, MewloSite.DEF_DBCLASSNAME_MainSettings, MewloSite.DEF_DBTABLENAME_MainSettings)
+        mglobals.db().create_modelclass(self, dbmodel_settings.DbModel_Settings, MewloSite.DEF_DBCLASSNAME_MainSettings, MewloSite.DEF_DBTABLENAME_MainSettings)
 
 
     def shutdown_database_stuff(self):
@@ -521,6 +530,8 @@ class MewloSite(object):
             MewloSite.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(MewloSite.DEF_SECTION_config, MewloSite.DEF_SETTINGNAME_sitefilepath),
             MewloSite.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
             MewloSite.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
+            MewloSite.DEF_SETTINGNAME_siteviewfilepath: '${sitefilepath}/views',
+
             }
         self.settings.merge_settings_key(MewloSite.DEF_SECTION_aliases, aliases)
 
@@ -633,6 +644,8 @@ class MewloSite(object):
         outstr += "\n"
         outstr += self.registry.dumps(indent+1)
         outstr += "\n"
+        outstr += self.templater.dumps(indent+1)
+        outstr += "\n"
         outstr += self.navnodes.dumps(indent+1)
         outstr += "\n"
         outstr += self.packagemanager.dumps(indent+1)
@@ -662,3 +675,6 @@ class MewloSite(object):
     def internal_url(self, relpath):
         """Shortcut to resolve a url given a relative path."""
         return self.resolvealias('${siteurl_internal}' + relpath)
+
+
+

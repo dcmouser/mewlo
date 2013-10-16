@@ -20,6 +20,7 @@ From here you can learn about the core Mewlo packages.
    packages
    registry
    settings
+   templates
    url_routes
    users
    verifications

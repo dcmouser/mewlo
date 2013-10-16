@@ -163,6 +163,27 @@ class MewloSite_Test1(MewloSite):
                 forcedargs = { 'sign': u"aries" },
                 ))
 
+        routegroup.append(
+            MewloRoute(
+                id = 'hellopaget',
+                path = '/test/hellot',
+                args = [
+                        MewloRouteArgString(
+                            id = 'name',
+                            required = True,
+                            help = "name of person to say hello to",
+                            ),
+                        MewloRouteArgInteger(
+                            id = 'age',
+                            required = False,
+                            help = "age of person (optional)",
+                            defaultval = 44,
+                            )
+                        ],
+                controller = MewloController(function="requests.request_sayhello_template"),
+                ))
+
+
         #from controllers.requests import request_article
         routegroup.append(
             MewloRoute(
@@ -307,6 +328,7 @@ def main():
         print sitemanager.test_submit_path('/help/about')
         print sitemanager.test_submit_path('/page/mystery')
         print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
+        print sitemanager.test_submit_path('/test/hellot/name/jesse/age/44')
 
     # start serving the web server and process all web requests
     if (flag_runserver):

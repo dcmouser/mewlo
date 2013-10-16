@@ -103,6 +103,6 @@ class LogTarget_Database(LogTarget):
 
 
     def get_nicelabel(self):
-        return self.__class__.__name__ + " ({0})".format(self.filename)
+        return self.__class__.__name__ + " (Database table '{0}')".format(self.tablename)
 
 

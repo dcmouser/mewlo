@@ -7,6 +7,7 @@ This is our database object base class.
 
 
 # helper imports
+from ..helpers import misc
 
 # python imports
 import pickle
@@ -145,8 +146,7 @@ class DbModel(object):
     @classmethod
     def serialize(cls, obj):
         """Helper function to serialize arbitrary object."""
-        serializedtext = pickle.dumps(obj)
-        return serializedtext
+        return misc.serialize_for_readability(obj)
 
     @classmethod
     def unserialize(cls, serializedtext):
@@ -157,8 +157,6 @@ class DbModel(object):
     def new(cls):
         """Make a new instance of the class."""
         return cls()
-
-
 
 
 
