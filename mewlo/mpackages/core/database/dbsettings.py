@@ -10,9 +10,8 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 
 
 # helper imports
-from ..msettings import MewloSettings
-#from dbmodel_settingsdict import DbModel_SettingsDictionary
-import mewlo.mpackages.core.mglobals as mglobals
+from ..setting.settings import MewloSettings
+from .. import mglobals
 from ..helpers.misc import get_value_from_dict
 
 # python imports

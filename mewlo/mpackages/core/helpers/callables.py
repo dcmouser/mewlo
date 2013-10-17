@@ -6,7 +6,7 @@ This module contains functions that can lookup and return a reference to a funct
 
 
 # helper imports
-from event.event import EFailure, EException
+from ..eventlog.event import EFailure, EException
 
 # python imports
 from types import ModuleType

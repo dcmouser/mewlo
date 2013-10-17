@@ -6,7 +6,7 @@ This module contains Mewlo database manager class.
 # mewlo imports
 import dbmodel_settings
 from dbmanager_sqlalchemy import DatabaseManagerSqlAlchemy
-from mewlo.mpackages.core.msettings import MewloSettings
+from ..setting.settings import MewloSettings
 import mewlo.mpackages.core.mglobals as mglobals
 
 # library imports

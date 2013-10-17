@@ -4,9 +4,6 @@ This module contains classes and functions for interfacing with template system.
 """
 
 
-# helper imports
-
-
 # python imports
 import os.path
 
@@ -64,7 +61,7 @@ class MewloTemplateManager(object):
         """Instantiate a template from a file."""
         filepath = self.mewlosite.resolve(filepath)
         templatelcass = self.lookup_templatetype_byfile(filepath, templatetypeid)
-        template = templatelcass()
+        template = templatelcass(self)
         template.load_from_file(filepath)
         return template
 

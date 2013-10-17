@@ -16,14 +16,12 @@ It doesn't actually *do* anything -- but does describe and version the core code
 
 
 # mewlo imports
-import mpackage
-import mglobals
-import database.dbmodel_settings as dbmodel_settings
+import package.packageobject as packageobject
 
 
 
 
-class Core_MewloPackageObject(mpackage.MewloPackageObject):
+class Core_MewloPackageObject(packageobject.MewloPackageObject):
     """
     The Core_MewloPackage class manages the core mewlo code
     """

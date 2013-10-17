@@ -1,0 +1,46 @@
+"""
+mninja2_loader.py
+Custom loader used to find jinja2 templates.
+"""
+
+
+import jinja2
+import os
+
+
+
+class MewloJinja2Loader(jinja2.BaseLoader):
+    """Our custom jinja2 template loader knows how to resolve alias paths."""
+
+    def __init__(self, mewlosite):
+        super(MewloJinja2Loader,self).__init__()
+        self.mewlosite = mewlosite
+
+    def get_source(self, environment, template):
+        path = self.mewlosite.resolve(template)
+        if not os.path.exists(path):
+            raise jinja2.TemplateNotFound(template)
+        mtime = os.path.getmtime(path)
+        with file(path) as f:
+            source = f.read().decode('utf-8')
+        return source, path, lambda: mtime == os.path.getmtime(path)
+
+
+
+class MewloJinja2Environment(jinja2.Environment):
+    """Our custom jinja2 environment knows how to locate relative paths."""
+
+    def __init__(self, mewlosite, loader):
+        super(MewloJinja2Environment,self).__init__(loader=loader)
+        self.mewlosite = mewlosite
+
+    def join_path(self, template, parent):
+        """Override join_path() to enable relative template paths."""
+        if (template.startswith('./')):
+            return os.path.join(os.path.dirname(parent), template)
+        return template
+
+
+
+
+

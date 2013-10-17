@@ -5,8 +5,8 @@
 
 
 # mewlo imports
-import mewlo.mpackages.core.msitemanager as msitemanager
-import mewlo.mpackages.core.mglobals as mglobals
+from mewlo.mpackages.core.site import msitemanager
+from mewlo.mpackages.core import mglobals
 
 # helper imports
 from testhelpers.testsite1.testsite1 import MewloSite_Test1

@@ -1,2 +1,6 @@
+{% include "${siteviewpath}/header.jn2" %}
+
 Hello from jinja template with name = {{args['name']}} and age = {{args['age']}}.<br/>
 Thank you for playing.
+
+{% include "./footer.jn2" %}

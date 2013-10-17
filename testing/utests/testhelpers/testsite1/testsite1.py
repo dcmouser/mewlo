@@ -6,20 +6,18 @@ This class defines a test site (and will run a debug test of it if started as ma
 
 
 # Mewlo imports
-from mewlo.mpackages.core.msitemanager import MewloSiteManager
-from mewlo.mpackages.core.msite import MewloSite
-from mewlo.mpackages.core.mcontroller import MewloController
-from mewlo.mpackages.core.mroute import *
-from mewlo.mpackages.core.mnav import NavNode, NavLink
+from mewlo.mpackages.core.site.msitemanager import MewloSiteManager
+from mewlo.mpackages.core.site.msite import MewloSite
+from mewlo.mpackages.core.controller.mcontroller import MewloController
+from mewlo.mpackages.core.route.mroute import *
+from mewlo.mpackages.core.navnode.mnav import NavNode, NavLink
 from mewlo.mpackages.core.database import dbmodel_log
-from mewlo.mpackages.core.log.logtarget_database import LogTarget_Database
-from mewlo.mpackages.core.msettings import MewloSettings
-
-# helpers
-from mewlo.mpackages.core.helpers.event.logger import Logger
-from mewlo.mpackages.core.helpers.event.logger_filetarget import LogTarget_File
-from mewlo.mpackages.core.helpers.event.logger_pythontarget import LogTarget_Python
-from mewlo.mpackages.core.helpers.event.event import EWarning
+from mewlo.mpackages.core.eventlog.logtarget_database import LogTarget_Database
+from mewlo.mpackages.core.setting.settings import MewloSettings
+from mewlo.mpackages.core.eventlog.logger import Logger
+from mewlo.mpackages.core.eventlog.logtarget_file import LogTarget_File
+from mewlo.mpackages.core.eventlog.logtarget_python import LogTarget_Python
+from mewlo.mpackages.core.eventlog.event import EWarning
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live;
 # this is just a way to get the relative directory easily, and we use this in config settings

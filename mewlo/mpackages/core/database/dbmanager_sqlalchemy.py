@@ -6,15 +6,10 @@ This is our database helper module
 """
 
 
-# mewlo imports
-# ATTN: THIS SHOULD NOT BE FOUND IN A HELPERS MODULE
-import mewlo.mpackages.core.mglobals as mglobals
-
 # helper imports
 import dbmanager
-from ..helpers.event.event import EFailure
+from ..eventlog.event import EFailure
 from ..helpers.misc import get_value_from_dict
-
 
 # python imports
 import logging
@@ -168,7 +163,7 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
     def setup_logcatchers(self):
         """Catch sqlalchemy log statements and route to Mewlo."""
         # ATTN:TODO - find a way to not have to call a MEWLO thing here, since we are in helper directory and supposed to be independent of mewlo here
-        self.sqlalchemylogger = mglobals.mewlosite().logmanager.hook_pythonlogger(DatabaseManagerSqlAlchemy.DEF_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
+        self.sqlalchemylogger = self.mewlosite.logmanager.hook_pythonlogger(DatabaseManagerSqlAlchemy.DEF_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
 
 
 

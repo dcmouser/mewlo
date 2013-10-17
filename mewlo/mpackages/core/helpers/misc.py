@@ -5,8 +5,8 @@ This module contains misclenaeous helper functions.
 
 
 # helper imports
-from event.event import EFailure, EException
-from exceptionplus import reraiseplus
+from ..eventlog.event import EFailure, EException
+from ..eventlog.exceptionplus import reraiseplus
 
 # python imports
 import re
