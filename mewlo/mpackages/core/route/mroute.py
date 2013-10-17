@@ -1,5 +1,5 @@
 """
-mroute.py
+route.py
 This file contains classes to support routes
 """
 
@@ -7,7 +7,7 @@ This file contains classes to support routes
 # mewlo imports
 from .. import mglobals
 from ..controller import mcontroller
-from ..eventlog.event import EFailure, EFailureExtend
+from ..eventlog.mevent import EFailure, EFailureExtend
 
 
 class MewloRouteArg(object):

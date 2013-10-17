@@ -5,13 +5,13 @@ This file manages a test package
 
 
 # mewlo imports
-from mewlo.mpackages.core.package import packageobject
-from mewlo.mpackages.core.signal import signal
-from mewlo.mpackages.core.registry import registry
+from mewlo.mpackages.core.package import mpackageobject
+from mewlo.mpackages.core.signal import msignal
+from mewlo.mpackages.core.registry import mregistry
 from mewlo.mpackages.core import mglobals
 
 # helper imports
-from mewlo.mpackages.core.eventlog.event import EFailure
+from mewlo.mpackages.core.eventlog.mevent import EFailure
 
 # python imports
 import datetime
@@ -35,7 +35,7 @@ class Test_MewloPackage_Service(object):
 
 
 
-class Test_MewloPackageObject(packageobject.MewloPackageObject):
+class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
     """
     The Test_MewloPackage class defines a test mewlo "package" aka extension/plugin/addon.
     """
@@ -77,7 +77,7 @@ class Test_MewloPackageObject(packageobject.MewloPackageObject):
             sourcefilter = None
             extra = None
             flag_returnsvalue = True
-            signalreceiver = signal.MewloSignalReceiver(self, callback, idfilter, sourcefilter, extra, flag_returnsvalue)
+            signalreceiver = msignal.MewloSignalReceiver(self, callback, idfilter, sourcefilter, extra, flag_returnsvalue)
             # now register it with the site dispatcher
             mglobals.mewlosite().dispatcher.register_receiver(signalreceiver)
 
@@ -89,7 +89,7 @@ class Test_MewloPackageObject(packageobject.MewloPackageObject):
             # CREATE the object that we are registering (the component registry will hold on to it)
             obj = Test_MewloPackage_Service()
             # now create the component wrapper around it
-            component = registry.MewloComponent('test_plugin_service', self, features, obj)
+            component = mregistry.MewloComponent('test_plugin_service', self, features, obj)
             # now register it with the site registry
             mglobals.mewlosite().registry.register_component(component)
 

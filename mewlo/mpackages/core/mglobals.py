@@ -87,7 +87,7 @@ def db():
 
 def notfinished(msg):
     """Shortcut function to log a not finished message."""
-    from eventlog.event import EWarning
+    from eventlog.mevent import EWarning
     mewlosite().logevent(EWarning(msg))
 
 

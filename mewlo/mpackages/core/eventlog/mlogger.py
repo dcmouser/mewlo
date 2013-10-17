@@ -1,5 +1,5 @@
 """
-logger.py
+mlogger.py
 
 This module defines classes and functions that assist in logging.
 
@@ -46,8 +46,8 @@ Some examples of things we will want to be able to easily do:
 
 # helper imports
 from ..helpers.debugging import smart_dotted_idpath
-from exceptionplus import reraiseplus
-from event import Event
+from mexceptionplus import reraiseplus
+from mevent import Event
 
 # python imports
 import logging
@@ -56,7 +56,7 @@ import logging
 
 class MewloLogManager(object):
     """
-    LogManager - the main supervisor class that manages a collection of Loggers
+    MewloLogManager - the main supervisor class that manages a collection of Loggers
     """
 
     def __init__(self, debugmode):
@@ -106,12 +106,12 @@ class MewloLogManager(object):
     def hook_pythonlogger(self, pythonlogger_name, pythonlogger_level=logging.DEBUG):
         """Hook into python logging system to catch python error messages and create events from them for mewlo logging."""
         # ok get/create the logger, and set its log level
-        logger = logging.getLogger(pythonlogger_name)
-        logger.setLevel(pythonlogger_level)
+        pythonlogger = logging.getLogger(pythonlogger_name)
+        pythonlogger.setLevel(pythonlogger_level)
         # now we add a handler that calls into us
-        loghandler = PythonLogHandler(self, pythonlogger_name)
-        logger.addHandler(loghandler)
-        return logger
+        pythonloghandler = PythonLogHandler(self, pythonlogger_name)
+        pythonlogger.addHandler(pythonloghandler)
+        return pythonlogger
 
 
 
@@ -133,9 +133,9 @@ class MewloLogManager(object):
 
 
 
-class LogFilter(object):
+class MewloLogFilter(object):
     """
-    LogFilter - class responsible for deciding if a log message should be handled by a Logger; each logger has a list of zero or more LogFilters to check for match
+    MewloLogFilter - class responsible for deciding if a log message should be handled by a Logger; each logger has a list of zero or more LogFilters to check for match
     """
 
     def __init__(self):
@@ -194,7 +194,7 @@ class LogFilter(object):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "LogFilter (" + self.__class__.__name__  + ") reporting in.\n"
+        outstr = " "*indent + "MewloLogFilter (" + self.__class__.__name__  + ") reporting in.\n"
         indent += 1
         #
         if (len(self.andfilters)>0):
@@ -211,9 +211,9 @@ class LogFilter(object):
 
 
 
-class LogTarget(object):
+class MewloLogTarget(object):
     """
-    LogTarget - targets for loggers; each logger has a list of LogTargets to perform on match
+    MewloLogTarget - targets for loggers; each logger has a list of LogTargets to perform on match
     """
 
     def __init__(self):
@@ -277,9 +277,9 @@ class LogTarget(object):
 
 
 
-class Logger(object):
+class MewloLogger(object):
     """
-    Logger - responsible for saving/writing a log event to some destination, and matching log events to decide whether to handle them.
+    MewloLogger - responsible for saving/writing a log event to some destination, and matching log events to decide whether to handle them.
     """
 
 

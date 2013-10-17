@@ -1,5 +1,5 @@
 """
-event.py
+mevent.py
 This module contains classes and functions for custom event/error handling.
 
 Two alternatives were possible for the Event class.
@@ -280,10 +280,10 @@ class EventList(object):
             return msg
         else:
             # create the event
-            mevent = Event(msg, fields)
+            event = Event(msg, fields)
             # append it
-            self.add(mevent)
-            return mevent
+            self.add(event)
+            return event
 
 
 

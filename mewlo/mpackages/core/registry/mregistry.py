@@ -1,5 +1,5 @@
 """
-registry.py
+mregistry.py
 This module contains classes and functions for managing a component/service registry.
 
 Here's how it works:

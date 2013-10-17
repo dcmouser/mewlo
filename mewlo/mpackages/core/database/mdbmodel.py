@@ -1,5 +1,5 @@
 """
-dbmodel.py
+mdbmodel.py
 
 This is our database object base class.
 
@@ -17,7 +17,7 @@ import pickle
 
 
 
-class DbModel(object):
+class MewloDbModel(object):
     """An object that represents a database model."""
 
     # class variables

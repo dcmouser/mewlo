@@ -7,7 +7,7 @@ This module defines a derived logging hey class that implements file logging.
 from __future__ import print_function
 
 # helper imports
-from logger import LogTarget
+from mlogger import MewloLogTarget
 
 # python imports
 import sys
@@ -16,8 +16,8 @@ import sys
 
 
 
-class LogTarget_File(LogTarget):
-    """LogTarget_File - target that can write log lines to a file."""
+class MewloLogTarget_File(MewloLogTarget):
+    """MewloLogTarget_File - target that can write log lines to a file."""
 
     # class constants
     DEF_FILEMODE_default = 'a'
@@ -26,7 +26,7 @@ class LogTarget_File(LogTarget):
 
     def __init__(self, filename=None, filemode = DEF_FILEMODE_default):
         # parent constructor
-        super(LogTarget_File, self).__init__()
+        super(MewloLogTarget_File, self).__init__()
         # we start out with closed file and will only open on first write
         self.filep = None
         # save the filename and file open mode (could be write or append)
@@ -94,7 +94,7 @@ class LogTarget_File(LogTarget):
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
         self.closefile_ifopen()
-        super(LogTarget_File,self).shutdown()
+        super(MewloLogTarget_File,self).shutdown()
 
 
     def get_nicelabel(self):

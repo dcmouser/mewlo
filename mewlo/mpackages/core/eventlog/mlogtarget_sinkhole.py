@@ -4,19 +4,19 @@ This module defines a derived logging class that just swallows messages and does
 """
 
 # helper imports
-from logger import LogTarget
+from mlogger import MewloLogTarget
 
 
 
 
 
-class LogTarget_Sinkhole(LogTarget):
+class MewloLogTarget_Sinkhole(MewloLogTarget):
     """Target that just absorbs messages and do nothing."""
 
 
     def __init__(self):
         # parent constructor
-        super(LogTarget_Sinkhole, self).__init__()
+        super(MewloLogTarget_Sinkhole, self).__init__()
 
 
 

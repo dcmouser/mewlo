@@ -5,7 +5,7 @@ This file contains classes to support response to requests
 
 
 # helper imports
-from ..eventlog.event import EventList, EError, EWarning
+from ..eventlog.mevent import EventList, EError, EWarning
 
 # werkzeug imports
 from werkzeug.wrappers import Response

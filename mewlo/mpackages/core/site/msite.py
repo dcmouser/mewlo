@@ -7,19 +7,20 @@ This file contains classes to handle Mewlo site class.
 # mewlo imports
 import msitemanager
 from .. import mglobals
-from ..package import packagemanager
+from ..package import mpackagemanager
 from ..route import mroute
-from ..signal import signal
-from ..registry import registry
-from ..setting.settings import MewloSettings
-from ..database import mdbmanager, dbsettings
+from ..signal import msignal
+from ..registry import mregistry
+from ..setting.msettings import MewloSettings
+from ..database import mdbsettings
+from ..database import mdbmanager_sqlalchemy
 from ..navnode import mnav
 from ..template import mtemplate
 from ..asset import massetmanager
-from ..eventlog import logger
-from ..eventlog.event import Event, EventList, EWarning, EError, EDebug
-from ..eventlog.logger import Logger
-from ..eventlog.logtarget_file import LogTarget_File
+from ..eventlog import mlogger
+from ..eventlog.mevent import Event, EventList, EWarning, EError, EDebug
+from ..eventlog.mlogger import MewloLogger
+from ..eventlog.mlogtarget_file import MewloLogTarget_File
 from ..helpers.misc import get_value_from_dict
 from ..helpers.misc import resolve_expand_string
 
@@ -65,7 +66,7 @@ class MewloSite(object):
 
 
         # setup log manager helper early so that log manager can receive messages
-        self.logmanager = logger.MewloLogManager(self.debugmode)
+        self.logmanager = mlogger.MewloLogManager(self.debugmode)
 
         # now update site state
         self.set_state(MewloSettings.DEF_SITESTATE_INITIALIZE_START)
@@ -76,22 +77,22 @@ class MewloSite(object):
         self.settings = MewloSettings()
 
         # database manager
-        self.dbmanager = mdbmanager.MewloDatabaseManager()
+        self.dbmanager = mdbmanager_sqlalchemy.MewloDatabaseManagerSqlA()
 
         # create persistent(db) package settings
-        self.packagesettings = dbsettings.DbSettings(MewloSettings.DEF_DBCLASSNAME_PackageSettings)
+        self.packagesettings = mdbsettings.MewloSettingsDb(MewloSettings.DEF_DBCLASSNAME_PackageSettings)
 
         # collection of mewlo addon packages
-        self.packagemanager = packagemanager.MewloPackageManager()
+        self.packagemanager = mpackagemanager.MewloPackageManager()
 
         # route manager
         self.routes = mroute.MewloRouteGroup()
 
         # signal dispatcher
-        self.dispatcher = signal.MewloSignalDispatcher()
+        self.dispatcher = msignal.MewloSignalDispatcher()
 
         # component registry
-        self.registry = registry.MewloComponentRegistry()
+        self.registry = mregistry.MewloComponentRegistry()
 
         # navnode manager
         self.navnodes = mnav.NavNodeManager()
@@ -145,6 +146,7 @@ class MewloSite(object):
 
         # database manager
         self.dbmanager.startup(self, eventlist)
+        self.dbmanager.startup_database_stuff(eventlist)
 
         # log system
         self.logmanager.startup(self, eventlist)
@@ -333,23 +335,23 @@ class MewloSite(object):
 
 
 
-    def logevent(self, mevent, request = None):
+    def logevent(self, event, request = None):
         """Shortcut to add a log message from an event/failure."""
         # convert it to an event if its just a plain string
-        if (isinstance(mevent, basestring)):
-            mevent = EDebug(mevent)
+        if (isinstance(event, basestring)):
+            event = EDebug(event)
         # add request field (if it wasn't already set in mevent)
         if (request != None):
             missingfields = { 'request': request }
-            mevent.mergemissings(missingfields)
+            event.mergemissings(missingfields)
         # log it
-        self.logmanager.process(mevent)
+        self.logmanager.process(event)
 
 
-    def logevents(self, mevents, request = None):
+    def logevents(self, events, request = None):
         """Shortcut to add a log message from a *possible* iterable of events."""
-        for mevent in mevents:
-            self.logevent(mevent, request)
+        for event in events:
+            self.logevent(event, request)
 
 
 
@@ -555,11 +557,11 @@ class MewloSite(object):
         # ATTN:TODO - we will want to later change this to logrotate or something
 
         # create a single logger (with no filters); multiple loggers are supported because each logger can have filters that define what this logger filters out
-        self.fallbacklogger = self.add_logger(Logger('FallbackLogger'))
+        self.fallbacklogger = self.add_logger(MewloLogger('FallbackLogger'))
 
         # now add some targets (handlers) to it
         fpath = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_default_logfilename)
-        self.fallbacklogger.add_target(LogTarget_File(filename=self.resolve(fpath), filemode='w'))
+        self.fallbacklogger.add_target(MewloLogTarget_File(filename=self.resolve(fpath), filemode='w'))
 
 
 

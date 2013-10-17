@@ -1,12 +1,12 @@
 """
-exceptionplus.py
+mexceptionplus.py
 This module contains classes and functions for custom exception handling
 """
 
 
 # helper imports
 from ..helpers.debugging import smart_dotted_idpath
-from event import Event
+from mevent import Event
 
 # python imports
 import sys

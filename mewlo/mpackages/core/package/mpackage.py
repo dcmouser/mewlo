@@ -1,13 +1,13 @@
 """
-package.py
+mpackage.py
 Works with packagemanager.py to support our package/extension/addon system
 """
 
 
 # mewlo imports
 from ..helpers.misc import readfile_asjson
-from ..eventlog.event import EventList, EFailure
-from ..eventlog.exceptionplus import ExceptionPlus
+from ..eventlog.mevent import EventList, EFailure
+from ..eventlog.mexceptionplus import ExceptionPlus
 
 
 # python imports

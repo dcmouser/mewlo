@@ -4,52 +4,44 @@ This module contains Mewlo database manager class.
 """
 
 # mewlo imports
-import dbmodel_settings
-from dbmanager_sqlalchemy import DatabaseManagerSqlAlchemy
-from ..setting.settings import MewloSettings
-import mewlo.mpackages.core.mglobals as mglobals
-
-# library imports
-import sqlalchemy
-import sqlalchemy.orm
+import mdbmodel_settings
+from ..setting.msettings import MewloSettings
 
 
 
-class MewloDatabaseManager(DatabaseManagerSqlAlchemy):
+
+class MewloDatabaseManager(object):
     """The MewloDatabaseManager supervises database support."""
 
     def __init__(self):
-        # parent func
-        super(MewloDatabaseManager, self).__init__()
-        pass
-
+        self.databasesettings = {}
 
 
     def startup(self, mewlosite, eventlist):
         self.mewlosite = mewlosite
-        # parent func
-        super(MewloDatabaseManager, self).startup()
-        self.startup_database_stuff(eventlist)
 
     def shutdown(self):
-        # parent func
-        super(MewloDatabaseManager, self).shutdown()
         pass
-
-
-
 
 
 
 
     def startup_database_stuff(self, eventlist):
+        """Setup some database classes.
+        ATTN: We may want to move this elsewhere eventually.
+        """
         # now core database objects
-        mglobals.db().create_modelclass(self, dbmodel_settings.DbModel_Settings, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
+        self.create_modelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
         # ATTN: Test
-        mglobals.db().create_modelclass(self, dbmodel_settings.DbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
+        self.create_modelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
 
 
 
+
+    def set_databasesettings(self, databasesettings):
+        """Simple accessor."""
+        self.databasesettings = databasesettings
+        print "ATTN: DATABASE SETTINGS1 ARE: "+str(self.databasesettings)
 
 
 
@@ -63,50 +55,11 @@ class MewloDatabaseManager(DatabaseManagerSqlAlchemy):
 
 
 
-    def register_modelclass(self, owner, modelclass):
-        """Register a model class with component system and create database mapper stuff."""
-        # map database fields for it
-        self.map_modelclass(modelclass)
-        # register it with the registry
-        mglobals.mewlosite().registry.register_class(owner, modelclass)
-        return None
-
-
-
-    def map_modelclass(self, modelclass):
-        """Map the model class to the database."""
-        # first tell the class to define it's fields
-        modelclass.definedb()
-        # now get fields
-        fieldlist = modelclass.get_fieldlist()
-        #print "MAPPING MODELCLASS FOR "+modelclass.__name__+" fieldlist: "+str(fieldlist)
-        # now convert the fields to sqlalchemy columns
-        sqlalchemycolumns = self.convert_dbfields_to_sqlalchemy_columns(fieldlist)
-        # ok now create an sqlalchemy Table object from columns
-        dbtablename = modelclass.get_dbtablename()
-        dbschemaname = modelclass.get_dbschemaname()
-        sqlahelper = self.get_sqlahelper(dbschemaname)
-        metadata = sqlahelper.getmake_metadata()
-        # build table object and save it
-        #print "Tablename for modelclass is '{0}'.".format(dbtablename)
-        modeltable = sqlalchemy.Table(dbtablename, metadata, *sqlalchemycolumns)
-        # store/cache some of the object references in the class itself
-        modelclass.setclass_dbinfo(modeltable, sqlahelper, self)
-        # now ask sqlalchemy to map the class and table together, the key part of using sqlalchemy ORM
-        sqlalchemy.orm.mapper(modelclass, modeltable)
-        # create table if it doesn't exist
-        metadata.create_all()
 
 
 
 
 
-    def convert_dbfields_to_sqlalchemy_columns(self, fields):
-        """Given a list of our internal fields, build sqlalchemy columns."""
-        columns = []
-        for field in fields:
-            columns.append(field.convert_to_sqlalchemy_column())
-        return columns
 
 
 
@@ -126,3 +79,32 @@ class MewloDatabaseManager(DatabaseManagerSqlAlchemy):
         return targetclass
 
 
+    def register_modelclass(self, owner, modelclass):
+        """Register a model class with component system and create database mapper stuff."""
+        # map database fields for it
+        self.map_modelclass(modelclass)
+        # register it with the registry
+        self.mewlosite.registry.register_class(owner, modelclass)
+        return None
+
+
+
+    def map_modelclass(self, modelclass):
+        """Map the model class to the database; this is a derived function that subclass will implement."""
+        pass
+
+
+
+
+
+
+
+
+
+
+
+    def dumps(self, indent=0):
+        """Debug information."""
+        outstr = " "*indent + "DatabaseManager (" + self.__class__.__name__  + ") reporting in.\n"
+        outstr += " "*indent + " Settings: "+str(self.databasesettings)
+        return outstr

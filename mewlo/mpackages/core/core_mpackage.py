@@ -16,12 +16,12 @@ It doesn't actually *do* anything -- but does describe and version the core code
 
 
 # mewlo imports
-import package.packageobject as packageobject
+from package import mpackageobject
 
 
 
 
-class Core_MewloPackageObject(packageobject.MewloPackageObject):
+class Core_MewloPackageObject(mpackageobject.MewloPackageObject):
     """
     The Core_MewloPackage class manages the core mewlo code
     """

@@ -11,13 +11,13 @@ from mewlo.mpackages.core.site.msite import MewloSite
 from mewlo.mpackages.core.controller.mcontroller import MewloController
 from mewlo.mpackages.core.route.mroute import *
 from mewlo.mpackages.core.navnode.mnav import NavNode, NavLink
-from mewlo.mpackages.core.database import dbmodel_log
-from mewlo.mpackages.core.eventlog.logtarget_database import LogTarget_Database
-from mewlo.mpackages.core.setting.settings import MewloSettings
-from mewlo.mpackages.core.eventlog.logger import Logger
-from mewlo.mpackages.core.eventlog.logtarget_file import LogTarget_File
-from mewlo.mpackages.core.eventlog.logtarget_python import LogTarget_Python
-from mewlo.mpackages.core.eventlog.event import EWarning
+from mewlo.mpackages.core.database import mdbmodel_log
+from mewlo.mpackages.core.eventlog.mlogtarget_database import MewloLogTarget_Database
+from mewlo.mpackages.core.setting.msettings import MewloSettings
+from mewlo.mpackages.core.eventlog.mlogger import MewloLogger
+from mewlo.mpackages.core.eventlog.mlogtarget_file import MewloLogTarget_File
+from mewlo.mpackages.core.eventlog.mlogtarget_python import MewloLogTarget_Python
+from mewlo.mpackages.core.eventlog.mevent import EWarning
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live;
 # this is just a way to get the relative directory easily, and we use this in config settings
@@ -90,26 +90,26 @@ class MewloSite_Test1(MewloSite):
         """This is called by default by the base MewloSite near startup, to add loggers to the system."""
 
         # create a single logger (with no filters); multiple loggers are supported because each logger can have filters that define what this logger filters out
-        logger = self.add_logger(Logger('mytestlogger'))
+        logger = self.add_logger(MewloLogger('mytestlogger'))
 
         # now add some targets (handlers) to it
-        logger.add_target(LogTarget_File(filename=self.resolve('${logfilepath}/testlogout1.txt'), filemode='w'))
+        logger.add_target(MewloLogTarget_File(filename=self.resolve('${logfilepath}/testlogout1.txt'), filemode='w'))
 
         if (False):
             # want to test raising an exception on failure to write/open file? uncomment this
-            logger.add_target(LogTarget_File(filename=''))
+            logger.add_target(MewloLogTarget_File(filename=''))
 
         if (True):
             # let's add standard python logging as a test, and route that to file
             import logging
-            pythonlogger = LogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolve('${logfilepath}/testlogout3.txt'))
-            logger.add_target(LogTarget_Python(pythonlogger))
+            pythonlogger = MewloLogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolve('${logfilepath}/testlogout3.txt'))
+            logger.add_target(MewloLogTarget_Python(pythonlogger))
             # and then as a test, let's create an error message in this log
             pythonlogger.error("This is a manual python test error.")
 
         if (True):
             # let's add a database logger
-            logger.add_target(LogTarget_Database(baseclass=dbmodel_log.DbModel_Log, tablename='log'))
+            logger.add_target(MewloLogTarget_Database(baseclass=mdbmodel_log.MewloDbModel_Log, tablename='log'))
 
 
 

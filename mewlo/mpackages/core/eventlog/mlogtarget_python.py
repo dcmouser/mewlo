@@ -16,7 +16,7 @@ For more clues to this see:
 from __future__ import print_function
 
 # helper imports
-from logger import LogTarget
+from mlogger import MewloLogTarget
 
 # python imports
 import sys
@@ -26,13 +26,13 @@ import logging
 
 
 
-class LogTarget_Python(LogTarget):
+class MewloLogTarget_Python(MewloLogTarget):
     """Target that hands off log writing duties to standard python logging classes."""
 
 
     def __init__(self, logger):
         # parent constructor
-        super(LogTarget_Python, self).__init__()
+        super(MewloLogTarget_Python, self).__init__()
         # we start out with closed file and will only open on first write
         self.logger = logger
 

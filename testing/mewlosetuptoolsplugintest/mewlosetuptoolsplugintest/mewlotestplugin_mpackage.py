@@ -5,7 +5,7 @@ This file manages a test package, meant to be autodiscovered via setup tools ent
 
 
 # mewlo imports
-from mewlo.mpackages.core.package.packageobject import MewloPackageObject
+from mewlo.mpackages.core.package.mpackageobject import MewloPackageObject
 
 
 

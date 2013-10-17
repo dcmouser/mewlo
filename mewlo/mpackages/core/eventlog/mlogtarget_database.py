@@ -10,7 +10,7 @@ from __future__ import print_function
 from .. import mglobals
 
 # helper imports
-from logger import LogTarget
+from mlogger import MewloLogTarget
 
 # python imports
 import sys
@@ -19,12 +19,12 @@ import sys
 
 
 
-class LogTarget_Database(LogTarget):
+class MewloLogTarget_Database(MewloLogTarget):
     """LogTarget_File - target that can write log lines to a file."""
 
     def __init__(self, baseclass, tablename):
         # parent constructor
-        super(LogTarget_Database, self).__init__()
+        super(MewloLogTarget_Database, self).__init__()
         #
         self.baseclass = baseclass
         self.tablename = tablename
@@ -40,11 +40,11 @@ class LogTarget_Database(LogTarget):
         self.logclass = mglobals.db().create_modelclass(self, self.baseclass, customclassname, self.tablename)
         #print ("SELFLOGCLASS = "+str(self.logclass.__name__)+" baseclass = "+self.baseclass.__name__)
         # parent
-        super(LogTarget_Database,self).startup()
+        super(MewloLogTarget_Database,self).startup()
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
-        super(LogTarget_Database,self).shutdown()
+        super(MewloLogTarget_Database,self).shutdown()
 
 
 

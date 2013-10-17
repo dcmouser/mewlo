@@ -1,11 +1,11 @@
 """
-packagepbject.py
+mpackagepbject.py
 Works with packagemanager.py to support our package/extension/addon system
 """
 
 
 # mewlo imports
-from ..eventlog.event import EFailure, EDebug
+from ..eventlog.mevent import EFailure, EDebug
 
 
 class MewloPackageObject(object):

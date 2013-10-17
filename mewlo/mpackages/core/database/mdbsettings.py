@@ -1,5 +1,5 @@
 """
-settings.py
+mdbsettings.py
 This file contains classes to support hierarchical settings.
 
 We really don't do anything fancy here -- in fact some of it is a bit ugly and could use rewriting.
@@ -10,7 +10,7 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 
 
 # helper imports
-from ..setting.settings import MewloSettings
+from ..setting.msettings import MewloSettings
 from .. import mglobals
 from ..helpers.misc import get_value_from_dict
 
@@ -19,16 +19,16 @@ import datetime
 
 
 
-class DbSettings(MewloSettings):
+class MewloSettingsDb(MewloSettings):
     """
-    The DbSettings class provides a Settings-object interface to settings that are backed in a database.
+    The MewloSettingsDb class provides a Settings-object interface to settings that are backed in a database.
     We have some desires for it:
         * For efficiency, we need to support the idea of loading and caching values in memory.
         * But because of distributed/multi-process applications, we may not be able to rely on using cached values.
         * But the machinery should be there in case we can use database-functionality to be informed about when db has changed and needs to be reloaded.
         * We want to support hierarchical serialized data containing multiple types, transparently.
     Other details:
-        * Each DbSettings object is tied to a specific table (which it should be able to create dynamically).
+        * Each MewloSettingsDb object is tied to a specific table (which it should be able to create dynamically).
     Strategy:
         * All requests will be handled by the normal code for using an in-memory dictionary to store and retrieve values.
         * We will keep the in-memory dictionary synchronized with a database table behind the scenes.
@@ -38,7 +38,7 @@ class DbSettings(MewloSettings):
 
     def __init__(self, dbmodelclassname):
         # parent constructor
-        super(DbSettings, self).__init__()
+        super(MewloSettingsDb, self).__init__()
         # init - record the class name we use and clear some values
         self.dbmodelclassname = dbmodelclassname
         self.dbmodelclass = None
@@ -51,7 +51,7 @@ class DbSettings(MewloSettings):
     def startup(self, mewlosite, eventlist):
         """Any initial startup stuff to do?"""
         # parent constructor
-        super(DbSettings, self).startup(mewlosite, eventlist)
+        super(MewloSettingsDb, self).startup(mewlosite, eventlist)
         # get the partner modelclass to use to actually do the settings database storage
         self.dbmodelclass = mglobals.mewlosite().registry.get_class(self.dbmodelclassname);
 
@@ -67,7 +67,7 @@ class DbSettings(MewloSettings):
         self.db_lock(settingstoadd.keys())
         try:
             self.sync_load_keys(settingstoadd.keys())
-            retv = super(DbSettings, self).merge_settings(settingstoadd)
+            retv = super(MewloSettingsDb, self).merge_settings(settingstoadd)
             self.sync_save_keys(settingstoadd.keys())
         except Exception as exp:
             raise exp
@@ -81,7 +81,7 @@ class DbSettings(MewloSettings):
         self.db_lock(settingstoadd.keys())
         try:
             self.sync_load_keys([keyname])
-            retv = super(DbSettings, self).merge_settings_key(keyname, settingstoadd)
+            retv = super(MewloSettingsDb, self).merge_settings_key(keyname, settingstoadd)
             self.sync_save_keys([keyname])
         except Exception as exp:
             raise
@@ -92,27 +92,27 @@ class DbSettings(MewloSettings):
 
     def set_key(self, keyname, value):
         """Set and overwrite a value at a section, replacing whatever was there."""
-        retv = super(DbSettings, self).set_key(keyname, value)
+        retv = super(MewloSettingsDb, self).set_key(keyname, value)
         self.sync_save_keys([keyname])
 
 
     def get_value(self, keyname, defaultval=None):
         """Lookup value from our settings dictionary and return it or default if not found."""
         self.sync_load_keys([keyname])
-        return super(DbSettings, self).get_value(keyname, defaultval)
+        return super(MewloSettingsDb, self).get_value(keyname, defaultval)
 
 
     def get_subvalue(self, keyname, keysubname, defaultval=None):
         """Lookup value from our settings dictionary at a certain root section, and return it or default if not found."""
         self.sync_load_keys([keyname])
-        return super(DbSettings, self).get_subvalue(keyname, keysubname, defaultval)
+        return super(MewloSettingsDb, self).get_subvalue(keyname, keysubname, defaultval)
 
 
 
     def value_exists(self, keyname, keysubname=None):
         """Return true if the item existing in our settings dictionary (at specific root section if specified)."""
         self.sync_load_keys([keyname])
-        return super(DbSettings, self).value_exists(keyname, keysubname)
+        return super(MewloSettingsDb, self).value_exists(keyname, keysubname)
 
 
     def remove_all(self):
@@ -125,7 +125,7 @@ class DbSettings(MewloSettings):
         # clear contents of the database
         self.db_remove_allkeys()
         # now hand off to parent class
-        return super(DbSettings, self).remove_all()
+        return super(MewloSettingsDb, self).remove_all()
 
 
     def remove_key(self, keyname):
@@ -136,7 +136,7 @@ class DbSettings(MewloSettings):
         # clear keyname in the database
         self.db_remove_key(keyname)
         # now hand off to parent class
-        return super(DbSettings, self).remove_key(keyname, keysubname)
+        return super(MewloSettingsDb, self).remove_key(keyname, keysubname)
 
 
     def remove_subkey(self, keyname, keysubname):
@@ -147,7 +147,7 @@ class DbSettings(MewloSettings):
             # load to get most recent values
             self.sync_load_keys([keyname])
             # now hand off to parent class
-            retv = super(DbSettings, self).remove_subkey(keyname, keysubname)
+            retv = super(MewloSettingsDb, self).remove_subkey(keyname, keysubname)
             # now save
             self.sync_save_keys([keyname])
         except Exception as exp:
@@ -162,7 +162,7 @@ class DbSettings(MewloSettings):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         self.sync_load_all()
-        return super(DbSettings, self).dumps(indent)
+        return super(MewloSettingsDb, self).dumps(indent)
 
 
 

@@ -9,7 +9,7 @@ from ..reqresp import mrequest
 from .. import mglobals
 
 # helper imports
-from ..eventlog.event import Event, EventList
+from ..eventlog.mevent import Event, EventList
 
 # python imports
 from datetime import datetime

@@ -1,5 +1,5 @@
 """
-dbmodel_log.py
+mdbmodel_log.py
 
 This is a base class for logging to database.
 Subclasses can add new fields.
@@ -8,8 +8,8 @@ Subclasses can add new fields.
 
 
 # helper imports
-import dbmodel
-import dbfield
+import mdbmodel
+import mdbfield
 
 # python imports
 
@@ -18,7 +18,7 @@ import dbfield
 
 
 
-class DbModel_Log(dbmodel.DbModel):
+class MewloDbModel_Log(mdbmodel.MewloDbModel):
     """Database model where each row is a serialized dictioary setting."""
 
     # class variables
@@ -86,23 +86,23 @@ class DbModel_Log(dbmodel.DbModel):
         # define fields list
         fieldlist = [
             # standard primary id number field
-            dbfield.DbfPrimaryId('id', {
+            mdbfield.DbfPrimaryId('id', {
                 'label': "The primary key and id# for this row"
                 }),
             # an arbitrarily long string serializing any other log properties that we don't have explicit fields for.
-            dbfield.DbfSerialized('serialized_fields', {
+            mdbfield.DbfSerialized('serialized_fields', {
                 'label': "The serialzed text version of the dictionary/array data being stored"
                 }),
             # actual log msg text
-            dbfield.DbfText('msg', {
+            mdbfield.DbfText('msg', {
                 'label': "The text message"
                 }),
             # actual log msg text
-            dbfield.DbfString('source', {
+            mdbfield.DbfString('source', {
                 'label': "The source of the message"
                 }),
             # actual log msg text
-            dbfield.DbfString('type', {
+            mdbfield.DbfString('type', {
                 'label': "The type of the message"
                 }),
 

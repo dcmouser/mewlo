@@ -1,5 +1,5 @@
 """
-packagemanager.py
+mpackagemanager.py
 This file supports discovery and loading of modules by path and filename pattern
 
 Note that our term "package" here is not referring to python packages (directories).
@@ -22,9 +22,9 @@ When coding a new plugin/extension, ONLY a derived PackageObject class would be 
 
 # mewlo imports
 from ..helpers.callables import importmodule_bypath
-from ..eventlog.event import EFailure, EDebug
+from ..eventlog.mevent import EFailure, EDebug
 from ..helpers.misc import get_value_from_dict, append_text
-from package import MewloPackage
+from mpackage import MewloPackage
 
 # python imports
 import imp

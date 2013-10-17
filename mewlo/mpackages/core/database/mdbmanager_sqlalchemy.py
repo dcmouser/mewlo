@@ -7,8 +7,8 @@ This is our database helper module
 
 
 # helper imports
-import dbmanager
-from ..eventlog.event import EFailure
+import mdbmanager
+from ..eventlog.mevent import EFailure
 from ..helpers.misc import get_value_from_dict
 
 # python imports
@@ -22,9 +22,7 @@ import sqlalchemy.orm
 
 
 class DbmSqlAlchemyHelper(object):
-    """Helper for DatabaseManagerSqlAlchemy that holds engine, metadata, session, connection, data."""
-
-
+    """Helper for MewloDatabaseManagerSqlA that holds engine, metadata, session, connection, data."""
 
 
     def __init__(self, dbmanager, dbsettings):
@@ -105,7 +103,7 @@ class DbmSqlAlchemyHelper(object):
 
 
 
-class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
+class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
     """Derived DatabaseManager class built for sqlalchemy."""
 
     # class vars
@@ -115,7 +113,7 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
     def __init__(self):
         """constructor."""
         # call parent func
-        super(DatabaseManagerSqlAlchemy,self).__init__()
+        super(MewloDatabaseManagerSqlA,self).__init__()
         # init
         # helpers for different databases
         self.alchemyhelpers = {}
@@ -124,10 +122,11 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
 
 
 
-    def startup(self):
+    def startup(self, mewlosite, eventlist):
         # call parent func
-        super(DatabaseManagerSqlAlchemy,self).startup()
+        super(MewloDatabaseManagerSqlA,self).startup(mewlosite, eventlist)
         # create helpers
+        print "ATTN: DATABASE SETTINGS2 ARE: "+str(self.databasesettings)
         for idname in self.databasesettings.keys():
             self.alchemyhelpers[idname] = DbmSqlAlchemyHelper(self, self.databasesettings[idname])
         # settings
@@ -138,7 +137,7 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
 
     def shutdown(self):
         # call parent func
-        super(DatabaseManagerSqlAlchemy,self).shutdown()
+        super(MewloDatabaseManagerSqlA,self).shutdown()
         # shutdown helpers
         for idname in self.alchemyhelpers.keys():
             self.alchemyhelpers[idname].shutdown()
@@ -156,14 +155,14 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
         if (idname in self.alchemyhelpers):
             return self.alchemyhelpers[idname]
         # no default found, throw an error
-        raise "Error in get_sqlahelper({0}), sqlalchemy database wrapper get_sqlahelper failed to find.".format(idname)
+        raise Exception("Error in get_sqlahelper -- sqlalchemy database wrapper get_sqlahelper failed to find for id '{0}'.".format(idname))
 
 
 
     def setup_logcatchers(self):
         """Catch sqlalchemy log statements and route to Mewlo."""
         # ATTN:TODO - find a way to not have to call a MEWLO thing here, since we are in helper directory and supposed to be independent of mewlo here
-        self.sqlalchemylogger = self.mewlosite.logmanager.hook_pythonlogger(DatabaseManagerSqlAlchemy.DEF_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
+        self.sqlalchemylogger = self.mewlosite.logmanager.hook_pythonlogger(MewloDatabaseManagerSqlA.DEF_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
 
 
 
@@ -279,3 +278,48 @@ class DatabaseManagerSqlAlchemy(dbmanager.DatabaseManager):
         result = query.all()
         return result
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def map_modelclass(self, modelclass):
+        """Map the model class to the database."""
+        # first tell the class to define it's fields
+        modelclass.definedb()
+        # now get fields
+        fieldlist = modelclass.get_fieldlist()
+        #print "MAPPING MODELCLASS FOR "+modelclass.__name__+" fieldlist: "+str(fieldlist)
+        # now convert the fields to sqlalchemy columns
+        sqlalchemycolumns = self.convert_dbfields_to_sqlalchemy_columns(fieldlist)
+        # ok now create an sqlalchemy Table object from columns
+        dbtablename = modelclass.get_dbtablename()
+        dbschemaname = modelclass.get_dbschemaname()
+        sqlahelper = self.get_sqlahelper(dbschemaname)
+        metadata = sqlahelper.getmake_metadata()
+        # build table object and save it
+        #print "Tablename for modelclass is '{0}'.".format(dbtablename)
+        modeltable = sqlalchemy.Table(dbtablename, metadata, *sqlalchemycolumns)
+        # store/cache some of the object references in the class itself
+        modelclass.setclass_dbinfo(modeltable, sqlahelper, self)
+        # now ask sqlalchemy to map the class and table together, the key part of using sqlalchemy ORM
+        sqlalchemy.orm.mapper(modelclass, modeltable)
+        # create table if it doesn't exist
+        metadata.create_all()
+
+
+
+    def convert_dbfields_to_sqlalchemy_columns(self, fields):
+        """Given a list of our internal fields, build sqlalchemy columns."""
+        columns = []
+        for field in fields:
+            columns.append(field.convert_to_sqlalchemy_column())
+        return columns

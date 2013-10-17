@@ -65,10 +65,10 @@ class MewloRequest(object):
 
 
 
-    def logevent(self, mevent):
+    def logevent(self, event):
         """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
         # add it via site
-        mglobals.mewlosite().logevent(mevent,request = self)
+        mglobals.mewlosite().logevent(event,request = self)
 
 
 

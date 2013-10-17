@@ -1,7 +1,7 @@
 """
-dbfield.py
+mdbfield.py
 
-The DbField class handles one column of a model.
+The MewloDbField class handles one column of a model.
 
 """
 
@@ -19,7 +19,7 @@ import sqlalchemy
 
 
 
-class DbField(object):
+class MewloDbField(object):
     """The DbField object represents a column in a database and contains ancillary information for gui stuff."""
 
     def __init__(self, id, properties):
@@ -34,7 +34,7 @@ class DbField(object):
 
 
 
-class DbfPrimaryId(DbField):
+class DbfPrimaryId(MewloDbField):
     """Standard numeric autoinc unique primary id field."""
     def __init__(self, id='id', properties={}):
         """Constructor."""
@@ -48,7 +48,7 @@ class DbfPrimaryId(DbField):
 
 
 
-class DbfUniqueKeyname(DbField):
+class DbfUniqueKeyname(MewloDbField):
     """Short unique indexed key."""
     def __init__(self, id, properties={}):
         """Constructor."""
@@ -62,7 +62,7 @@ class DbfUniqueKeyname(DbField):
 
 
 
-class DbfSerialized(DbField):
+class DbfSerialized(MewloDbField):
     """Unlimited length text field used to serialize/unserialized arbitrary primitive types (dictionaries, etc.)"""
     def __init__(self, id, properties={}):
         """Constructor."""
@@ -76,7 +76,7 @@ class DbfSerialized(DbField):
 
 
 
-class DbfText(DbField):
+class DbfText(MewloDbField):
     """Unlimited length text field."""
     def __init__(self, id, properties={}):
         """Constructor."""
@@ -89,7 +89,7 @@ class DbfText(DbField):
 
 
 
-class DbfString(DbField):
+class DbfString(MewloDbField):
     """Unlimited length text field."""
     def __init__(self, id, properties={}):
         """Constructor."""
@@ -105,7 +105,7 @@ class DbfString(DbField):
 
 
 
-class DbfSqla(DbField):
+class DbfSqla(MewloDbField):
     """A dbf field that is passed a prebuilt sql alchemy column."""
     def __init__(self, id, properties, sqlacolumn):
         """Constructor."""

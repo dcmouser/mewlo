@@ -1,5 +1,5 @@
 """
-dbmodel_settings.py
+mdbmodel_settings.py
 
 This is our database object base class.
 
@@ -7,8 +7,8 @@ This is our database object base class.
 
 
 # helper imports
-import dbmodel
-import dbfield
+import mdbmodel
+import mdbfield
 
 # python imports
 
@@ -17,7 +17,7 @@ import dbfield
 
 
 
-class DbModel_Settings(dbmodel.DbModel):
+class MewloDbModel_Settings(mdbmodel.MewloDbModel):
     """Database model where each row is a serialized dictioary setting."""
 
     # class variables
@@ -64,15 +64,15 @@ class DbModel_Settings(dbmodel.DbModel):
         # define fields list
         fieldlist = [
             # standard primary id number field
-            dbfield.DbfPrimaryId('id', {
+            mdbfield.DbfPrimaryId('id', {
                 'label': "The primary key and id# for this row"
                 }),
             # a unique short text keyname
-            dbfield.DbfUniqueKeyname('keyname', {
+            mdbfield.DbfUniqueKeyname('keyname', {
                 'label': "The unique key name for this group of properties"
                 }),
             # an arbitrarily long string serializing a dictionary or array, etc.
-            dbfield.DbfSerialized('serialized_dict', {
+            mdbfield.DbfSerialized('serialized_dict', {
                 'label': "The serialzed text version of the dictionary/array data being stored"
                 })
             ]
