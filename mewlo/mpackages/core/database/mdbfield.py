@@ -102,6 +102,41 @@ class DbfString(MewloDbField):
 
 
 
+class DbfInteger(MewloDbField):
+    """Integer field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfInteger, self).__init__(id, properties)
+
+    def convert_to_sqlalchemy_column(self):
+        """Convert field to sqlalchemy column."""
+        return sqlalchemy.Column(self.id, sqlalchemy.Integer)
+
+
+
+class DbfBigInteger(MewloDbField):
+    """Integer field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfBigInteger, self).__init__(id, properties)
+
+    def convert_to_sqlalchemy_column(self):
+        """Convert field to sqlalchemy column."""
+        return sqlalchemy.Column(self.id, sqlalchemy.BigInteger)
+
+
+class DbfFloat(MewloDbField):
+    """Integer field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfFloat, self).__init__(id, properties)
+
+    def convert_to_sqlalchemy_column(self):
+        """Convert field to sqlalchemy column."""
+        return sqlalchemy.Column(self.id, sqlalchemy.Float)
 
 
 

@@ -94,6 +94,10 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
                 'label': "The serialzed text version of the dictionary/array data being stored"
                 }),
             # actual log msg text
+            mdbfield.DbfFloat('timestamp', {
+                'label': "The timestamp for the message"
+                }),
+            # actual log msg text
             mdbfield.DbfText('msg', {
                 'label': "The text message"
                 }),
@@ -105,6 +109,7 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
             mdbfield.DbfString('type', {
                 'label': "The type of the message"
                 }),
+
 
             ]
         cls.register_fieldlist(fieldlist)

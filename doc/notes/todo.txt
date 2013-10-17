@@ -20,8 +20,15 @@ move all alias resolving to assetmanager class
 //---------------------------------------------------------------------------
 
 
+
 //---------------------------------------------------------------------------
 10/17/13
-merge dbmanager and mdbmanager
-convert event to mevent
+add timestamps to log events
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+10/17/13
+add LogFormat and LogModifier class
+they would do things like format timestamp as readable text when writing to text file
 //---------------------------------------------------------------------------

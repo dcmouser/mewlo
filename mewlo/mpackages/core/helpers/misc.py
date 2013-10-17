@@ -5,13 +5,13 @@ This module contains misclenaeous helper functions.
 
 
 # helper imports
-from ..eventlog.mevent import EFailure, EException
-from ..eventlog.mexceptionplus import reraiseplus
+from ..eventlog import mevent
+from ..eventlog import mexceptionplus
 
 # python imports
 import re
 import pickle
-
+import time
 
 
 
@@ -38,20 +38,20 @@ def readfile_asjson(filepath, nicelabel):
 
     # make sure filename is nonblanck
     if (filepath == ""):
-        return None, EFailure(nicelabel+" has blank info file path")
+        return None, mevent.EFailure(nicelabel+" has blank info file path")
 
     # open the file and load into a string
     try:
         # open file for reading, and read it into string
         file = open(filepath, 'r')
     except Exception as exp:
-        return None, EException("Failed to open '{0}' from path '{1}'.".format(nicelabel,filepath), exp=exp, flag_traceback=False )
+        return None, mevent.EException("Failed to open '{0}' from path '{1}'.".format(nicelabel,filepath), exp=exp, flag_traceback=False )
 
     # read the file
     try:
         jsonstr = file.read()
     except Exception as exp:
-        return None, EException("Opened but failed to read contents of '{0}' from path '{1}'.".format(nicelabel,filepath), exp=exp, flag_traceback=False )
+        return None, mevent.EException("Opened but failed to read contents of '{0}' from path '{1}'.".format(nicelabel,filepath), exp=exp, flag_traceback=False )
     finally:
         file.close()
 
@@ -59,7 +59,7 @@ def readfile_asjson(filepath, nicelabel):
     try:
         jsondict = json.loads(jsonstr)
     except Exception as exp:
-        return None, EException("Syntax error parsing json code in '{0}' from file '{1}'.".format(nicelabel,filepath), exp=exp, flag_traceback=True)
+        return None, mevent.EException("Syntax error parsing json code in '{0}' from file '{1}'.".format(nicelabel,filepath), exp=exp, flag_traceback=True)
 
     # success
     return jsondict, None
@@ -104,7 +104,7 @@ def resolve_expand_string(patternstring, replacementdict, depthcount=0):
         try:
             retv = resolve_expand_string(replacementdict[match.group(1)], replacementdict, depthcount+1)
         except Exception as exp:
-            reraiseplus(exp, "Could not find a key '{0}' in alias replacement dictionary: {1}".format(match.group(1),replacementdict))
+            mexceptionplus.reraiseplus(exp, "Could not find a key '{0}' in alias replacement dictionary: {1}".format(match.group(1),replacementdict))
         return retv
 
 

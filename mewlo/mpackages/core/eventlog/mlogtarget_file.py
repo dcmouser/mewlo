@@ -8,6 +8,7 @@ from __future__ import print_function
 
 # helper imports
 from mlogger import MewloLogTarget
+import mlogformat_pretty
 
 # python imports
 import sys
@@ -24,9 +25,12 @@ class MewloLogTarget_File(MewloLogTarget):
 
 
 
-    def __init__(self, filename=None, filemode = DEF_FILEMODE_default):
+    def __init__(self, filename=None, filemode = DEF_FILEMODE_default, logformatter=None):
+        # default logformatter is pretty
+        if (logformatter==None):
+            logformatter = mlogformat_pretty.MewloLogFormatter_Pretty()
         # parent constructor
-        super(MewloLogTarget_File, self).__init__()
+        super(MewloLogTarget_File, self).__init__(logformatter=logformatter)
         # we start out with closed file and will only open on first write
         self.filep = None
         # save the filename and file open mode (could be write or append)
@@ -81,7 +85,10 @@ class MewloLogTarget_File(MewloLogTarget):
         # ensure file is open. this will throw exception if there is an error opening the file, and caller will handle exception by disabling us, etc.
         filep = self.get_openfile()
         # get log line as string
-        outline = logmessage.as_logline()
+        if (self.logformatter != None):
+            outline = self.logformatter.format_logmessage_as_string(logmessage)
+        else:
+            outline = logmessage.as_string()
         # print it (this could throw an exception if write failes)
         print(outline, file=filep)
         # flush file right away so file is written before closing

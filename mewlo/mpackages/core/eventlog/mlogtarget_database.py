@@ -24,7 +24,7 @@ class MewloLogTarget_Database(MewloLogTarget):
 
     def __init__(self, baseclass, tablename):
         # parent constructor
-        super(MewloLogTarget_Database, self).__init__()
+        super(MewloLogTarget_Database, self).__init__(logformatter=None)
         #
         self.baseclass = baseclass
         self.tablename = tablename

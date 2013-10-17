@@ -37,12 +37,11 @@ Official Fields (not all will be in every event):
 """
 
 
-# helper imports
-from ..helpers.debugging import smart_dotted_idpath, compute_traceback_astext, calc_caller_dict
 
 # python imports
 import sys
 import logging
+import time
 
 
 
@@ -53,7 +52,7 @@ class Event(object):
 
     # class constants
     #
-    DEF_SAFE_FIELDNAME_LIST = ['type', 'msg', 'exp', 'request', 'traceback', 'statuscode', 'loc', 'source']
+    DEF_SAFE_FIELDNAME_LIST = ['type', 'msg', 'exp', 'request', 'traceback', 'statuscode', 'loc', 'source', 'timestamp']
     #
     DEF_ETYPE_debug = 'DEBUG'
     DEF_ETYPE_info = 'INFO'
@@ -89,6 +88,8 @@ class Event(object):
             self.fields = dict(defaultfields)
         else:
             self.fields = {}
+        # force timestamp
+        self.fields['timestamp'] = time.time()
         # merge in fields
         if (fields != None):
             self.fields.update(fields)
@@ -169,7 +170,7 @@ class Event(object):
         return retstr
 
 
-    def as_logline(self):
+    def as_string(self):
         """
         Return the event string as it should be formatted for saving to log file.
         ATTN: we probably don't want the EVENT to decide this -- rather the log target, etc.
@@ -209,7 +210,8 @@ class Event(object):
     def calc_traceback_text(cls):
         """Class function to get current stack traceback as text.  Used when creating an event from an exception."""
         # let debugging cuntion do this for us
-        return compute_traceback_astext()
+        from ..helpers import debugging
+        return debugging.compute_traceback_astext()
 
 
 
@@ -387,13 +389,14 @@ def EFailureExtend(failure, msg="", fields=None, obj=None, flag_loc=False, calld
 
 def SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth, defaultfields):
     """Internal func. Helper function to create failure type event"""
+    from ..helpers import debugging
     # add obj info
     if (obj != None):
-        msg += smart_dotted_idpath(obj)
+        msg += debugging.smart_dotted_idpath(obj)
     # add message
     defaultfields['msg'] = msg
     # extra stuff?
     if (flag_loc):
-        defaultfields['loc'] = calc_caller_dict(calldepth+1)
+        defaultfields['loc'] = debugging.calc_caller_dict(calldepth+1)
     # create event
     return Event(fields, defaultfields)

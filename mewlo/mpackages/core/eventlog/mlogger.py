@@ -209,6 +209,30 @@ class MewloLogFilter(object):
 
 
 
+class MewloLogModifier(object):
+    """MewloLogModifier - runs early and can modify/add stuff to log events before they are sent to a LogTarget."""
+
+    def __init__(self):
+        pass
+
+    def modify_event(self, event):
+        """Modify the event in-place."""
+        pass
+
+
+
+class MewloLogFormatter(object):
+    """MewloLogFormatter - one and only one of these can be used to format a log string before writing it out to some file."""
+
+    def __init__(self, formatstr=None):
+        self.formatstr = formatstr
+
+    def format_logmessage_as_string(self, logmessage):
+        """Return a string which formates the event."""
+        return logmessage.as_string()
+
+
+
 
 
 class MewloLogTarget(object):
@@ -216,10 +240,11 @@ class MewloLogTarget(object):
     MewloLogTarget - targets for loggers; each logger has a list of LogTargets to perform on match
     """
 
-    def __init__(self):
+    def __init__(self, logformatter=None):
         self.isenabled = True
         self.startedup = False
         self.logqueue = []
+        self.logformatter = logformatter
 
 
     def set_isenabled(self, flagval):
@@ -236,6 +261,11 @@ class MewloLogTarget(object):
         """Shutdown everything, we are about to exit."""
         self.flushqueue()
         pass
+
+
+    def set_logformatter(self, logformatter):
+        self.logformatter = logformatter
+
 
     def process(self, logmessage):
         """Process the target action (write to file, save to database, emailing, etc.).  This should be overridden by subclass to do actual work."""

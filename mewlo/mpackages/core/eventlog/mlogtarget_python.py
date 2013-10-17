@@ -30,11 +30,11 @@ class MewloLogTarget_Python(MewloLogTarget):
     """Target that hands off log writing duties to standard python logging classes."""
 
 
-    def __init__(self, logger):
+    def __init__(self, pythonlogger):
         # parent constructor
-        super(MewloLogTarget_Python, self).__init__()
+        super(MewloLogTarget_Python, self).__init__(logformatter=None)
         # we start out with closed file and will only open on first write
-        self.logger = logger
+        self.pythonlogger = pythonlogger
 
 
 
@@ -62,19 +62,19 @@ class MewloLogTarget_Python(MewloLogTarget):
 
         if (loc == None):
             # log it using high level logger call
-            self.logger.log(level, msg)
+            self.pythonlogger.log(level, msg)
         else:
             # log it using low-level logger call so we can set location info.
-            loggername = self.logger.name
+            pythonloggername = self.pythonlogger.name
             pathname = loc['filename']
             lineno = loc['lineno']
             args = None
             exc_info = None
             func = loc['function_name']
             # create record
-            logrecord = self.logger.makeRecord(loggername, level, pathname, lineno, msg, args, exc_info, func)
+            pythonlogrecord = self.pythonlogger.makeRecord(pythonloggername, level, pathname, lineno, msg, args, exc_info, func)
             # log record
-            self.logger.handle(logrecord)
+            self.pythonlogger.handle(pythonlogrecord)
         # return 1 saying it was written
         return 1
 
@@ -89,14 +89,14 @@ class MewloLogTarget_Python(MewloLogTarget):
 
 
     @classmethod
-    def make_simple_pythonlogger_tofile(cls, loggername, filepath, level=logging.DEBUG):
+    def make_simple_pythonlogger_tofile(cls, pythonloggername, filepath, level=logging.DEBUG):
         """Class method to make a simple test file logger via python logging system."""
         import logging
-        plogger = logging.getLogger(loggername)
+        pythonlogger = logging.getLogger(pythonloggername)
         hdlr = logging.FileHandler(filepath)
-        formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s [filepath=%(pathname)s] [filename=%(filename)s] [funcname=%(funcName)s] [module=%(module)s] [lineno=%(lineno)d]")
-        hdlr.setFormatter(formatter)
-        plogger.addHandler(hdlr)
-        plogger.setLevel(level)
-        return plogger
+        pythonformatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s [filepath=%(pathname)s] [filename=%(filename)s] [funcname=%(funcName)s] [module=%(module)s] [lineno=%(lineno)d]")
+        hdlr.setFormatter(pythonformatter)
+        pythonlogger.addHandler(hdlr)
+        pythonlogger.setLevel(level)
+        return pythonlogger
 

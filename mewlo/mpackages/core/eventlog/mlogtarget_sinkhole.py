@@ -16,7 +16,7 @@ class MewloLogTarget_Sinkhole(MewloLogTarget):
 
     def __init__(self):
         # parent constructor
-        super(MewloLogTarget_Sinkhole, self).__init__()
+        super(MewloLogTarget_Sinkhole, self).__init__(logformatter=None)
 
 
 
