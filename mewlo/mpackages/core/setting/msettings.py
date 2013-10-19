@@ -28,7 +28,7 @@ class MewloSettings(object):
     # settings
     DEF_SETTINGNAME_pkgdirimps_sitempackages = 'pkgdirimps_sitempackages'
     DEF_SETTINGNAME_controllerroot = 'controllerroot'
-    DEF_SETTINGNAME_siteurl_internal = 'siteurl_internal'
+    DEF_SETTINGNAME_siteurl_relative = 'siteurl_relative'
     DEF_SETTINGNAME_siteurl_absolute = 'siteurl_absolute'
     DEF_SETTINGNAME_sitefilepath = 'sitefilepath'
     DEF_SETTINGNAME_default_logfilename = 'logfilename'
@@ -60,12 +60,12 @@ class MewloSettings(object):
 
     def __init__(self):
         self.settingdict = {}
-
+        # init some sections, so we can get early references to them
+        #self.settingdict[self.DEF_SECTION_aliases] = {}
 
     def startup(self, mewlosite, eventlist):
         """Any initial startup stuff to do?"""
         self. mewlosite = mewlosite
-
 
     def shutdown(self):
         """Shutdown"""

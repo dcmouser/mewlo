@@ -1,0 +1,5 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+Welcome to the Demo Site web page.
+
+{% include "./footer.jn2" %}

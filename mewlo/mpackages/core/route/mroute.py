@@ -197,7 +197,7 @@ class MewloRoute(object):
 
 
 
-    def process_request(self, request):
+    def process_request(self, mewlosite, request):
         """
         Called to see if we this route matches the request.
         :return: True if the request is for this site and we have set request.response
@@ -233,7 +233,7 @@ class MewloRoute(object):
 
         # ok, did we match? if so handle it
         if (didmatch):
-            failure = self.handle_request(request, argdict)
+            failure = self.handle_request(mewlosite, request, argdict)
 
         # return flag saying if we matched
         return didmatch
@@ -354,18 +354,18 @@ class MewloRoute(object):
 
 
 
-    def handle_request(self, request, argdict):
+    def handle_request(self, mewlosite, request, argdict):
         """We matched against this route, so WE will handle the request."""
 
         # any args in argdict that need to be FORCED?
         self.force_args(argdict)
 
         # update the request and record the matched site, parsed arg dictionary, etc
-        request.set_matched(self)
+        request.set_matched(self, mewlosite)
         request.set_route_parsedargs(argdict)
 
         # give site a chance to pre-handle the invocation
-        precall_failure = mglobals.mewlosite().pre_runroute_callable(self, request)
+        precall_failure = mewlosite.pre_runroute_callable(self, request)
         if (precall_failure != None):
             return precall_failure
 
@@ -375,7 +375,7 @@ class MewloRoute(object):
             return call_failure
 
         # give site a chance to do something after we run the route
-        postcall_failure = mglobals.mewlosite().post_runroute_callable(request)
+        postcall_failure = mewlosite.post_runroute_callable(request)
         if (postcall_failure != None):
             return postcall_failure
 
@@ -471,11 +471,11 @@ class MewloRouteGroup(object):
 
 
 
-    def process_request(self, request):
+    def process_request(self, mewlosite, request):
         """Walk through the site list and let each site take a chance at processing the request."""
         ishandled = False
         for route in self.routes:
-            ishandled = route.process_request(request)
+            ishandled = route.process_request(mewlosite, request)
             if (ishandled):
                 # ok this site handled it
                 break

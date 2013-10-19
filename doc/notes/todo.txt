@@ -32,3 +32,20 @@ add timestamps to log events
 add LogFormat and LogModifier class
 they would do things like format timestamp as readable text when writing to text file
 //---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+10/18/13
+Use pkg_resources to resolve filenames referring to controller functions, like pyramid does
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+10/18/13
+note that we may need request information when generating urls, to know whether to use http or https, etc.
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+10/18/13
+take another look at pyramids dual/"traversal" method of serving files.
+//---------------------------------------------------------------------------

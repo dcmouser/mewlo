@@ -1,1 +1,8 @@
-<b>MY TEST PAGE HEADER</b><br/>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Title of the template document</title>
+</head>
+
+<b>MY TEMPLATE HEADER</b>
+<br/>

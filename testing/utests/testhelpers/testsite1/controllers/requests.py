@@ -1,58 +1,61 @@
 """
 requests.py
-This file holds controller functions that will be invoked by route manager
+This file holds controller functions that will be invoked by route manager as routes are matched.
 """
 
 
-# mewlo imports
-from mewlo.mpackages.core.mglobals import mewlosite
 
 
 
-
-def request_home(request):
+def request_home(request, response):
     """Show home page."""
-    request.response.set_responsedata("In request_home.")
+    # set page info first (as it may be used in page contents)
+    response.set_page('home')
+    # then page contents
+    template = request.mewlosite.templates.from_file('${siteviewpath}/home.jn2')
+    response.render_from_template(template)
+    # success
     return None
 
 
 
-def request_about(request):
+def request_about(request, response):
     """Show about page."""
-    request.response.set_responsedata("In request_about.")
+    # set page info first (as it may be used in page contents)
+    response.set_page('about')
+    # then page contents
+    template = request.mewlosite.templates.from_file('${siteviewpath}/about.jn2')
+    response.render_from_template(template)
+    # success
     return None
 
 
 
-def request_sayhello(request):
-    """Show simple hello page; demonstrates use of args."""
-    matchedroute = request.get_route()
+def request_sayhello(request, response):
+    """Show simple hello page with some arguments."""
+    # set page info first (as it may be used in page contents)
+    response.set_page('hello')
+    # then page contents
     args = request.get_route_parsedargs()
-    extras = matchedroute.get_extras()
-    request.response.set_responsedata("In request_sayhello, with args: {0} and matched route extras: {1}.".format(str(args), str(extras)))
-    return None
-
-
-def request_sayhello_template(request):
-    """Show simple hello page; demonstrates use of templates."""
     matchedroute = request.get_route()
-    args = request.get_route_parsedargs()
     extras = matchedroute.get_extras()
-    # create template
-    template = mewlosite().templates.from_file('${siteviewpath}/hello.jn2')
+    template = request.mewlosite.templates.from_file('${siteviewpath}/hello.jn2')
     templateargs = {'args':args, 'name':args['name'], 'age':args['age']}
-    # render template
-    renderedtext = template.render_string(templateargs)
-    request.response.set_responsedata(renderedtext)
+    response.render_from_template(template, templateargs)
+    # success
     return None
 
 
 
-def request_article(request):
+def request_article(request, response):
     """Show an article."""
-    request.response.set_responsedata("In request_article.")
+    # set page info first (as it may be used in page contents)
+    response.set_page('article')
+    # then page contents
+    template = request.mewlosite.templates.from_file('${siteviewpath}/article.jn2')
+    response.render_from_template(template)
+    # success
     return None
-
 
 
 

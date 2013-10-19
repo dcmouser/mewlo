@@ -1,11 +1,17 @@
 """
 massetmanager.py
 This module contains classes and functions to manage static file assets and aliases.
+
+The asset manager has several functions:
+
+    * It allows aliases to be set, and ensures all references to files and urls are resolved with these aliases.
+
+
 """
 
 
-# helper imports
-
+# mewlo imports
+from ..helpers.misc import resolve_expand_string
 
 # python imports
 
@@ -18,12 +24,45 @@ class MewloAssetManager(object):
 
     def __init__(self):
         """Constructor."""
-        pass
+        self.alias_settings = None
 
     def startup(self, mewlosite, eventlist):
         self.mewlosite = mewlosite
-        pass
 
     def shutdown(self):
         pass
+
+
+
+    def set_alias_settings(self, alias_settings):
+        """Assign the alias settings."""
+        self.alias_settings = alias_settings
+
+
+
+
+
+
+    def resolve(self, text):
+        """Resolve an alias."""
+        resolvedtext = resolve_expand_string(text, self.alias_settings)
+        return resolvedtext
+
+
+
+
+
+    # shortcuts that just call resolve() with some extra info
+
+    def absolute_filepath(self, relpath):
+        """Shortcut to resolve a filepath given a relative path."""
+        return self.resolve('${sitefilepath}' + relpath)
+
+    def absolute_url(self, relpath):
+        """Shortcut to resolve a url given a relative path."""
+        return self.resolve('${siteurl_absolute}' + relpath)
+
+    def relative_url(self, relpath):
+        """Shortcut to resolve a url that is relative to our server root."""
+        return self.resolve('${siteurl_relative}' + relpath)
 

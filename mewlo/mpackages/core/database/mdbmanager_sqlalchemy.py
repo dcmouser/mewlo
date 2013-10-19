@@ -97,6 +97,12 @@ class DbmSqlAlchemyHelper(object):
 
 
 
+    def dbflush(self):
+        """Flush db if appropriate."""
+        if (self.session!=None):
+            self.session.commit()
+
+
 
 
 
@@ -126,7 +132,7 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         # call parent func
         super(MewloDatabaseManagerSqlA,self).startup(mewlosite, eventlist)
         # create helpers
-        print "ATTN: DATABASE SETTINGS2 ARE: "+str(self.databasesettings)
+        #print "ATTN: DATABASE SETTINGS2 ARE: "+str(self.databasesettings)
         for idname in self.databasesettings.keys():
             self.alchemyhelpers[idname] = DbmSqlAlchemyHelper(self, self.databasesettings[idname])
         # settings
@@ -141,6 +147,34 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         # shutdown helpers
         for idname in self.alchemyhelpers.keys():
             self.alchemyhelpers[idname].shutdown()
+
+
+
+
+
+
+
+
+    def flushdb_on_request_ends(self):
+        """Flush any sessions."""
+        self.flush_all_dbs()
+
+
+
+    def flush_all_dbs(self):
+        """Ask all helpers to flush."""
+        for idname in self.alchemyhelpers.keys():
+            self.alchemyhelpers[idname].dbflush()
+
+
+
+
+
+
+
+
+
+
 
 
 

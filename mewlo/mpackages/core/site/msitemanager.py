@@ -68,10 +68,10 @@ class MewloSiteManager(object):
         """Instatiate a site class and set it to be owned by use."""
         # instantiate the site
         site = siteclass(debugmode)
-        # tell the site we are the sitemanager for it
-        site.set_sitemanager(self)
         # early setup stuff for site
         site.setup_early()
+        # tell the site we are the sitemanager for it
+        site.set_sitemanager(self)
         # take ownership of the site
         self.add_site(site)
         # retuen the newly created site
@@ -90,7 +90,6 @@ class MewloSiteManager(object):
         Display a simple debug message with date+time to stdout.
         ATTN: We probably want to remove this later.
         """
-
         nowtime = datetime.now()
         outstr = "MEWLODEBUG [" + nowtime.strftime("%B %d, %Y at %I:%M%p") + "]: " + astr
         print outstr

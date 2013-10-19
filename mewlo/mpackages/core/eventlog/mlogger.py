@@ -211,6 +211,7 @@ class MewloLogFilter(object):
 
 class MewloLogModifier(object):
     """MewloLogModifier - runs early and can modify/add stuff to log events before they are sent to a LogTarget."""
+    # ATTN: We don't actually tie-in the MewloLogModifier yet to anything.
 
     def __init__(self):
         pass

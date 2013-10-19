@@ -41,7 +41,53 @@ class MewloDatabaseManager(object):
     def set_databasesettings(self, databasesettings):
         """Simple accessor."""
         self.databasesettings = databasesettings
-        print "ATTN: DATABASE SETTINGS1 ARE: "+str(self.databasesettings)
+        #print "ATTN: DATABASE SETTINGS1 ARE: "+str(self.databasesettings)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def process_request_starts(self, request):
+        """Do stuff before processing a request."""
+        pass
+
+
+    def process_request_ends(self, request):
+        """Do stuff before processing a request."""
+        self.flushdb_on_request_ends()
+
+
+
+
+
+    def flushdb_on_request_ends(self):
+        """Nothing to do in base class."""
+        pass
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

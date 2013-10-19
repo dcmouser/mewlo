@@ -107,7 +107,6 @@ def resolve_expand_string(patternstring, replacementdict, depthcount=0):
             mexceptionplus.reraiseplus(exp, "Could not find a key '{0}' in alias replacement dictionary: {1}".format(match.group(1),replacementdict))
         return retv
 
-
     regexpat = r'\$\{([a-zA-Z0-9\_\-]+)\}'
     retv = re.sub(regexpat, resolve_expand_string_replacevar, patternstring)
     return retv

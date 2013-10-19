@@ -26,6 +26,7 @@ class MewloRequest(object):
         # misc from request
         self.parsedargs = None
         self.route = None
+        self.mewlosite = None
         # note that a request contains a response, to be filled in during processing of request
         self.response = mresponse.MewloResponse(self)
 
@@ -43,12 +44,14 @@ class MewloRequest(object):
     def get_route_parsedargs(self):
         return self.parsedargs
 
-    def set_matched(self, route):
+    def set_matched(self, route, mewlosite):
         self.route = route
-
+        self.mewlosite = mewlosite
 
     def get_route(self):
         return self.route
+
+
 
 
 

@@ -26,10 +26,17 @@ class MewloResponse(object):
         self.wresp = None
         #
         self.statuscode = None
-        self.headers = None
+        #self.headers = None
+        self.headers = [('Content-Type', 'text/html; charset=utf-8')]
         self.responsedata = None
         #
         self.eventlist = EventList()
+        #
+        self.navnodeid = None
+
+
+
+
 
 
 
@@ -79,6 +86,20 @@ class MewloResponse(object):
 
 
 
+
+
+
+
+    def set_page(self, id, args={}):
+        """Called when viewing a page, to tell the site what nav_node id the user is viewing."""
+        self.navnodeid = id
+
+
+
+
+
+
+
     def finalize_response(self):
         """
         This function is invoked after the response is finished being built and is about to be sent as a reply.
@@ -113,6 +134,20 @@ class MewloResponse(object):
             self.responsedata = rstr
         else:
             self.responsedata.append(rstr)
+
+
+
+
+    def render_from_template(self, template, args={}):
+        """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
+        # ATTN: TODO note we are mutating the passed args in order to add a response item -- this will be fine most of the time but we may want to copy instead
+        templateargs = args
+        templateargs['response'] = self
+        templateargs['request'] = self.request
+        renderedtext = template.render_string(templateargs)
+        self.set_responsedata(renderedtext)
+        return None
+
 
 
 

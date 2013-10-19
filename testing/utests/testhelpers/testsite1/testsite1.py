@@ -48,7 +48,7 @@ class MewloSite_Test1(MewloSite):
             MewloSettings.DEF_SETTINGNAME_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
             MewloSettings.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
             MewloSettings.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
-            MewloSettings.DEF_SETTINGNAME_siteurl_internal: '/mewlo',
+            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/mewlo',
             MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1/mewlo',
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
@@ -67,7 +67,7 @@ class MewloSite_Test1(MewloSite):
         # database config
         databaseconfig = {
             'settings' : {
-                'sqlalchemy_loglevel' : logging.DEBUG,
+                'sqlalchemy_loglevel' : logging.NOTSET,
                 },
             'default' : {
                 'url' : 'sqlite:///${dbfilepath}/mewlo_testsite1.sqlite',
@@ -162,25 +162,7 @@ class MewloSite_Test1(MewloSite):
                 forcedargs = { 'sign': u"aries" },
                 ))
 
-        routegroup.append(
-            MewloRoute(
-                id = 'hellopaget',
-                path = '/test/hellot',
-                args = [
-                        MewloRouteArgString(
-                            id = 'name',
-                            required = True,
-                            help = "name of person to say hello to",
-                            ),
-                        MewloRouteArgInteger(
-                            id = 'age',
-                            required = False,
-                            help = "age of person (optional)",
-                            defaultval = 44,
-                            )
-                        ],
-                controller = MewloController(function="requests.request_sayhello_template"),
-                ))
+
 
 
         #from controllers.requests import request_article
@@ -295,10 +277,19 @@ class MewloSite_Test1(MewloSite):
 def main():
     """This function is invoked by the python interpreter if this script itself is executed as the main script."""
 
-    # flags for commandline launch
-    flag_debugsite = True
-    flag_runtests = True
-    flag_runserver = False
+
+
+    # commandline args
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--runserver", help="run the web server",action="store_true", default=False)
+    parser.add_argument("-t", "--runtests", help="run some testsr",action="store_true", default=False)
+    parser.add_argument("-d", "--debug", help="run in debug mode",action="store_true", default=False)
+    args = parser.parse_args()
+    #
+    flag_debugsite = args.debug
+    flag_runtests = args.runtests
+    flag_runserver = args.runserver
 
 
     # Create a site manager and ask it to instantiate a site of the class we specify
@@ -324,6 +315,7 @@ def main():
     # run tests?
     if (flag_runtests):
         # simulate some simple requests
+        print sitemanager.test_submit_path('/')
         print sitemanager.test_submit_path('/help/about')
         print sitemanager.test_submit_path('/page/mystery')
         print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')

@@ -29,7 +29,7 @@ class MewloTemplate(object):
         fp.close()
 
 
-    def render_string(self, args):
+    def render_string(self, args={}):
         """Render template into a string and return string.  Use args dictionary to pass in values."""
         raise Exception("Base template invoked for function 'render_string'.")
 

@@ -7,7 +7,7 @@ From here you can learn about the core Mewlo packages.
 
    acl
    addons
-   asset_files
+   assets
    auth
    avatar
    daemon

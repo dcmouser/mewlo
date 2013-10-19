@@ -131,6 +131,9 @@ class MewloSite(object):
         # first are main settings -- this startup usually does nothing since these settings are not persistent
         self.settings.startup(self, eventlist)
 
+        # asset manager
+        self.assetmanager.startup(self, eventlist)
+
         # any settings caching or other pre-preparation we need to do
         self.preprocess_settings(eventlist)
 
@@ -168,10 +171,6 @@ class MewloSite(object):
 
         # templater
         self.templates.startup(self, eventlist)
-
-        # asset manager
-        self.assetmanager.startup(self, eventlist)
-
 
         # log all startup events
         self.logevents(eventlist)
@@ -291,7 +290,7 @@ class MewloSite(object):
         self.validate_setting_config(eventlist, MewloSettings.DEF_SETTINGNAME_pkgdirimps_sitempackages, False, "no directory will be scanned for site-specific extensions.")
         self.validate_setting_config(eventlist, MewloSettings.DEF_SETTINGNAME_controllerroot, False, "no site-default specified for controller root.")
         # required stuff
-        self.validate_setting_config(eventlist, MewloSettings.DEF_SETTINGNAME_siteurl_internal, True, "site has no relative url specified; assumed to start at root (/).")
+        self.validate_setting_config(eventlist, MewloSettings.DEF_SETTINGNAME_siteurl_relative, True, "site has no relative url specified; assumed to start at root (/).")
         self.validate_setting_config(eventlist, MewloSettings.DEF_SETTINGNAME_siteurl_absolute, True, "site has no absolute url address.")
         self.validate_setting_config(eventlist, MewloSettings.DEF_SETTINGNAME_sitefilepath, True, "site has no filepath specified for it's home directory.")
 
@@ -526,17 +525,20 @@ class MewloSite(object):
         """Set default alias settings."""
         aliases = {
             MewloSettings.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_absolute),
-            MewloSettings.DEF_SETTINGNAME_siteurl_internal: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_internal),
+            MewloSettings.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_relative),
             MewloSettings.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitefilepath),
             MewloSettings.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
             MewloSettings.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
             MewloSettings.DEF_SETTINGNAME_siteviewfilepath: '${sitefilepath}/views',
-
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
+        self.alias_settings_change()
 
 
 
+    def alias_settings_change(self):
+        """Inform asset manager of new alias settings.  This *must* be called whenever alias settings may change."""
+        self.assetmanager.set_alias_settings(self.settings.get_value(MewloSettings.DEF_SECTION_aliases))
 
 
 
@@ -607,32 +609,62 @@ class MewloSite(object):
         Run the request through the routes and handle it if it matches any.
         :return: True if the request is for this site and we have set request.response
         """
-        ishandled = self.routes.process_request(request)
+        # before we start a request we might have stuff to do
+        self.process_request_starts(request)
+        # handle the request
+        ishandled = self.routes.process_request(self, request)
+        # after we end a request we might have stuff to do
+        self.process_request_ends(request)
+        # return whether we handled it
         return ishandled
 
 
 
 
 
+    def process_request_starts(self, request):
+        """
+        Do stuff before processing a request
+        """
+        self.dbmanager.process_request_starts(request)
 
-# ATTN: move these to asset manager
+
+    def process_request_ends(self, request):
+        """
+        Do stuff before processing a request
+        """
+        self.dbmanager.process_request_ends(request)
+
+
+
+
+
+
+
+# these just shortcut to assetmanager
 
     def resolve(self, text):
-        """Resolve an alias."""
-        resolvedtext = resolve_expand_string(text, self.settings.get_value(MewloSettings.DEF_SECTION_aliases))
-        return resolvedtext
+        return self.assetmanager.resolve(text)
 
     def absolute_filepath(self, relpath):
-        """Shortcut to resolve a filepath given a relative path."""
-        return self.resolve('${sitefilepath}' + relpath)
+        return self.assetmanager.absolute_filepath(relpath)
 
     def absolute_url(self, relpath):
-        """Shortcut to resolve a url given a relative path."""
-        return self.resolve('${siteurl_absolute}' + relpath)
+        return self.assetmanager.absolute_url(relpath)
 
-    def internal_url(self, relpath):
-        """Shortcut to resolve a url given a relative path."""
-        return self.resolve('${siteurl_internal}' + relpath)
+    def relative_url(self, relpath):
+        return self.assetmanager.relative_url(relpath)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -680,11 +712,11 @@ class MewloSite(object):
         outstr += "\n"
         outstr += self.templates.dumps(indent+1)
         outstr += "\n"
-        outstr += self.navnodes.dumps(indent+1)
-        outstr += "\n"
         outstr += self.packagemanager.dumps(indent+1)
         outstr += "\n"
         outstr += self.routes.dumps(indent+1)
+        outstr += "\n"
+        outstr += self.navnodes.dumps(indent+1)
         outstr += "\n"
         outstr += self.packagesettings.dumps(indent+1)
         outstr += "\n"
