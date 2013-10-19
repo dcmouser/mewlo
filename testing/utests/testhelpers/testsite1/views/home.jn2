@@ -1,5 +1,6 @@
 {% include "${siteviewpath}/header.jn2" %}
 
 Welcome to the Demo Site web page.
+Site is: {{request.mewlosite.__class__.__name__}}
 
 {% include "./footer.jn2" %}

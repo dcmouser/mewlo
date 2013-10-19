@@ -8,6 +8,7 @@ This file contains classes to support response to requests
 from ..eventlog.mevent import EventList, EError, EWarning
 
 # werkzeug imports
+import werkzeug
 from werkzeug.wrappers import Response
 
 
@@ -29,6 +30,8 @@ class MewloResponse(object):
         #self.headers = None
         self.headers = [('Content-Type', 'text/html; charset=utf-8')]
         self.responsedata = None
+        self.direct_passthrough = False
+        self.mimetype = None
         #
         self.eventlist = EventList()
         #
@@ -42,7 +45,9 @@ class MewloResponse(object):
 
     def make_werkzeugresponse(self):
         """Create a werkzeug response object and attach it to us."""
-        self.wresp = Response(response = self.responsedata, status = self.statuscode, headers = self.headers)
+        # note if the werkzeug is already made, do nothing more, just return it
+        if (self.wresp == None):
+            self.wresp = Response(response=self.responsedata, status=self.statuscode, headers=self.headers, direct_passthrough=self.direct_passthrough, mimetype=self.mimetype)
         return self.wresp
 
 
@@ -68,6 +73,18 @@ class MewloResponse(object):
     def set_status_ok(self):
         # set values
         self.statuscode = 200
+
+    def set_headers(self, headers):
+        self.headers=headers
+
+    def set_direct_passthrough(self, direct_passthrough):
+        self.direct_passthrough = direct_passthrough
+
+    def set_mimetype(self, mimetype):
+        self.mimetype = mimetype
+
+    def set_isfinalized(self):
+        self.isfinalized = True
 
     def add_status_error(self, statuscode, errorstr):
         # set values
@@ -111,12 +128,15 @@ class MewloResponse(object):
             return
         self.isfinalized = True
 
-        # statuscode not set? this is an internal error
-        if (self.statuscode == None):
-            self.add_status_error(500, u"Response statuscode not set")
-        # response data not set? this is an internal error
-        if (self.responsedata == None):
-            self.add_status_error(500, u"Response data not set")
+
+        if (self.eventlist.count_errors() == 0):
+            # if there are no EXPLICIT errors, then we check if we need to add any
+            # statuscode not set? this is an internal error
+            if (self.statuscode == None):
+                self.add_status_error(500, u"Response statuscode not set")
+            # response data not set? this is an internal error
+            if (self.responsedata == None):
+                self.add_status_error(500, u"Response data not set")
 
         # add errors to response
         self.add_errors_to_response()
@@ -138,15 +158,56 @@ class MewloResponse(object):
 
 
 
+
+
+
+    def render_from_template_file(self, templatefilepath, args={}):
+        """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
+        template = self.request.mewlosite.templates.from_file(templatefilepath)
+        return self.render_from_template(template, args)
+
+
     def render_from_template(self, template, args={}):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
         # ATTN: TODO note we are mutating the passed args in order to add a response item -- this will be fine most of the time but we may want to copy instead
-        templateargs = args
-        templateargs['response'] = self
-        templateargs['request'] = self.request
+        templateargs = self.request.mewlosite.templatehelper.make_templateargs(args, self.request, self)
         renderedtext = template.render_string(templateargs)
         self.set_responsedata(renderedtext)
         return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def serve_file_bypath(self, filepath):
+        """Serve a file."""
+        # note that we MUST open it "rb" mode or it will fail (we leave it open, garbage collector should clean it)
+        thefile = open(filepath,'rb')
+        self.set_direct_passthrough(True)
+        self.set_mimetype('image/png')
+        self.set_responsedata(thefile)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

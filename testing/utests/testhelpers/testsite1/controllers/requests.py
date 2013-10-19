@@ -12,8 +12,7 @@ def request_home(request, response):
     # set page info first (as it may be used in page contents)
     response.set_page('home')
     # then page contents
-    template = request.mewlosite.templates.from_file('${siteviewpath}/home.jn2')
-    response.render_from_template(template)
+    response.render_from_template_file('${siteviewpath}/home.jn2')
     # success
     return None
 
@@ -24,8 +23,7 @@ def request_about(request, response):
     # set page info first (as it may be used in page contents)
     response.set_page('about')
     # then page contents
-    template = request.mewlosite.templates.from_file('${siteviewpath}/about.jn2')
-    response.render_from_template(template)
+    response.render_from_template_file('${siteviewpath}/about.jn2')
     # success
     return None
 
@@ -37,11 +35,8 @@ def request_sayhello(request, response):
     response.set_page('hello')
     # then page contents
     args = request.get_route_parsedargs()
-    matchedroute = request.get_route()
-    extras = matchedroute.get_extras()
-    template = request.mewlosite.templates.from_file('${siteviewpath}/hello.jn2')
     templateargs = {'args':args, 'name':args['name'], 'age':args['age']}
-    response.render_from_template(template, templateargs)
+    response.render_from_template_file('${siteviewpath}/hello.jn2', templateargs)
     # success
     return None
 
@@ -52,8 +47,7 @@ def request_article(request, response):
     # set page info first (as it may be used in page contents)
     response.set_page('article')
     # then page contents
-    template = request.mewlosite.templates.from_file('${siteviewpath}/article.jn2')
-    response.render_from_template(template)
+    response.render_from_template_file('${siteviewpath}/article.jn2')
     # success
     return None
 

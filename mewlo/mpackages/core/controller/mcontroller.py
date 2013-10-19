@@ -107,7 +107,7 @@ class MewloController(object):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloController:\n"
+        outstr = " "*indent + "MewloController ({0}):\n".format(self.__class__.__name__)
         outstr += " "*indent + " callable: " + str(self.callable) + "\n"
         return outstr
 

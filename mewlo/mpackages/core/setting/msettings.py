@@ -34,7 +34,7 @@ class MewloSettings(object):
     DEF_SETTINGNAME_default_logfilename = 'logfilename'
     DEF_SETTINGNAME_logfilepath = 'logfilepath'
     DEF_SETTINGNAME_dbfilepath = 'dbfilepath'
-    DEF_SETTINGNAME_siteviewfilepath = 'siteviewpath'
+    DEF_SETTINGNAME_siteview_filepath = 'siteviewpath'
     # default values
     DEF_SETTINGVAL_default_logfilename_defaultvalue = '${logfilepath}/mewlo.log'
     DEF_SETTINGVAL_default_package_settings = { 'enabled': False }

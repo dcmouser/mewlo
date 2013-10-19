@@ -9,7 +9,9 @@ This class defines a test site (and will run a debug test of it if started as ma
 from mewlo.mpackages.core.site.msitemanager import MewloSiteManager
 from mewlo.mpackages.core.site.msite import MewloSite
 from mewlo.mpackages.core.controller.mcontroller import MewloController
+from mewlo.mpackages.core.controller.mcontroller_staticfiles import MewloController_StaticFiles
 from mewlo.mpackages.core.route.mroute import *
+from mewlo.mpackages.core.route.mroute_staticfiles import MewloRoute_StaticFiles
 from mewlo.mpackages.core.navnode.mnav import NavNode, NavLink
 from mewlo.mpackages.core.database import mdbmodel_log
 from mewlo.mpackages.core.eventlog.mlogtarget_database import MewloLogTarget_Database
@@ -48,8 +50,8 @@ class MewloSite_Test1(MewloSite):
             MewloSettings.DEF_SETTINGNAME_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
             MewloSettings.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
             MewloSettings.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
-            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/mewlo',
-            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1/mewlo',
+            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public_html',
+            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public_html',
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
 
@@ -182,6 +184,23 @@ class MewloSite_Test1(MewloSite):
                 controller = MewloController(function=pkgdirimp_controllers.requests.request_article),
                 ))
 
+
+
+
+
+        #static file server
+        routegroup.append(
+            MewloRoute_StaticFiles(
+                id  = 'static_files',
+                path = '/public_html',
+                sourcepath = '${sitefilepath}/public_html',
+                controller = MewloController_StaticFiles(),
+                ))
+
+
+
+
+
         # add routegroup we just created to the site
         self.routes.append(routegroup)
 
@@ -310,8 +329,6 @@ def main():
         print sitemanager.dumps()
 
 
-
-
     # run tests?
     if (flag_runtests):
         # simulate some simple requests
@@ -319,12 +336,12 @@ def main():
         print sitemanager.test_submit_path('/help/about')
         print sitemanager.test_submit_path('/page/mystery')
         print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
-        print sitemanager.test_submit_path('/test/hellot/name/jesse/age/44')
 
     # start serving the web server and process all web requests
     if (flag_runserver):
         # now process web requests
         sitemanager.create_and_start_webserver_wsgiref()
+
 
     # shutdown sites - we do this before exiting
     sitemanager.shutdown()

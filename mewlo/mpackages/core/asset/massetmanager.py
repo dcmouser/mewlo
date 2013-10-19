@@ -66,3 +66,16 @@ class MewloAssetManager(object):
         """Shortcut to resolve a url that is relative to our server root."""
         return self.resolve('${siteurl_relative}' + relpath)
 
+
+
+
+
+
+    def get_resolvedaliases(self):
+        """Return a dictionary of resolved aliases; might be useful for templates."""
+        # ATTN: Note that most aliases will not need resolving, but some may recurively include each other, that's why we have to do this
+        # ATTN: Note that this could be quite slow unless we do it smartly -- would be nice to cache this result so that we don't have to recreate it each call
+        aliases = {}
+        for aliaskey in self.alias_settings.keys():
+            aliases[aliaskey] = resolve_expand_string(self.alias_settings[aliaskey], self.alias_settings)
+        return aliases

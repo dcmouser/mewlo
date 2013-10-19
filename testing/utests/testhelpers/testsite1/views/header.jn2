@@ -4,5 +4,12 @@
 <title>Title of the template document</title>
 </head>
 
-<b>MY TEMPLATE HEADER</b>
+<img src="{{alias.siteurl_relative}}/Cody.png"/>
+
+{{ thelper.navbar(response) }}
+
+<div>
+<h1>MY TEMPLATE HEADER</h1>
+</div>
+
 <br/>

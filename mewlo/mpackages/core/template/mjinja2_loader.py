@@ -10,7 +10,7 @@ import os
 
 
 class MewloJinja2Loader(jinja2.BaseLoader):
-    """Our custom jinja2 template loader knows how to resolve alias paths."""
+    """Our custom jinja2 template loader is used to load TEMPLATE FILES; it knows how to resolve alias paths."""
 
     def __init__(self, mewlosite):
         super(MewloJinja2Loader,self).__init__()

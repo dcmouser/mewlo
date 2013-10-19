@@ -1,5 +1,5 @@
 """
-route.py
+mroute.py
 This file contains classes to support routes
 """
 
@@ -258,6 +258,10 @@ class MewloRoute(object):
         requestargstringlen = len(requestargstring)
         if (requestargstringlen > 0 and requestargstring[requestargstringlen-1] == '/'):
             requestargstring = requestargstring[:requestargstringlen-1]
+
+        # ATTN: TODO - UNFINISHED
+        # We would like to split off any ? old-style parameter assignments
+
         # split argstring into '/' separated words
         if (requestargstring == ''):
             requestargs = []

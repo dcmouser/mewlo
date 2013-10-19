@@ -16,6 +16,7 @@ from ..database import mdbsettings
 from ..database import mdbmanager_sqlalchemy
 from ..navnode import mnav
 from ..template import mtemplate
+from ..template import mtemplatehelper
 from ..asset import massetmanager
 from ..eventlog import mlogger
 from ..eventlog.mevent import Event, EventList, EWarning, EError, EDebug
@@ -63,6 +64,8 @@ class MewloSite(object):
         self.sitemanager = None
         self.controllerroot = None
         self.fallbacklogger = None
+        # exposed to templates
+        self.templatehelper = None
 
 
         # setup log manager helper early so that log manager can receive messages
@@ -103,6 +106,8 @@ class MewloSite(object):
         # assetmanager
         self.assetmanager = massetmanager.MewloAssetManager()
 
+        # template helper
+        self.templatehelper = mtemplatehelper.MewloTemplateHelper()
 
         # update state
         self.set_state(MewloSettings.DEF_SITESTATE_INITIALIZE_END)
@@ -172,6 +177,9 @@ class MewloSite(object):
         # templater
         self.templates.startup(self, eventlist)
 
+        # template helper
+        self.templatehelper.startup(self, eventlist)
+
         # log all startup events
         self.logevents(eventlist)
 
@@ -219,6 +227,10 @@ class MewloSite(object):
 
         # database manager
         self.dbmanager.shutdown()
+
+        # template helper
+        self.templatehelper.shutdown()
+
 
         # update state
         self.set_state(MewloSettings.DEF_SITESTATE_SHUTDOWN_END)
@@ -529,7 +541,7 @@ class MewloSite(object):
             MewloSettings.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitefilepath),
             MewloSettings.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
             MewloSettings.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
-            MewloSettings.DEF_SETTINGNAME_siteviewfilepath: '${sitefilepath}/views',
+            MewloSettings.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
         self.alias_settings_change()
@@ -719,6 +731,8 @@ class MewloSite(object):
         outstr += self.navnodes.dumps(indent+1)
         outstr += "\n"
         outstr += self.packagesettings.dumps(indent+1)
+        outstr += "\n"
+        outstr += self.templatehelper.dumps(indent+1)
         outstr += "\n"
         return outstr
 
