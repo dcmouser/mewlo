@@ -63,7 +63,7 @@ class MewloSettingsDb(MewloSettings):
 
 
     def merge_settings(self, settingstoadd):
-        """Just merge in a new dicitonary into our main dictionary."""
+        """Just merge in a new dictionary into our main dictionary."""
         self.db_lock(settingstoadd.keys())
         try:
             self.sync_load_keys(settingstoadd.keys())
@@ -77,7 +77,7 @@ class MewloSettingsDb(MewloSettings):
 
 
     def merge_settings_key(self, keyname, settingstoadd):
-        """Merge in a new dicitonary into our main dictionary at a specific root section (creating root section if needed)."""
+        """Merge in a new dictionary into our main dictionary at a specific root section (creating root section if needed)."""
         self.db_lock(settingstoadd.keys())
         try:
             self.sync_load_keys([keyname])
@@ -88,6 +88,26 @@ class MewloSettingsDb(MewloSettings):
         finally:
             self.db_unlock()
         return retv
+
+
+    def set(self, newsettings):
+        """Set and overwrite a value at a section, replacing whatever was there."""
+        self.db_lock([])
+        try:
+            self.remove_all()
+            retv = super(MewloSettingsDb, self).set(newsettings)
+            self.sync_save_keys(newsettings.keys())
+        except Exception as exp:
+            raise
+        finally:
+            self.db_unlock()
+        return retv
+
+
+    def get(self):
+        """Get all."""
+        self.sync_load_all()
+        return super(MewloSettingsDb, self).get()
 
 
     def set_key(self, keyname, value):

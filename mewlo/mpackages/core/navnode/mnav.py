@@ -23,6 +23,21 @@ Some examples of where Routes and NavNodes diverge:
     * Every page shown to the user should be marked as belonging to a specific NavNode, but a given route might have options that generate one of multiple NavNode locations.
     * Multiple routes might send the user to the same NavNode destination page.
 
+
+We have a few functions for producing json data to use in an html menu/navbar/sidebar creation.
+
+These return a json datastructure (hierarchical list) that should contain all of the hierarchy of data needed by a javascript/template function, to render a site menu.
+This data includes node properties
+            * label_long = text label (shown when there is room)
+            * label_short = text label (when space is tight)
+            * label_hint = text label (can be very long text, to be shown on hover)
+            * flag_onpath = true if this node is on the current navigational path to our location
+            * flag_currentloc = true if this is the current leaf destination of the current page
+            * urllink = url link for this item
+            * flag_visible = whether this item is visible (note that when making the json navdata, we will NOT generate navnodes for items clearly not visible); but this flag might still be used for ajax functions
+            * flag_enabled = whether this item should be shown as disabled
+            * children = hierarchical list of children nodes
+        Note that eventually we will want any property here to be able to be specified as an ajax function; this allows us to do lazy evaluation of dynamic stuff
 """
 
 
@@ -45,25 +60,27 @@ class NavNodeManager(object):
     def __init__(self):
         """Constructor for the clas."""
         self.nodes = []
+        self.nodehash = {}
+        self.mewlosite = None
 
 
     def startup(self, mewlosite, eventlist):
         """Called at start of application."""
         self.mewlosite = mewlosite
+        # initial nodes
+        self.sitenode = NavNode('site')
+        self.orphannode = NavNode('__orphans__')
+        startnodes = [self.sitenode, self.orphannode]
+        self.add_nodes(startnodes)
+        #
+        self.buildstructure()
+
 
     def shutdown(self):
         """Called at shutdown of application."""
         pass
 
 
-
-
-    def add_nodes(self, nodestoadd):
-        """Add one or more nodes to our node list."""
-        if type(nodestoadd) is list:
-            self.nodes.extend(nodestoadd)
-        else:
-            self.nodes.append(nodestoadd)
 
 
     def dumps(self, indent=0):
@@ -83,27 +100,237 @@ class NavNodeManager(object):
 
 
 
+    def add_nodes(self, nodestoadd):
+        """Add one or more nodes to our node list."""
+        if type(nodestoadd) is list:
+            self.nodes.extend(nodestoadd)
+        else:
+            self.nodes.append(nodestoadd)
 
 
-class NavNode(object):
-    """
-    The NavNode class represents a page on the site.
-    """
+    def lookupnode(self, nodeid):
+        """Lookup node by string or reference."""
+        if (nodeid==None):
+            return None
+        # if its not a string, just return it
+        if (not isinstance(nodeid,basestring)):
+            return nodeid
+        if (nodeid in self.nodehash):
+            return self.nodehash[nodeid]
+        return None
 
-    def __init__(self, id, properties={}):
-        """Constructor for the clas."""
-        self.id = id
-        self.properties = properties
+
+
+    def buildstructure(self):
+        """Walk all nodes and build link structure using children and parents."""
+
+        # first build the nodehash dict, mapping ids to nodes, and clear node children and parents, and do other setup stuff
+        self.nodehash = {}
+        for node in self.nodes:
+            # add node to nodehash by id for quick lookup
+            self.nodehash[node.id] = node
+            # reset properties (children,parents) and set mewlosite
+            node.resetbuild(self.mewlosite)
+            # try to guess or lookup the route
+            node.lookup_store_route()
+
+        # now walk nodes and make links
+        for node in self.nodes:
+            # lookup children by id and convert to node references
+            children = node.get_property('children',[],False)
+            children = self.convert_nodeidlist_to_nodelist(children)
+            # now walk children and add them to our children list, and add us to their parent list
+            for child in children:
+                if (child not in node.children):
+                    node.children.append(child)
+                if (node not in child.parents):
+                    child.parents.append(node)
+            # lookup parents by id and convert to node references
+            parent = node.get_property('parent',None,False)
+            if (parent != None):
+                parents = [parent]
+            else:
+                parents = node.get_property('parents',[],False)
+            parents = self.convert_nodeidlist_to_nodelist(parents)
+            # now walk parents and add them to our parent list, and add us to their child list
+            for parent in parents:
+                if (parent not in node.parents):
+                    node.parents.append(parent)
+                if (node not in parent.children):
+                    parent.children.append(node)
+
+        # now those without parents get orphannode as their parent (only orphannode has no parents)
+        for node in self.nodes:
+            if (node==self.orphannode):
+                continue
+            if (len(node.parents)==0):
+                node.parents = [self.orphannode]
+                self.orphannode.children.append(node)
 
 
 
-    def dumps(self, indent=0):
-        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
 
-        outstr = " "*indent + "Navnode '{0}' reporting in:\n".format(self.id)
-        outstr += " "*indent + " properties: {0}\n".format(str(self.properties))
+    def convert_nodeidlist_to_nodelist(self, nodeidlist):
+        """Convert a list of id strings to a list of node references."""
+        nodelist = []
+        for nodeid in nodeidlist:
+            node = self.lookupnode(nodeid)
+            if (node!=None):
+                nodelist.append(node)
+        return nodelist
+
+
+
+
+
+
+
+
+
+
+    def find_current_and_root(self, response, rootnode):
+        """Given response and a possible explicit rootnode, find current node and rootnode to use."""
+        currentnodeid = response.context.get_value('pagenode',None)
+        currentnode = self.lookupnode(currentnodeid)
+        # decide rootnode
+        if (currentnode != None and rootnode == None):
+            # find the top parent of this node
+            rootnode = currentnode.find_rootparent()
+        if (rootnode==None):
+            rootnode = currentnode
         #
-        return outstr
+        return (currentnode, rootnode)
+
+
+
+
+
+
+
+
+
+
+
+
+    # menu/navbar/sidebar helper functions
+    # ------------------------------------
+
+
+
+    def makenav_activerowlist(self, response, rootnode = None):
+        """
+        This makenav_ function returns a list of rows, where each row is a list of nodes.
+        We might use this for a top navigation bar menu.
+        It starts with the children of the root node, and includes subsequent sub-rows corresponding to the path from the root to the current node.
+        So that the last row in the list is the row of siblings to the current node.
+        On each row there should be one (and only one) active node).
+        """
+
+        # init
+        navdata = []
+        responsecontext = response.context.get()
+        # get currentnode and rootnode to use
+        (currentnode, rootnode) = self.find_current_and_root(response, rootnode)
+        # if nothing to do, return now
+        if (currentnode == None):
+            # nothing to do, just drop down and return
+            return navdata
+
+        # get path from current node up to rootnode (or to farthest ancestor if no rootnode)
+        nodepath = currentnode.find_pathto_rootparent(rootnode)
+
+        #print "ATTN: NODEPATH = "+str(nodepath)
+
+        # build rows, walk from parent down to next to last item (dont do currentnode)
+        rows = []
+        nodecount = len(nodepath)
+        for i in range(nodecount-2,0,-1):
+            parentnode = nodepath[i]
+            activechildnode = nodepath[i-1]
+            row = self.makenav_activerowlist_onerow(parentnode, activechildnode)
+            rows.append(row)
+
+        # return it
+        navdata = rows
+        return navdata
+
+
+
+    def makenav_activerowlist_onerow(self, parentnode, activechildnode):
+        """Make a list (row) of nodes, using children of parent node, and marking the activechildnode as active."""
+        row = []
+        children = parentnode.children
+        for child in children:
+            extraproperties = {
+                'flag_active' : (child==activechildnode)
+                }
+            nodeitem = {
+                'node' : child,
+                'extraprops' : extraproperties,
+                }
+            row.append(nodeitem)
+        return row
+
+
+
+
+
+    def makenav_rowlist_to_html(self, rowlist, response):
+        """Take a list of built node rows and return html for them."""
+        html = ''
+
+        for row in rowlist:
+            rowhtml = self.makenav_noderow_to_html(row)
+            html += rowhtml + '\n'
+
+        # wrap in div class
+        html = '<div class="nav_bar">\n' + html + '</div> <!-- nav_bar -->'
+        return html
+
+
+
+    def makenav_noderow_to_html(self, row):
+            html = ''
+            for nodeitem in row:
+                nodehtml = self.makenav_node_to_html(nodeitem['node'],nodeitem['extraprops'])
+                html += nodehtml
+            # wrap in div class
+            html = '<div class="nav_bar_row">\n<ul>\n' + html + '\n</ul>\n</div> <!-- nav_bar_row -->'
+            return html
+
+
+    def makenav_node_to_html(self, node, nodeproperties):
+        """Return html for this node item."""
+        import cgi
+        html = ''
+
+        # the label for the navbar menu
+        label = cgi.escape(node.get_menu_label())
+        url = node.get_menu_url()
+        hint = node.get_menu_hint()
+        #
+        if (url!=None):
+            url = cgi.escape(url)
+            if (hint!=None):
+                linkextra = 'TITLE="{0}"'.format(cgi.escape(hint))
+            else:
+                linkextra = ''
+            html = '<a href="{0}" {1}>{2}</a>'.format(url,linkextra,label)
+        else:
+            html = label
+
+        flag_isactive = nodeproperties['flag_active']
+        if (flag_isactive):
+            html = '<span class="nav_active">' + html + '</span>'
+
+        # wrap in div class
+        html = '<li>' + html + '</li>'
+        return html
+
+
+
+
+
 
 
 
@@ -115,6 +342,7 @@ class NavLink(object):
     """
     The NavLink class is a small helper class that is used to refer to a NavNode by id, with its own propertiess.
     It is used when we need to specify children NavNodes and we need to provide additional information.
+    ATTN: TODO - this is not integrated into above functions of manager yet.
     """
 
     def __init__(self, id, properties={}):
@@ -130,5 +358,165 @@ class NavLink(object):
         outstr += " "*indent + " properties: "+str(self.properties)
         #
         return outstr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class NavNode(object):
+    """
+    The NavNode class represents a page on the site.
+    """
+
+    def __init__(self, id, properties={}):
+        """Constructor for the clas."""
+        self.id = id
+        self.properties = properties
+        self.resetbuild(None)
+
+
+
+    def dumps(self, indent=0):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        outstr = " "*indent + "Navnode '{0}' reporting in:\n".format(self.id)
+        outstr += " "*indent + " properties: {0}.\n".format(str(self.properties))
+        outstr += " "*indent + " parents: {0}.\n".format(self.nodelist_tostring(self.parents))
+        outstr += " "*indent + " children: {0}.\n".format(self.nodelist_tostring(self.children))
+        if (self.route != None):
+            outstr += " "*indent + " route: {0}.\n".format(self.route.id)
+        return outstr
+
+
+    def resetbuild(self, mewlosite):
+        self.children = []
+        self.parents = []
+        self.route = None
+        self.mewlosite = mewlosite
+
+
+
+    def lookup_store_route(self):
+        """Try to lookup or infer route reference."""
+        routeid = self.get_property('route',None,False)
+        if (routeid != None and not isinstance(routeid,basestring)):
+            # they gave us a route object directly
+            self.route = routeid
+        else:
+            # lookup by name
+            if (routeid==None):
+                routeid = self.id
+            self.route = self.mewlosite.routemanager.lookup_route_byid(routeid)
+
+
+
+
+    def get_property(self, propname, defaultval, flag_resolve):
+        if (propname in self.properties):
+            if (flag_resolve):
+                return self.mewlosite.resolve(self.properties[propname])
+            else:
+                return self.properties[propname]
+        return defaultval
+
+    def get_propertyl(self, propnames, defaultval, flag_resolve):
+        for propname in propnames:
+            if (propname in self.properties):
+                if (flag_resolve):
+                    return self.mewlosite.resolve(self.properties[propname])
+                else:
+                    return self.properties[propname]
+        return defaultval
+
+
+    def nodelist_tostring(self, nodelist):
+        if (len(nodelist)==0):
+            return "none"
+        namelist =  []
+        for node in nodelist:
+            namelist.append(node.id)
+        nameliststring = ", ".join(namelist)
+        return nameliststring
+
+
+
+
+    def find_rootparent(self, rootnode = None):
+        """Find the root parent of this node."""
+        curnode = self
+        while (True):
+            if (len(curnode.parents)==0):
+                break
+            if (curnode == rootnode):
+                break
+            # ATTN: TODO - we only walk up single parent branch
+            curnode = curnode.parents[0]
+        return curnode
+
+
+    def find_pathto_rootparent(self, rootnode = None):
+        """Find the path of nodes that go from rootnode to eventual childnode."""
+        nodelist = []
+        curnode = self
+        while (True):
+            nodelist.append(curnode)
+            if (len(curnode.parents)==0):
+                break
+            if (curnode == rootnode):
+                break
+            # ATTN: TODO - we only walk up single parent branch
+            curnode = curnode.parents[0]
+        return nodelist
+
+
+
+    def get_menu_label(self):
+        """Return value for menu/navbar creation."""
+        val = self.get_propertyl(['title'],None,True)
+        if (val==None):
+            val=self.id
+        # uppercase it
+        val = val.upper()
+        return val
+
+    def get_menu_url(self):
+        """Return value for menu/navbar creation."""
+        val = self.get_propertyl(['url'],None,True)
+        if (val==None):
+            # no url specified in navnode, but perhaps we can construct it from the route associated with this navnode
+            if (self.route != None):
+                # ATTN: TODO - eventually we will need to pass context info to this function to account for url parameters, etc.
+                val = self.route.construct_url()
+        return val
+
+    def get_menu_hint(self):
+        """Return value for menu/navbar creation."""
+        val = self.get_propertyl(['hint','help'],None,True)
+        return val
+
+
+
+
+
+
+
+
+
+
 
 

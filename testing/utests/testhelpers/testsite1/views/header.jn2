@@ -2,11 +2,12 @@
 <html>
 <head>
 <title>Title of the template document</title>
+<link rel="stylesheet" type="text/css" href="/public_html/navbar.css" media="screen" />
 </head>
 
+{{ thelper.navbar(response) }}
 <img src="{{alias.siteurl_relative}}/Cody.png"/>
 
-{{ thelper.navbar(response) }}
 
 <div>
 <h1>MY TEMPLATE HEADER</h1>

@@ -44,8 +44,13 @@ class MewloTemplateHelper(object):
 
 
     def navbar(self, response):
-        retv = '<div>NAVBAR_PLACEHOLDER</div>'
-        return retv
+
+        # build list of rows
+        activebars = self.mewlosite.navnodes.makenav_activerowlist(response)
+        # now convert to html
+        navbarhtml = self.mewlosite.navnodes.makenav_rowlist_to_html(activebars,response)
+        #
+        return navbarhtml
 
 
 

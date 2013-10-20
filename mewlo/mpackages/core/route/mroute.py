@@ -195,6 +195,29 @@ class MewloRoute(object):
             self.controller.shutdown()
 
 
+    def dumps(self, indent=0):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        outstr = " "*indent + "MewloRoute '" + self.id + "':\n"
+        outstr += " "*indent + " path: " + self.path + "\n"
+        indent += 1
+        if (self.controller != None):
+            outstr += self.controller.dumps(indent)
+        else:
+            outstr += " "*indent + "Controller: None.\n"
+        outstr += " "*indent + "Route Args: "
+        if (len(self.args)==0):
+            outstr += "None.\n"
+        else:
+            outstr += "\n"
+        for routearg in self.args:
+            outstr += routearg.dumps(indent+1)
+        return outstr
+
+
+
+
+    def get_isgroup(self):
+        return False
 
 
     def process_request(self, mewlosite, request):
@@ -415,27 +438,12 @@ class MewloRoute(object):
 
 
 
-    def dumps(self, indent=0):
-        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloRoute '" + self.id + "':\n"
-        outstr += " "*indent + " path: " + self.path + "\n"
-        indent += 1
-        if (self.controller != None):
-            outstr += self.controller.dumps(indent)
-        else:
-            outstr += " "*indent + "Controller: None.\n"
-        outstr += " "*indent + "Route Args: "
-        if (len(self.args)==0):
-            outstr += "None.\n"
-        else:
-            outstr += "\n"
-        for routearg in self.args:
-            outstr += routearg.dumps(indent+1)
-        return outstr
 
 
-
-
+    def construct_url(self):
+        """Construct a url for this route.
+        ATTN: TODO - this is preliminary version; eventually we will want to be able to accept info for context so we can fill parameters."""
+        return self.path
 
 
 
@@ -448,14 +456,52 @@ class MewloRouteGroup(object):
     The MewloRouteGroup class holds a list of routes (or child RouteGroups)
     """
 
-    def __init__(self, controllerroot=None, routes=None):
+    def __init__(self, id='', controllerroot=None, routes=None):
+        self.id = id
         self.controllerroot = controllerroot
         self.routes = []
+        #
         self.parent = None
+        self.routehash = {}
         #
         if (routes != None):
             self.append(routes)
 
+
+    def startup(self, parent, eventlist):
+        """Initial preparation, invoked by parent."""
+
+        self.parent = parent
+        # we want to propagage controllerroot from parent down
+        if (self.controllerroot == None):
+            self.controllerroot = parent.get_controllerroot()
+        # recursive startup
+        for route in self.routes:
+            route.startup(self, eventlist)
+
+
+
+    def shutdown(self):
+        """Shutdown, invoked by parent."""
+        for route in self.routes:
+            route.shutdown()
+
+
+    def dumps(self, indent=0):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        outstr = " "*indent + "MewloRouteGroup reporting in:\n"
+        outstr += " "*indent + " Root for controllers: " + str(self.controllerroot) + "\n"
+        outstr += " "*indent + " Route hash: " + str(self.routehash) + "\n"
+        outstr += "\n"
+        for route in self.routes:
+            outstr += route.dumps(indent+1) + "\n"
+        return outstr
+
+
+
+
+    def get_isgroup(self):
+        return True
 
     def get_controllerroot(self):
         return self.controllerroot
@@ -487,32 +533,70 @@ class MewloRouteGroup(object):
 
 
 
-    def startup(self, parent, eventlist):
-        """Initial preparation, invoked by parent."""
-
-        self.parent = parent
-        # we want to propagage controllerroot from parent down
-        if (self.controllerroot == None):
-            self.controllerroot = parent.get_controllerroot()
-        # recursive startup
+    def build_routehash(self):
+        """Build hash of all routes in entire collection."""
+        self.routehash = {}
         for route in self.routes:
-            route.startup(self, eventlist)
+            if (route.get_isgroup()):
+                childroutehash = route.build_routehash()
+                if (route.id==None or route.id==''):
+                    # just merge it into us
+                    self.routehash.update(childroutehash)
+                else:
+                    # add with prefix
+                    prefix = route.id + '.'
+                    for keyname in childroutehash.keys():
+                        self.routehash[prefix+keyname]=childroutehash[keyname]
+            else:
+                # it's a leaf route
+                self.routehash[route.id] = route
+        return self.routehash
+
+
+
+
+
+
+
+
+class MewloRouteManager(MewloRouteGroup):
+    """
+    The MewloRouteManager class manages the routes in a site; it's just thin derived class from MewloRouteGroup
+    """
+
+    def __init__(self, id='', controllerroot=None, routes=None):
+        super(MewloRouteManager,self).__init__(id, controllerroot, routes)
+
+
+    def startup(self, parent, eventlist):
+        super(MewloRouteManager,self).startup(parent, eventlist)
+        self.build_routehash()
 
 
     def shutdown(self):
-        """Shutdown, invoked by parent."""
-        for route in self.routes:
-            route.shutdown()
-
+        super(MewloRouteManager,self).shutdown()
 
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloRouteGroup reporting in:\n"
+        outstr = " "*indent + "MewloRouteManager reporting in:\n"
         outstr += " "*indent + " Root for controllers: " + str(self.controllerroot) + "\n"
+        outstr += " "*indent + " Route hash: " + str(self.routehash) + "\n"
         outstr += "\n"
         for route in self.routes:
             outstr += route.dumps(indent+1) + "\n"
         return outstr
 
+
+
+
+
+
+
+
+    def lookup_route_byid(self, routeid):
+        """Lookup routeid in our hash of all routes."""
+        if (routeid in self.routehash):
+            return self.routehash[routeid]
+        return None
 

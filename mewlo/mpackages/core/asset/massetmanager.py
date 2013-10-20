@@ -45,6 +45,10 @@ class MewloAssetManager(object):
 
     def resolve(self, text):
         """Resolve an alias."""
+        if (text==None):
+            return None
+        if (not isinstance(text, basestring)):
+            return text
         resolvedtext = resolve_expand_string(text, self.alias_settings)
         return resolvedtext
 

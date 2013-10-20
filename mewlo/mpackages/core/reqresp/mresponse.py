@@ -6,6 +6,7 @@ This file contains classes to support response to requests
 
 # helper imports
 from ..eventlog.mevent import EventList, EError, EWarning
+from ..setting import msettings
 
 # werkzeug imports
 import werkzeug
@@ -35,9 +36,7 @@ class MewloResponse(object):
         #
         self.eventlist = EventList()
         #
-        self.navnodeid = None
-
-
+        self.context = msettings.MewloSettings()
 
 
 
@@ -65,6 +64,8 @@ class MewloResponse(object):
         return retv
 
 
+    def get_mewlosite(self):
+        return self.request.mewlosite
 
     def set_status(self, statuscode):
         # set values
@@ -102,14 +103,17 @@ class MewloResponse(object):
 
 
 
+    def set_pagecontext(self, pageid, args=None):
+        """Shortcut to set some context settings."""
+        cdict = {
+            'pagenode': pageid
+            }
+        if (args != None):
+            cdict.update(args)
+        self.context.set(cdict)
 
 
 
-
-
-    def set_page(self, id, args={}):
-        """Called when viewing a page, to tell the site what nav_node id the user is viewing."""
-        self.navnodeid = id
 
 
 
@@ -163,14 +167,14 @@ class MewloResponse(object):
 
     def render_from_template_file(self, templatefilepath, args={}):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
-        template = self.request.mewlosite.templates.from_file(templatefilepath)
+        template = self.get_mewlosite().templates.from_file(templatefilepath)
         return self.render_from_template(template, args)
 
 
     def render_from_template(self, template, args={}):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
         # ATTN: TODO note we are mutating the passed args in order to add a response item -- this will be fine most of the time but we may want to copy instead
-        templateargs = self.request.mewlosite.templatehelper.make_templateargs(args, self.request, self)
+        templateargs = self.get_mewlosite().templatehelper.make_templateargs(args, self.request, self)
         renderedtext = template.render_string(templateargs)
         self.set_responsedata(renderedtext)
         return None
@@ -189,13 +193,16 @@ class MewloResponse(object):
 
     def serve_file_bypath(self, filepath):
         """Serve a file."""
-        # note that we MUST open it "rb" mode or it will fail (we leave it open, garbage collector should clean it)
+        # guess the mimetype of the file we are serving (see http://docs.python.org/3.4/library/mimetypes.html)
+        import mimetypes
+        (mime_type, mime_encoding) = mimetypes.guess_type(filepath)
+        self.set_mimetype(mime_type)
+        # open file in BINARY mode - note that we MUST open it "rb" mode or it will fail (we leave it open, garbage collector should clean it)
         thefile = open(filepath,'rb')
+        # tell werkzeug that we are using passthrough mode (important for streaming large files)
         self.set_direct_passthrough(True)
-        self.set_mimetype('image/png')
+        # set the data
         self.set_responsedata(thefile)
-
-
 
 
 

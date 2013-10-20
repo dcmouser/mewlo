@@ -35,6 +35,7 @@ class MewloSettings(object):
     DEF_SETTINGNAME_logfilepath = 'logfilepath'
     DEF_SETTINGNAME_dbfilepath = 'dbfilepath'
     DEF_SETTINGNAME_siteview_filepath = 'siteviewpath'
+    DEF_SETTINGNAME_sitename = 'sitename'
     # default values
     DEF_SETTINGVAL_default_logfilename_defaultvalue = '${logfilepath}/mewlo.log'
     DEF_SETTINGVAL_default_package_settings = { 'enabled': False }
@@ -97,6 +98,18 @@ class MewloSettings(object):
         else:
             # merge the new settings with old, e.g. union of arrays or dictionaries, etc
             self.settingdict[keyname].update(settingstoadd)
+
+
+    def set(self, newsettings):
+        """Overwrite all."""
+        #self.remove_all()
+        #self.merge_settings(newsettings)
+        self.settingdict = newsettings
+
+
+    def get(self):
+        """Get all."""
+        return self.settingdict
 
 
     def set_key(self, keyname, value):

@@ -1,0 +1,28 @@
+div.nav_bar {
+	float: left;
+	width: 100%;
+	margin: 0px;
+	padding-bottom: 20px;
+}
+
+
+.nav_bar_row ul {
+	width: 99%;
+	float: left;
+	margin: 0 0 2px 0;
+	padding: 2px;
+	list-style: none;
+	background-color: #f2f2f2;
+	border: 1px solid #ccc; 
+	}
+
+.nav_bar_row li {
+	float: left;
+	padding: 5px 15px 5px 15px;
+	border-right: 1px solid #ccc; 
+  }
+
+.nav_active {
+	font-weight: bold;
+	font-size: large;
+	}

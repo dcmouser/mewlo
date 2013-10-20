@@ -52,6 +52,7 @@ class MewloSite_Test1(MewloSite):
             MewloSettings.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
             MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public_html',
             MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public_html',
+            MewloSettings.DEF_SETTINGNAME_sitename: 'Mewlo',
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
 
@@ -127,14 +128,14 @@ class MewloSite_Test1(MewloSite):
 
         routegroup.append(
             MewloRoute(
-                id = "homepage",
+                id = 'home',
                 path = "/",
                 controller = MewloController(function='requests.request_home')
                 ))
 
         routegroup.append(
             MewloRoute(
-                id = 'aboutpage',
+                id = 'about',
                 path = '/help/about',
                 # we can pass the root package to the MewloController constructor, which has the benefit of doing the import immediately and raising exception if not found; otherwise the error will come up during preparation
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_about'),
@@ -142,7 +143,7 @@ class MewloSite_Test1(MewloSite):
 
         routegroup.append(
             MewloRoute(
-                id = 'hellopage',
+                id = 'hello',
                 path = '/test/hello',
                 args = [
                         MewloRouteArgString(
@@ -170,7 +171,7 @@ class MewloSite_Test1(MewloSite):
         #from controllers.requests import request_article
         routegroup.append(
             MewloRoute(
-                id  = 'articlepage',
+                id  = 'article',
                 path = '/article',
                 args = [
                         MewloRouteArgString(
@@ -202,7 +203,7 @@ class MewloSite_Test1(MewloSite):
 
 
         # add routegroup we just created to the site
-        self.routes.append(routegroup)
+        self.routemanager.append(routegroup)
 
 
 
@@ -214,21 +215,36 @@ class MewloSite_Test1(MewloSite):
         # create some test NavNodes
         nodes = [
             NavNode('home', {
-                'title': 'The ${sitename} home page',
-                'children': ['about','register','login','logout'],
-                'route': 'homepage',
+                'title': '${sitename} home page',
+                'children': [],
+                #['about','register','login','logout'],
+                'parent': 'site',
+                'sortweight': 1.0,
+                'url' : '/',
+                'hint' : 'Return to the home page'
+                }),
+            NavNode('help', {
+                'parent': 'site',
+                'sortweight': 10.0,
                 }),
             NavNode('about', {
-                'route': 'aboutpage',
+                'parent': 'help',
+                'sortweight': 9.0,
                 }),
             NavNode('register', {
                 'visible': False,
+                'parent': 'site',
+                'sortweight': 8.0,
                 }),
             NavNode('login', {
-                'visible': lambda pageinfo: not pageinfo.isloggedin,
+                'visible': lambda context: not context.isloggedin,
+                'parent': 'site',
+                'sortweight': 8.0,
                 }),
             NavNode('logout', {
-                'visible': lambda pageinfo: pageinfo.isloggedin,
+                'visible': lambda context: context.isloggedin,
+                'parent': 'site',
+                'sortweight': 8.0,
                 }),
             ]
 

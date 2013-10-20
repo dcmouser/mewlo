@@ -89,7 +89,7 @@ class MewloSite(object):
         self.packagemanager = mpackagemanager.MewloPackageManager()
 
         # route manager
-        self.routes = mroute.MewloRouteGroup()
+        self.routemanager = mroute.MewloRouteManager()
 
         # signal dispatcher
         self.dispatcher = msignal.MewloSignalDispatcher()
@@ -162,11 +162,11 @@ class MewloSite(object):
         # dispatcher
         self.dispatcher.startup(self, eventlist)
 
+        # routes
+        self.routemanager.startup(self, eventlist)
+
         # nav nodes
         self.navnodes.startup(self, eventlist)
-
-        # routes
-        self.routes.startup(self, eventlist)
 
         # package settings -- these are persistent and let packages (extensions/plugins) store persistent settings
         self.packagesettings.startup(self, eventlist)
@@ -214,7 +214,7 @@ class MewloSite(object):
         self.packagesettings.shutdown()
 
         # routes
-        self.routes.shutdown()
+        self.routemanager.shutdown()
 
         # dispatcher
         self.dispatcher.shutdown()
@@ -542,6 +542,8 @@ class MewloSite(object):
             MewloSettings.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
             MewloSettings.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
             MewloSettings.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
+            MewloSettings.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitename),
+
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
         self.alias_settings_change()
@@ -624,7 +626,7 @@ class MewloSite(object):
         # before we start a request we might have stuff to do
         self.process_request_starts(request)
         # handle the request
-        ishandled = self.routes.process_request(self, request)
+        ishandled = self.routemanager.process_request(self, request)
         # after we end a request we might have stuff to do
         self.process_request_ends(request)
         # return whether we handled it
@@ -726,7 +728,7 @@ class MewloSite(object):
         outstr += "\n"
         outstr += self.packagemanager.dumps(indent+1)
         outstr += "\n"
-        outstr += self.routes.dumps(indent+1)
+        outstr += self.routemanager.dumps(indent+1)
         outstr += "\n"
         outstr += self.navnodes.dumps(indent+1)
         outstr += "\n"
