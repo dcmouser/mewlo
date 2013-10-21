@@ -43,14 +43,22 @@ class MewloTemplateHelper(object):
 
 
 
-    def navbar(self, response):
-
+    def nav_bar_html(self, response):
+        """Make a navar html."""
         # build list of rows
         activebars = self.mewlosite.navnodes.makenav_activerowlist(response)
         # now convert to html
-        navbarhtml = self.mewlosite.navnodes.makenav_rowlist_to_html(activebars,response)
-        #
-        return navbarhtml
+        html = self.mewlosite.navnodes.makenav_rowlist_to_html(activebars,response)
+        return html
+
+
+    def nav_breadcrumb_html(self, response):
+        """Make a navar html."""
+        # build list of rows
+        nodelist = self.mewlosite.navnodes.makenav_breadcrumb_list(response)
+        # now convert to html
+        html = self.mewlosite.navnodes.makenav_node_to_breadcrumb_html(nodelist,response)
+        return html
 
 
 

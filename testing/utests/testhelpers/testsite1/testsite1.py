@@ -201,6 +201,33 @@ class MewloSite_Test1(MewloSite):
 
 
 
+        routegroup.append(
+            MewloRoute(
+                id = 'help',
+                path = '/user/help',
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_help'),
+                ))
+        routegroup.append(
+            MewloRoute(
+                id = 'register',
+                path = '/user/register',
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_register'),
+                ))
+        routegroup.append(
+            MewloRoute(
+                id = 'login',
+                path = '/user/login',
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_login'),
+                ))
+        routegroup.append(
+            MewloRoute(
+                id = 'logout',
+                path = '/user/logout',
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_logout'),
+                ))
+
+
+
 
         # add routegroup we just created to the site
         self.routemanager.append(routegroup)
@@ -216,11 +243,11 @@ class MewloSite_Test1(MewloSite):
         nodes = [
             NavNode('home', {
                 'title': '${sitename} home page',
+                'label_short': 'home',
                 'children': [],
                 #['about','register','login','logout'],
                 'parent': 'site',
                 'sortweight': 1.0,
-                'url' : '/',
                 'hint' : 'Return to the home page'
                 }),
             NavNode('help', {

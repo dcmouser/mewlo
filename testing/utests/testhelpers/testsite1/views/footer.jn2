@@ -1,2 +1,6 @@
-<br/>
-<b>MY TEMPLATE FOOTER</b><br/>
+<br/><br/>
+<hr>
+<div align="center">
+<img src="{{alias.siteurl_relative}}/Cody.png"/><br/>
+<i>mewlo is copyright 2013-2014 by donationcoder.com</i>
+</div>

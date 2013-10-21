@@ -5,12 +5,6 @@
 <link rel="stylesheet" type="text/css" href="/public_html/navbar.css" media="screen" />
 </head>
 
-{{ thelper.navbar(response) }}
-<img src="{{alias.siteurl_relative}}/Cody.png"/>
-
-
-<div>
-<h1>MY TEMPLATE HEADER</h1>
-</div>
-
-<br/>
+{{ thelper.nav_bar_html(response) }}
+{{ thelper.nav_breadcrumb_html(response) }}
+<br/>&nbsp;<br/>

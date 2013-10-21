@@ -1,5 +1,5 @@
 {% include "${siteviewpath}/header.jn2" %}
 
-Welcome to the {{request.mewlosite.__class__.__name__}} web page.
+Help center.
 
 {% include "./footer.jn2" %}

@@ -42,7 +42,7 @@ This data includes node properties
 
 
 # mewlo imports
-
+from ..helpers import misc
 
 # helper imports
 
@@ -161,7 +161,7 @@ class NavNodeManager(object):
 
         # now those without parents get orphannode as their parent (only orphannode has no parents)
         for node in self.nodes:
-            if (node==self.orphannode):
+            if (node==self.orphannode or node==self.sitenode):
                 continue
             if (len(node.parents)==0):
                 node.parents = [self.orphannode]
@@ -202,7 +202,20 @@ class NavNodeManager(object):
         return (currentnode, rootnode)
 
 
-
+    def find_pathto_rootparent(self, curnode, rootnode, flag_wantspecials):
+        """Find the path of nodes that go from rootnode to eventual childnode."""
+        nodelist = []
+        while (True):
+            nodelist.append(curnode)
+            if (len(curnode.parents)==0):
+                break
+            if (curnode == rootnode):
+                break
+            # ATTN: TODO - we only walk up single parent branch
+            curnode = curnode.parents[0]
+            if (not flag_wantspecials and (curnode==self.orphannode or curnode==self.sitenode)):
+                break
+        return nodelist
 
 
 
@@ -237,18 +250,22 @@ class NavNodeManager(object):
             return navdata
 
         # get path from current node up to rootnode (or to farthest ancestor if no rootnode)
-        nodepath = currentnode.find_pathto_rootparent(rootnode)
+        nodepath = self.find_pathto_rootparent(currentnode, rootnode, True)
 
         #print "ATTN: NODEPATH = "+str(nodepath)
 
         # build rows, walk from parent down to next to last item (dont do currentnode)
         rows = []
         nodecount = len(nodepath)
-        for i in range(nodecount-2,0,-1):
+        for i in range(nodecount-1,-1,-1):
             parentnode = nodepath[i]
-            activechildnode = nodepath[i-1]
+            if (i==0):
+                activechildnode = None
+            else:
+                activechildnode = nodepath[i-1]
             row = self.makenav_activerowlist_onerow(parentnode, activechildnode)
-            rows.append(row)
+            if (len(row)>0):
+                rows.append(row)
 
         # return it
         navdata = rows
@@ -291,21 +308,96 @@ class NavNodeManager(object):
 
     def makenav_noderow_to_html(self, row):
             html = ''
+            labelproplist = ['title']
             for nodeitem in row:
-                nodehtml = self.makenav_node_to_html(nodeitem['node'],nodeitem['extraprops'])
+                nodehtml = self.makenav_node_to_html(nodeitem['node'],nodeitem['extraprops'],labelproplist)
                 html += nodehtml
             # wrap in div class
             html = '<div class="nav_bar_row">\n<ul>\n' + html + '\n</ul>\n</div> <!-- nav_bar_row -->'
             return html
 
 
-    def makenav_node_to_html(self, node, nodeproperties):
+
+
+
+
+
+
+    def makenav_breadcrumb_list(self, response, rootnode = None):
+        """
+        This makenav_ function returns a breadcrumb list of nodes
+        """
+
+        # init
+        navdata = []
+        responsecontext = response.context.get()
+        # get currentnode and rootnode to use
+        (currentnode, rootnode) = self.find_current_and_root(response, rootnode)
+        # if nothing to do, return now
+        if (currentnode == None):
+            # nothing to do, just drop down and return
+            return navdata
+
+        # get path from current node up to rootnode (or to farthest ancestor if no rootnode)
+        nodepath = self.find_pathto_rootparent(currentnode, rootnode, False)
+
+        # add site home node to end if appropriate
+        if (len(nodepath)>0):
+            endnode=nodepath[len(nodepath)-1]
+            if (endnode.id!='home'):
+                if ('home' in self.nodehash):
+                    nodepath.append(self.nodehash['home'])
+
+        # reverse list for breadcrumbs, where root is at front
+        navdata = nodepath[::-1]
+        return navdata
+
+
+    def makenav_node_to_breadcrumb_html(self, nodelist, response):
+        """Take a list of built node rows and return html for them."""
+        html = ''
+        labelproplist = ['label_short', 'title']
+
+        for node in nodelist:
+            nodehtml = self.makenav_node_to_html(node, {},labelproplist)
+            html += nodehtml + '\n'
+
+        # wrap in div class
+        html = '<div class="nav_breadcrumb">\n<ul>\n' + html + '</ul>\n</div> <!-- nav_breadcrumb -->'
+        return html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def makenav_node_to_html(self, node, nodeproperties, labelproplist):
         """Return html for this node item."""
         import cgi
         html = ''
 
         # the label for the navbar menu
-        label = cgi.escape(node.get_menu_label())
+        label = cgi.escape(node.get_label(labelproplist))
         url = node.get_menu_url()
         hint = node.get_menu_hint()
         #
@@ -319,7 +411,7 @@ class NavNodeManager(object):
         else:
             html = label
 
-        flag_isactive = nodeproperties['flag_active']
+        flag_isactive = misc.get_value_from_dict(nodeproperties,'flag_active',False)
         if (flag_isactive):
             html = '<span class="nav_active">' + html + '</span>'
 
@@ -469,25 +561,13 @@ class NavNode(object):
         return curnode
 
 
-    def find_pathto_rootparent(self, rootnode = None):
-        """Find the path of nodes that go from rootnode to eventual childnode."""
-        nodelist = []
-        curnode = self
-        while (True):
-            nodelist.append(curnode)
-            if (len(curnode.parents)==0):
-                break
-            if (curnode == rootnode):
-                break
-            # ATTN: TODO - we only walk up single parent branch
-            curnode = curnode.parents[0]
-        return nodelist
 
 
 
-    def get_menu_label(self):
+
+    def get_label(self, labelproplist):
         """Return value for menu/navbar creation."""
-        val = self.get_propertyl(['title'],None,True)
+        val = self.get_propertyl(labelproplist,None,True)
         if (val==None):
             val=self.id
         # uppercase it

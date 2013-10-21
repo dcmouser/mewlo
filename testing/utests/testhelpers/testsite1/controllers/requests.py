@@ -28,6 +28,70 @@ def request_about(request, response):
     return None
 
 
+def request_help(request, response):
+    """Controller function."""
+    # set page info first (as it may be used in page contents)
+    response.set_pagecontext('help')
+    # then page contents
+    response.render_from_template_file('${siteviewpath}/help.jn2')
+    # success
+    return None
+
+
+def request_login(request, response):
+    """Controller function."""
+    # set page info first (as it may be used in page contents)
+    response.set_pagecontext('login')
+    # then page contents
+    response.render_from_template_file('${siteviewpath}/login.jn2')
+    # success
+    return None
+
+def request_logout(request, response):
+    """Controller function."""
+    # set page info first (as it may be used in page contents)
+    response.set_pagecontext('logout')
+    # then page contents
+    response.render_from_template_file('${siteviewpath}/logout.jn2')
+    # success
+    return None
+
+def request_register(request, response):
+    """Controller function."""
+    # set page info first (as it may be used in page contents)
+    response.set_pagecontext('register')
+    # then page contents
+    response.render_from_template_file('${siteviewpath}/register.jn2')
+    # success
+    return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def request_sayhello(request, response):
     """Show simple hello page with some arguments."""
