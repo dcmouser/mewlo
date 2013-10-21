@@ -7,6 +7,9 @@ This file holds controller functions that will be invoked by route manager as ro
 
 
 
+
+
+
 def request_home(request, response):
     """Show home page."""
     # set page info first (as it may be used in page contents)
@@ -18,14 +21,7 @@ def request_home(request, response):
 
 
 
-def request_about(request, response):
-    """Show about page."""
-    # set page info first (as it may be used in page contents)
-    response.set_pagecontext('about')
-    # then page contents
-    response.render_from_template_file('${siteviewpath}/about.jn2')
-    # success
-    return None
+
 
 
 def request_help(request, response):
@@ -36,6 +32,25 @@ def request_help(request, response):
     response.render_from_template_file('${siteviewpath}/help.jn2')
     # success
     return None
+
+def request_contact(request, response):
+    """Show contact page."""
+    # set page info first (as it may be used in page contents)
+    response.set_pagecontext('contact')
+    # then page contents
+    response.render_from_template_file('${siteviewpath}/contact.jn2')
+    # success
+    return None
+
+def request_about(request, response):
+    """Show about page."""
+    # set page info first (as it may be used in page contents)
+    response.set_pagecontext('about')
+    # then page contents
+    response.render_from_template_file('${siteviewpath}/about.jn2')
+    # success
+    return None
+
 
 
 def request_login(request, response):
@@ -106,6 +121,8 @@ def request_sayhello(request, response):
 
 
 
+
+
 def request_article(request, response):
     """Show an article."""
     # set page info first (as it may be used in page contents)
@@ -114,6 +131,4 @@ def request_article(request, response):
     response.render_from_template_file('${siteviewpath}/article.jn2')
     # success
     return None
-
-
 

@@ -133,13 +133,6 @@ class MewloSite_Test1(MewloSite):
                 controller = MewloController(function='requests.request_home')
                 ))
 
-        routegroup.append(
-            MewloRoute(
-                id = 'about',
-                path = '/help/about',
-                # we can pass the root package to the MewloController constructor, which has the benefit of doing the import immediately and raising exception if not found; otherwise the error will come up during preparation
-                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_about'),
-                ))
 
         routegroup.append(
             MewloRoute(
@@ -167,8 +160,7 @@ class MewloSite_Test1(MewloSite):
 
 
 
-
-        #from controllers.requests import request_article
+        from controllers import requests
         routegroup.append(
             MewloRoute(
                 id  = 'article',
@@ -182,7 +174,7 @@ class MewloSite_Test1(MewloSite):
                             )
                         ],
                 # another way to specify the controller is to pass in the actual function reference (rather than as a string)
-                controller = MewloController(function=pkgdirimp_controllers.requests.request_article),
+                controller = MewloController(function=requests.request_article),
                 ))
 
 
@@ -209,6 +201,21 @@ class MewloSite_Test1(MewloSite):
                 ))
         routegroup.append(
             MewloRoute(
+                id = 'contact',
+                path = '/help/contact',
+                # we can pass the root package to the MewloController constructor, which has the benefit of doing the import immediately and raising exception if not found; otherwise the error will come up during preparation
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_contact'),
+                ))
+        routegroup.append(
+            MewloRoute(
+                id = 'about',
+                path = '/help/about',
+                # we can pass the root package to the MewloController constructor, which has the benefit of doing the import immediately and raising exception if not found; otherwise the error will come up during preparation
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_about'),
+                ))
+
+        routegroup.append(
+            MewloRoute(
                 id = 'register',
                 path = '/user/register',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_register'),
@@ -227,10 +234,12 @@ class MewloSite_Test1(MewloSite):
                 ))
 
 
-
-
         # add routegroup we just created to the site
         self.routemanager.append(routegroup)
+
+
+
+
 
 
 
@@ -253,6 +262,10 @@ class MewloSite_Test1(MewloSite):
             NavNode('help', {
                 'parent': 'site',
                 'sortweight': 10.0,
+                }),
+            NavNode('contact', {
+                'parent': 'help',
+                'sortweight': 8.0,
                 }),
             NavNode('about', {
                 'parent': 'help',
