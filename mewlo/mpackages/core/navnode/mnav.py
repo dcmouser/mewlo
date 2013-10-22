@@ -137,7 +137,7 @@ class NavNodeManager(object):
         # now walk nodes and make links
         for node in self.nodes:
             # lookup children by id and convert to node references
-            children = node.get_property('children',[],False)
+            children = node.get_property('children',[],False,None)
             children = self.convert_nodeidlist_to_nodelist(children)
             # now walk children and add them to our children list, and add us to their parent list
             for child in children:
@@ -146,11 +146,11 @@ class NavNodeManager(object):
                 if (node not in child.parents):
                     child.parents.append(node)
             # lookup parents by id and convert to node references
-            parent = node.get_property('parent',None,False)
+            parent = node.get_property('parent',None,False,None)
             if (parent != None):
                 parents = [parent]
             else:
-                parents = node.get_property('parents',[],False)
+                parents = node.get_property('parents',[],False,None)
             parents = self.convert_nodeidlist_to_nodelist(parents)
             # now walk parents and add them to our parent list, and add us to their child list
             for parent in parents:
@@ -188,9 +188,9 @@ class NavNodeManager(object):
 
 
 
-    def find_current_and_root(self, response, rootnode):
+    def find_current_and_root(self, rootnode, responsecontext):
         """Given response and a possible explicit rootnode, find current node and rootnode to use."""
-        currentnodeid = response.context.get_value('pagenode',None)
+        currentnodeid = responsecontext.get_value('pagenode',None)
         currentnode = self.lookupnode(currentnodeid)
         # decide rootnode
         if (currentnode != None and rootnode == None):
@@ -198,7 +198,6 @@ class NavNodeManager(object):
             rootnode = currentnode.find_rootparent()
         if (rootnode==None):
             rootnode = currentnode
-        #
         return (currentnode, rootnode)
 
 
@@ -225,12 +224,14 @@ class NavNodeManager(object):
 
 
 
+
+
     # menu/navbar/sidebar helper functions
     # ------------------------------------
 
 
 
-    def makenav_activerowlist(self, response, rootnode = None):
+    def makenav_activerowlist(self, responsecontext, rootnode = None):
         """
         This makenav_ function returns a list of rows, where each row is a list of nodes.
         We might use this for a top navigation bar menu.
@@ -238,12 +239,10 @@ class NavNodeManager(object):
         So that the last row in the list is the row of siblings to the current node.
         On each row there should be one (and only one) active node).
         """
-
         # init
         navdata = []
-        responsecontext = response.context.get()
         # get currentnode and rootnode to use
-        (currentnode, rootnode) = self.find_current_and_root(response, rootnode)
+        (currentnode, rootnode) = self.find_current_and_root(rootnode, responsecontext)
         # if nothing to do, return now
         if (currentnode == None):
             # nothing to do, just drop down and return
@@ -263,7 +262,7 @@ class NavNodeManager(object):
                 activechildnode = None
             else:
                 activechildnode = nodepath[i-1]
-            row = self.makenav_activerowlist_onerow(parentnode, activechildnode)
+            row = self.makenav_activerowlist_onerow(parentnode, activechildnode, responsecontext)
             if (len(row)>0):
                 rows.append(row)
 
@@ -273,7 +272,7 @@ class NavNodeManager(object):
 
 
 
-    def makenav_activerowlist_onerow(self, parentnode, activechildnode):
+    def makenav_activerowlist_onerow(self, parentnode, activechildnode, responsecontext):
         """Make a list (row) of nodes, using children of parent node, and marking the activechildnode as active."""
         row = []
         children = parentnode.children
@@ -292,78 +291,74 @@ class NavNodeManager(object):
 
 
 
-    def makenav_rowlist_to_html(self, rowlist, response):
+    def makenav_rowlist_to_html(self, rowlist, responsecontext):
         """Take a list of built node rows and return html for them."""
         html = ''
-
         for row in rowlist:
-            rowhtml = self.makenav_noderow_to_html(row)
+            rowhtml = self.makenav_noderow_to_html(row, responsecontext)
             html += rowhtml + '\n'
-
         # wrap in div class
-        html = '<div class="nav_bar">\n' + html + '</div> <!-- nav_bar -->'
+        if (html != ''):
+            html = '<div class="nav_bar">\n' + html + '</div> <!-- nav_bar -->'
+        return html
+
+    def makenav_noderow_to_html(self, row, responsecontext):
+        """Build html from a noderow."""
+        html = ''
+        labelproplist = ['label']
+        for nodeitem in row:
+            nodehtml = self.makenav_node_to_html(nodeitem['node'],nodeitem['extraprops'],labelproplist, responsecontext)
+            html += nodehtml
+        # wrap in div class
+        if (html != ''):
+            html = '<div class="nav_bar_row">\n<ul>\n' + html + '\n</ul>\n</div> <!-- nav_bar_row -->'
         return html
 
 
 
-    def makenav_noderow_to_html(self, row):
-            html = ''
-            labelproplist = ['title']
-            for nodeitem in row:
-                nodehtml = self.makenav_node_to_html(nodeitem['node'],nodeitem['extraprops'],labelproplist)
-                html += nodehtml
-            # wrap in div class
-            html = '<div class="nav_bar_row">\n<ul>\n' + html + '\n</ul>\n</div> <!-- nav_bar_row -->'
-            return html
 
 
 
 
 
-
-
-
-    def makenav_breadcrumb_list(self, response, rootnode = None):
+    def makenav_breadcrumb_list(self, responsecontext, rootnode = None):
         """
         This makenav_ function returns a breadcrumb list of nodes
         """
-
         # init
         navdata = []
-        responsecontext = response.context.get()
         # get currentnode and rootnode to use
-        (currentnode, rootnode) = self.find_current_and_root(response, rootnode)
+        (currentnode, rootnode) = self.find_current_and_root(rootnode, responsecontext)
         # if nothing to do, return now
         if (currentnode == None):
             # nothing to do, just drop down and return
             return navdata
-
         # get path from current node up to rootnode (or to farthest ancestor if no rootnode)
         nodepath = self.find_pathto_rootparent(currentnode, rootnode, False)
-
         # add site home node to end if appropriate
         if (len(nodepath)>0):
             endnode=nodepath[len(nodepath)-1]
             if (endnode.id!='home'):
                 if ('home' in self.nodehash):
                     nodepath.append(self.nodehash['home'])
-
         # reverse list for breadcrumbs, where root is at front
         navdata = nodepath[::-1]
         return navdata
 
 
-    def makenav_node_to_breadcrumb_html(self, nodelist, response):
+    def makenav_node_to_breadcrumb_html(self, nodelist, responsecontext):
         """Take a list of built node rows and return html for them."""
+        # init
         html = ''
-        labelproplist = ['label_short', 'title']
-
+        labelproplist = ['label_short', 'label']
+        # build nodehtmls
         for node in nodelist:
-            nodehtml = self.makenav_node_to_html(node, {},labelproplist)
-            html += nodehtml + '\n'
-
+            nodehtml = self.makenav_node_to_html(node, {}, labelproplist, responsecontext)
+            if (nodehtml != ''):
+                html += nodehtml + '\n'
         # wrap in div class
-        html = '<div class="nav_breadcrumb">\n<ul>\n' + html + '</ul>\n</div> <!-- nav_breadcrumb -->'
+        if (html != ''):
+            html = '<div class="nav_breadcrumb">\n<ul>\n' + html + '</ul>\n</div> <!-- nav_breadcrumb -->'
         return html
 
 
@@ -391,15 +386,21 @@ class NavNodeManager(object):
 
 
 
-    def makenav_node_to_html(self, node, nodeproperties, labelproplist):
+    def makenav_node_to_html(self, node, nodeproperties, labelproplist, responsecontext):
         """Return html for this node item."""
         import cgi
         html = ''
 
-        # the label for the navbar menu
-        label = cgi.escape(node.get_label(labelproplist))
-        url = node.get_menu_url()
-        hint = node.get_menu_hint()
+        # properties for the navbar menu
+        isvisible = node.get_isvisible(responsecontext)
+        if (not isvisible):
+            return ''
+
+        label = cgi.escape(node.get_label(labelproplist, responsecontext))
+        url = node.get_menu_url(responsecontext)
+        hint = node.get_menu_hint(responsecontext)
+
+
         #
         if (url!=None):
             url = cgi.escape(url)
@@ -505,7 +506,7 @@ class NavNode(object):
 
     def lookup_store_route(self):
         """Try to lookup or infer route reference."""
-        routeid = self.get_property('route',None,False)
+        routeid = self.get_property('route',None,False,None)
         if (routeid != None and not isinstance(routeid,basestring)):
             # they gave us a route object directly
             self.route = routeid
@@ -518,21 +519,20 @@ class NavNode(object):
 
 
 
-    def get_property(self, propname, defaultval, flag_resolve):
-        if (propname in self.properties):
-            if (flag_resolve):
-                return self.mewlosite.resolve(self.properties[propname])
-            else:
-                return self.properties[propname]
-        return defaultval
+    def get_property(self, propname, defaultval, flag_resolve, responsecontext):
+        return self.get_propertyl([propname], defaultval, flag_resolve, responsecontext)
 
-    def get_propertyl(self, propnames, defaultval, flag_resolve):
+    def get_propertyl(self, propnames, defaultval, flag_resolve, responsecontext):
         for propname in propnames:
             if (propname in self.properties):
+                val = self.properties[propname]
                 if (flag_resolve):
-                    return self.mewlosite.resolve(self.properties[propname])
+                    # asked to resolve the value; check if it's a callable
+                    if (hasattr(val, '__call__')):
+                        return val(self, responsecontext)
+                    return self.mewlosite.resolve(val)
                 else:
-                    return self.properties[propname]
+                    return val
         return defaultval
 
 
@@ -565,18 +565,18 @@ class NavNode(object):
 
 
 
-    def get_label(self, labelproplist):
+    def get_label(self, labelproplist, responsecontext):
         """Return value for menu/navbar creation."""
-        val = self.get_propertyl(labelproplist,None,True)
+        val = self.get_propertyl(labelproplist,None,True,responsecontext)
         if (val==None):
             val=self.id
         # uppercase it
         val = val.upper()
         return val
 
-    def get_menu_url(self):
+    def get_menu_url(self, responsecontext):
         """Return value for menu/navbar creation."""
-        val = self.get_propertyl(['url'],None,True)
+        val = self.get_propertyl(['url'], None, True, responsecontext)
         if (val==None):
             # no url specified in navnode, but perhaps we can construct it from the route associated with this navnode
             if (self.route != None):
@@ -584,12 +584,15 @@ class NavNode(object):
                 val = self.route.construct_url()
         return val
 
-    def get_menu_hint(self):
+    def get_menu_hint(self, responsecontext):
         """Return value for menu/navbar creation."""
-        val = self.get_propertyl(['hint','help'],None,True)
+        val = self.get_propertyl(['hint','help'], None, True, responsecontext)
         return val
 
-
+    def get_isvisible(self, responsecontext):
+        """Return value for menu/navbar creation."""
+        val = self.get_property('visible', True, True, responsecontext)
+        return val
 
 
 

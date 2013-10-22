@@ -251,10 +251,9 @@ class MewloSite_Test1(MewloSite):
         # create some test NavNodes
         nodes = [
             NavNode('home', {
-                'title': '${sitename} home page',
+                'label': '${sitename} home page',
                 'label_short': 'home',
                 'children': [],
-                #['about','register','login','logout'],
                 'parent': 'site',
                 'sortweight': 1.0,
                 'hint' : 'Return to the home page'
@@ -272,17 +271,20 @@ class MewloSite_Test1(MewloSite):
                 'sortweight': 9.0,
                 }),
             NavNode('register', {
-                'visible': False,
+                'visible': lambda navnode,context: not context.get_value('isloggedin',False),
                 'parent': 'site',
-                'sortweight': 8.0,
+                'sortweight': 1.0,
                 }),
             NavNode('login', {
-                'visible': lambda context: not context.isloggedin,
+                'visible': lambda navnode,context: not context.get_value('isloggedin',False),
                 'parent': 'site',
                 'sortweight': 8.0,
                 }),
             NavNode('logout', {
-                'visible': lambda context: context.isloggedin,
+                'label': lambda navnode,context: "logout ({0})".format(context.get_value('username')),
+                'label_short': 'logout',
+                'hint' : 'logout of your account',
+                'visible': lambda navnode,context: context.get_value('isloggedin',False),
                 'parent': 'site',
                 'sortweight': 8.0,
                 }),

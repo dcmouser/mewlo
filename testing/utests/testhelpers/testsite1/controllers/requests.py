@@ -36,7 +36,7 @@ def request_help(request, response):
 def request_contact(request, response):
     """Show contact page."""
     # set page info first (as it may be used in page contents)
-    response.set_pagecontext('contact')
+    response.set_pagecontext('contact', {'isloggedin':True, 'username':'mouser'} )
     # then page contents
     response.render_from_template_file('${siteviewpath}/contact.jn2')
     # success
@@ -45,7 +45,7 @@ def request_contact(request, response):
 def request_about(request, response):
     """Show about page."""
     # set page info first (as it may be used in page contents)
-    response.set_pagecontext('about')
+    response.set_pagecontext('about', {'isloggedin':True, 'username':'mouser'} )
     # then page contents
     response.render_from_template_file('${siteviewpath}/about.jn2')
     # success
@@ -62,14 +62,16 @@ def request_login(request, response):
     # success
     return None
 
+
 def request_logout(request, response):
     """Controller function."""
     # set page info first (as it may be used in page contents)
-    response.set_pagecontext('logout')
+    response.set_pagecontext('logout', {'isloggedin':True, 'username':'mouser'})
     # then page contents
     response.render_from_template_file('${siteviewpath}/logout.jn2')
     # success
     return None
+
 
 def request_register(request, response):
     """Controller function."""
