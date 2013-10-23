@@ -90,6 +90,21 @@ class MewloSettingsDb(MewloSettings):
         return retv
 
 
+    def merge_settings_subkey(self, keyname, subkeyname, settingstoadd):
+        """Merge in a new dicitonary into our main dictionary at a specific root section (creating root section if needed)."""
+        self.db_lock(settingstoadd.keys())
+        try:
+            self.sync_load_keys([keyname])
+            retv = super(MewloSettingsDb, self).merge_settings_subkey(keyname, keysubname, settingstoadd)
+            self.sync_save_keys([keyname])
+        except Exception as exp:
+            raise
+        finally:
+            self.db_unlock()
+        return retv
+
+
+
     def set(self, newsettings):
         """Set and overwrite a value at a section, replacing whatever was there."""
         self.db_lock([])
@@ -126,6 +141,12 @@ class MewloSettingsDb(MewloSettings):
         """Lookup value from our settings dictionary at a certain root section, and return it or default if not found."""
         self.sync_load_keys([keyname])
         return super(MewloSettingsDb, self).get_subvalue(keyname, keysubname, defaultval)
+
+
+    def get_subsubvalue(self, keyname, keysubname, keysubsubname, defaultval=None):
+        """Lookup value from our settings dictionary at a certain root section, and return it or default if not found."""
+        self.sync_load_keys([keyname])
+        return super(MewloSettingsDb, self).get_subsubvalue(keyname, keysubname, keysubsubname, defaultval)
 
 
 

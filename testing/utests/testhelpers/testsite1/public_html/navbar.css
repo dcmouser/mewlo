@@ -51,7 +51,7 @@ div.nav_breadcrumb {
 
 
 
-.nav_active {
+.nav_bar_row .nav_active {
 	font-weight: bold;
 	font-size: large;
 	}

@@ -38,6 +38,21 @@ This data includes node properties
             * flag_enabled = whether this item should be shown as disabled
             * children = hierarchical list of children nodes
         Note that eventually we will want any property here to be able to be specified as an ajax function; this allows us to do lazy evaluation of dynamic stuff
+
+
+ATTN: There are some aspects of the current implementation that are unpleasant.
+As it stands now, the site has a NavNodeManager which is a collection of NavNodes.
+NavNodes themselves contain properties which may involve lambdas and aliases that resolve differently for each request (such as showing user name on logout menu item).
+So when we build a menu for a user's request, we will dynamically resolve some of these NavNode properties, and store this information local to the request.
+This is a bit messy as we would really like to carry around such information annotated onto the NavNodes themselves, but that isn't feasible since they are shared among requests.
+It's also an issue because we may have several functions invoked from the view templates that make use of the same NavNodes (for example breadcrumbs and menus)
+and we would prefer not to have to resolve properties twice on the same request.  Solving this means caching results of resolving properties and storing local to the results.
+
+For now I have implemented a messy caching system that caches resolved navnode properties in the response context object (which also holds information about the current navnode pageid, etc).
+This isn't such a bad solution in theory, as it makes it possible for us to both add a per-request annotated properties to nodes (like indicating which nodes are on the active path),
+as well as letting us cache node dynamic values (like dynamic titles and visibility computations) so that we only have to do it once even if using multiple menus.
+However, it used a very inefficient looking deep dictionary lookup like (context['nodes']['nodeid']['propertyname']) and i worry about the cost of this, as well as the polution to responsecontext.
+A reasonable solution might be to use a special data structure for cached note properties, and perhaps give navnodes a unique numeric counter id when building site navnodes, and index by that.
 """
 
 
@@ -226,9 +241,34 @@ class NavNodeManager(object):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # menu/navbar/sidebar helper functions
     # ------------------------------------
 
+
+    # actve row helpers
 
 
     def makenav_activerowlist(self, responsecontext, rootnode = None):
@@ -251,19 +291,24 @@ class NavNodeManager(object):
         # get path from current node up to rootnode (or to farthest ancestor if no rootnode)
         nodepath = self.find_pathto_rootparent(currentnode, rootnode, True)
 
-        #print "ATTN: NODEPATH = "+str(nodepath)
-
         # build rows, walk from parent down to next to last item (dont do currentnode)
         rows = []
         nodecount = len(nodepath)
         for i in range(nodecount-1,-1,-1):
+            # the parent of this row
             parentnode = nodepath[i]
+            # the active child on this row
             if (i==0):
                 activechildnode = None
             else:
                 activechildnode = nodepath[i-1]
+            # make the row
             row = self.makenav_activerowlist_onerow(parentnode, activechildnode, responsecontext)
+            # if we got any noded, sort and then add them
             if (len(row)>0):
+                # sort the row
+#                row = self.sort_nodelist_byproperty(row, responsecontext, True, ['label','id'],'')
+                row = self.sort_nodelist_byproperty(row, responsecontext, False, ['sortweight'],0.0)
                 rows.append(row)
 
         # return it
@@ -277,15 +322,22 @@ class NavNodeManager(object):
         row = []
         children = parentnode.children
         for child in children:
-            extraproperties = {
-                'flag_active' : (child==activechildnode)
-                }
-            nodeitem = {
-                'node' : child,
-                'extraprops' : extraproperties,
-                }
-            row.append(nodeitem)
+            if (child == activechildnode):
+                # annotate with the flag_active setting for this navnode for this request
+                child.set_response_property('flag_active',True,responsecontext)
+            row.append(child)
         return row
+
+
+
+    def sort_nodelist_byproperty(self, nodelist, responsecontext, flag_isalpha, propnames, defaultval):
+        """Given a nodelist, return sorted version, sorted by node numeric propertyname (with a default value if missing).
+        """
+        if (flag_isalpha):
+            newnodelist = sorted(nodelist, key = lambda node: (node.get_propertyl(propnames, defaultval, True, responsecontext)).lower())
+        else:
+            newnodelist = sorted(nodelist, key = lambda node: node.get_propertyl(propnames, defaultval, True, responsecontext))
+        return newnodelist
 
 
 
@@ -306,8 +358,8 @@ class NavNodeManager(object):
         """Build html from a noderow."""
         html = ''
         labelproplist = ['label']
-        for nodeitem in row:
-            nodehtml = self.makenav_node_to_html(nodeitem['node'],nodeitem['extraprops'],labelproplist, responsecontext)
+        for node in row:
+            nodehtml = self.makenav_node_to_html(node, labelproplist, responsecontext)
             html += nodehtml
         # wrap in div class
         if (html != ''):
@@ -319,6 +371,10 @@ class NavNodeManager(object):
 
 
 
+
+
+
+    # breadcrumb helpers
 
 
     def makenav_breadcrumb_list(self, responsecontext, rootnode = None):
@@ -336,6 +392,7 @@ class NavNodeManager(object):
         # get path from current node up to rootnode (or to farthest ancestor if no rootnode)
         nodepath = self.find_pathto_rootparent(currentnode, rootnode, False)
         # add site home node to end if appropriate
+        # ATTN: this is a bit kludgey
         if (len(nodepath)>0):
             endnode=nodepath[len(nodepath)-1]
             if (endnode.id!='home'):
@@ -353,7 +410,7 @@ class NavNodeManager(object):
         labelproplist = ['label_short', 'label']
         # build nodehtmls
         for node in nodelist:
-            nodehtml = self.makenav_node_to_html(node, {}, labelproplist, responsecontext)
+            nodehtml = self.makenav_node_to_html(node, labelproplist, responsecontext)
             if (nodehtml != ''):
                 html += nodehtml + '\n'
         # wrap in div class
@@ -385,23 +442,26 @@ class NavNodeManager(object):
 
 
 
+    # generic navnode html helper
 
-    def makenav_node_to_html(self, node, nodeproperties, labelproplist, responsecontext):
+
+
+    def makenav_node_to_html(self, node, labelproplist, responsecontext):
         """Return html for this node item."""
         import cgi
         html = ''
 
-        # properties for the navbar menu
+        # if its not visible, we can stop right now
         isvisible = node.get_isvisible(responsecontext)
         if (not isvisible):
             return ''
 
+        # other properties
         label = cgi.escape(node.get_label(labelproplist, responsecontext))
         url = node.get_menu_url(responsecontext)
         hint = node.get_menu_hint(responsecontext)
 
-
-        #
+        # build main html
         if (url!=None):
             url = cgi.escape(url)
             if (hint!=None):
@@ -412,13 +472,47 @@ class NavNodeManager(object):
         else:
             html = label
 
-        flag_isactive = misc.get_value_from_dict(nodeproperties,'flag_active',False)
+        # active highlighting
+        flag_isactive = node.get_property('flag_active', False, True, responsecontext)
         if (flag_isactive):
             html = '<span class="nav_active">' + html + '</span>'
 
         # wrap in div class
         html = '<li>' + html + '</li>'
         return html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -501,6 +595,8 @@ class NavNode(object):
         self.parents = []
         self.route = None
         self.mewlosite = mewlosite
+        # copy id to property for uniform access
+        self.properties['id']=self.id
 
 
 
@@ -524,15 +620,30 @@ class NavNode(object):
 
     def get_propertyl(self, propnames, defaultval, flag_resolve, responsecontext):
         for propname in propnames:
+            if (responsecontext != None):
+                # check for a cached value
+                val = self.get_response_property(propname, responsecontext, None)
+                if (val != None):
+                    # we found a cached value, return it
+                    #print "ATTN: USING CACHED VALUE FOR PROP {0} of node {1} value is {2}.".format(propname,self.id,val)
+                    return val
             if (propname in self.properties):
                 val = self.properties[propname]
                 if (flag_resolve):
-                    # asked to resolve the value; check if it's a callable
+                    # asked to resolve the value, see if it resolved differently and check if it's a callable
                     if (hasattr(val, '__call__')):
-                        return val(self, responsecontext)
-                    return self.mewlosite.resolve(val)
-                else:
-                    return val
+                        # it's a callable (lambda)
+                        computedval = val(self, responsecontext)
+                    else:
+                        # let's see if it needs resolving
+                        computedval = self.mewlosite.resolve(val)
+                    # is the computed value different?
+                    if (computedval != val):
+                        val = computedval
+                    # cache it before returning
+                    self.set_response_property(propname, val, responsecontext)
+                # return found value
+                return val
         return defaultval
 
 
@@ -597,8 +708,15 @@ class NavNode(object):
 
 
 
+    def set_response_property(self, propertyname, value, responsecontext):
+        """Set a 'cached' value in response context for this node."""
+        responsecontext.set_subsubvalue('navnodes',self.id,propertyname,value)
 
-
+    def get_response_property(self, propertyname, responsecontext, defaultval):
+        """Set a 'cached' value in response context for this node."""
+        if (responsecontext == None):
+            return defaultval
+        return responsecontext.get_subsubvalue('navnodes',self.id,propertyname,defaultval)
 
 
 

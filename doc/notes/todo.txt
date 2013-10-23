@@ -49,3 +49,9 @@ note that we may need request information when generating urls, to know whether 
 10/18/13
 take another look at pyramids dual/"traversal" method of serving files.
 //---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+10/22/13
+write a dedicated ResponseContext class
+//---------------------------------------------------------------------------

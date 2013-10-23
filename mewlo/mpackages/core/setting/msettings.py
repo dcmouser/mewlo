@@ -100,6 +100,19 @@ class MewloSettings(object):
             self.settingdict[keyname].update(settingstoadd)
 
 
+    def merge_settings_subkey(self, keyname, subkeyname, settingstoadd):
+        """Merge in a new dicitonary into our main dictionary at a specific root section (creating root section if needed)."""
+        if not keyname in self.settingdict:
+            self.settingdict[keyname] = {subkeyname: settingstoadd}
+        elif not subkeyname in self.settingdict[keyname]:
+            self.settingdict[keyname][subkeyname] = settingstoadd
+        else:
+            # merge the new settings with old, e.g. union of arrays or dictionaries, etc
+            self.settingdict[keyname][subkeyname].update(settingstoadd)
+
+
+
+
     def set(self, newsettings):
         """Overwrite all."""
         #self.remove_all()
@@ -133,6 +146,24 @@ class MewloSettings(object):
         """Set propery sub value."""
         settingstoadd = {keysubname:val}
         self.merge_settings_key(keyname,settingstoadd)
+
+
+
+
+    def get_subsubvalue(self, keyname, keysubname, keysubsubname, defaultval=None):
+        """Lookup value from our settings dictionary at a certain root section, and return it or default if not found."""
+        if (keyname in self.settingdict):
+            if (keysubname in self.settingdict[keyname]):
+                if (keysubsubname in self.settingdict[keyname][keysubname]):
+                    return self.settingdict[keyname][keysubname][keysubsubname]
+        return defaultval
+
+    def set_subsubvalue(self, keyname, keysubname, keysubsubname, val):
+        """Set propery sub value."""
+        settingstoadd = {keysubsubname:val}
+        self.merge_settings_subkey(keyname, keysubname, settingstoadd)
+        #print "Aftering setting {0}.{1}.{2}".format(keyname,keysubname,keysubsubname) + " we have: "+str(self.settingdict)
+
 
 
     def value_exists(self, keyname, keysubname=None):
