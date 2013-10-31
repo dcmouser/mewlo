@@ -59,7 +59,7 @@ class MewloDbModel_Settings(mdbmodel.MewloDbModel):
 
 
     @classmethod
-    def definedb(cls):
+    def definedb(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
         # define fields list
         fieldlist = [

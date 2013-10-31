@@ -6,7 +6,7 @@ This module contains Mewlo database manager class.
 # mewlo imports
 import mdbmodel_settings
 from ..setting.msettings import MewloSettings
-
+from ..user import muser
 
 
 
@@ -31,11 +31,19 @@ class MewloDatabaseManager(object):
         ATTN: We may want to move this elsewhere eventually.
         """
         # now core database objects
-        self.create_modelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
-        # ATTN: Test
-        self.create_modelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
+        newclass = self.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
+        self.register_modelclass(self, newclass)
+
+        # ATTN: Again, we should probably move this stuff elsewhere
+        newclass = self.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
+        self.register_modelclass(self, newclass)
+        # more
+        self.register_modelclass(self, muser.MewloUser)
+        #self.create_derived_dbmodelclass(self, muser.MewloUser)
 
 
+    def makedbtables(self):
+        pass
 
 
     def set_databasesettings(self, databasesettings):
@@ -109,18 +117,25 @@ class MewloDatabaseManager(object):
 
 
 
-    def create_modelclass(self, owner, baseclass, classname, tablename, schemaname='default'):
-        """Create a new *CLASS* based on another model class, with a custom classname and tablename."""
+    def create_derived_dbmodelclass(self, owner, baseclass, classname=None, tablename=None, schemaname='default'):
+        """
+        Create a new *CLASS* based on another model class, with a custom classname and tablename.
+        We only need to use this when we want to dynamically create multiple tables based from the same base model class.
+        """
         # create the new class
         if (classname==None):
             targetclass = baseclass
         else:
             #print "Creating class {0} from class {1}.".format(classname,baseclass.__name__)
             targetclass = type(classname, (baseclass,),{})
+        # tablename
+        if (tablename==None):
+            tablename=targetclass.__name__
         # set table info
         targetclass.set_dbnames(tablename, schemaname)
-        # now register it
-        self.register_modelclass(owner, targetclass)
+
+        # NOTE: it's not registered yet!
+
         # and return it
         return targetclass
 

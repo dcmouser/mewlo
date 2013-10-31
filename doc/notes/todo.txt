@@ -55,3 +55,12 @@ take another look at pyramids dual/"traversal" method of serving files.
 10/22/13
 write a dedicated ResponseContext class
 //---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+10/23/13
+decide how to handle url ? args
+//---------------------------------------------------------------------------
+
+
+mixins as root props or as independent table object

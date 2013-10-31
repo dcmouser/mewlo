@@ -9,5 +9,6 @@ Book Chapters
    setup/index
    developer/index
    core/index
+   user/index
    secondary/index
    showcases/index

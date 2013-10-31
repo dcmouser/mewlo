@@ -11,6 +11,7 @@ From here you can learn about secondary packages for the Mewlo system.
    blacklist
    bookmark
    cache
+   daemon
    digest
    feed
    form
@@ -19,7 +20,6 @@ From here you can learn about secondary packages for the Mewlo system.
    widgets
    javascript
    jobqueue
-   mailbox
    newsletter
    notification
    payment

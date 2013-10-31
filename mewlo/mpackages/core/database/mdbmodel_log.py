@@ -22,17 +22,14 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
     """Database model where each row is a serialized dictioary setting."""
 
     # class variables
-    dbtablename = 'dummy'
+    dbtablename = 'base_log_overide_this_via_create_derived_dbmodelclass'
     dbschemaname = 'default'
     # log fields to ignore
     ignored_logfields = []
 
+
+
     # ATTN: NOTE __INIT__ IS *NOT* CALLED WHEN INSTANTIATING MODELS VIA SQLALCHEMY ORM SO WE AVOID IT WHERE POSSIBLE
-#    def __init__(self):
-#        """Constructor."""
-#        # init
-#        self.keyname = None
-#        self.serializeddict = None
 
 
 
@@ -51,7 +48,7 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
 
     def set_property_byname(self, propname, propval):
         """Set an object property by name."""
-        setattr(self,propname,propval)
+        setattr(self, propname,propval)
 
 
     def map_dict_to_properties(self, dict):
@@ -81,7 +78,7 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
 
 
     @classmethod
-    def definedb(cls):
+    def definedb(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
         # define fields list
         fieldlist = [
@@ -94,7 +91,7 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
                 'label': "The serialzed text version of the dictionary/array data being stored"
                 }),
             # actual log msg text
-            mdbfield.DbfFloat('timestamp', {
+            mdbfield.DbfTimestamp('timestamp', {
                 'label': "The timestamp for the message"
                 }),
             # actual log msg text
@@ -109,8 +106,7 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
             mdbfield.DbfString('type', {
                 'label': "The type of the message"
                 }),
-
-
             ]
+
         cls.register_fieldlist(fieldlist)
 

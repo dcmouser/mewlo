@@ -6,8 +6,9 @@ This is our database object base class.
 """
 
 
-# helper imports
+# mewlo imports
 from ..helpers import misc
+import mdbfield
 
 # python imports
 import pickle
@@ -30,6 +31,8 @@ class MewloDbModel(object):
     #
     fieldlist = []
     fielddict = {}
+    #
+    propertysets = {}
 
 
     # ATTN: NOTE __INIT__ IS *NOT* CALLED WHEN INSTANTIATING MODELS VIA SQLALCHEMY ORM SO WE AVOID IT WHERE POSSIBLE
@@ -176,12 +179,24 @@ class MewloDbModel(object):
 
 
 
+
+
     # These methods will be specific to the derived subclass
 
     @classmethod
-    def definedb(cls):
+    def definedb(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc.
         The subclass will implement this function."""
+        pass
+
+
+
+    @classmethod
+    def create_subclasses(cls, dbmanager):
+        """
+        Give this model class the opportunity to recursively call manager to register/map (via map_modelclass() function), subclasses used privately by this class.
+        This is useful especially when we have PropertySet tables for an object.
+        """
         pass
 
 
@@ -192,5 +207,90 @@ class MewloDbModel(object):
 
 
 
+    @classmethod
+    def make_fieldset_dbobjectclass(cls, propname, proplabel, dbmanager, subfields):
+        """Make a new database model class that will store some fields in a has-a relationship with us."""
+
+        # init
+        fieldlist = []
+
+        # ok dynamically create a new class for this purpose
+        subclassname = cls.__name__ + '_' + propname
+        subclasstablename = cls.get_dbtablename()+'_'+propname
+        basesubclass = MewloDbFieldset
+        subclass = dbmanager.create_derived_dbmodelclass(cls, basesubclass, subclassname, subclasstablename)
+
+        # set owner of this subclass
+        subclass.set_owner(cls)
+        # now provide the subclass with the subfields
+        subclass.add_subfields(subfields)
+
+        # now add field refering to this subclass from the owner class
+        fieldlist += [
+            mdbfield.Dbf1to1_Left(propname, {
+            'label': proplabel,
+            'referenceclass': subclass,
+            }),
+            ]
+
+        # and now register the subclass with the manager
+        dbmanager.register_modelclass(cls, subclass)
+
+        return fieldlist
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class MewloDbFieldset(MewloDbModel):
+    """Helper MewloDbObject that holds a set of fields in a has-a relationship with another object."""
+
+    # class variables
+    subfields = []
+
+    @classmethod
+    def set_owner(cls, ownerclass):
+        cls.ownerclass = ownerclass
+
+    @classmethod
+    def add_subfields(cls, subfields):
+        cls.subfields += subfields
+
+
+    @classmethod
+    def definedb(cls, dbmanager):
+        """This class-level function defines the database fields for this model."""
+
+        # starting field list is just primary id
+        fieldlist = [
+            # standard primary id number field
+            mdbfield.DbfPrimaryId('id', {
+                'label': "The primary key and id# for this row"
+                }),
+            ]
+
+        # add subfields we were asked to add
+        fieldlist += cls.subfields
+
+        # and now we are going to add a 1-to-1 field from us back to the object we are properties foe
+        #fieldname = cls.__name__ + '_id'
+        fieldname = 'owner_id'
+        fieldlist += [
+            mdbfield.Dbf1to1_Right(fieldname, {
+            'label': 'Reference to owner object',
+            'referenceclass': cls.ownerclass,
+            }),
+            ]
+
+        cls.register_fieldlist(fieldlist)

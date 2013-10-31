@@ -37,7 +37,10 @@ class MewloLogTarget_Database(MewloLogTarget):
         """Startup everything."""
         # create the logging class we will use for this table
         customclassname = self.baseclass.__name__ + '_' + self.tablename
-        self.logclass = mglobals.db().create_modelclass(self, self.baseclass, customclassname, self.tablename)
+        dbmanager = mglobals.db()
+        self.logclass = dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
+        # now register it
+        dbmanager.register_modelclass(self, self.logclass)
         #print ("SELFLOGCLASS = "+str(self.logclass.__name__)+" baseclass = "+self.baseclass.__name__)
         # parent
         super(MewloLogTarget_Database,self).startup()

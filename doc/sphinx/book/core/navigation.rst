@@ -58,3 +58,16 @@ When generating the output for a page, here's how the controller/view indicates 
 Where the first parameter is the idname of the NavNode representing this output page, and pagecontext is a dictionary of data to make available to the NavNodes for custom functions and template replacements.  Typically it would consist of the User class for any logged in user, but could include any additional information that might be useful for the navigation structures (menus, breadcrumbs, etc.).
 
 Note that this functional call does not actually render any output.  One still has to call a function to render a template to the display (or otherwise generate output).  It is from this template that the menu/breadcrumb/etc rendering would actually take place.  The setpage() function is simply a way of setting information about the output page to be rendered.
+
+An additional idea:
+
+There may be cases where we want to dynamically create navigation data for a given user on a given request.  For example a dynamic menu of based on user, or a sidebar of related links.
+When its simply a case of a small set of nodes, we can use the 'visibile' flag and a lambda function.
+But when we truly want to dynamically create a large collection of nodes for a given request or user, this can present a problem.
+It's a problem because the NavNode structure is not meant to change.
+A possible solution would not be too difficult however, and that is to all at runtime the ResponseContext, which already allows custom per-response navnode annotating, to support the dynamic construction of additional navnodes.
+So our navnode helper functions which walk the navnodes would simply be amended to ALSO parse any additional navnodes supplies in response context.
+The only somewhat tricky aspect here would be dealing with the parent-children links, which for the static constant navnodes are pre-computed.
+So in that case we would want to handle them much like we handle the annotations added non-invasively to navnodes during menu creation.
+
+See navnodes.py for a lot more documentation.

@@ -168,6 +168,9 @@ class MewloSite(object):
         # nav nodes
         self.navnodes.startup(self, eventlist)
 
+        # intermed databasemanager stuff
+        self.dbmanager.makedbtables()
+
         # package settings -- these are persistent and let packages (extensions/plugins) store persistent settings
         self.packagesettings.startup(self, eventlist)
 
@@ -182,6 +185,11 @@ class MewloSite(object):
 
         # log all startup events
         self.logevents(eventlist)
+
+
+        # final databasemanager stuff
+        self.dbmanager.makedbtables()
+
 
         # update state
         self.set_state(MewloSettings.DEF_SITESTATE_STARTUP_END)
