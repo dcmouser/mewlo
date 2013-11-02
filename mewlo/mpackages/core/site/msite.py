@@ -158,7 +158,7 @@ class MewloSite(object):
         # we need to create some classes very early so that plugins can access them
         self.create_early_database_classes(eventlist)
         # and to create the tables for them, etc.
-        self.dbmanager.create_fieldsandrelations_forallmodelclasses()
+        self.dbmanager.create_tableandmapper_forallmodelclasses()
 
         # log system
         self.logmanager.startup(self, eventlist)
@@ -181,7 +181,7 @@ class MewloSite(object):
         # Now we are ready to create the rest of the core database classes
         self.create_core_database_classes(eventlist)
         # and to create the tables for them, etc.
-        self.dbmanager.create_fieldsandrelations_forallmodelclasses()
+        self.dbmanager.create_tableandmapper_forallmodelclasses()
 
         # templater
         self.templates.startup(self, eventlist)

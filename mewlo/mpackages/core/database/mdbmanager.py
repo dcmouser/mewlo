@@ -116,7 +116,6 @@ class MewloDatabaseManager(object):
             tablename=targetclass.__name__
         # set table info
         targetclass.override_dbnames(tablename, schemaname)
-
         # and return it
         return targetclass
 
@@ -148,71 +147,56 @@ class MewloDatabaseManager(object):
 
 
 
-    def create_fieldsandrelations_forallmodelclasses(self):
+    def create_tableandmapper_forallmodelclasses(self):
         """We are ready to create all fields, THEN all relationships, for known model classes."""
-        # ATTN: because create_fields is creating new models, we need to call this multiple times; fix this!
-        self.create_fields_forallmodelclasses()
-        self.create_relations_forallmodelclasses()
-        # ATTN: inefficient test
+        # ATTN: because create_table is creating new models, we need to call this multiple times; fix this!
+        self.create_table_forallmodelclasses()
+        self.create_mapper_forallmodelclasses()
+        # now ask db engine to actually BUILD all tables for all models
         self.makedbtables()
 
 
 
 
-    def create_fields_forallmodelclasses(self):
+    def create_table_forallmodelclasses(self):
         """Create fields for all registered model classes (that haven't already been created)."""
         for key in self.modelclasses.keys():
             # map database fields for it
             modelclass = self.modelclasses[key]
-            self.create_fields_formodelclass(modelclass)
+            self.create_table_formodelclass(modelclass)
 
 
-    def create_relations_forallmodelclasses(self):
+    def create_mapper_forallmodelclasses(self):
         """Create relationships for all registered model classes (that haven't already been created)."""
         for key in self.modelclasses.keys():
             # map database fields for it
             modelclass = self.modelclasses[key]
-            self.create_relations_formodelclass(modelclass)
+            self.create_mapper_formodelclass(modelclass)
 
 
 
-    def create_fields_formodelclass(self, modelclass):
+    def create_table_formodelclass(self, modelclass):
         """Create the fields for this model."""
         if (isinstance(modelclass,basestring)):
             modelclass = self.modelclasses[modelclass]
-        modelclass.create_fields(self)
+        if (not modelclass.did_create_table):
+            # create the fields
+            modelclass.create_table(self)
+            # set flag saying its been done
+            modelclass.did_create_table = True
 
 
-    def create_relations_formodelclass(self, modelclass):
+    def create_mapper_formodelclass(self, modelclass):
         """Create the relationships for this model."""
         if (isinstance(modelclass,basestring)):
             modelclass = self.modelclasses[modelclass]
-        modelclass.create_relations(self)
+        if (not modelclass.did_create_mapper):
+            modelclass.create_mapper(self)
+            # set flag saying its been done
+            modelclass.did_create_mapper = True
 
 
 
-    def createfields_onbehalfof_model(self, modelclass):
-        """Temporary function."""
-        pass
-
-    def create_relations_onbehalfof_model(self, modelclass):
-        """Temporary function."""
-        pass
-
-
-
-
-
-
-    # REMOVE?
-
-
-    def earlycreate_formodelclasslist(self, modelclasslist):
-        """We may occasionally need to do early creation of some model class(es); like log classes, before system is ready to start."""
-        for modelclass in modelclasslist:
-            self.create_fields_formodelclass(modelclass)
-        for modelclass in modelclasslist:
-            self.create_relatoionships_formodelclass(modelclass)
 
 
 

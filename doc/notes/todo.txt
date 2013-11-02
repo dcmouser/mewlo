@@ -64,3 +64,10 @@ decide how to handle url ? args
 
 
 mixins as root props or as independent table object
+
+
+
+//---------------------------------------------------------------------------
+11/2/13
+move log queuing code to base logtarget from logtarget_database
+//---------------------------------------------------------------------------

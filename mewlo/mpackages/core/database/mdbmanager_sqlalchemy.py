@@ -340,57 +340,11 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-
-
-
-
-
-
-
-
-    # refactor below
-
-
-
-
-
-
-
-    def create_fields_onbehalfof_model(self, modelclass):
-        """Temporary function."""
-        modelclass.definedb(self)
-        # now get fields
-        fieldlist = modelclass.get_fieldlist()
-        # now convert the fields to sqlalchemy columns
-        sqlalchemycolumns = self.convert_dbfields_to_sqlalchemy_columns(fieldlist, modelclass)
-        # ok now create an sqlalchemy Table object from columns
-        dbtablename = modelclass.get_dbtablename()
-        dbschemaname = modelclass.get_dbschemaname()
-        sqlahelper = self.get_sqlahelper(dbschemaname)
-        metadata = sqlahelper.getmake_metadata()
-        # build table object and save it
-        #print "Tablename for modelclass is '{0}'.".format(dbtablename)
-        #print "SQLALCHEMY COLUMNS IS: "+str(sqlalchemycolumns)
-        modeltable = sqlalchemy.Table(dbtablename, metadata, *sqlalchemycolumns)
-        # store/cache some of the object references in the class itself
-        modelclass.setclass_dbinfo(modeltable, sqlahelper, self)
-        #print "DEBUG: createfields_onbehalfof_model {0}: ".format(modelclass.__name__)+str(sqlalchemycolumns)
-
-
-    def create_relations_onbehalfof_model(self, modelclass):
-        """Temporary function."""
-        # now get fields
-        fieldlist = modelclass.get_fieldlist()
-        modeltable = modelclass.get_dbsqlatable()
-        mapproperties = self.convert_dbfields_to_sqlalchemy_mapperproperties(fieldlist, modelclass)
-        #print "DEBUG: create_relationships_onbehalfof_model {0}: ".format(modelclass.__name__)+str(mapproperties)
-        sqlalchemy.orm.mapper(modelclass, modeltable, properties=mapproperties)
-
-
-
-
-
     def makedbtables(self):
+        """
+        Ask sqlalchemy to build the actual tables for the models that have been created so-far.
+        NOTE: we may call this more than once; once initially for some early models we need, and then later after startup completes.
+        """
         for idname in self.alchemyhelpers.keys():
             self.alchemyhelpers[idname].makedbtable()
 
@@ -398,73 +352,6 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-
-
-
-
-    def map_modelclass_UNUSED(self, modelclass):
-        """Map the model class to the database."""
-        # first tell the class to define it's fields
-        #print "BEGIN MAPPING MODELCLASS FOR "+modelclass.__name__
-        modelclass.definedb(self)
-        # now let modelclass have a chance to pre-create any sub-db-models
-        modelclass.create_subclasses(self)
-        # now get fields
-        fieldlist = modelclass.get_fieldlist()
-        # now convert the fields to sqlalchemy columns
-        sqlalchemycolumns = self.convert_dbfields_to_sqlalchemy_columns(fieldlist, modelclass)
-        mapproperties = self.convert_dbfields_to_sqlalchemy_mapperproperties(fieldlist, modelclass)
-        # ok now create an sqlalchemy Table object from columns
-        dbtablename = modelclass.get_dbtablename()
-        dbschemaname = modelclass.get_dbschemaname()
-        sqlahelper = self.get_sqlahelper(dbschemaname)
-        metadata = sqlahelper.getmake_metadata()
-        # build table object and save it
-        #print "Tablename for modelclass is '{0}'.".format(dbtablename)
-        #print "SQLALCHEMY COLUMNS IS: "+str(sqlalchemycolumns)
-        modeltable = sqlalchemy.Table(dbtablename, metadata, *sqlalchemycolumns)
-        # store/cache some of the object references in the class itself
-        modelclass.setclass_dbinfo(modeltable, sqlahelper, self)
-        #print "MODELTABLE IN MAP_ IS "+str(modeltable)
-        # now ask sqlalchemy to map the class and table together, the key part of using sqlalchemy ORM
-        sqlalchemy.orm.mapper(modelclass, modeltable, properties=mapproperties)
-        #
-        #print "END MAPPING MODELCLASS FOR "+modelclass.__name__
-
-
-
-
-
-
-
-
-
-
-    def convert_dbfields_to_sqlalchemy_columns(self, fields, modelclass):
-        """
-        Given a list of our internal fields, build sqlalchemy columns.
-        """
-        allcolumns = []
-        for field in fields:
-            columns = field.convert_to_sqlalchemy_columns()
-            if (columns!=None):
-                allcolumns.extend(columns)
-        return allcolumns
-
-
-
-
-    def convert_dbfields_to_sqlalchemy_mapperproperties(self, fields, modelclass):
-        """
-        Given a list of our internal fields, build sqlalchemy mapper properties.
-        """
-        allprops = {}
-        #
-        for field in fields:
-            props = field.convert_to_sqlalchemy_mapperproperties()
-            if (props!=None):
-                allprops.update(props)
-        return allprops
 
 
 

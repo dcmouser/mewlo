@@ -13,6 +13,10 @@ import mdbfield
 # python imports
 import pickle
 
+# library imports
+import sqlalchemy
+import sqlalchemy.orm
+
 
 
 
@@ -29,8 +33,8 @@ class MewloDbModel(object):
     dbsqlahelper = None
     dbmanager = None
     #
-    did_register_fields = False
-    did_register_relations = False
+    did_create_table = False
+    did_create_mapper = False
     #
     fieldlist = []
     fieldhash = {}
@@ -74,10 +78,21 @@ class MewloDbModel(object):
 
 
 
+
+
+
     @classmethod
     def dbm(cls):
         """Shortcut to get info from class object."""
         return cls.dbmanager
+
+
+
+
+
+
+
+
 
     @classmethod
     def dbsession(cls):
@@ -102,18 +117,24 @@ class MewloDbModel(object):
         cls.dbmanager = dbmanager
 
     @classmethod
+    def get_dbsqlatable(cls):
+        return cls.dbsqlatable
+
+    @classmethod
     def override_dbnames(cls, tablename, schemaname):
         cls.dbtablename = tablename
         cls.dbschemaname = schemaname
+
+
+
+
+
 
     @classmethod
     def get_fieldlist(cls):
         """Return the database fields."""
         return cls.fieldlist
 
-    @classmethod
-    def get_dbsqlatable(cls):
-        return cls.dbsqlatable
 
     @classmethod
     def hash_fieldlist(cls, fieldlist):
@@ -166,7 +187,27 @@ class MewloDbModel(object):
     @classmethod
     def get_readytodb(cls):
         """Return True if this class is ready to access the database (fields have been created, etc.)."""
-        return cls.did_register_fields
+        return cls.did_create_table
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -174,24 +215,108 @@ class MewloDbModel(object):
     @classmethod
     def create_helper_modelclasses(cls, dbmanager):
         """Create and register with the dbmanager any model classes that this class uses as helpers."""
+        # nothing to do in base class
         pass
 
 
-    @classmethod
-    def create_fields(cls, dbmanager):
-        #print "TESTDEBUG: create_fields for "+cls.__name__
-        if (cls.did_register_fields):
-            return
-        cls.did_register_fields = True
-        dbmanager.create_fields_onbehalfof_model(cls)
 
 
     @classmethod
-    def create_relations(cls, dbmanager):
-        if (cls.did_register_relations):
-            return
-        cls.did_register_relations = True
-        dbmanager.create_relations_onbehalfof_model(cls)
+    def create_table(cls, dbmanager):
+        """Default way of creating sql alchemy columns for model."""
+
+        # ask model to define its internal fields
+        cls.definedb(dbmanager)
+
+        # get the sqlahelper for this schema (usually default one shared by all models), plus some info
+        dbtablename = cls.get_dbtablename()
+        dbschemaname = cls.get_dbschemaname()
+        sqlahelper = dbmanager.get_sqlahelper(dbschemaname)
+        metadata = sqlahelper.getmake_metadata()
+
+        # build sqlalchemy columns from fields
+        sqlalchemycolumns = cls.create_sqlalchemy_columns_from_dbfields()
+
+        # tell sqlalchemy to build table object from columns
+        modeltable = sqlalchemy.Table(dbtablename, metadata, *sqlalchemycolumns)
+
+        # and store the table and other object references in the class itself
+        cls.setclass_dbinfo(modeltable, sqlahelper, dbmanager)
+
+        # debug info
+        #print "DEBUG: createfields_onbehalfof_model {0}: ".format(modelclass.__name__)+str(sqlalchemycolumns)
+
+
+
+
+    @classmethod
+    def create_mapper(cls, dbmanager):
+        """Default way of creating sql alchemy mapper and relations for model."""
+
+        # get previously built modeltable
+        modeltable = cls.get_dbsqlatable()
+
+        # build sqlalchemy mapper properties from fields
+        mapproperties = cls.create_sqlalchemy_mapperproperties_from_dbfields()
+
+        # tell sqlalchemy to build mapper
+        sqlalchemy.orm.mapper(cls, modeltable, properties=mapproperties)
+
+        # debug info
+        #print "DEBUG: create_mapperhips_onbehalfof_model {0}: ".format(modelclass.__name__)+str(mapproperties)
+
+
+
+
+
+
+
+    @classmethod
+    def create_sqlalchemy_columns_from_dbfields(cls):
+        """
+        Given a list of our internal fields, build sqlalchemy columns.
+        """
+        allcolumns = []
+        for field in cls.fieldlist:
+            columns = field.create_sqlalchemy_columns(cls)
+            field.set_sqlacolumns(columns)
+            if (columns!=None):
+                allcolumns.extend(columns)
+        return allcolumns
+
+
+    @classmethod
+    def create_sqlalchemy_mapperproperties_from_dbfields(cls):
+        """
+        Given a list of our internal fields, build sqlalchemy mapper properties.
+        """
+        allprops = {}
+        #
+        for field in cls.fieldlist:
+            props = field.create_sqlalchemy_mapperproperties(cls)
+            if (props!=None):
+                allprops.update(props)
+        return allprops
+
+
+
+
+    @classmethod
+    def lookup_sqlacolumnlist_for_field(cls, fieldid):
+        """Try to find the list of sqlacolumns associated with a field."""
+        for field in cls.fieldlist:
+            if (field.id==fieldid):
+                return field.sqlacolumns
+        return None
+
+
+
+
+
+
+
+
+
 
 
 
