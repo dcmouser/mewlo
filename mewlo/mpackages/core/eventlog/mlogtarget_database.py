@@ -38,6 +38,7 @@ class MewloLogTarget_Database(MewloLogTarget):
         # create the logging class we will use for this table
         customclassname = self.baseclass.__name__ + '_' + self.tablename
         dbmanager = mglobals.db()
+        # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
         self.logclass = dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
         # now register it
         dbmanager.register_modelclass(self, self.logclass)
@@ -48,7 +49,13 @@ class MewloLogTarget_Database(MewloLogTarget):
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
         super(MewloLogTarget_Database,self).shutdown()
+        # shutdown any pending queue
+        self.flushqueue()
 
+
+    def readytosave(self):
+        """Before we can save items we need to be started up AND the base class used for logging needs to have been registered."""
+        return (self.get_startedup() and self.logclass!=None and self.logclass.get_readytodb())
 
 
     def process(self, logmessage, flag_isfromqueue):
@@ -56,8 +63,9 @@ class MewloLogTarget_Database(MewloLogTarget):
         Called by logger parent to actually do the work.
         We overide this in our subclass to do actual work.
         """
-        if (not self.get_startedup()):
+        if (not self.readytosave()):
             # we aren't ready to start logging yet
+            #print ("QUEUING message is not ready to write to db: "+str(logmessage))
             if (not flag_isfromqueue):
                 self.queuelog(logmessage)
             return 0
@@ -85,7 +93,7 @@ class MewloLogTarget_Database(MewloLogTarget):
         # we must disable sqlalchemy logging while we do this or it will recurse
         mglobals.db().sqlalchemydebuglevel_temporarydisable()
 
-        #print ("ATTN:DEBUG - Logging message: "+str(logmessage))
+        #print ("ATTN:DEBUG - WRITING Log message: "+str(logmessage))
 
         # build a modelobj for the log message
         modelobj = self.logclass.new()

@@ -6,8 +6,9 @@ The MewloDbField class handles one column of a model.
 """
 
 
-# helper imports
+# mewlo imports
 from ..helpers.misc import get_value_from_dict
+
 
 # python imports
 
@@ -28,6 +29,12 @@ class MewloDbField(object):
         self.id = id
         self.properties = properties
 
+    def convert_to_sqlalchemy_columns(self):
+        """Convert field to sqlalchemy column."""
+        return None
+    def convert_to_sqlalchemy_mapperproperties(self):
+        """Convert field to sqlalchemy column."""
+        return None
 
 
 
@@ -41,9 +48,9 @@ class DbfPrimaryId(MewloDbField):
         # call parent function
         super(DbfPrimaryId, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.Integer, primary_key=True)], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.Integer, primary_key=True)]
 
 
 
@@ -55,9 +62,9 @@ class DbfUniqueKeyname(MewloDbField):
         # call parent function
         super(DbfUniqueKeyname, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.String(64), unique = True)], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(64), unique = True)]
 
 
 
@@ -69,9 +76,9 @@ class DbfSerialized(MewloDbField):
         # call parent function
         super(DbfSerialized, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.Text())], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.Text())]
 
 
 
@@ -83,9 +90,9 @@ class DbfText(MewloDbField):
         # call parent function
         super(DbfText, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.Text())], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.Text())]
 
 
 
@@ -96,9 +103,9 @@ class DbfString(MewloDbField):
         # call parent function
         super(DbfString, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))]
 
 
 
@@ -109,9 +116,9 @@ class DbfInteger(MewloDbField):
         # call parent function
         super(DbfInteger, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.Integer)], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.Integer)]
 
 
 
@@ -122,9 +129,9 @@ class DbfEnum(MewloDbField):
         # call parent function
         super(DbfEnum, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.Integer)], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.Integer)]
 
 
 
@@ -135,9 +142,9 @@ class DbfBigInteger(MewloDbField):
         # call parent function
         super(DbfBigInteger, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.BigInteger)], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.BigInteger)]
 
 
 class DbfFloat(MewloDbField):
@@ -147,9 +154,9 @@ class DbfFloat(MewloDbField):
         # call parent function
         super(DbfFloat, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.Float)], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.Float)]
 
 class DbfTimestamp(MewloDbField):
     """Timestamp field."""
@@ -158,9 +165,9 @@ class DbfTimestamp(MewloDbField):
         # call parent function
         super(DbfTimestamp, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.Float)], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.Float)]
 
 
 
@@ -173,9 +180,9 @@ class DbfBoolean(MewloDbField):
         # call parent function
         super(DbfBoolean, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.Boolean)], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.Boolean)]
 
 
 
@@ -188,9 +195,13 @@ class DbfForeignUserId(MewloDbField):
         # call parent function
         super(DbfForeignUserId, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.Integer)], None)
+        from ..user import muser
+        referenceclass = muser.MewloUser
+        fkeyfieldname = 'id'
+        fkeyname = referenceclass.get_dbtablename() + '.' + fkeyfieldname
+        return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(fkeyname))]
 
 
 
@@ -201,9 +212,9 @@ class DbfUserIp(MewloDbField):
         # call parent function
         super(DbfUserIp, self).__init__(id, properties)
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return ([sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',32)))], None)
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',32)))]
 
 
 
@@ -226,15 +237,26 @@ class Dbf1toN_Left(MewloDbField):
         super(Dbf1toN_Left, self).__init__(id, properties)
         self.flag_to1 = flag_to1
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_mapperproperties(self):
         """Convert field to sqlalchemy column."""
         # we dont use a column but a relation
         referenceclass = self.properties['referenceclass']
         referencefieldname = self.id
+        backrefname = self.properties['backrefname']
+        foreignkeyname = self.properties['foreignkeyname']
+        #primaryjoin = "{0}.id=={1}".format(backrefname,foreignkeyname)
         propdict = {
-            referencefieldname:sqlalchemy.orm.relation(referenceclass, uselist=not self.flag_to1)
+#            referencefieldname:sqlalchemy.orm.relation(referenceclass, uselist=not self.flag_to1, backref=backrefname, foreign_keys=[referenceclass.id])
+
+
+#            referencefieldname:sqlalchemy.orm.relation(referenceclass, uselist=not self.flag_to1, backref=backrefname)
+#            referencefieldname:sqlalchemy.orm.relation(referenceclass, uselist=not self.flag_to1, backref=backrefname, foreign_keys=[sqlalchemy.ForeignKey(foreignkeyname)])
+#            referencefieldname:sqlalchemy.orm.relation(referenceclass, uselist=not self.flag_to1, backref=backrefname, foreign_keys=[referenceclass.id])
+
+            #referencefieldname:sqlalchemy.orm.relation(referenceclass, uselist=not self.flag_to1, backref=backrefname, primaryjoin=primaryjoin)
+#, foreign_keys="[Customer.billing_address_id]"
             }
-        return (None, propdict)
+        return propdict
 
 
 class Dbf1toN_Right(MewloDbField):
@@ -245,14 +267,14 @@ class Dbf1toN_Right(MewloDbField):
         super(Dbf1toN_Right, self).__init__(id, properties)
         self.flag_to1 = flag_to1
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
         # build a foreign key to the left hand table
         referenceclass = self.properties['referenceclass']
         fkeyfieldname = 'id'
         fkeyname = referenceclass.get_dbtablename() + '.' + fkeyfieldname
-        acolumns = [sqlalchemy.Column(self.id, sqlalchemy.Integer, sqlalchemy.ForeignKey(fkeyname))]
-        return (acolumns, None)
+        return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(fkeyname))]
+
 
 
 
@@ -278,25 +300,6 @@ class Dbf1to1_Right(Dbf1toN_Right):
 
 
 
-class DbfNtoM(MewloDbField):
-    """Relationship field."""
-    def __init__(self, id, properties={}):
-        """Constructor."""
-        # call parent function
-        super(DbfNtoM, self).__init__(id, properties)
-
-    def convert_to_sqlalchemy_columnprops(self):
-        """Convert field to sqlalchemy column."""
-        # ATTN: unfinished
-        return (None, None)
-
-
-
-
-
-
-
-
 
 
 
@@ -311,6 +314,6 @@ class DbfSqla(MewloDbField):
         # record passed in sqlacolumn
         self.sqlacolumn = sqlacolumn
 
-    def convert_to_sqlalchemy_columnprops(self):
+    def convert_to_sqlalchemy_columns(self):
         """Convert field to sqlalchemy column."""
-        return (self.sqlacolumn, None)
+        return [self.sqlacolumn]

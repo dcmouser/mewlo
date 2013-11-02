@@ -22,7 +22,7 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
     """Database model where each row is a serialized dictioary setting."""
 
     # class variables
-    dbtablename = 'base_log_overide_this_via_create_derived_dbmodelclass'
+    dbtablename = 'log'
     dbschemaname = 'default'
     # log fields to ignore
     ignored_logfields = []
@@ -54,7 +54,7 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
     def map_dict_to_properties(self, dict):
         """Store dictionary 'dict' into the object's existing defined fields, and any fields that don't match, serialize into serialized_fields."""
         extrafields = {}
-        fieldids = self.fielddict.keys()
+        fieldids = self.fieldhash.keys()
         # walk properties in dictionary and set object properties and extrafields dictionary
         for key in dict.keys():
             if (key in fieldids):
@@ -108,5 +108,5 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
                 }),
             ]
 
-        cls.register_fieldlist(fieldlist)
+        cls.hash_fieldlist(fieldlist)
 

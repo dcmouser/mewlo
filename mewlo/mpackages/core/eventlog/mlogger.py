@@ -261,7 +261,8 @@ class MewloLogTarget(object):
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
         self.flushqueue()
-        pass
+        # clear started up flag so people know we can't write to it anymore
+        self.startedup = False
 
 
     def set_logformatter(self, logformatter):

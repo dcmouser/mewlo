@@ -101,3 +101,27 @@ But this may be untenable, and it may make more sense to let the MODELS be sql-a
 10/13/13
 Refactor the settings class so that we dont need to INTERCEPT normal settings functions, but use pre/post op functions
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+10/31/13
+We are waiting to call metadata create tables as late as possible in site build, but we need them for some earlier stuff (package settings)
+We need a cleaner way of database table creation.
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+10/31/13
+the sqlalchemy column creation stuff is still awkward.
+we need a better workflow that will allow us to dynamically add relations and columns to models
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+10/31/12
+sql alchemy stuff is done in a way that makes it hard to refer to sql alchemy columns
+creation order of tables and relationships is problematic.
+//---------------------------------------------------------------------------

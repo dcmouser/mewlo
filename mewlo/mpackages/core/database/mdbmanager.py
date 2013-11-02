@@ -4,9 +4,7 @@ This module contains Mewlo database manager class.
 """
 
 # mewlo imports
-import mdbmodel_settings
-from ..setting.msettings import MewloSettings
-from ..user import muser
+
 
 
 
@@ -15,31 +13,18 @@ class MewloDatabaseManager(object):
 
     def __init__(self):
         self.databasesettings = {}
-
+        self.modelclasses = {}
 
     def startup(self, mewlosite, eventlist):
         self.mewlosite = mewlosite
 
     def shutdown(self):
-        pass
+        """Shutdwn the database.
+        Before we do, we flush it to save any pending saves."""
+        self.flush_all_dbs()
 
 
 
-
-    def startup_database_stuff(self, eventlist):
-        """Setup some database classes.
-        ATTN: We may want to move this elsewhere eventually.
-        """
-        # now core database objects
-        newclass = self.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
-        self.register_modelclass(self, newclass)
-
-        # ATTN: Again, we should probably move this stuff elsewhere
-        newclass = self.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
-        self.register_modelclass(self, newclass)
-        # more
-        self.register_modelclass(self, muser.MewloUser)
-        #self.create_derived_dbmodelclass(self, muser.MewloUser)
 
 
     def makedbtables(self):
@@ -71,20 +56,17 @@ class MewloDatabaseManager(object):
         """Do stuff before processing a request."""
         pass
 
-
     def process_request_ends(self, request):
         """Do stuff before processing a request."""
         self.flushdb_on_request_ends()
-
-
-
-
 
     def flushdb_on_request_ends(self):
         """Nothing to do in base class."""
         pass
 
-
+    def flush_all_dbs(self):
+        """Nothing to do in base class."""
+        pass
 
 
 
@@ -121,6 +103,7 @@ class MewloDatabaseManager(object):
         """
         Create a new *CLASS* based on another model class, with a custom classname and tablename.
         We only need to use this when we want to dynamically create multiple tables based from the same base model class.
+        NOTE: This function does *not* register the class and define its database fields.
         """
         # create the new class
         if (classname==None):
@@ -132,31 +115,104 @@ class MewloDatabaseManager(object):
         if (tablename==None):
             tablename=targetclass.__name__
         # set table info
-        targetclass.set_dbnames(tablename, schemaname)
-
-        # NOTE: it's not registered yet!
+        targetclass.override_dbnames(tablename, schemaname)
 
         # and return it
         return targetclass
 
 
+
+
+
+
+
+
+
+
     def register_modelclass(self, owner, modelclass):
-        """Register a model class with component system and create database mapper stuff."""
-        # map database fields for it
-        self.map_modelclass(modelclass)
-        # register it with the registry
-        self.mewlosite.registry.register_class(owner, modelclass)
+        """Register a datbase model class.
+        Note that in doing this, we do not yet create columns and fields for it, we are simply telling the database manager it exists.
+        The one tricky thing is we may be called
+        """
+        # register it internally
+        # ask model to create and register any helper classes
+        modelclass.create_helper_modelclasses(self)
+        # now add it to registry if its not already
+        if (modelclass not in self.modelclasses):
+            self.modelclasses[modelclass.__name__] = modelclass
+            # register it with the registry
+            self.mewlosite.registry.register_class(owner, modelclass)
+        # success
         return None
 
 
 
-    def map_modelclass(self, modelclass):
-        """Map the model class to the database; this is a derived function that subclass will implement."""
+
+    def create_fieldsandrelations_forallmodelclasses(self):
+        """We are ready to create all fields, THEN all relationships, for known model classes."""
+        # ATTN: because create_fields is creating new models, we need to call this multiple times; fix this!
+        self.create_fields_forallmodelclasses()
+        self.create_relations_forallmodelclasses()
+        # ATTN: inefficient test
+        self.makedbtables()
+
+
+
+
+    def create_fields_forallmodelclasses(self):
+        """Create fields for all registered model classes (that haven't already been created)."""
+        for key in self.modelclasses.keys():
+            # map database fields for it
+            modelclass = self.modelclasses[key]
+            self.create_fields_formodelclass(modelclass)
+
+
+    def create_relations_forallmodelclasses(self):
+        """Create relationships for all registered model classes (that haven't already been created)."""
+        for key in self.modelclasses.keys():
+            # map database fields for it
+            modelclass = self.modelclasses[key]
+            self.create_relations_formodelclass(modelclass)
+
+
+
+    def create_fields_formodelclass(self, modelclass):
+        """Create the fields for this model."""
+        if (isinstance(modelclass,basestring)):
+            modelclass = self.modelclasses[modelclass]
+        modelclass.create_fields(self)
+
+
+    def create_relations_formodelclass(self, modelclass):
+        """Create the relationships for this model."""
+        if (isinstance(modelclass,basestring)):
+            modelclass = self.modelclasses[modelclass]
+        modelclass.create_relations(self)
+
+
+
+    def createfields_onbehalfof_model(self, modelclass):
+        """Temporary function."""
+        pass
+
+    def create_relations_onbehalfof_model(self, modelclass):
+        """Temporary function."""
         pass
 
 
 
 
+
+
+    # REMOVE?
+
+
+    def earlycreate_formodelclasslist(self, modelclasslist):
+        """We may occasionally need to do early creation of some model class(es); like log classes, before system is ready to start."""
+        for modelclass in modelclasslist:
+            self.create_fields_formodelclass(modelclass)
+        for modelclass in modelclasslist:
+            self.create_relatoionships_formodelclass(modelclass)
 
 
 

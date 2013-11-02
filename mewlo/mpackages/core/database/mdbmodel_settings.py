@@ -76,5 +76,5 @@ class MewloDbModel_Settings(mdbmodel.MewloDbModel):
                 'label': "The serialzed text version of the dictionary/array data being stored"
                 })
             ]
-        cls.register_fieldlist(fieldlist)
+        cls.hash_fieldlist(fieldlist)
 

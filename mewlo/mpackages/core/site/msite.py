@@ -14,6 +14,7 @@ from ..registry import mregistry
 from ..setting.msettings import MewloSettings
 from ..database import mdbsettings
 from ..database import mdbmanager_sqlalchemy
+from ..database import mdbmodel_settings
 from ..navnode import mnav
 from ..template import mtemplate
 from ..template import mtemplatehelper
@@ -24,7 +25,7 @@ from ..eventlog.mlogger import MewloLogger
 from ..eventlog.mlogtarget_file import MewloLogTarget_File
 from ..helpers.misc import get_value_from_dict
 from ..helpers.misc import resolve_expand_string
-
+from ..user import muser
 
 # python imports
 import os
@@ -154,7 +155,10 @@ class MewloSite(object):
 
         # database manager
         self.dbmanager.startup(self, eventlist)
-        self.dbmanager.startup_database_stuff(eventlist)
+        # we need to create some classes very early so that plugins can access them
+        self.create_early_database_classes(eventlist)
+        # and to create the tables for them, etc.
+        self.dbmanager.create_fieldsandrelations_forallmodelclasses()
 
         # log system
         self.logmanager.startup(self, eventlist)
@@ -168,14 +172,16 @@ class MewloSite(object):
         # nav nodes
         self.navnodes.startup(self, eventlist)
 
-        # intermed databasemanager stuff
-        self.dbmanager.makedbtables()
-
         # package settings -- these are persistent and let packages (extensions/plugins) store persistent settings
         self.packagesettings.startup(self, eventlist)
 
         # packages (will load and instantiate enabled packages)
         self.packagemanager.startup(self, eventlist)
+
+        # Now we are ready to create the rest of the core database classes
+        self.create_core_database_classes(eventlist)
+        # and to create the tables for them, etc.
+        self.dbmanager.create_fieldsandrelations_forallmodelclasses()
 
         # templater
         self.templates.startup(self, eventlist)
@@ -185,11 +191,6 @@ class MewloSite(object):
 
         # log all startup events
         self.logevents(eventlist)
-
-
-        # final databasemanager stuff
-        self.dbmanager.makedbtables()
-
 
         # update state
         self.set_state(MewloSettings.DEF_SITESTATE_STARTUP_END)
@@ -233,18 +234,17 @@ class MewloSite(object):
         # registry
         self.registry.shutdown()
 
-        # database manager
-        self.dbmanager.shutdown()
-
         # template helper
         self.templatehelper.shutdown()
-
 
         # update state
         self.set_state(MewloSettings.DEF_SITESTATE_SHUTDOWN_END)
 
         #  log system
         self.logmanager.shutdown()
+
+        # database manager
+        self.dbmanager.shutdown()
 
         # done
         return eventlist
@@ -272,7 +272,11 @@ class MewloSite(object):
 
 
 
-
+    def ensure_earlydatabasemodels_mapped(self):
+        """Some database models must be defined in early startup."""
+        #modelclasslist = []
+        #self.dbmanager.earlycreate_formodelclasslist(modelclasslist)
+        pass
 
 
 
@@ -589,9 +593,30 @@ class MewloSite(object):
 
 
 
+    def create_early_database_classes(self, eventlist):
+        """Setup some database classes.
+        ATTN: We may want to move this elsewhere eventually.
+        """
+        # create some really early database model classes that must exist prior to other early stuff
+        # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
+        dbmanager = self.dbmanager
+        newclass = dbmanager.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
+        dbmanager.register_modelclass(self, newclass)
+        newclass = self.dbmanager.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
+        dbmanager.register_modelclass(self, newclass)
 
 
 
+
+    def create_core_database_classes(self, eventlist):
+        """Setup some database classes.
+        ATTN: We may want to move this elsewhere eventually.
+        """
+        # create some core database model classes
+        dbmanager = self.dbmanager
+        # ATTN: Again, we should do this elsewhere: create MewloUser class
+        # NOTE: We do NOT use create_derived_dvmodelclass() as above since we are not dynamically creating a new class on the fly
+        dbmanager.register_modelclass(self, muser.MewloUser)
 
 
 
