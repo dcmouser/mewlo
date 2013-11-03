@@ -100,8 +100,9 @@ class MewloLogTarget_File(MewloLogTarget):
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
-        self.closefile_ifopen()
+        # important that we call super first so it can do a queue flush before we close file
         super(MewloLogTarget_File,self).shutdown()
+        self.closefile_ifopen()
 
 
     def get_nicelabel(self):

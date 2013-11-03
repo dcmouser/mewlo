@@ -279,6 +279,8 @@ class MewloDbModel(object):
         allcolumns = []
         for field in cls.fieldlist:
             columns = field.create_sqlalchemy_columns(cls)
+            # IMPORTANT - we need to save the sqla columns associated with a field, so that callers can look them up if they need to later
+            # this is done for example when creating relations between tables when we need to specify foreign_keys parameter
             field.set_sqlacolumns(columns)
             if (columns!=None):
                 allcolumns.extend(columns)

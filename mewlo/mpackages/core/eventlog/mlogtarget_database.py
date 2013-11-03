@@ -49,11 +49,9 @@ class MewloLogTarget_Database(MewloLogTarget):
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
         super(MewloLogTarget_Database,self).shutdown()
-        # shutdown any pending queue
-        self.flushqueue()
 
 
-    def readytosave(self):
+    def readytowrite(self):
         """Before we can save items we need to be started up AND the base class used for logging needs to have been registered."""
         return (self.get_startedup() and self.logclass!=None and self.logclass.get_readytodb())
 
@@ -63,12 +61,6 @@ class MewloLogTarget_Database(MewloLogTarget):
         Called by logger parent to actually do the work.
         We overide this in our subclass to do actual work.
         """
-        if (not self.readytosave()):
-            # we aren't ready to start logging yet
-            #print ("QUEUING message is not ready to write to db: "+str(logmessage))
-            if (not flag_isfromqueue):
-                self.queuelog(logmessage)
-            return 0
 
         # sqlalchemy does NOT like us trying to db log it's own messages while in the middle of debugging
         if ('source' in logmessage.fields):

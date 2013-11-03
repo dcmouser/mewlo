@@ -265,6 +265,11 @@ class MewloLogTarget(object):
         self.startedup = False
 
 
+    def readytowrite(self):
+        """Are we ready to write out stuff?"""
+        return self.get_startedup()
+
+
     def set_logformatter(self, logformatter):
         self.logformatter = logformatter
 
@@ -289,11 +294,18 @@ class MewloLogTarget(object):
 
     def flushqueue(self):
         # process log queue
-        for logmessage in self.logqueue:
-            self.process(logmessage, True)
-        # clear it
-        self.logqueue = []
+        if (self.readytowrite()):
+            for logmessage in self.logqueue:
+                self.process(logmessage, True)
+            # clear it
+            self.logqueue = []
+        else:
+            # we cannot flush queue -- should we error about this?
+            if (len(self.logqueue)>0):
+                print "ATTN: ERROR: In flushqueue for log target {0} and there are {1} queued messages to write, but we are not ready to write, so nothing was done.".format(self,len(self.logqueue))
 
+    def get_queuelen(self):
+        return len(self.logqueue)
 
 
     def dumps(self, indent=0):
@@ -387,10 +399,22 @@ class MewloLogger(object):
     def run_targets(self, logmessage):
         """Run ALL registered targets on the message."""
         thiswrotecount = 0
+        #print "ATTN: in run_targets with "+str(logmessage)
         for target in self.targets:
+            #print "Considering target: "+str(target.get_nicelabel())
             if (target.get_isenabled()):
                 try:
-                    thiswrotecount += target.process(logmessage, False)
+                    if (target.readytowrite()):
+                        # target is ready to write -- but before we write we flush any pending queue
+                        if (target.get_queuelen()>0):
+                            target.flushqueue()
+                        # send new message
+                        thiswrotecount += target.process(logmessage, False)
+                        #print "Sent to "+str(target)
+                    else:
+                        # send it to target queue
+                        target.queuelog(logmessage)
+                        #print "queud to log"
                 except IOError as exp:
                     # first thing we need to do is disable this target, in case we get recursively called or decide to keep running
                     target.set_isenabled(False)
