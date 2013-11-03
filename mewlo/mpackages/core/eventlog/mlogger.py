@@ -308,6 +308,42 @@ class MewloLogTarget(object):
         return len(self.logqueue)
 
 
+
+
+    def process_or_queue(self, logmessage):
+        """Process a line if we are ready, or queue it if not."""
+        thiswrotecount = 0
+        try:
+            print "Considering target: "+str(self.get_nicelabel())+" with "+str(logmessage)
+            if (self.readytowrite()):
+                print "says ready to write."
+                # target is ready to write -- but before we write we flush any pending queue
+                if (self.get_queuelen()>0):
+                    self.flushqueue()
+                # send new message
+                thiswrotecount += self.process(logmessage, False)
+                #print "Sent to "+str(target)
+            else:
+                # send it to target queue
+                print "queing not ready to write."
+                self.queuelog(logmessage)
+                #print "queud to log"
+        except IOError as exp:
+            # first thing we need to do is disable this target, in case we get recursively called or decide to keep running
+            self.set_isenabled(False)
+            # ATTN: todo
+            # what should we do now? if we raise an exception here, we can't continue with the other targets
+            # the best thing to do might be to LOG the error here (or add it to error list) and continue
+            # raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception to provide extra info
+            # we probably wouldn't consider this a fatal error that should stop program from executing.
+            reraiseplus(exp, "Disabling the logger where the error occurred: ", obj=self)
+        # return items written
+        return thiswrotecount
+
+
+
+
+
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         logtargetlabel = self.get_nicelabel()
@@ -403,27 +439,7 @@ class MewloLogger(object):
         for target in self.targets:
             #print "Considering target: "+str(target.get_nicelabel())
             if (target.get_isenabled()):
-                try:
-                    if (target.readytowrite()):
-                        # target is ready to write -- but before we write we flush any pending queue
-                        if (target.get_queuelen()>0):
-                            target.flushqueue()
-                        # send new message
-                        thiswrotecount += target.process(logmessage, False)
-                        #print "Sent to "+str(target)
-                    else:
-                        # send it to target queue
-                        target.queuelog(logmessage)
-                        #print "queud to log"
-                except IOError as exp:
-                    # first thing we need to do is disable this target, in case we get recursively called or decide to keep running
-                    target.set_isenabled(False)
-                    # ATTN: todo
-                    # what should we do now? if we raise an exception here, we can't continue with the other targets
-                    # the best thing to do might be to LOG the error here (or add it to error list) and continue
-                    # raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception to provide extra info
-                    # we probably wouldn't consider this a fatal error that should stop program from executing.
-                    reraiseplus(exp, "Disabling the logger where the error occurred: ", obj=target)
+                thiswrotecount += target.process_or_queue(logmessage)
         return thiswrotecount
 
 

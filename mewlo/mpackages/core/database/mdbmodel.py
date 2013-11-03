@@ -35,6 +35,7 @@ class MewloDbModel(object):
     #
     did_create_table = False
     did_create_mapper = False
+    isreadytodb = False
     #
     fieldlist = []
     fieldhash = {}
@@ -185,10 +186,14 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def get_readytodb(cls):
+    def get_isreadytodb(cls):
         """Return True if this class is ready to access the database (fields have been created, etc.)."""
-        return cls.did_create_table
+        return cls.isreadytodb
 
+    @classmethod
+    def set_isreadytodb(cls, val):
+        """Return True if this class is ready to access the database (fields have been created, etc.)."""
+        cls.isreadytodb = val
 
 
 

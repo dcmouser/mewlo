@@ -53,7 +53,7 @@ class MewloLogTarget_Database(MewloLogTarget):
 
     def readytowrite(self):
         """Before we can save items we need to be started up AND the base class used for logging needs to have been registered."""
-        return (self.get_startedup() and self.logclass!=None and self.logclass.get_readytodb())
+        return (self.get_startedup() and self.logclass!=None and self.logclass.get_isreadytodb())
 
 
     def process(self, logmessage, flag_isfromqueue):

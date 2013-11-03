@@ -154,7 +154,8 @@ class MewloDatabaseManager(object):
         self.create_mapper_forallmodelclasses()
         # now ask db engine to actually BUILD all tables for all models
         self.makedbtables()
-
+        # mark models as ready to be used
+        self.set_isreadytodb_forallmodelclasses()
 
 
 
@@ -172,6 +173,14 @@ class MewloDatabaseManager(object):
             # map database fields for it
             modelclass = self.modelclasses[key]
             self.create_mapper_formodelclass(modelclass)
+
+
+    def set_isreadytodb_forallmodelclasses(self):
+        """Create relationships for all registered model classes (that haven't already been created)."""
+        for key in self.modelclasses.keys():
+            # map database fields for it
+            modelclass = self.modelclasses[key]
+            self.set_isreadytodb_formodelclass(modelclass)
 
 
 
@@ -196,7 +205,11 @@ class MewloDatabaseManager(object):
             modelclass.did_create_mapper = True
 
 
-
+    def set_isreadytodb_formodelclass(self, modelclass):
+        """Create the relationships for this model."""
+        if (isinstance(modelclass,basestring)):
+            modelclass = self.modelclasses[modelclass]
+        modelclass.set_isreadytodb(True)
 
 
 

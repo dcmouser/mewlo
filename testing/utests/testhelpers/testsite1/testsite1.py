@@ -71,6 +71,7 @@ class MewloSite_Test1(MewloSite):
         databaseconfig = {
             'settings' : {
                 'sqlalchemy_loglevel' : logging.NOTSET,
+                #'sqlalchemy_loglevel' : logging.INFO,
                 },
             'default' : {
                 'url' : 'sqlite:///${dbfilepath}/mewlo_testsite1.sqlite',
