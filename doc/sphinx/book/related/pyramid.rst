@@ -10,3 +10,10 @@ Pyramid/Pylons - Python framework (not cms).
 
 
 The relation between Pyramid and Pylons is a bit murky to me but I *think* pyramid is the new successor to pylons?
+
+
+ACL Stuff:
+
+    * http://docs.pylonsproject.org/projects/pyramid/en/1.0-branch/narr/security.html
+    * http://docs.pylonsproject.org/projects/pyramid/en/latest/tutorials/wiki2/authorization.html
+    * http://pyramid.chromaticleaves.com/simpleauth/

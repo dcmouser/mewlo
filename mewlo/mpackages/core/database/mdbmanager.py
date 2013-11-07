@@ -133,16 +133,19 @@ class MewloDatabaseManager(object):
         Note that in doing this, we do not yet create columns and fields for it, we are simply telling the database manager it exists.
         The one tricky thing is we may be called
         """
-        # register it internally
-        # ask model to create and register any helper classes
-        modelclass.create_helper_modelclasses(self)
-        # now add it to registry if its not already
+        # register it internally if its not already
         if (modelclass not in self.modelclasses):
+            # store it
             self.modelclasses[modelclass.__name__] = modelclass
             # register it with the registry
             self.mewlosite.registry.register_class(owner, modelclass)
+
         # success
         return None
+
+
+    def lookupclass(self, modelclassname):
+        return self.modelclasses[modelclassname]
 
 
 
@@ -150,6 +153,7 @@ class MewloDatabaseManager(object):
     def create_tableandmapper_forallmodelclasses(self):
         """We are ready to create all fields, THEN all relationships, for known model classes."""
         # ATTN: because create_table is creating new models, we need to call this multiple times; fix this!
+        self.create_helpermodels_forallmodelclasses()
         self.create_table_forallmodelclasses()
         self.create_mapper_forallmodelclasses()
         # now ask db engine to actually BUILD all tables for all models
@@ -157,6 +161,15 @@ class MewloDatabaseManager(object):
         # mark models as ready to be used
         self.set_isreadytodb_forallmodelclasses()
 
+
+
+
+    def create_helpermodels_forallmodelclasses(self):
+        """Create fields for all registered model classes (that haven't already been created)."""
+        for key in self.modelclasses.keys():
+            # map database fields for it
+            modelclass = self.modelclasses[key]
+            self.create_helpermodels_formodelclass(modelclass)
 
 
     def create_table_forallmodelclasses(self):
@@ -182,6 +195,18 @@ class MewloDatabaseManager(object):
             modelclass = self.modelclasses[key]
             self.set_isreadytodb_formodelclass(modelclass)
 
+
+
+
+    def create_helpermodels_formodelclass(self, modelclass):
+        """Create the fields for this model."""
+        if (isinstance(modelclass,basestring)):
+            modelclass = self.modelclasses[modelclass]
+        if (not modelclass.did_create_helpermodels):
+            # ask model to create and register any helper classes
+            modelclass.create_helpermodels(self)
+            # set flag saying its been done
+            modelclass.did_create_helpermodels = True
 
 
     def create_table_formodelclass(self, modelclass):

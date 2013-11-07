@@ -26,6 +26,8 @@ from ..eventlog.mlogtarget_file import MewloLogTarget_File
 from ..helpers.misc import get_value_from_dict
 from ..helpers.misc import resolve_expand_string
 from ..user import muser
+from ..group import mgroup
+from ..acl import maclmanager
 
 # python imports
 import os
@@ -617,7 +619,12 @@ class MewloSite(object):
         # ATTN: Again, we should do this elsewhere: create MewloUser class
         # NOTE: We do NOT use create_derived_dvmodelclass() as above since we are not dynamically creating a new class on the fly
         dbmanager.register_modelclass(self, muser.MewloUser)
-
+        dbmanager.register_modelclass(self, mgroup.MewloGroup)
+        # let's try something more interesting now
+        dbmanager.register_modelclass(self, maclmanager.AclRole)
+        newclass = self.dbmanager.create_derived_dbmodelclass(self, maclmanager.AclRoleAssignment_MN, 'AclRoleAssignment_User_Group', 'dummy')
+        newclass.setup_roleassignment_classes(muser.MewloUser, mgroup.MewloGroup)
+        dbmanager.register_modelclass(self, newclass)
 
 
 

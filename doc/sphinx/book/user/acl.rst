@@ -46,3 +46,42 @@ AclAssignments:
     * An AclAssignment is not always a simple case of saying that User X has Permission (AclItem) Y.  Often we want to restrict the permission to a specific *context*.  So an AclAssignment can specify an optional context Object, to express things like "User X has Role (AclItem) Y in Project Z".
     * An AclAssignment may also be made to a Group as well as a User.  So that if we have a Group we call "site administrators", then we might say that "GROUP X has Permission Y", meaning that all users in GROUP X have that permission.
     * We might also allow some arbitrary properties associated with an assignment.
+
+
+
+Roles vs. Groups:
+
+There is some potential for confusion when thinking about how to use roles and groups.  An example:
+
+Imagine we are building a forum system.  We create a large number of low-level roles/permissions -- things like: "can edit own post", "can delete posts", "can read posts", etc.
+It's clear that that these items are low-level primitive roles.  But now we want to have the concept of a forum "moderator", and we will have a big set of permissions that we are going to assign to all moderators.
+It would be far to error-prone to individually assign each low-level permission/role to each moderator.
+So instead we will want to organize a bunch of roles/permissions under one heading.
+One can imagine several ways of doing this:
+
+    * Create a USER GROUP and assign the collection of roles/permissions to this GROUP.  Then place moderator USERS in this GROUP, and ask that members inherit the roles of the group.
+    * Create a higher level ROLE called "moderator-role" that includes the lower level roles as implied children.  Then assign this high-level ROLE to USERS who are moderators.
+
+Which approach is best?  What are the tradeoffs?
+
+The first observation we make is that in the specific simple case above, there doesn't seem to be much of a reason to prefer one approach over the other.  In one, groups inherit roles, in the other, roles can inherit/imply other roles.
+
+However, what if we simply wanted to set up a few simple higher-level roles, that inherited other roles.  For example "edit all posts" might inherit "edit own post".  Without role-inheritance, this would mean creating many overlapping "user groups" with minor permissions.  And possibly assigning users to multiple overlapping "groups" to combine permissions.
+
+In addition, using USER GROUPS to handle permission inheritance seems to be quite different from the use of USER GROUPS that people could join for the purposes of self-organizing, etc.  This confusion is something we would like to avoid [we could of course use different structures for permission-based-user-groups and self-organizing-user-groups if we wanted].
+
+Given these observations, our first decision is that we will prefer to use a hierarchy of high-level Roles/Permissions that can inherit groups of lower-level roles.  This explicitly solves our example problem above.
+
+But now we must still ask the question -- do we still need to support the complexity of group-based inheritance of roles/permissions, or can we do away with this idea and keep things simpler?
+
+Put another way, what does it mean when we say that "GROUP G has ROLE R" or that "USER U has role S in GROUP H"?
+
+This last case bears emphasizing -- our User Group system supports more than the concept of a user being a MEMBER of a group.  Instead we say that a user has a specific "ROLE" in a group.  So some users might be ordinary "members" of a group, while others may be "moderators" of a group, and others may be "owners" of a group, etc.
+
+An example of an easy and common case would be: We want to know if a user can send a message to a group, so we ask "does user U have role R in group G" -- only if they have a role IN GROUP G that includes the permission to send messages will we let them.
+
+But things get more complicated if we allow for HIERARCHIES OF USER GROUPS.
+
+In this case, if group H is a child of group G.  And user U is a moderator on group G -- what do we say about user U's roles on the child group H?  Do some roles get inherited by child groups, and others not? How would we express such things?
+
+

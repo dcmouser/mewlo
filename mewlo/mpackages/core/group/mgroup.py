@@ -1,7 +1,7 @@
 """
-muser.py
+mgroup.py
 
-This model represents users.
+This model represents user groups
 
 """
 
@@ -13,17 +13,18 @@ from ..database import mdbmodel
 from ..database import mdbfield
 from ..database import mdbmixins
 from ..database import mdbmodel_fieldset
+from ..database import mdbmodel_relation
+from ..user import muser
 
 
 
-class MewloUser(mdbmodel.MewloDbModel):
-    """User object / database model."""
+class MewloGroup(mdbmodel.MewloDbModel):
+    """Group object / database model."""
 
     # class variables
-    dbtablename = 'user'
+    dbtablename = 'usergroup'
     #
     flag_mixin_atroot = False
-
 
 
     @classmethod
@@ -35,7 +36,7 @@ class MewloUser(mdbmodel.MewloDbModel):
         fieldlist = [
             # standard primary id number field
             mdbfield.DbfPrimaryId('id', {
-                'label': "The primary key and id# for this user"
+                'label': "The primary key and id# for this group"
                 }),
             ]
 
@@ -58,8 +59,11 @@ class MewloUser(mdbmodel.MewloDbModel):
         else:
             # add a special sub table that will contain some fields, using a helper class object attached to us
             # create (AND REGISTER) the new helper object
-
             cls.extend_extrafields(mdbmodel_fieldset.MewloDbFieldset.make_fieldset_dbobjectclass(cls,'atrack','author tracking object',cls.dbtablename,dbmanager,subfields))
 
+        # create a helper class that acts as a many-to-many association table
+#        mdbmodel_relation.MewloDbRelationModel_SimpleMtoN.make_dbobjectclass(cls, muser.MewloUser, dbmanager)
+#        mdbmodel_relation.MewloDbRelationModel_FullMtoN.make_dbobjectclass(muser.MewloUser, MewloGroup, dbmanager)
+        # ATTN: this was a test -- we now use roles for this and create elsewhere
 
 

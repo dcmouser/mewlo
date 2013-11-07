@@ -7,7 +7,7 @@ Subclasses can add new fields.
 """
 
 
-# helper imports
+# mewlo imports
 import mdbmodel
 import mdbfield
 

@@ -314,9 +314,9 @@ class MewloLogTarget(object):
         """Process a line if we are ready, or queue it if not."""
         thiswrotecount = 0
         try:
-            print "Considering target: "+str(self.get_nicelabel())+" with "+str(logmessage)
+            #print "Considering target: "+str(self.get_nicelabel())+" with "+str(logmessage)
             if (self.readytowrite()):
-                print "says ready to write."
+                #print "says ready to write."
                 # target is ready to write -- but before we write we flush any pending queue
                 if (self.get_queuelen()>0):
                     self.flushqueue()
@@ -325,7 +325,7 @@ class MewloLogTarget(object):
                 #print "Sent to "+str(target)
             else:
                 # send it to target queue
-                print "queing not ready to write."
+                #print "queing not ready to write."
                 self.queuelog(logmessage)
                 #print "queud to log"
         except IOError as exp:
@@ -412,7 +412,6 @@ class MewloLogger(object):
         if (self.doesmatch_filters(logmessage, wrotecount)):
             thiswrotecount = self.run_targets(logmessage)
         else:
-            print "LOGGER IS SKIPPING MESSAGE."
             pass
         return thiswrotecount
 

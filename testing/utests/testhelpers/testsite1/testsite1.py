@@ -342,6 +342,52 @@ class MewloSite_Test1(MewloSite):
 
 
 
+    @classmethod
+    def runmodeltests(cls):
+        """Some tests that we should move elsewhere eventually."""
+        from mewlo.mpackages.core.user import muser
+        from mewlo.mpackages.core.group import mgroup
+        #
+        usera = muser.MewloUser()
+        userb = muser.MewloUser()
+        groupa = mgroup.MewloGroup()
+        groupb = mgroup.MewloGroup()
+        #
+        if (False):
+            # simple relation
+            usera.usergroups.append(groupa)
+            groupb.users.append(userb)
+            usera.save()
+            groupb.save()
+        elif (False):
+            # heavy one
+            a = usera.makenew_friendclass('AssociationRelation_usergroup')
+            a.dummyval = 123
+            a.usergroup = groupa
+            usera.usergroups.append(a)
+            usera.save()
+        elif (True):
+            # new role-based test
+            from mewlo.mpackages.core.acl import maclmanager
+            roleassignment_class = mglobals.db().lookupclass('AclRoleAssignment_User_Group')
+            newrole = maclmanager.AclRole()
+            newrole.name = 'moderator'
+            newrole.label = 'can manager and moderate this group'
+            #newrole.save()
+            a = roleassignment_class()
+            a.usergroup = groupa
+            a.user = usera
+            a.role = newrole
+            a.save()
+
+
+
+
+
+
+
+
+
 
 
 
@@ -363,11 +409,13 @@ def main():
     parser.add_argument("-s", "--runserver", help="run the web server",action="store_true", default=False)
     parser.add_argument("-t", "--runtests", help="run some testsr",action="store_true", default=False)
     parser.add_argument("-d", "--debug", help="run in debug mode",action="store_true", default=False)
+    parser.add_argument("-m", "--modeltests", help="run some model tests",action="store_true", default=False)
     args = parser.parse_args()
     #
     flag_debugsite = args.debug
     flag_runtests = args.runtests
     flag_runserver = args.runserver
+    flag_runmodeltests = args.modeltests
 
 
     # Create a site manager and ask it to instantiate a site of the class we specify
@@ -376,7 +424,7 @@ def main():
     # startup sites - this will generate any preparation errors
     sitemanager.startup()
 
-    # check if there were any errors encountered during preparation of the s
+    # check f there were any errors encountered during preparation of the s
     if (sitemanager.prepeventlist.count_errors() > 0):
         print "Stopping due to sitemanager preparation errors:"
         print sitemanager.prepeventlist.dumps()
@@ -395,6 +443,10 @@ def main():
         print sitemanager.test_submit_path('/help/about')
         print sitemanager.test_submit_path('/page/mystery')
         print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
+
+    if (flag_runmodeltests):
+        MewloSite_Test1.runmodeltests()
+
 
     # start serving the web server and process all web requests
     if (flag_runserver):

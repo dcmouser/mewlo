@@ -35,10 +35,15 @@ class MewloDbModel(object):
     #
     did_create_table = False
     did_create_mapper = False
+    did_create_helpermodels = False
     isreadytodb = False
     #
     fieldlist = []
     fieldhash = {}
+    #
+    extrafields = []
+    friendclasses = {}
+
 
 
 
@@ -128,6 +133,43 @@ class MewloDbModel(object):
 
 
 
+    @classmethod
+    def extend_extrafields(cls, addfieldlist):
+        """Add fields."""
+        # we need to do a kludgey thing here because derived classes inherit default value from parent, and extending that list would be bad.
+        if (len(cls.extrafields)==0 or cls.extrafields == MewloDbModel.extrafields):
+            cls.extrafields=addfieldlist
+        else:
+            cls.extrafields.extend(addfieldlist)
+
+
+
+    @classmethod
+    def save_friendclass(cls, friendname, friendclass):
+        """Add fields."""
+        # we need to do a kludgey thing here because derived classes inherit default value from parent, and extending that list would be bad.
+        if (len(cls.friendclasses)==0 or cls.friendclasses == MewloDbModel.friendclasses):
+            cls.friendclasses={friendname:friendclass}
+        else:
+            cls.friendclasses[friendname]=friendclass
+        #print "set_friend for "+str(cls.__name__)+" from "+str(cls.friendclasses)
+
+    @classmethod
+    def lookup_friendclass(cls, friendname):
+        """lookup friendclass."""
+        #print "lookup_friend for "+str(cls.__name__)+" from "+str(cls.friendclasses)
+        return cls.friendclasses[friendname]
+
+    @classmethod
+    def makenew_friendclass(cls, friendname):
+        """lookup friendclass."""
+        #print "lookup_friend for "+str(cls.__name__)+" from "+str(cls.friendclasses)
+        modelclass = cls.friendclasses[friendname]
+        # makenew
+        return modelclass()
+
+
+
 
 
 
@@ -141,6 +183,10 @@ class MewloDbModel(object):
     def hash_fieldlist(cls, fieldlist):
         """hash fieldlist in dictionary."""
         cls.fieldlist = fieldlist
+
+        # add extrafields
+        cls.fieldlist.extend(cls.extrafields)
+
         for field in fieldlist:
             cls.fieldhash[field.id] = field
 
@@ -218,7 +264,7 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def create_helper_modelclasses(cls, dbmanager):
+    def create_helpermodels(cls, dbmanager):
         """Create and register with the dbmanager any model classes that this class uses as helpers."""
         # nothing to do in base class
         pass

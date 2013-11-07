@@ -51,7 +51,7 @@ class MewloDbFieldset(mdbmodel.MewloDbModel):
         fieldlist += [
             mdbfield.Dbf1to1_Right('owner_id', {
             'label': 'Reference to owner object',
-            'referenceclass': cls.ownerclass,
+            'leftclass': cls.ownerclass,
             }),
             ]
 
@@ -83,8 +83,6 @@ class MewloDbFieldset(mdbmodel.MewloDbModel):
         subclass.set_owner(ownerclass)
         # now provide the subclass with the subfields
         subclass.add_subfields(subfields)
-        # foreign key name
-        foreignkeyname = subclass.__name__ + ".id"
 
         # and now register the subclass with the manager
         dbmanager.register_modelclass(ownerclass, subclass)
@@ -93,9 +91,8 @@ class MewloDbFieldset(mdbmodel.MewloDbModel):
         fieldlist += [
             mdbfield.Dbf1to1_Left(propname, {
             'label': proplabel,
-            'referenceclass': subclass,
+            'rightclass': subclass,
             'backrefname': backrefname,
-            'foreignkeyname': foreignkeyname,
             }),
             ]
 

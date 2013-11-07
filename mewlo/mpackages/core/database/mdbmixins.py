@@ -29,7 +29,6 @@ class MewloDbModelMixin_UserAndTimestamp(MewloDbModelMixin):
     @classmethod
     def get_dbfields(cls, prefixstr=''):
         """Mixin fields to help track authorship and modification info for an object."""
-
         # define field list
         fieldlist = [
             mdbfield.DbfForeignUserId(prefixstr+'userid', {
@@ -57,12 +56,10 @@ class MewloDbModelMixin_AuthorTracker(MewloDbModelMixin):
     @classmethod
     def get_dbfields(cls, prefixstr=''):
         """Mixin fields for tracking author creation+modification data."""
-
         # define fields list
         fields_creation = MewloDbModelMixin_UserAndTimestamp.get_dbfields(prefixstr+'creation_')
         fields_modification = MewloDbModelMixin_UserAndTimestamp.get_dbfields(prefixstr+'modification_')
         fieldlist = fields_creation + fields_modification
-
         return fieldlist
 
 
@@ -74,7 +71,6 @@ class MewloDbModelMixin_Workflow(MewloDbModelMixin):
     @classmethod
     def get_dbfields(cls, prefixstr=''):
         """Mixin fields for tracking author creation+modification data."""
-
         # define fields list
         fieldlist = [
             mdbfield.DbfBoolean(prefixstr+'is_deleted', {

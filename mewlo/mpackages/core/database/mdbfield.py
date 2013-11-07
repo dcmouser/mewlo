@@ -109,7 +109,7 @@ class DbfString(MewloDbField):
 
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
-        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))]
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',256)))]
 
 
 
@@ -209,6 +209,23 @@ class DbfForeignUserId(MewloDbField):
 
 
 
+
+class DbfForeignKey(MewloDbField):
+    """Integer field."""
+    # ATTN: Make this a foreign key to user table
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfForeignKey, self).__init__(id, properties)
+
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        foreignkeyname = self.properties['foreignkeyname']
+        return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(foreignkeyname))]
+
+
+
+
 class DbfUserIp(MewloDbField):
     """Limited length text field."""
     def __init__(self, id, properties={}):
@@ -219,6 +236,37 @@ class DbfUserIp(MewloDbField):
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
         return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',32)))]
+
+
+
+
+
+
+
+
+class DbfSqla(MewloDbField):
+    """A dbf field that is passed a prebuilt sql alchemy column."""
+    def __init__(self, id, properties, sqlacolumns):
+        """Constructor."""
+        # call parent function
+        super(DbfPrimaryId, self).__init__(id, properties)
+        # record passed in sqlacolumns
+        self.sqlacolumns = sqlacolumns
+
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return self.sqlacolumns
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -244,15 +292,16 @@ class Dbf1toN_Left(MewloDbField):
     def create_sqlalchemy_mapperproperties(self, modelclass):
         """Convert field to sqlalchemy column."""
         # we dont use a column but a relation
-        referenceclass = self.properties['referenceclass']
-        referencefieldname = self.id
+        rightclass = self.properties['rightclass']
+        rightclass_relationname = self.id
         backrefname = self.properties['backrefname']
         # now we need to look up the owner_id field on the right hand side so we can explicitly specify it as the foreign_key for this relations
         # this is important because the sqla relation will error and complain about ambiguity if there are multiple columns with foreign keys to us on the right hand (reference class) side
-        foreign_keys = referenceclass.lookup_sqlacolumnlist_for_field('owner_id')
+        fkeyfieldname = 'owner_id'
+        foreign_keys = rightclass.lookup_sqlacolumnlist_for_field(fkeyfieldname)
         # create the relation
         propdict = {
-            referencefieldname:sqlalchemy.orm.relation(referenceclass, uselist=not self.flag_to1, backref=backrefname, foreign_keys=foreign_keys)
+            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=not self.flag_to1, backref=backrefname, foreign_keys=foreign_keys)
             }
         return propdict
 
@@ -268,9 +317,9 @@ class Dbf1toN_Right(MewloDbField):
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
         # build a foreign key to the left hand table
-        referenceclass = self.properties['referenceclass']
+        leftclass = self.properties['leftclass']
         fkeyfieldname = 'id'
-        fkeyname = referenceclass.get_dbtablename() + '.' + fkeyfieldname
+        fkeyname = leftclass.get_dbtablename() + '.' + fkeyfieldname
         return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(fkeyname))]
 
 
@@ -282,7 +331,7 @@ class Dbf1to1_Left(Dbf1toN_Left):
     """Relationship field."""
     def __init__(self, id, properties={}):
         """Constructor."""
-        # call parent function
+        # call parent function to do the work
         super(Dbf1to1_Left, self).__init__(id, properties, flag_to1=True)
 
 
@@ -290,7 +339,7 @@ class Dbf1to1_Right(Dbf1toN_Right):
     """Relationship field."""
     def __init__(self, id, properties={}):
         """Constructor."""
-        # call parent function
+        # call parent function to do the work
         super(Dbf1to1_Right, self).__init__(id, properties, flag_to1=True)
 
 
@@ -302,16 +351,34 @@ class Dbf1to1_Right(Dbf1toN_Right):
 
 
 
-
-class DbfSqla(MewloDbField):
-    """A dbf field that is passed a prebuilt sql alchemy column."""
-    def __init__(self, id, properties, sqlacolumns):
+class DbfNtoM_SimpleRelation(MewloDbField):
+    """Relationship field."""
+    def __init__(self, id, properties={}):
         """Constructor."""
         # call parent function
-        super(DbfPrimaryId, self).__init__(id, properties)
-        # record passed in sqlacolumns
-        self.sqlacolumns = sqlacolumns
+        super(DbfNtoM_SimpleRelation, self).__init__(id, properties)
 
-    def create_sqlalchemy_columns(self, modelclass):
+    def create_sqlalchemy_mapperproperties(self, modelclass):
         """Convert field to sqlalchemy column."""
-        return self.sqlacolumns
+        # we dont use a column but a relation
+        associationclass = self.properties['associationclass']
+        otherclass = self.properties['otherclass']
+        backrefname = self.properties['backrefname']
+        relationname = self.id
+        if (associationclass!=None):
+            associationtable = associationclass.get_dbsqlatable()
+        else:
+            associationtable = None
+
+        #print "Creating relation on {0} named {1} otherclass = {2} and secondary={3} and backref={4}.".format(modelclass.__name__,relationname, otherclass.__name__, associationtable, backrefname)
+
+        # create the relation
+        propdict = {
+            relationname:sqlalchemy.orm.relation(otherclass,secondary=associationtable, backref=backrefname)
+            }
+        return propdict
+
+
+
+
+
