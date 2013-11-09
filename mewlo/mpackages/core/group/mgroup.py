@@ -27,6 +27,12 @@ class MewloGroup(mdbmodel.MewloDbModel):
     flag_mixin_atroot = False
 
 
+    def init(self):
+        """Manually called init on manually created new instances."""
+        self.gobify(self.__class__.__name__)
+
+
+
     @classmethod
     def definedb(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
@@ -38,10 +44,9 @@ class MewloGroup(mdbmodel.MewloDbModel):
             mdbfield.DbfPrimaryId('id', {
                 'label': "The primary key and id# for this group"
                 }),
+            # globally unique resource reference
+            mdbmixins.Dbf_GobReference('user'),
             ]
-
-        # add extrafields
-        fieldlist.extend(cls.extrafields)
 
         # add fieldlist to hash
         cls.hash_fieldlist(fieldlist)

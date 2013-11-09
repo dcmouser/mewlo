@@ -15,6 +15,7 @@ from ..setting.msettings import MewloSettings
 from ..database import mdbsettings
 from ..database import mdbmanager_sqlalchemy
 from ..database import mdbmodel_settings
+from ..database import mdbmodel_gob
 from ..navnode import mnav
 from ..template import mtemplate
 from ..template import mtemplatehelper
@@ -27,7 +28,7 @@ from ..helpers.misc import get_value_from_dict
 from ..helpers.misc import resolve_expand_string
 from ..user import muser
 from ..group import mgroup
-from ..acl import maclmanager
+from ..rbac import mrbac
 
 # python imports
 import os
@@ -606,6 +607,8 @@ class MewloSite(object):
         dbmanager.register_modelclass(self, newclass)
         newclass = self.dbmanager.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
         dbmanager.register_modelclass(self, newclass)
+        #
+        dbmanager.register_modelclass(self, mdbmodel_gob.MewloDbModel_Gob)
 
 
 
@@ -620,11 +623,11 @@ class MewloSite(object):
         # NOTE: We do NOT use create_derived_dvmodelclass() as above since we are not dynamically creating a new class on the fly
         dbmanager.register_modelclass(self, muser.MewloUser)
         dbmanager.register_modelclass(self, mgroup.MewloGroup)
-        # let's try something more interesting now
-        dbmanager.register_modelclass(self, maclmanager.AclRole)
-        newclass = self.dbmanager.create_derived_dbmodelclass(self, maclmanager.AclRoleAssignment_MN, 'AclRoleAssignment_User_Group', 'dummy')
-        newclass.setup_roleassignment_classes(muser.MewloUser, mgroup.MewloGroup)
-        dbmanager.register_modelclass(self, newclass)
+        dbmanager.register_modelclass(self, mrbac.MewloRole)
+        #old role mXn specific rables
+        #newclass = self.dbmanager.create_derived_dbmodelclass(self, mrbac.MewloRoleAssignment_MN, 'MewloRoleAssignment_User_Group', 'dummy')
+        #newclass.setup_roleassignment_classes(muser.MewloUser, mgroup.MewloGroup)
+        #dbmanager.register_modelclass(self, newclass)
 
 
 

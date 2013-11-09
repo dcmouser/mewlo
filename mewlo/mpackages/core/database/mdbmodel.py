@@ -82,7 +82,12 @@ class MewloDbModel(object):
 
 
 
-
+    def gobify(self, objecttype):
+        """Create a gob global unique resource object for us."""
+        import mdbmodel_gob
+        self.gob = mdbmodel_gob.MewloDbModel_Gob()
+        self.gob.objecttype = objecttype
+        return self.gob
 
 
 

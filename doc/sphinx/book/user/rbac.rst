@@ -1,5 +1,5 @@
-Access Control System (ACL)
-===========================
+RBAC (Role Based Access Control)
+================================
 
 
 Probably the best example of complex access control requirements can be seen in modern forum systems.
@@ -83,5 +83,39 @@ An example of an easy and common case would be: We want to know if a user can se
 But things get more complicated if we allow for HIERARCHIES OF USER GROUPS.
 
 In this case, if group H is a child of group G.  And user U is a moderator on group G -- what do we say about user U's roles on the child group H?  Do some roles get inherited by child groups, and others not? How would we express such things?
+
+
+
+An alternative to Multiple Tables:
+
+Instead of having different tables for different Subject and Object combinations (for example a table for expressing "USER U has ROLE R on GROUP G" and a separate table for "USER U has ROLE R on DOCUMENT D", we could instead use a unique RESOURCEID.
+
+Then we have a SINGLE role assignment table mapping "RESOURCE S has ROLE R on RESOURCE T".
+
+And where *EVERY* object in the system has a GLOBALLY UNIQUE RESOURCEID, assigned at time of its creation.
+
+Then we need only a single table for role assignments.
+
+What are the downsides:
+
+    * We need to ensure object has a unique RESOURCE ID, at time of creation -- this seems a little hairy.
+    * We may need to perform multiple lookups to check permissions (for example if we want to know if user U has permission on Group G" we have to first determine the RESOURCEID for the user and the group, before doing the permission lookup.  With the separate table approach we do not.
+    * Reverse mapping from role assignments to objects is a bit trickier.  With separate table we know our left+right sides map to specific object types.  New method requires a reverse lookup on a specific Resource ID table without the possibility of foreign keys.
+    * Related to above, separate tables lets us use a nice ORM on our role objects.
+    * We may lose some efficiency that we could get by being able to cache certain common role tables; though using a single role table might allow different optimization/caching.
+
+Upsides:
+
+    * Cleaner to have only one single resource table.
+    * Having every object possess a globally unique RESOURCEID, could come in VERY HANDY for other operations like logging.  This is the most compelling argument for this approach to me.
+    * Some queries can now be done (at least initially) by querying the sole role assignment table.  For example if we want to know ALL permissions related to user U, we can now do this in one query of the role assignment table (though we would then have to do followup queries to get specific target info); with multiple tables we would have to query each table that related to USER.
+
+Other observations:
+
+    * While generating a globally unique RESOURCEID for every object is a bit painful, it only has to be done at time of object creation, which is infrequent.
+    * Most of the time, we will already have loaded the information for an object (user, group, resource), so the globally unique id may already be in memory and not require a separate lookup.  For example if the logged in user is trying to do something in group G, we will certainly already know the user's globally unique resource id.
+    * To keep database tables "normalized" we could have each object keep a foreignkey to the primaryid in a RESOURCE table, and *NOT* link back from resource table to source object (but store a string in the resource row saying the name of the object TABLE so we could reverse-lookup if we wanted to given the resourceid).
+
+To me, the key motivation for using a globally unique resource ID is simply that it could be useful in other cases besides the permission system.  And if we assume every object has a unique RESOURCE id, then using it for ACL seems natural.
 
 

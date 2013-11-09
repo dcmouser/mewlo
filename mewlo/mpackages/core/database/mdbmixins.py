@@ -8,7 +8,7 @@ This file contains some common model mixins to make it easier to add fields to a
 
 # helper imports
 import mdbfield
-
+import mdbmodel_gob
 
 
 
@@ -87,4 +87,16 @@ class MewloDbModelMixin_Workflow(MewloDbModelMixin):
 
 
 
+
+
+
+
+def Dbf_GobReference(backrefname):
+    field = mdbfield.Dbf1to1_MultiType_left('gobid', {
+            'label': "The globally unique gob representing this object",
+            'backrefname': backrefname,
+            'rightclass' : mdbmodel_gob.MewloDbModel_Gob,
+            'reciprocalfieldname' : 'objectid',
+            })
+    return field
 

@@ -349,9 +349,14 @@ class MewloSite_Test1(MewloSite):
         from mewlo.mpackages.core.group import mgroup
         #
         usera = muser.MewloUser()
+        usera.init()
         userb = muser.MewloUser()
+        userb.init()
         groupa = mgroup.MewloGroup()
+        groupa.init()
         groupb = mgroup.MewloGroup()
+        groupb.init()
+
         #
         if (False):
             # simple relation
@@ -366,19 +371,25 @@ class MewloSite_Test1(MewloSite):
             a.usergroup = groupa
             usera.usergroups.append(a)
             usera.save()
-        elif (True):
+        elif (False):
             # new role-based test
-            from mewlo.mpackages.core.acl import maclmanager
-            roleassignment_class = mglobals.db().lookupclass('AclRoleAssignment_User_Group')
+            from mewlo.mpackages.core.rbac import mrbac
+            roleassignment_class = mglobals.db().lookupclass('MewloRoleAssignment_User_Group')
             newrole = maclmanager.AclRole()
             newrole.name = 'moderator'
             newrole.label = 'can manager and moderate this group'
-            #newrole.save()
+            newrole.save()
             a = roleassignment_class()
             a.usergroup = groupa
             a.user = usera
             a.role = newrole
             a.save()
+        elif (True):
+            # simple
+            usera.save()
+            userb.save()
+            groupa.save()
+            groupb.save()
 
 
 

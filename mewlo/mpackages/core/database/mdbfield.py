@@ -113,6 +113,21 @@ class DbfString(MewloDbField):
 
 
 
+class DbfTypeString(MewloDbField):
+    """Limited length text field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfTypeString, self).__init__(id, properties)
+
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))]
+
+
+
+
+
 class DbfInteger(MewloDbField):
     """Integer field."""
     def __init__(self, id, properties={}):
@@ -344,6 +359,42 @@ class Dbf1to1_Right(Dbf1toN_Right):
 
 
 
+
+
+class Dbf1to1_MultiType_left(MewloDbField):
+    """Relationship field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(Dbf1to1_MultiType_left, self).__init__(id, properties)
+
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        # build a foreign key to the right hand table
+        rightclass = self.properties['rightclass']
+        fkeyfieldname = 'id'
+        fkeyname = rightclass.get_dbtablename() + '.' + fkeyfieldname
+        return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(fkeyname))]
+
+    def create_sqlalchemy_mapperproperties(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        # we dont use a column but a relation
+        rightclass = self.properties['rightclass']
+        rightclass_relationname = rightclass.get_dbtablename()
+        backrefname = self.properties['backrefname']
+        # now we need to look up the owner_id field on the right hand side so we can explicitly specify it as the foreign_key for this relations
+        # this is important because the sqla relation will error and complain about ambiguity if there are multiple columns with foreign keys to us on the right hand (reference class) side
+        fkeyfieldname = self.properties['reciprocalfieldname']
+        foreign_keys = rightclass.lookup_sqlacolumnlist_for_field(fkeyfieldname)
+        primaryjoinsqlstring = rightclass.get_dbtablename()+"."+fkeyfieldname + "=" +modelclass.get_dbtablename()+".id"
+        # create the relation
+        propdict = {
+#            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=False, backref=backrefname, foreign_keys=foreign_keys)
+#            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=False, backref=backrefname, primaryjoin=primaryjoinsqlstring)
+#            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=False, backref=backrefname, primaryjoin=lambda(q): eval(primaryjoinsqlstring))
+            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=False)
+            }
+        return propdict
 
 
 
