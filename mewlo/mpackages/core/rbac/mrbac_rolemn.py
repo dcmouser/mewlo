@@ -2,6 +2,8 @@
 mrbac_rolemn.py
 This module contains classes and functions to manage the RBAC/ACL (permission) system.
 
+NOTE: This class is no longer used -- it was written when we were anticipating a multi-table approach to storing role assignments.
+
 """
 
 

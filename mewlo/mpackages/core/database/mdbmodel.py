@@ -313,7 +313,7 @@ class MewloDbModel(object):
         modeltable = cls.get_dbsqlatable()
 
         # build sqlalchemy mapper properties from fields
-        mapproperties = cls.create_sqlalchemy_mapperproperties_from_dbfields()
+        mapproperties = cls.create_sqlalchemy_mapperproperties_from_dbfields(modeltable)
 
         # tell sqlalchemy to build mapper
         sqlalchemy.orm.mapper(cls, modeltable, properties=mapproperties)
@@ -344,14 +344,14 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def create_sqlalchemy_mapperproperties_from_dbfields(cls):
+    def create_sqlalchemy_mapperproperties_from_dbfields(cls,modeltable):
         """
         Given a list of our internal fields, build sqlalchemy mapper properties.
         """
         allprops = {}
         #
         for field in cls.fieldlist:
-            props = field.create_sqlalchemy_mapperproperties(cls)
+            props = field.create_sqlalchemy_mapperproperties(cls,modeltable)
             if (props!=None):
                 allprops.update(props)
         return allprops
@@ -369,6 +369,14 @@ class MewloDbModel(object):
 
 
 
+    @classmethod
+    def lookup_sqlacolumn_for_field(cls, fieldid):
+        """Try to find the list of sqlacolumns associated with a field."""
+        for field in cls.fieldlist:
+            if (field.id==fieldid):
+                return field.sqlacolumns[0]
+        raise Exception("Could not find field {0}".format(fieldid))
+        #return None
 
 
 

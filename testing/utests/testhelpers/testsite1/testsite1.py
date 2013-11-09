@@ -20,6 +20,9 @@ from mewlo.mpackages.core.eventlog.mlogger import MewloLogger
 from mewlo.mpackages.core.eventlog.mlogtarget_file import MewloLogTarget_File
 from mewlo.mpackages.core.eventlog.mlogtarget_python import MewloLogTarget_Python
 from mewlo.mpackages.core.eventlog.mevent import EWarning
+from mewlo.mpackages.core.rbac import mrbac
+
+
 
 # Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live;
 # this is just a way to get the relative directory easily, and we use this in config settings
@@ -391,6 +394,16 @@ class MewloSite_Test1(MewloSite):
             groupa.save()
             groupb.save()
 
+        # role test
+        from mewlo.mpackages.core.rbac import mrbac
+        rolea = mrbac.MewloRole()
+        roleb = mrbac.MewloRole()
+        rolea.save()
+        roleb.save()
+        rolea.childroles.append(roleb)
+        #roleb.parentroles.append(rolea)
+        rolea.save()
+        #roleb.save()
 
 
 

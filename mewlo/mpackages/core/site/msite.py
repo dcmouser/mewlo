@@ -624,6 +624,7 @@ class MewloSite(object):
         dbmanager.register_modelclass(self, muser.MewloUser)
         dbmanager.register_modelclass(self, mgroup.MewloGroup)
         dbmanager.register_modelclass(self, mrbac.MewloRole)
+        dbmanager.register_modelclass(self, mrbac.MewloRoleHierarchy)
         #old role mXn specific rables
         #newclass = self.dbmanager.create_derived_dbmodelclass(self, mrbac.MewloRoleAssignment_MN, 'MewloRoleAssignment_User_Group', 'dummy')
         #newclass.setup_roleassignment_classes(muser.MewloUser, mgroup.MewloGroup)
