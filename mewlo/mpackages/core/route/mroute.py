@@ -8,6 +8,8 @@ This file contains classes to support routes
 from .. import mglobals
 from ..controller import mcontroller
 from ..eventlog.mevent import EFailure, EFailureExtend
+from ..manager import manager
+
 
 
 class MewloRouteArg(object):
@@ -553,50 +555,64 @@ class MewloRouteGroup(object):
         return self.routehash
 
 
-
-
-
-
-
-
-class MewloRouteManager(MewloRouteGroup):
-    """
-    The MewloRouteManager class manages the routes in a site; it's just thin derived class from MewloRouteGroup
-    """
-
-    def __init__(self, id='', controllerroot=None, routes=None):
-        super(MewloRouteManager,self).__init__(id, controllerroot, routes)
-
-
-    def startup(self, parent, eventlist):
-        super(MewloRouteManager,self).startup(parent, eventlist)
-        self.build_routehash()
-
-
-    def shutdown(self):
-        super(MewloRouteManager,self).shutdown()
-
-
-    def dumps(self, indent=0):
-        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloRouteManager reporting in:\n"
-        outstr += " "*indent + " Root for controllers: " + str(self.controllerroot) + "\n"
-        outstr += " "*indent + " Route hash: " + str(self.routehash) + "\n"
-        outstr += "\n"
-        for route in self.routes:
-            outstr += route.dumps(indent+1) + "\n"
-        return outstr
-
-
-
-
-
-
-
-
     def lookup_route_byid(self, routeid):
         """Lookup routeid in our hash of all routes."""
         if (routeid in self.routehash):
             return self.routehash[routeid]
         return None
+
+
+
+
+
+
+
+
+class MewloRouteManager(manager.MewloManager):
+    """
+    The MewloRouteManager class manages the routes in a site; it's just thin derived class from MewloRouteGroup
+    """
+
+    def __init__(self, id='', controllerroot=None, routes=None):
+        super(MewloRouteManager,self).__init__()
+        self.routegroup = MewloRouteGroup(id, controllerroot, routes)
+
+
+    def startup(self, mewlosite, eventlist):
+        super(MewloRouteManager,self).startup(mewlosite,eventlist)
+        self.routegroup.startup(mewlosite, eventlist)
+        self.routegroup.build_routehash()
+
+
+    def shutdown(self):
+        super(MewloRouteManager,self).shutdown()
+        self.routegroup.shutdown()
+
+
+
+    def append(self, routes):
+        """Append a new route (or list of routes) (or hierarchical routegroups) to our routes list."""
+        return self.routegroup.append(routes)
+
+    def process_request(self, mewlosite, request):
+        """Walk through the site list and let each site take a chance at processing the request."""
+        return self.routegroup.process_request(mewlosite,request)
+
+
+
+
+
+
+    def dumps(self, indent=0):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        outstr = " "*indent + "MewloRouteManager reporting in:\n"
+        #outstr += " "*indent + " Routegroup: ers: " + str(self.controllerroot) + "\n"
+        outstr += self.routegroup.dumps(indent+1) + "\n"
+        return outstr
+
+
+
+    def lookup_route_byid(self, routeid):
+        """Lookup routeid in our hash of all routes."""
+        return self.routegroup.lookup_route_byid(routeid)
 

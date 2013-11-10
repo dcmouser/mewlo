@@ -394,6 +394,7 @@ class Dbf1to1_MultiType_left(MewloDbField):
         fkeyname = rightclass.get_dbtablename() + '.' + fkeyfieldname
         return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(fkeyname))]
 
+
     def create_sqlalchemy_mapperproperties(self, modelclass, modeltable):
         """Convert field to sqlalchemy column."""
         # we dont use a column but a relation
@@ -404,7 +405,6 @@ class Dbf1to1_MultiType_left(MewloDbField):
         # this is important because the sqla relation will error and complain about ambiguity if there are multiple columns with foreign keys to us on the right hand (reference class) side
         fkeyfieldname = self.properties['reciprocalfieldname']
         foreign_keys = rightclass.lookup_sqlacolumnlist_for_field(fkeyfieldname)
-        primaryjoinsqlstring = rightclass.get_dbtablename()+"."+fkeyfieldname + "=" +modelclass.get_dbtablename()+".id"
         # create the relation
         propdict = {
 #            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=False, backref=backrefname, foreign_keys=foreign_keys)
@@ -488,16 +488,20 @@ class Dbf_SelfSelfRelation(MewloDbField):
         relationname = self.id
         associationtable = associationclass.get_dbsqlatable()
 
+        # ok now we need to specify primaryjoin and secondary join
+        # this turns out to be incredibly f*cked up because sqlalchemy is trying to be so clever and magic with they way it lets you use overloaded operators to specify parameters
+        # and because it inexplicably does not allow us to pass string expressions when using classic definition
+        # get names of join variables (parent and child)
         primaryjoin_name = self.properties['primaryjoin_name']
         secondaryjoin_name = self.properties['secondaryjoin_name']
+        # look up sqlalchemy COLUMNS
         otheridcolumn = otherclass.lookup_sqlacolumn_for_field('id')
-        #primaryjoin = sqlalchemy.sql.expression.literal_column(primaryjoin_name)
-        #primaryjoin = primaryjoin_name
         primaryjoin_column = associationclass.lookup_sqlacolumn_for_field(primaryjoin_name)
         secondaryjoin_column = associationclass.lookup_sqlacolumn_for_field(secondaryjoin_name)
+        # and now the actual join parameters are these f*cked magic expressions (once again being clever and magic creates evilness)
+        # stupid, annoying, painful
         primaryjoin = otheridcolumn == primaryjoin_column
-        secondaryjoin = otheridcolumn ==secondaryjoin_column
-
+        secondaryjoin = otheridcolumn == secondaryjoin_column
         # create the relation
         propdict = {
             relationname:sqlalchemy.orm.relation(otherclass, secondary=associationtable, backref=backref, primaryjoin=primaryjoin, secondaryjoin=secondaryjoin)

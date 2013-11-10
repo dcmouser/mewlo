@@ -58,15 +58,14 @@ A reasonable solution might be to use a special data structure for cached note p
 
 # mewlo imports
 from ..helpers import misc
-
-# helper imports
+from ..manager import manager
 
 
 # python imports
 
 
 
-class NavNodeManager(object):
+class NavNodeManager(manager.MewloManager):
     """
     The NavNodeManager class manages a collection of NavNodes.
     The most common usage would be that each site has a NavNodeManager to represent the site hierarchy
@@ -74,6 +73,7 @@ class NavNodeManager(object):
 
     def __init__(self):
         """Constructor for the clas."""
+        super(NavNodeManager,self).__init__()
         self.nodes = []
         self.nodehash = {}
         self.mewlosite = None
@@ -81,7 +81,7 @@ class NavNodeManager(object):
 
     def startup(self, mewlosite, eventlist):
         """Called at start of application."""
-        self.mewlosite = mewlosite
+        super(NavNodeManager,self).startup(mewlosite,eventlist)
         # initial nodes
         self.sitenode = NavNode('site')
         self.orphannode = NavNode('__orphans__')
@@ -93,7 +93,7 @@ class NavNodeManager(object):
 
     def shutdown(self):
         """Called at shutdown of application."""
-        pass
+        super(NavNodeManager,self).shutdown()
 
 
 

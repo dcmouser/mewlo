@@ -22,19 +22,19 @@ class MewloGroup(mdbmodel.MewloDbModel):
     """Group object / database model."""
 
     # class variables
-    dbtablename = 'usergroup'
+    dbtablename = 'ugroup'
     #
     flag_mixin_atroot = False
 
 
     def init(self):
         """Manually called init on manually created new instances."""
-        self.gobify(self.__class__.__name__)
+        self.gobify()
 
 
 
     @classmethod
-    def definedb(cls, dbmanager):
+    def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
         # define fields list
 
@@ -48,8 +48,7 @@ class MewloGroup(mdbmodel.MewloDbModel):
             mdbmixins.Dbf_GobReference('user'),
             ]
 
-        # add fieldlist to hash
-        cls.hash_fieldlist(fieldlist)
+        return fieldlist
 
 
 
@@ -60,11 +59,11 @@ class MewloGroup(mdbmodel.MewloDbModel):
         subfields = mdbmixins.MewloDbModelMixin_AuthorTracker.get_dbfields()
         if (cls.flag_mixin_atroot):
             # prepare extra fields that will be added at root; this doesnt actually create any helper models
-            cls.extend_extrafields(subfields)
+            cls.extend_fields(subfields)
         else:
             # add a special sub table that will contain some fields, using a helper class object attached to us
             # create (AND REGISTER) the new helper object
-            cls.extend_extrafields(mdbmodel_fieldset.MewloDbFieldset.make_fieldset_dbobjectclass(cls,'atrack','author tracking object',cls.dbtablename,dbmanager,subfields))
+            cls.extend_fields(mdbmodel_fieldset.MewloDbFieldset.make_fieldset_dbobjectclass(cls,'atrack','author tracking object',cls.dbtablename,dbmanager,subfields))
 
         # create a helper class that acts as a many-to-many association table
 #        mdbmodel_relation.MewloDbRelationModel_SimpleMtoN.make_dbobjectclass(cls, muser.MewloUser, dbmanager)

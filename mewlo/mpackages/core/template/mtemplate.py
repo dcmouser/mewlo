@@ -4,6 +4,10 @@ This module contains classes and functions for interfacing with template system.
 """
 
 
+# mewlo imports
+from ..manager import manager
+
+
 # python imports
 import os.path
 
@@ -41,20 +45,23 @@ class MewloTemplate(object):
 
 
 
-class MewloTemplateManager(object):
+class MewloTemplateManager(manager.MewloManager):
     """The MewloTemplateManager class is the helper object which implements or interfaces to all template processing functionality."""
 
     def __init__(self):
+        super(MewloTemplateManager,self).__init__()
         self.templatetypes = []
 
     def startup(self, mewlosite, eventlist):
-        self.mewlosite = mewlosite
+        super(MewloTemplateManager,self).startup(mewlosite,eventlist)
         # register some built in template types
         import mtemplate_jinja2
         self.register_templateclass(mtemplate_jinja2.MewloTemplate_Jinja2)
 
     def shutdown(self):
-        pass
+        super(MewloTemplateManager,self).shutdown()
+
+
 
 
     def from_file(self, filepath, templatetypeid=None):

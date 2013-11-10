@@ -41,7 +41,6 @@ class MewloDbModel(object):
     fieldlist = []
     fieldhash = {}
     #
-    extrafields = []
     friendclasses = {}
 
 
@@ -82,11 +81,13 @@ class MewloDbModel(object):
 
 
 
-    def gobify(self, objecttype):
-        """Create a gob global unique resource object for us."""
+    def gobify(self, objtypename=None):
+        """Create a gob global unique resource object for us.  The gob table stores the type of object it refers to (but not the foreign id in order to stay normalized)."""
         import mdbmodel_gob
         self.gob = mdbmodel_gob.MewloDbModel_Gob()
-        self.gob.objecttype = objecttype
+        if (objtypename==None):
+            objtypename = self.get_dbtablename()
+        self.gob.objecttype = objtypename
         return self.gob
 
 
@@ -139,13 +140,13 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def extend_extrafields(cls, addfieldlist):
+    def extend_fields(cls, addfieldlist):
         """Add fields."""
         # we need to do a kludgey thing here because derived classes inherit default value from parent, and extending that list would be bad.
-        if (len(cls.extrafields)==0 or cls.extrafields == MewloDbModel.extrafields):
-            cls.extrafields=addfieldlist
+        if (len(cls.fieldlist)==0 or cls.fieldlist == MewloDbModel.fieldlist):
+            cls.fieldlist=addfieldlist
         else:
-            cls.extrafields.extend(addfieldlist)
+            cls.fieldlist.extend(addfieldlist)
 
 
 
@@ -185,14 +186,9 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def hash_fieldlist(cls, fieldlist):
+    def hash_fieldlist(cls):
         """hash fieldlist in dictionary."""
-        cls.fieldlist = fieldlist
-
-        # add extrafields
-        cls.fieldlist.extend(cls.extrafields)
-
-        for field in fieldlist:
+        for field in cls.fieldlist:
             cls.fieldhash[field.id] = field
 
 
@@ -282,7 +278,10 @@ class MewloDbModel(object):
         """Default way of creating sql alchemy columns for model."""
 
         # ask model to define its internal fields
-        cls.definedb(dbmanager)
+        fields = cls.define_fields(dbmanager)
+        cls.extend_fields(fields)
+        # now hash the fieldlist so we can look up fields by name
+        cls.hash_fieldlist()
 
         # get the sqlahelper for this schema (usually default one shared by all models), plus some info
         dbtablename = cls.get_dbtablename()
@@ -296,7 +295,7 @@ class MewloDbModel(object):
         # tell sqlalchemy to build table object from columns
         modeltable = sqlalchemy.Table(dbtablename, metadata, *sqlalchemycolumns)
 
-        # and store the table and other object references in the class itself
+        # and store the table and other object references in the model class itself
         cls.setclass_dbinfo(modeltable, sqlahelper, dbmanager)
 
         # debug info
@@ -397,10 +396,13 @@ class MewloDbModel(object):
     # These methods will be specific to the derived subclass
 
     @classmethod
-    def definedb(cls, dbmanager):
-        """This class-level function defines the database fields for this model -- the columns, etc.
-        The subclass will implement this function."""
-        pass
+    def define_fields(cls, dbmanager):
+        """
+        This class-level function defines the database fields for this model -- the columns, etc.
+        The subclass will implement this function.
+        Return a list of dbfields.
+        """
+        return []
 
 
 

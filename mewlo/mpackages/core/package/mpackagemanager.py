@@ -25,6 +25,7 @@ from ..helpers.callables import importmodule_bypath
 from ..eventlog.mevent import EFailure, EDebug
 from ..helpers.misc import get_value_from_dict, append_text
 from mpackage import MewloPackage
+from ..manager import manager
 
 # python imports
 import imp
@@ -43,7 +44,7 @@ import os
 
 
 
-class MewloPackageManager(object):
+class MewloPackageManager(manager.MewloManager):
     """
     The PackageManager is a class that can be used to dynamically find modules by path and filename pattern.  It manages a collection of Package objects that represent addonsm, etc.
     It's useful for plugin-discovery type things.
@@ -58,6 +59,7 @@ class MewloPackageManager(object):
 
     def __init__(self):
         # stuff
+        super(MewloPackageManager,self).__init__()
         self.dirlist = []
         self.filepatternsuffix = ''
         self.setuptools_entrypoint_groupname = ''
@@ -69,6 +71,37 @@ class MewloPackageManager(object):
         self.set_filepatternsuffix(self.DefMewlo_Package_filepatternsuffix)
         # set setuptools entrypoint groupname
         self.set_setuptools_entrypoint_groupname('mewlo.packages')
+
+
+
+    def startup(self, mewlosite, eventlist):
+        """Any initial startup stuff to do?"""
+        super(MewloPackageManager,self).startup(mewlosite,eventlist)
+        # discover the packages in the package directories
+        failures = []
+        self.discover_packages(eventlist)
+        # ok now that we have disocvered the packages, we walk them and apply any settings the might enable or disable them
+        for package in self.packages:
+            failure = self.startup_package_auto(package, eventlist)
+            if (failure != None):
+                # if we get a hard failure here, we add it to our list of failures, and to the eventlist
+                eventlist.add(failure)
+                failures.append(failure)
+        # return failures
+        return failures
+
+
+
+
+    def shutdown(self):
+        """Shutdown the packages."""
+        super(MewloPackageManager,self).shutdown()
+        for package in self.packages:
+            package.shutdown()
+
+
+
+
 
 
     def set_directories(self, dirlist):
@@ -101,33 +134,6 @@ class MewloPackageManager(object):
             pkg.load_infofile()
         return pkg
 
-
-
-    def startup(self, mewlosite, eventlist):
-        """Any initial startup stuff to do?"""
-        self. mewlosite = mewlosite
-        # discover the packages in the package directories
-        failures = []
-        self.discover_packages(eventlist)
-        # ok now that we have disocvered the packages, we walk them and apply any settings the might enable or disable them
-        for package in self.packages:
-            failure = self.startup_package_auto(package, eventlist)
-            if (failure != None):
-                # if we get a hard failure here, we add it to our list of failures, and to the eventlist
-                eventlist.add(failure)
-                failures.append(failure)
-        # return failures
-        return failures
-
-
-
-
-
-
-    def shutdown(self):
-        """Shutdown the packages."""
-        for package in self.packages:
-            package.shutdown()
 
 
 

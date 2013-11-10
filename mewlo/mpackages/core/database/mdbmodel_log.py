@@ -78,7 +78,7 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
 
 
     @classmethod
-    def definedb(cls, dbmanager):
+    def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
         # define fields list
         fieldlist = [
@@ -108,5 +108,4 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
                 }),
             ]
 
-        cls.hash_fieldlist(fieldlist)
-
+        return fieldlist

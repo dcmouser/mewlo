@@ -12,6 +12,7 @@ The asset manager has several functions:
 
 # mewlo imports
 from ..helpers.misc import resolve_expand_string
+from ..manager import manager
 
 # python imports
 
@@ -19,18 +20,19 @@ from ..helpers.misc import resolve_expand_string
 
 
 
-class MewloAssetManager(object):
+class MewloAssetManager(manager.MewloManager):
     """The derived signal dispatcher."""
 
     def __init__(self):
         """Constructor."""
+        super(MewloAssetManager,self).__init__()
         self.alias_settings = None
 
     def startup(self, mewlosite, eventlist):
-        self.mewlosite = mewlosite
+        super(MewloAssetManager,self).startup(mewlosite,eventlist)
 
     def shutdown(self):
-        pass
+        super(MewloAssetManager,self).shutdown()
 
 
 

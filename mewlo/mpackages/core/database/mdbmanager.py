@@ -4,23 +4,27 @@ This module contains Mewlo database manager class.
 """
 
 # mewlo imports
+from ..manager import manager
 
 
 
-
-class MewloDatabaseManager(object):
+class MewloDatabaseManager(manager.MewloManager):
     """The MewloDatabaseManager supervises database support."""
 
     def __init__(self):
+        super(MewloDatabaseManager,self).__init__()
         self.databasesettings = {}
         self.modelclasses = {}
 
     def startup(self, mewlosite, eventlist):
-        self.mewlosite = mewlosite
+        super(MewloDatabaseManager,self).startup(mewlosite,eventlist)
 
     def shutdown(self):
-        """Shutdwn the database.
-        Before we do, we flush it to save any pending saves."""
+        """
+        Shutdown the database.
+        Before we do, we flush it to save any pending saves.
+        """
+        super(MewloDatabaseManager,self).shutdown()
         self.flush_all_dbs()
 
 

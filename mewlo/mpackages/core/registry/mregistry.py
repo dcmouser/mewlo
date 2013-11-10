@@ -26,8 +26,9 @@ How to use the feature filter to look up matching components:
 """
 
 
-# helper imports
+# mewlo imports
 from ..helpers.misc import does_dict_filter_match
+from ..manager import manager
 
 # python imports
 
@@ -90,22 +91,23 @@ class MewloComponent(object):
 
 
 
-class MewloComponentRegistry(object):
+class MewloRegistryManager(manager.MewloManager):
     """The component registry."""
 
     def __init__(self):
         """Constructor."""
+        super(MewloRegistryManager,self).__init__()
         # init
         self.components = []
         self.componenthash = {}
 
 
-
     def startup(self, mewlosite, eventlist):
-        self.mewlosite = mewlosite
+        super(MewloRegistryManager,self).startup(mewlosite,eventlist)
 
 
     def shutdown(self):
+        super(MewloRegistryManager,self).shutdown()
         #print "** REGISTRY IS SHUTTING DOWN. **"
         self.unregister_all()
 

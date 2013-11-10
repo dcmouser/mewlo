@@ -125,3 +125,10 @@ we need a better workflow that will allow us to dynamically add relations and co
 sql alchemy stuff is done in a way that makes it hard to refer to sql alchemy columns
 creation order of tables and relationships is problematic.
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+11/9/13
+the mixin module is weird and inconsistent
+//---------------------------------------------------------------------------

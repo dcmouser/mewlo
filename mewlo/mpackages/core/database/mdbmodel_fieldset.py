@@ -33,7 +33,7 @@ class MewloDbFieldset(mdbmodel.MewloDbModel):
 
 
     @classmethod
-    def definedb(cls, dbmanager):
+    def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model."""
 
         # starting field list is just primary id
@@ -55,7 +55,7 @@ class MewloDbFieldset(mdbmodel.MewloDbModel):
             }),
             ]
 
-        cls.hash_fieldlist(fieldlist)
+        return fieldlist
 
 
 

@@ -38,7 +38,9 @@ ATTN:TODO - There is a lot more to implement here.
 """
 
 
-# helper imports
+# mewlo imports
+from ..manager import manager
+
 
 # python imports
 
@@ -157,24 +159,25 @@ class SignalSender(object):
 
 
 
-class MewloSignalDispatcher(object):
+class MewloSignalManager(manager.MewloManager):
     """The signal dispatcher."""
 
 
     def __init__(self):
         """Constructor."""
+        super(MewloSignalManager,self).__init__()
         # init
         self.signals = []
         self.senders = []
         self.receivers = []
 
 
-
     def startup(self, mewlosite, eventlist):
-        self.mewlosite = mewlosite
+        super(MewloSignalManager,self).startup(mewlosite,eventlist)
 
 
     def shutdown(self):
+        super(MewloSignalManager,self).shutdown()
         #print "** SIGNAL DISPATCHER IS SHUTTING DOWN. **"
         self.unregister_all()
 

@@ -16,6 +16,7 @@ from ..database import mdbsettings
 from ..database import mdbmanager_sqlalchemy
 from ..database import mdbmodel_settings
 from ..database import mdbmodel_gob
+from ..rbac import mrbac
 from ..navnode import mnav
 from ..template import mtemplate
 from ..template import mtemplatehelper
@@ -86,6 +87,9 @@ class MewloSite(object):
         # database manager
         self.dbmanager = mdbmanager_sqlalchemy.MewloDatabaseManagerSqlA()
 
+        # rbac permission manager
+        self.rbac = mrbac.MewloRbacManager()
+
         # create persistent(db) package settings
         self.packagesettings = mdbsettings.MewloSettingsDb(MewloSettings.DEF_DBCLASSNAME_PackageSettings)
 
@@ -96,10 +100,10 @@ class MewloSite(object):
         self.routemanager = mroute.MewloRouteManager()
 
         # signal dispatcher
-        self.dispatcher = msignal.MewloSignalDispatcher()
+        self.dispatcher = msignal.MewloSignalManager()
 
         # component registry
-        self.registry = mregistry.MewloComponentRegistry()
+        self.registry = mregistry.MewloRegistryManager()
 
         # navnode manager
         self.navnodes = mnav.NavNodeManager()
@@ -162,6 +166,9 @@ class MewloSite(object):
         self.create_early_database_classes(eventlist)
         # and to create the tables for them, etc.
         self.dbmanager.create_tableandmapper_forallmodelclasses()
+
+        # rbac system
+        self.rbac.startup(self, eventlist)
 
         # log system
         self.logmanager.startup(self, eventlist)
@@ -245,6 +252,9 @@ class MewloSite(object):
 
         #  log system
         self.logmanager.shutdown()
+
+        # rbac system
+        self.rbac.shutdown()
 
         # database manager
         self.dbmanager.shutdown()
@@ -619,18 +629,12 @@ class MewloSite(object):
         """
         # create some core database model classes
         dbmanager = self.dbmanager
-        # ATTN: Again, we should do this elsewhere: create MewloUser class
-        # NOTE: We do NOT use create_derived_dvmodelclass() as above since we are not dynamically creating a new class on the fly
+        # ATTN: Again, we should do this elsewhere
         dbmanager.register_modelclass(self, muser.MewloUser)
         dbmanager.register_modelclass(self, mgroup.MewloGroup)
         dbmanager.register_modelclass(self, mrbac.MewloRole)
         dbmanager.register_modelclass(self, mrbac.MewloRoleHierarchy)
-        #old role mXn specific rables
-        #newclass = self.dbmanager.create_derived_dbmodelclass(self, mrbac.MewloRoleAssignment_MN, 'MewloRoleAssignment_User_Group', 'dummy')
-        #newclass.setup_roleassignment_classes(muser.MewloUser, mgroup.MewloGroup)
-        #dbmanager.register_modelclass(self, newclass)
-
-
+        dbmanager.register_modelclass(self, mrbac.MewloRoleAssignment)
 
 
 

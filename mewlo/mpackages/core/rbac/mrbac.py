@@ -9,6 +9,8 @@ This module contains classes and functions to manage the RBAC/ACL (permission) s
 from ..database import mdbmodel
 from ..database import mdbmodel_relation
 from ..database import mdbfield
+from ..database import mdbmodel_gob
+from ..manager import manager
 
 # python imports
 
@@ -21,15 +23,12 @@ class MewloRole(mdbmodel.MewloDbModel):
     """The role class manages hierarchy of roles."""
 
     # class variables
-    dbtablename = 'role'
+    dbtablename = 'role_def'
     dbschemaname = 'default'
 
     @classmethod
-    def definedb(cls, dbmanager):
+    def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
-
-        # now add our fields
-        fieldlist = cls.fieldlist
 
         # define fields list
         fieldlist = [
@@ -60,21 +59,10 @@ class MewloRole(mdbmodel.MewloDbModel):
                 'backrefname': 'parentroles',
                 'primaryjoin_name': 'parent_id',
                 'secondaryjoin_name': 'child_id',
-#                'primaryjoin_name': 'role.c.id==rolehierarchy.c.parent_id',
-#                'secondaryjoin_name': 'role.c.id==rolehierarchy.c.child_id',
-
-#                'backref_foreign_keyname': 'parent_id',
-#                'foreign_keyname': 'child_id',
                 }),
-#            mdbfield.DbfNtoM_SimpleRelation('parentroles',{
-#                'associationclass': MewloRoleHierarchy,
-#                'otherclass': MewloRole,
-##                'backrefname': 'childroles',
-#                'foreign_keyname': 'parent_id',
-#                }),
              ]
 
-        cls.hash_fieldlist(fieldlist)
+        return fieldlist
 
 
 
@@ -85,15 +73,12 @@ class MewloRoleHierarchy(mdbmodel.MewloDbModel):
     """The role class manages hierarchy of roles."""
 
     # class variables
-    dbtablename = 'rolehierarchy'
+    dbtablename = 'role_hierarchy'
     dbschemaname = 'default'
 
     @classmethod
-    def definedb(cls, dbmanager):
+    def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
-
-        # now add our fields
-        fieldlist = cls.fieldlist
 
         # define fields list
         fieldlist = [
@@ -113,7 +98,53 @@ class MewloRoleHierarchy(mdbmodel.MewloDbModel):
                 }),
              ]
 
-        cls.hash_fieldlist(fieldlist)
+        return fieldlist
+
+
+
+
+
+
+
+
+
+
+
+class MewloRoleAssignment(mdbmodel.MewloDbModel):
+    """The role class manages hierarchy of roles."""
+
+    # class variables
+    dbtablename = 'role_assign'
+    dbschemaname = 'default'
+
+    @classmethod
+    def define_fields(cls, dbmanager):
+        """This class-level function defines the database fields for this model -- the columns, etc."""
+
+        # define fields list
+        fieldlist = [
+            # standard primary id number field
+            mdbfield.DbfPrimaryId('id', {
+                'label': "The primary key and id# for this row"
+                }),
+            # subject gob
+            mdbfield.DbfForeignKey('subject_gob_id', {
+                'label': "The subject global object id",
+                'foreignkeyname': mdbmodel_gob.MewloDbModel_Gob.get_dbtablename()+'.id',
+                }),
+            # role
+            mdbfield.DbfForeignKey('role_id', {
+                'label': "The parent role id",
+                'foreignkeyname': MewloRole.get_dbtablename()+'.id',
+                }),
+            # resource gob
+            mdbfield.DbfForeignKey('resource_gob_id', {
+                'label': "The resource global object id",
+                'foreignkeyname': mdbmodel_gob.MewloDbModel_Gob.get_dbtablename()+'.id',
+                }),
+             ]
+
+        return fieldlist
 
 
 
@@ -134,22 +165,19 @@ class MewloRoleHierarchy(mdbmodel.MewloDbModel):
 
 
 
-class MewloRbacManager(object):
+
+
+class MewloRbacManager(manager.MewloManager):
     """The Rbac system manager."""
 
     def __init__(self):
         """Constructor."""
-        pass
+        super(MewloRbacManager,self).__init__()
 
     def startup(self, mewlosite, eventlist):
-        self.mewlosite = mewlosite
+        super(MewloRbacManager,self).startup(mewlosite,eventlist)
 
     def shutdown(self):
-        pass
+        super(MewloRbacManager,self).shutdown()
 
 
-
-
-    def register_role_assignment_class(self, roleassignmentclass):
-        """Register a new role assignment class."""
-        pass

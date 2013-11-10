@@ -59,7 +59,7 @@ class MewloDbModel_Settings(mdbmodel.MewloDbModel):
 
 
     @classmethod
-    def definedb(cls, dbmanager):
+    def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
         # define fields list
         fieldlist = [
@@ -76,5 +76,5 @@ class MewloDbModel_Settings(mdbmodel.MewloDbModel):
                 'label': "The serialzed text version of the dictionary/array data being stored"
                 })
             ]
-        cls.hash_fieldlist(fieldlist)
+        return fieldlist
 

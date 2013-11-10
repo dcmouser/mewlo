@@ -360,39 +360,11 @@ class MewloSite_Test1(MewloSite):
         groupb = mgroup.MewloGroup()
         groupb.init()
 
-        #
-        if (False):
-            # simple relation
-            usera.usergroups.append(groupa)
-            groupb.users.append(userb)
-            usera.save()
-            groupb.save()
-        elif (False):
-            # heavy one
-            a = usera.makenew_friendclass('AssociationRelation_usergroup')
-            a.dummyval = 123
-            a.usergroup = groupa
-            usera.usergroups.append(a)
-            usera.save()
-        elif (False):
-            # new role-based test
-            from mewlo.mpackages.core.rbac import mrbac
-            roleassignment_class = mglobals.db().lookupclass('MewloRoleAssignment_User_Group')
-            newrole = maclmanager.AclRole()
-            newrole.name = 'moderator'
-            newrole.label = 'can manager and moderate this group'
-            newrole.save()
-            a = roleassignment_class()
-            a.usergroup = groupa
-            a.user = usera
-            a.role = newrole
-            a.save()
-        elif (True):
-            # simple
-            usera.save()
-            userb.save()
-            groupa.save()
-            groupb.save()
+        # save users and groups
+        usera.save()
+        userb.save()
+        groupa.save()
+        groupb.save()
 
         # role test
         from mewlo.mpackages.core.rbac import mrbac
@@ -401,9 +373,7 @@ class MewloSite_Test1(MewloSite):
         rolea.save()
         roleb.save()
         rolea.childroles.append(roleb)
-        #roleb.parentroles.append(rolea)
         rolea.save()
-        #roleb.save()
 
 
 

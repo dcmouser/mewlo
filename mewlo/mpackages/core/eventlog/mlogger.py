@@ -44,35 +44,38 @@ Some examples of things we will want to be able to easily do:
 """
 
 
-# helper imports
+# mewlo imports
 from ..helpers.debugging import smart_dotted_idpath
 from mexceptionplus import reraiseplus
 from mevent import Event
+from ..manager import manager
 
 # python imports
 import logging
 
 
 
-class MewloLogManager(object):
+class MewloLogManager(manager.MewloManager):
     """
     MewloLogManager - the main supervisor class that manages a collection of Loggers
     """
 
     def __init__(self, debugmode):
+        super(MewloLogManager,self).__init__()
         self.loggers = []
         self.debugmode = debugmode
 
 
     def startup(self, mewlosite, eventlist):
         """Startup everything, we are about to exit."""
-        self.mewlosite = mewlosite
+        super(MewloLogManager,self).startup(mewlosite,eventlist)
         for logger in self.loggers:
             logger.startup()
 
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
+        super(MewloLogManager,self).shutdown()
         for logger in self.loggers:
             logger.shutdown()
 

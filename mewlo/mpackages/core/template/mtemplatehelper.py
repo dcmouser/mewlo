@@ -3,6 +3,8 @@ mtemplatehelper.py
 This module contains classes and functions that are passed to template to assist in producing text (menus, navbars, etc.)
 """
 
+# mewlo imports
+from ..manager import manager
 
 # python imports
 import os.path
@@ -13,17 +15,21 @@ import os.path
 
 
 
-class MewloTemplateHelper(object):
+class MewloTemplateHelper(manager.MewloManager):
     """The MewloTemplateHelper class helps templates render output."""
 
     def __init__(self):
-        self.mewlosite = None
+        super(MewloTemplateHelper,self).__init__()
 
     def startup(self, mewlosite, eventlist):
-        self.mewlosite = mewlosite
+        super(MewloTemplateHelper,self).startup(mewlosite,eventlist)
 
     def shutdown(self):
-        pass
+        super(MewloTemplateHelper,self).shutdown()
+
+
+
+
 
 
     def make_templateargs(self, inargs, request, response):
@@ -38,7 +44,6 @@ class MewloTemplateHelper(object):
         resolvedaliases = request.mewlosite.assetmanager.get_resolvedaliases()
         templateargs['alias'] = resolvedaliases
         return templateargs
-
 
 
 

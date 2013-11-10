@@ -36,7 +36,7 @@ class MewloDbRelationModel_SimpleMtoN(MewloDbRelationModel):
 
 
     @classmethod
-    def definedb(cls, dbmanager):
+    def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model."""
 
         # starting field list is just primary id
@@ -57,7 +57,7 @@ class MewloDbRelationModel_SimpleMtoN(MewloDbRelationModel):
                 }),
             ]
 
-        cls.hash_fieldlist(fieldlist)
+        return fieldlist
 
 
 
@@ -93,7 +93,7 @@ class MewloDbRelationModel_SimpleMtoN(MewloDbRelationModel):
                 'otherclass':rightclass,
                 'backrefname':leftcollectionname}),
             ]
-        leftclass.extend_extrafields(leftfields)
+        leftclass.extend_fields(leftfields)
 
         # return the newly created class
         return subclass
@@ -133,7 +133,7 @@ class MewloDbRelationModel_FullMtoN(MewloDbRelationModel):
 
 
     @classmethod
-    def definedb(cls, dbmanager):
+    def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model."""
         #
         leftcollectionname = cls.leftclass.get_dbtablename()+'s'
@@ -175,7 +175,7 @@ class MewloDbRelationModel_FullMtoN(MewloDbRelationModel):
                 'backrefname':rightcollectionname}),
             ]
 
-        cls.hash_fieldlist(fieldlist)
+        return fieldlist
 
 
 
