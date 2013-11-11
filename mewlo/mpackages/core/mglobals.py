@@ -47,11 +47,32 @@ class MewloGlobalClass:
             # on exception, it's first time, so store reference to our data in sys module
             sys.mewloglobals = MewloGlobalClass.globals
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 # call this class method every time this module is imported
 # note that due to some very strange python behavior (i called it a messed up f*cking bug),
 #  this module can be reloaded after another dynamic extension is loaded, causing it to lose any static class data,
 #  meaning this function will get called multiple times.
 MewloGlobalClass.onimport()
+
+
+
+
+
+
+
+
 
 
 

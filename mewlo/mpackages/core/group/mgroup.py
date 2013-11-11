@@ -39,7 +39,6 @@ class MewloGroup(mdbmodel.MewloDbModel):
     @classmethod
     def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
-        # define fields list
 
         # ATTN: UNFINISHED
         fieldlist = [
@@ -48,7 +47,7 @@ class MewloGroup(mdbmodel.MewloDbModel):
                 'label': "The primary key and id# for this group"
                 }),
             # globally unique resource reference
-            mdbmixins.Dbf_GobReference('user'),
+            mdbmixins.dbfmixin_gobselfreference(),
             ]
 
         return fieldlist
@@ -57,20 +56,16 @@ class MewloGroup(mdbmodel.MewloDbModel):
 
 
     @classmethod
-    def create_helpermodels(cls, dbmanager):
-        """Create and register with the dbmanager any model classes that this class uses as helpers."""
-        subfields = mdbmixins.MewloDbModelMixin_AuthorTracker.get_dbfields()
+    def create_prerequisites(cls, dbmanager):
+        """Create and register with the dbmanager any prerequisites that this class uses."""
+        subfields = mdbmixins.dbfmixins_authortracker()
         if (cls.flag_mixin_atroot):
             # prepare extra fields that will be added at root; this doesnt actually create any helper models
             cls.extend_fields(subfields)
         else:
             # add a special sub table that will contain some fields, using a helper class object attached to us
             # create (AND REGISTER) the new helper object
-            cls.extend_fields(mdbmodel_fieldset.MewloDbFieldset.make_fieldset_dbobjectclass(cls,'atrack','author tracking object',cls.dbtablename,dbmanager,subfields))
+            mdbmodel_fieldset.MewloDbFieldset.make_fieldset_dbobjectclass(cls,'tracking','author tracking object',cls.dbtablename,dbmanager,subfields)
 
-        # create a helper class that acts as a many-to-many association table
-#        mdbmodel_relation.MewloDbRelationModel_SimpleMtoN.make_dbobjectclass(cls, muser.MewloUser, dbmanager)
-#        mdbmodel_relation.MewloDbRelationModel_FullMtoN.make_dbobjectclass(muser.MewloUser, MewloGroup, dbmanager)
-        # ATTN: this was a test -- we now use roles for this and create elsewhere
 
 

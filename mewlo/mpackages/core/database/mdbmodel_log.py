@@ -4,12 +4,15 @@ mdbmodel_log.py
 This is a base class for logging to database.
 Subclasses can add new fields.
 
+ATTN: We implement here some serialized support functions but they shouldnt be here, they should be more generically implemented in model or field class.
+
 """
 
 
 # mewlo imports
 import mdbmodel
 import mdbfield
+import mdbmixins
 
 # python imports
 
@@ -24,21 +27,25 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
     # class variables
     dbtablename = 'log'
     dbschemaname = 'default'
-    # log fields to ignore
+
+    # fields to ignore and not write out to database
     ignored_logfields = []
 
 
+    def __init__(self):
+        # initialize when creating manually
+        self.serialized_fields = None
 
-    # ATTN: NOTE __INIT__ IS *NOT* CALLED WHEN INSTANTIATING MODELS VIA SQLALCHEMY ORM SO WE AVOID IT WHERE POSSIBLE
 
 
+
+    # all of thes serialization functions should be done away with and handled transparently by a serialized field type
 
     def get_unserialized_fields(self):
         """Unserialized the string property."""
-        serializedtext = self.serialized_fields
-        if (serializedtext==None):
+        if (self.serialized_fields == None):
             return None
-        return self.unserialize(serializedtext)
+        return self.unserialize(self.serialized_fields)
 
 
     def store_serialize_fields(self, fields):
@@ -48,7 +55,7 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
 
     def set_property_byname(self, propname, propval):
         """Set an object property by name."""
-        setattr(self, propname,propval)
+        setattr(self, propname, propval)
 
 
     def map_dict_to_properties(self, dict):
@@ -80,7 +87,6 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
     @classmethod
     def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
-        # define fields list
         fieldlist = [
             # standard primary id number field
             mdbfield.DbfPrimaryId('id', {
@@ -106,6 +112,10 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
             mdbfield.DbfString('type', {
                 'label': "The type of the message"
                 }),
+            # globally unique subject reference (usually the user logged in)
+            mdbmixins.dbfmixin_gobreference('subject'),
+            # globally unique resource reference (could be a document, group, thread, etc.)
+            mdbmixins.dbfmixin_gobreference('resource'),
             ]
 
         return fieldlist

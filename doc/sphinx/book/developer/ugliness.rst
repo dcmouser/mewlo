@@ -7,18 +7,7 @@ Ugly Code
 
 
 8/13/13:
-    * It looks like when dynamically importing modules (ie packages), relative imports are not being supported; this could create hardships.
-    * See http://stackoverflow.com/questions/5078590/dynamic-imports-relative-imports-in-python-3
-    * I solved this for now by using version3 of the import function in callables.py
-
-
-8/13/13:
     * We are still throwing some exceptions in mcontroller and helpers/callables modules.
-
-
-8/15/13:
-    * We sometimes use ' and sometimes use " for strings; decide on a standard and explain why and make all consistent.
-    * We sometimes use % operator, and sometimes use +; be consistent.  Is % being deprecated?
 
 
 8/15/13:
@@ -50,6 +39,7 @@ Ugly Code
     * Take a look at a file like package.py; note that its impossible to distinguish between api functions meant to be called by someone, vs helper functions used by these.
     * Move all "internal" functions to _ prefixes?
     * By internal i mean functions not meant to be called from outside the class
+    * Method functions that are *ONLY* called by other functions within the class, and never called from outside the class should be _ prefixed.
 
 
 10/9/13:
@@ -72,9 +62,6 @@ Ugly Code
 10/31/13:
     * The sqlalchemy column creation stuff is still awkward.
     * We need a better workflow that will allow us to dynamically add relations and columns to models
-
-
-10/31/12:
     * Sql alchemy stuff is done in a way that makes it hard to refer to sql alchemy columns
     * Creation order of tables and relationships is problematic.
     * Move all/most sqlalchemy to declarative style?
@@ -87,3 +74,8 @@ Ugly Code
 11/10/13:
     * Instead of manually calling every "manager" in site startup and shutdown, can we iterate through a list?
 
+
+11/11/13:
+
+    * We implement here some serialized support functions in mmdbmodel_log but they shouldn't be there, they should be more generically implemented in model or field class.  And we should use a special sqlalchemy column class that knows how to treat it specially.
+    * See all mdbmodel_settings

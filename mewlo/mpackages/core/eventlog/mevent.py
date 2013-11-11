@@ -221,6 +221,7 @@ class Event(object):
 
 class EventList(object):
     """Event list holds multiple events and provides some helper functions for working with multiple events."""
+    # ATTN: Do we really need a custom list type for this?
 
     def __init__(self):
         # init
@@ -326,6 +327,24 @@ class EventList(object):
 
     def dumps(self, indent=0):
         return self.stringify(indent)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

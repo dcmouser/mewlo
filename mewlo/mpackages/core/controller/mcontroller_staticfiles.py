@@ -34,12 +34,6 @@ class MewloController_StaticFiles(mcontroller.MewloController):
         filepath = basefilepath + "/" + relpath
         filepath = request.mewlosite.resolve(filepath)
 
-
-        # debug info
-        #print "----ATTN: Invoking static file controller callable. ----"
-        #print "Parsed args: " + str(request.parsedargs)
-        #print "Requested file path: " + filepath
-
         # file exist?
         if (not os.path.isfile(filepath)):
             # file does not exist, respond with error

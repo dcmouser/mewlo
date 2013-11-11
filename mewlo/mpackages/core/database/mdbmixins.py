@@ -1,12 +1,11 @@
 """
-mdbmodelmizins.py
+mdbmodelmixins.py
 
 This file contains some common model mixins to make it easier to add fields to a model.
 
 """
 
-
-# helper imports
+# mewlo imports
 import mdbfield
 import mdbmodel_gob
 
@@ -14,89 +13,70 @@ import mdbmodel_gob
 
 
 
-class MewloDbModelMixin(object):
-    """An object provides some mixin data for a model."""
-    pass
+def dbfmixins_userandtimestamp(prefixstr=''):
+    """Mixin fields to help track authorship and modification info for an object."""
+    fieldlist = [
+        mdbfield.DbfForeignUserId(prefixstr+'userid', {
+            'label': "The {0}userid for this object".format(prefixstr)
+            }),
+        mdbfield.DbfServerIp(prefixstr+'userip', {
+           'label': "The {0}ip for this object".format(prefixstr)
+            }),
+        mdbfield.DbfTimestamp(prefixstr+'timestamp', {
+           'label': "The {0}timestamp for this object".format(prefixstr)
+           }),
+        ]
+    return fieldlist
 
 
 
 
-
-
-class MewloDbModelMixin_UserAndTimestamp(MewloDbModelMixin):
-    """An object provides some mixin data for a model."""
-
-    @classmethod
-    def get_dbfields(cls, prefixstr=''):
-        """Mixin fields to help track authorship and modification info for an object."""
-        # define field list
-        fieldlist = [
-            mdbfield.DbfForeignUserId(prefixstr+'userid', {
-            #mdbfield.DbfInteger(prefixstr+'userid', {
-                'label': "The {0}userid for this object".format(prefixstr)
-                }),
-            mdbfield.DbfUserIp(prefixstr+'userip', {
-                'label': "The {0}ip for this object".format(prefixstr)
-                }),
-            mdbfield.DbfTimestamp(prefixstr+'timestamp', {
-                'label': "The {0}timestamp for this object".format(prefixstr)
-                }),
-            ]
-        return fieldlist
+def dbfmixins_authortracker(prefixstr=''):
+    """Mixin fields for tracking author creation+modification data."""
+    fields_creation = dbfmixins_userandtimestamp(prefixstr+'creation_')
+    fields_modification = dbfmixins_userandtimestamp(prefixstr+'modification_')
+    fieldlist = fields_creation + fields_modification
+    return fieldlist
 
 
 
 
-
-
-
-class MewloDbModelMixin_AuthorTracker(MewloDbModelMixin):
-    """An object provides some mixin data for a model."""
-
-    @classmethod
-    def get_dbfields(cls, prefixstr=''):
-        """Mixin fields for tracking author creation+modification data."""
-        # define fields list
-        fields_creation = MewloDbModelMixin_UserAndTimestamp.get_dbfields(prefixstr+'creation_')
-        fields_modification = MewloDbModelMixin_UserAndTimestamp.get_dbfields(prefixstr+'modification_')
-        fieldlist = fields_creation + fields_modification
-        return fieldlist
-
-
-
-
-class MewloDbModelMixin_Workflow(MewloDbModelMixin):
-    """An object provides some mixin data for a model."""
-
-    @classmethod
-    def get_dbfields(cls, prefixstr=''):
-        """Mixin fields for tracking author creation+modification data."""
-        # define fields list
-        fieldlist = [
-            mdbfield.DbfBoolean(prefixstr+'is_deleted', {
-                'label': "Has the object been virtually deleted?"
-                }),
-            mdbfield.DbfBoolean(prefixstr+'is_draft', {
-                'label': "Has the object been marked as in draft state by author?"
-                }),
-            mdbfield.DbfEnum(prefixstr+'stage_workflow', {
-                'label': "Workflow stage of the object"
-                }),
-            ]
-        return fieldlist
+def dbfmixins_workflow(prefixstr=''):
+    """Mixin fields for tracking author creation+modification data."""
+    fieldlist = [
+        mdbfield.DbfBoolean(prefixstr+'is_deleted', {
+            'label': "Has the object been virtually deleted?"
+            }),
+        mdbfield.DbfBoolean(prefixstr+'is_draft', {
+            'label': "Has the object been marked as in draft state by author?"
+            }),
+        mdbfield.DbfEnum(prefixstr+'stage_workflow', {
+            'label': "Workflow stage of the object"
+            }),
+        ]
+    return fieldlist
 
 
 
 
-
-
-
-def Dbf_GobReference(backrefname):
-    field = mdbfield.Dbf1to1_MultiType_left('gobid', {
+def dbfmixin_gobselfreference():
+    """Mixin field for adding a global object id to a model."""
+    fieldid = 'gobid'
+    field = mdbfield.Dbf1to1_OneWay(fieldid, {
             'label': "The globally unique gob representing this object",
-            'backrefname': backrefname,
             'rightclass' : mdbmodel_gob.MewloDbModel_Gob,
-            'reciprocalfieldname' : 'objectid',
+            'relationname' : 'gob',
+            })
+    return field
+
+
+def dbfmixin_gobreference(relationname):
+    """Mixin field for referring to a global object id."""
+    fieldid = relationname+"_gobid"
+    field = mdbfield.Dbf1to1_OneWay(fieldid, {
+            'label': "A reference to another {0} model via its globally unique id (gobid)".format(relationname),
+            'rightclass' : mdbmodel_gob.MewloDbModel_Gob,
+            'relationname' : relationname,
             })
     return field
 

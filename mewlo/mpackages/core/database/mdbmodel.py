@@ -35,7 +35,7 @@ class MewloDbModel(object):
     #
     did_create_table = False
     did_create_mapper = False
-    did_create_helpermodels = False
+    did_create_prerequisites = False
     isreadytodb = False
     #
     fieldlist = []
@@ -126,13 +126,16 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def extend_fields(cls, addfieldlist):
+    def extend_fields(cls, addfieldlist, flag_front=False):
         """Add fields."""
         # we need to do a kludgey thing here because derived classes inherit default value from parent, and extending that list would be bad.
         if (len(cls.fieldlist)==0 or cls.fieldlist == MewloDbModel.fieldlist):
             cls.fieldlist=addfieldlist
         else:
-            cls.fieldlist.extend(addfieldlist)
+            if (flag_front):
+                cls.fieldlist = addfieldlist + cls.fieldlist
+            else:
+                cls.fieldlist.extend(addfieldlist)
 
 
 
@@ -250,8 +253,8 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def create_helpermodels(cls, dbmanager):
-        """Create and register with the dbmanager any model classes that this class uses as helpers."""
+    def create_prerequisites(cls, dbmanager):
+        """Create and register with the dbmanager any prerequisites that this class uses."""
         # nothing to do in base class
         pass
 
@@ -264,7 +267,7 @@ class MewloDbModel(object):
 
         # ask model to define its internal fields
         fields = cls.define_fields(dbmanager)
-        cls.extend_fields(fields)
+        cls.extend_fields(fields, True)
         # now hash the fieldlist so we can look up fields by name
         cls.hash_fieldlist()
 
@@ -283,9 +286,6 @@ class MewloDbModel(object):
         # and store the table and other object references in the model class itself
         cls.setclass_dbinfo(modeltable, sqlahelper, dbmanager)
 
-        # debug info
-        #print "DEBUG: createfields_onbehalfof_model {0}: ".format(modelclass.__name__)+str(sqlalchemycolumns)
-
 
 
 
@@ -301,9 +301,6 @@ class MewloDbModel(object):
 
         # tell sqlalchemy to build mapper
         sqlalchemy.orm.mapper(cls, modeltable, properties=mapproperties)
-
-        # debug info
-        #print "DEBUG: create_mapperhips_onbehalfof_model {0}: ".format(modelclass.__name__)+str(mapproperties)
 
 
 
@@ -348,7 +345,7 @@ class MewloDbModel(object):
         """Try to find the list of sqlacolumns associated with a field."""
         for field in cls.fieldlist:
             if (field.id==fieldid):
-                return field.sqlacolumns
+                return field.get_sqlacolumns()
         return None
 
 
@@ -358,7 +355,7 @@ class MewloDbModel(object):
         """Try to find the list of sqlacolumns associated with a field."""
         for field in cls.fieldlist:
             if (field.id==fieldid):
-                return field.sqlacolumns[0]
+                return field.get_sqlacolumn()
         raise Exception("Could not find field {0}".format(fieldid))
         #return None
 

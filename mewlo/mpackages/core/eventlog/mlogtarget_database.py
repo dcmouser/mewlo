@@ -42,7 +42,6 @@ class MewloLogTarget_Database(MewloLogTarget):
         self.logclass = dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
         # now register it
         dbmanager.register_modelclass(self, self.logclass)
-        #print ("SELFLOGCLASS = "+str(self.logclass.__name__)+" baseclass = "+self.baseclass.__name__)
         # parent
         super(MewloLogTarget_Database,self).startup()
 
@@ -89,8 +88,7 @@ class MewloLogTarget_Database(MewloLogTarget):
 
         # build a modelobj for the log message
         modelobj = self.logclass.new()
-        #print("ATTN: DEBUG created modelobj: "+str(modelobj))
-        # now write the logmessage fields to it
+        # now write the logmessage fields to it (putting unknown fields in serialized dict)
         modelobj.map_dict_to_properties(logmessage.fields)
         # now save it
         modelobj.save()

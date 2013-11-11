@@ -159,7 +159,7 @@ class MewloDatabaseManager(manager.MewloManager):
     def create_tableandmapper_forallmodelclasses(self):
         """We are ready to create all fields, THEN all relationships, for known model classes."""
         # It's important that we create all tabled before we try making ANY relationships, etc.
-        self.create_helpermodels_forallmodelclasses()
+        self.create_prerequisites_forallmodelclasses()
         self.create_table_forallmodelclasses()
         self.create_mapper_forallmodelclasses()
         # now ask db engine to actually BUILD all tables for all models
@@ -170,12 +170,12 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
 
-    def create_helpermodels_forallmodelclasses(self):
+    def create_prerequisites_forallmodelclasses(self):
         """Create fields for all registered model classes (that haven't already been created)."""
         for key in self.modelclasses.keys():
             # map database fields for it
             modelclass = self.modelclasses[key]
-            self.create_helpermodels_formodelclass(modelclass)
+            self.create_prerequisites_formodelclass(modelclass)
 
     def create_table_forallmodelclasses(self):
         """Create fields for all registered model classes (that haven't already been created)."""
@@ -200,15 +200,15 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
 
-    def create_helpermodels_formodelclass(self, modelclass):
+    def create_prerequisites_formodelclass(self, modelclass):
         """Create the fields for this model."""
         if (isinstance(modelclass,basestring)):
             modelclass = self.modelclasses[modelclass]
-        if (not modelclass.did_create_helpermodels):
-            # ask model to create and register any helper classes
-            modelclass.create_helpermodels(self)
+        if (not modelclass.did_create_prerequisites):
+            # ask model to create and register any prerequisites (helper classes, etc.)
+            modelclass.create_prerequisites(self)
             # set flag saying its been done
-            modelclass.did_create_helpermodels = True
+            modelclass.did_create_prerequisites = True
 
     def create_table_formodelclass(self, modelclass):
         """Create the fields for this model."""

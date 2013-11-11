@@ -2,6 +2,7 @@
 mdbmodel_relation.py
 
 This file contains some common model relation helpers.
+ATTN: THIS CODE NEEDS REVIEW/REWRITING
 
 """
 

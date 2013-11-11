@@ -1,14 +1,12 @@
 """
 mdbfield.py
-
 The MewloDbField class handles one column of a model.
-
+ATTN: THIS CODE NEEDS REVIEW/REWRITING
 """
 
 
 # mewlo imports
 from ..helpers.misc import get_value_from_dict
-
 
 # python imports
 
@@ -28,17 +26,40 @@ class MewloDbField(object):
         # init
         self.id = id
         self.properties = properties
+        self.sqlacolumns = []
+
+
+    def set_sqlacolumns(self, sqlacolumns):
+        self.sqlacolumns = sqlacolumns
+    def get_sqlacolumns(self):
+        return self.sqlacolumns
+    def get_sqlacolumn(self):
+        return self.sqlacolumns[0]
+
 
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
-        return None
-    def create_sqlalchemy_mapperproperties(self, modelclass, modeltable):
-        """Convert field to sqlalchemy column."""
+        # subclass may override this
         return None
 
-    def set_sqlacolumns(self, columns):
-        """Record sqlacolumns for future use."""
-        self.sqlacolumns = columns
+    def create_sqlalchemy_mapperproperties(self, modelclass, modeltable):
+        """Convert field to sqlalchemy column."""
+        # subclass may override this
+        return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -72,21 +93,6 @@ class DbfUniqueKeyname(MewloDbField):
 
 
 
-
-class DbfSerialized(MewloDbField):
-    """Unlimited length text field used to serialize/unserialized arbitrary primitive types (dictionaries, etc.)"""
-    def __init__(self, id, properties={}):
-        """Constructor."""
-        # call parent function
-        super(DbfSerialized, self).__init__(id, properties)
-
-    def create_sqlalchemy_columns(self, modelclass):
-        """Convert field to sqlalchemy column."""
-        return [sqlalchemy.Column(self.id, sqlalchemy.Text())]
-
-
-
-
 class DbfText(MewloDbField):
     """Unlimited length text field."""
     def __init__(self, id, properties={}):
@@ -113,21 +119,6 @@ class DbfString(MewloDbField):
 
 
 
-class DbfTypeString(MewloDbField):
-    """Limited length text field."""
-    def __init__(self, id, properties={}):
-        """Constructor."""
-        # call parent function
-        super(DbfTypeString, self).__init__(id, properties)
-
-    def create_sqlalchemy_columns(self, modelclass):
-        """Convert field to sqlalchemy column."""
-        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))]
-
-
-
-
-
 class DbfInteger(MewloDbField):
     """Integer field."""
     def __init__(self, id, properties={}):
@@ -139,18 +130,6 @@ class DbfInteger(MewloDbField):
         """Convert field to sqlalchemy column."""
         return [sqlalchemy.Column(self.id, sqlalchemy.Integer)]
 
-
-
-class DbfEnum(MewloDbField):
-    """Integer field."""
-    def __init__(self, id, properties={}):
-        """Constructor."""
-        # call parent function
-        super(DbfEnum, self).__init__(id, properties)
-
-    def create_sqlalchemy_columns(self, modelclass):
-        """Convert field to sqlalchemy column."""
-        return [sqlalchemy.Column(self.id, sqlalchemy.Integer)]
 
 
 
@@ -166,6 +145,7 @@ class DbfBigInteger(MewloDbField):
         return [sqlalchemy.Column(self.id, sqlalchemy.BigInteger)]
 
 
+
 class DbfFloat(MewloDbField):
     """Float field."""
     def __init__(self, id, properties={}):
@@ -177,6 +157,8 @@ class DbfFloat(MewloDbField):
         """Convert field to sqlalchemy column."""
         return [sqlalchemy.Column(self.id, sqlalchemy.Float)]
 
+
+
 class DbfTimestamp(MewloDbField):
     """Timestamp field."""
     def __init__(self, id, properties={}):
@@ -187,8 +169,6 @@ class DbfTimestamp(MewloDbField):
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
         return [sqlalchemy.Column(self.id, sqlalchemy.Float)]
-
-
 
 
 
@@ -206,27 +186,55 @@ class DbfBoolean(MewloDbField):
 
 
 
-class DbfForeignUserId(MewloDbField):
-    """Integer field."""
-    # ATTN: Make this a foreign key to user table
+
+
+
+class DbfTypeString(MewloDbField):
+    """Limited length text field."""
+    # ATTN: unfinished
     def __init__(self, id, properties={}):
         """Constructor."""
         # call parent function
-        super(DbfForeignUserId, self).__init__(id, properties)
+        super(DbfTypeString, self).__init__(id, properties)
 
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
-        from ..user import muser
-        referenceclass = muser.MewloUser
-        fkeyfieldname = 'id'
-        fkeyname = referenceclass.get_dbtablename() + '.' + fkeyfieldname
-        return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(fkeyname))]
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))]
+
+
+
+class DbfSerialized(MewloDbField):
+    """Unlimited length text field used to serialize/unserialized arbitrary primitive types (dictionaries, etc.)"""
+    # ATTN: unfinished
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfSerialized, self).__init__(id, properties)
+
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.Text())]
+
+
+
+class DbfEnum(MewloDbField):
+    """Enumerated field."""
+    # ATTN: unfinished
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfEnum, self).__init__(id, properties)
+
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.Integer)]
+
 
 
 
 
 class DbfForeignKey(MewloDbField):
-    """Integer field."""
+    """Foreign Key."""
     # ATTN: Make this a foreign key to user table
     def __init__(self, id, properties={}):
         """Constructor."""
@@ -237,6 +245,34 @@ class DbfForeignKey(MewloDbField):
         """Convert field to sqlalchemy column."""
         foreignkeyname = self.properties['foreignkeyname']
         return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(foreignkeyname))]
+
+
+class DbfForeignKeyFromClassId(DbfForeignKey):
+    """Foreign Key to a class id."""
+    # ATTN: Make this a foreign key to user table
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfForeignKeyFromClassId, self).__init__(id, properties)
+        referenceclass = self.properties['referenceclass']
+        self.properties['foreignkeyname'] = referenceclass.get_dbtablename() + '.id'
+
+
+
+class DbfForeignUserId(DbfForeignKeyFromClassId):
+    """Foreign Key to User class id."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        from ..user import muser
+        properties['referenceclass'] = muser.MewloUser
+        super(DbfForeignUserId, self).__init__(id, properties)
+
+
+
+
+
+
+
 
 
 
@@ -259,12 +295,12 @@ class DbfForeignPrimaryKey(MewloDbField):
 
 
 
-class DbfUserIp(MewloDbField):
-    """Limited length text field."""
+class DbfServerIp(MewloDbField):
+    """Ip of an accessing computer."""
     def __init__(self, id, properties={}):
         """Constructor."""
         # call parent function
-        super(DbfUserIp, self).__init__(id, properties)
+        super(DbfServerIp, self).__init__(id, properties)
 
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
@@ -284,7 +320,7 @@ class DbfSqla(MewloDbField):
         # call parent function
         super(DbfPrimaryId, self).__init__(id, properties)
         # record passed in sqlacolumns
-        self.sqlacolumns = sqlacolumns
+        self.set_sqlacolumns(sqlacolumns)
 
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
@@ -314,6 +350,38 @@ class DbfSqla(MewloDbField):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# These relational fields are ugly and need fixing.
+
+
+
+
+
+
 class Dbf1toN_Left(MewloDbField):
     """Relationship field."""
     def __init__(self, id, properties={}, flag_to1=False):
@@ -330,7 +398,7 @@ class Dbf1toN_Left(MewloDbField):
         backrefname = self.properties['backrefname']
         # now we need to look up the owner_id field on the right hand side so we can explicitly specify it as the foreign_key for this relations
         # this is important because the sqla relation will error and complain about ambiguity if there are multiple columns with foreign keys to us on the right hand (reference class) side
-        fkeyfieldname = 'owner_id'
+        fkeyfieldname = modelclass.get_dbtablename()+'_id'
         foreign_keys = rightclass.lookup_sqlacolumnlist_for_field(fkeyfieldname)
         # create the relation
         propdict = {
@@ -379,12 +447,17 @@ class Dbf1to1_Right(Dbf1toN_Right):
 
 
 
-class Dbf1to1_MultiType_left(MewloDbField):
+
+
+
+
+class Dbf1to1_OneWay(MewloDbField):
     """Relationship field."""
     def __init__(self, id, properties={}):
         """Constructor."""
         # call parent function
-        super(Dbf1to1_MultiType_left, self).__init__(id, properties)
+        super(Dbf1to1_OneWay, self).__init__(id, properties)
+
 
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
@@ -394,25 +467,22 @@ class Dbf1to1_MultiType_left(MewloDbField):
         fkeyname = rightclass.get_dbtablename() + '.' + fkeyfieldname
         return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(fkeyname))]
 
-
     def create_sqlalchemy_mapperproperties(self, modelclass, modeltable):
         """Convert field to sqlalchemy column."""
-        # we dont use a column but a relation
+        # simple one-way relation, no backref
         rightclass = self.properties['rightclass']
-        rightclass_relationname = rightclass.get_dbtablename()
-        backrefname = self.properties['backrefname']
-        # now we need to look up the owner_id field on the right hand side so we can explicitly specify it as the foreign_key for this relations
-        # this is important because the sqla relation will error and complain about ambiguity if there are multiple columns with foreign keys to us on the right hand (reference class) side
-        fkeyfieldname = self.properties['reciprocalfieldname']
-        foreign_keys = rightclass.lookup_sqlacolumnlist_for_field(fkeyfieldname)
+        rightclass_relationname = self.properties['relationname']
+        #
+        foreign_keys=[self.get_sqlacolumn()]
+
         # create the relation
         propdict = {
-#            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=False, backref=backrefname, foreign_keys=foreign_keys)
-#            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=False, backref=backrefname, primaryjoin=primaryjoinsqlstring)
-#            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=False, backref=backrefname, primaryjoin=lambda(q): eval(primaryjoinsqlstring))
-            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=False)
+            rightclass_relationname:sqlalchemy.orm.relation(rightclass, uselist=False, foreign_keys = foreign_keys)
             }
         return propdict
+
+
+
 
 
 

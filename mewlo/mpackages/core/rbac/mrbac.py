@@ -7,9 +7,8 @@ This module contains classes and functions to manage the RBAC/ACL (permission) s
 
 # mewlo imports
 from ..database import mdbmodel
-from ..database import mdbmodel_relation
 from ..database import mdbfield
-from ..database import mdbmodel_gob
+from ..database import mdbmixins
 from ..manager import manager
 
 # python imports
@@ -128,21 +127,15 @@ class MewloRoleAssignment(mdbmodel.MewloDbModel):
                 'label': "The primary key and id# for this row"
                 }),
             # subject gob
-            mdbfield.DbfForeignKey('subject_gob_id', {
-                'label': "The subject global object id",
-                'foreignkeyname': mdbmodel_gob.MewloDbModel_Gob.get_dbtablename()+'.id',
-                }),
+            mdbmixins.dbfmixin_gobreference('subject'),
             # role
-            mdbfield.DbfForeignKey('role_id', {
-                'label': "The parent role id",
-                'foreignkeyname': MewloRole.get_dbtablename()+'.id',
+            mdbfield.Dbf1to1_OneWay('role_id', {
+                'rightclass': MewloRole,
+                'relationname': 'role',
                 }),
             # resource gob
-            mdbfield.DbfForeignKey('resource_gob_id', {
-                'label': "The resource global object id",
-                'foreignkeyname': mdbmodel_gob.MewloDbModel_Gob.get_dbtablename()+'.id',
-                }),
-             ]
+            mdbmixins.dbfmixin_gobreference('resource'),
+            ]
 
         return fieldlist
 

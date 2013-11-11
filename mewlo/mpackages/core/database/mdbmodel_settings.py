@@ -25,22 +25,17 @@ class MewloDbModel_Settings(mdbmodel.MewloDbModel):
     dbschemaname = 'default'
 
 
-    # ATTN: NOTE __INIT__ IS *NOT* CALLED WHEN INSTANTIATING MODELS VIA SQLALCHEMY ORM SO WE AVOID IT WHERE POSSIBLE
-#    def __init__(self):
-#        """Constructor."""
-#        # init
-#        self.keyname = None
-#        self.serializeddict = None
-
+    def __init__(self):
+        """Init on manual construct of object."""
+        self.serialized_dict = None
 
 
 
     def get_unserialized_dict(self):
         """Unserialized the loaded key string."""
-        serializedtext = self.serialized_dict
-        if (serializedtext==None):
+        if (self.serialized_dict == None):
             return None
-        return self.unserialize(serializedtext)
+        return self.unserialize(self.serialized_dict)
 
 
     def store_serialize_dict(self, datadict):

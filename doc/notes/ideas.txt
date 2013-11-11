@@ -24,3 +24,12 @@ we want to support console based utilties for a website
 the important of a testing framework that will submit many requests at once
 //---------------------------------------------------------------------------
 
+
+//---------------------------------------------------------------------------
+we currently use model CLASS OBJECTS to do higher level managering of models objects.
+this is how sqlalchemy wants to work.
+
+but it might be nice to have the idea of a supervisor/manager for each model class,
+that does the things that we currently expect the class to do.
+//---------------------------------------------------------------------------
+

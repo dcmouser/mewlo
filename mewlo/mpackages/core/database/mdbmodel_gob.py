@@ -25,7 +25,6 @@ class MewloDbModel_Gob(mdbmodel.MewloDbModel):
     dbschemaname = 'default'
 
 
-
     @classmethod
     def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
@@ -37,11 +36,7 @@ class MewloDbModel_Gob(mdbmodel.MewloDbModel):
                 }),
             # an arbitrarily long string serializing any other log properties that we don't have explicit fields for.
             mdbfield.DbfTypeString('objecttype', {
-                'label': "The object type reffered to, as a string"
-                }),
-            # do we want to have a non-normalized (redundant) reference to the source object, even if we can't foreignkey it since it may be used for dif types
-            mdbfield.DbfInteger('objectid', {
-                'label': "The object id"
+                'label': "The object type referred to, as a string"
                 }),
             ]
 
