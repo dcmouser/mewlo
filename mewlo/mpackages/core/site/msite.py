@@ -247,17 +247,17 @@ class MewloSite(object):
         # template helper
         self.templatehelper.shutdown()
 
-        # update state
-        self.set_state(MewloSettings.DEF_SITESTATE_SHUTDOWN_END)
-
-        #  log system
-        self.logmanager.shutdown()
-
         # rbac system
         self.rbac.shutdown()
 
         # database manager
         self.dbmanager.shutdown()
+
+        #  log system
+        self.logmanager.shutdown()
+
+        # update state (note this won't be logged since we will have shutdown log/db by now)
+        self.set_state(MewloSettings.DEF_SITESTATE_SHUTDOWN_END)
 
         # done
         return eventlist

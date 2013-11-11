@@ -32,6 +32,7 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
     def makedbtables(self):
+        """Implemented by subclass to create all database tables from registered models."""
         pass
 
 
@@ -149,6 +150,7 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
     def lookupclass(self, modelclassname):
+        """Lookup a registered model class by name."""
         return self.modelclasses[modelclassname]
 
 
@@ -156,7 +158,7 @@ class MewloDatabaseManager(manager.MewloManager):
 
     def create_tableandmapper_forallmodelclasses(self):
         """We are ready to create all fields, THEN all relationships, for known model classes."""
-        # ATTN: because create_table is creating new models, we need to call this multiple times; fix this!
+        # It's important that we create all tabled before we try making ANY relationships, etc.
         self.create_helpermodels_forallmodelclasses()
         self.create_table_forallmodelclasses()
         self.create_mapper_forallmodelclasses()
@@ -175,14 +177,12 @@ class MewloDatabaseManager(manager.MewloManager):
             modelclass = self.modelclasses[key]
             self.create_helpermodels_formodelclass(modelclass)
 
-
     def create_table_forallmodelclasses(self):
         """Create fields for all registered model classes (that haven't already been created)."""
         for key in self.modelclasses.keys():
             # map database fields for it
             modelclass = self.modelclasses[key]
             self.create_table_formodelclass(modelclass)
-
 
     def create_mapper_forallmodelclasses(self):
         """Create relationships for all registered model classes (that haven't already been created)."""
@@ -191,14 +191,12 @@ class MewloDatabaseManager(manager.MewloManager):
             modelclass = self.modelclasses[key]
             self.create_mapper_formodelclass(modelclass)
 
-
     def set_isreadytodb_forallmodelclasses(self):
         """Create relationships for all registered model classes (that haven't already been created)."""
         for key in self.modelclasses.keys():
             # map database fields for it
             modelclass = self.modelclasses[key]
             self.set_isreadytodb_formodelclass(modelclass)
-
 
 
 
@@ -212,7 +210,6 @@ class MewloDatabaseManager(manager.MewloManager):
             # set flag saying its been done
             modelclass.did_create_helpermodels = True
 
-
     def create_table_formodelclass(self, modelclass):
         """Create the fields for this model."""
         if (isinstance(modelclass,basestring)):
@@ -223,7 +220,6 @@ class MewloDatabaseManager(manager.MewloManager):
             # set flag saying its been done
             modelclass.did_create_table = True
 
-
     def create_mapper_formodelclass(self, modelclass):
         """Create the relationships for this model."""
         if (isinstance(modelclass,basestring)):
@@ -232,7 +228,6 @@ class MewloDatabaseManager(manager.MewloManager):
             modelclass.create_mapper(self)
             # set flag saying its been done
             modelclass.did_create_mapper = True
-
 
     def set_isreadytodb_formodelclass(self, modelclass):
         """Create the relationships for this model."""
@@ -251,3 +246,4 @@ class MewloDatabaseManager(manager.MewloManager):
         outstr = " "*indent + "DatabaseManager (" + self.__class__.__name__  + ") reporting in.\n"
         outstr += " "*indent + " Settings: "+str(self.databasesettings)
         return outstr
+

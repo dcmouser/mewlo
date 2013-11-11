@@ -46,7 +46,6 @@ class MewloDbModel(object):
 
 
 
-    # ATTN: NOTE __INIT__ IS *NOT* CALLED WHEN INSTANTIATING MODELS VIA SQLALCHEMY ORM SO WE AVOID IT WHERE POSSIBLE
 
 
 
@@ -54,11 +53,16 @@ class MewloDbModel(object):
 
 
 
+    def gobify(self):
+        """Create a gob global unique resource object for us.  The gob table stores the type of object it refers to (but not the foreign id in order to stay normalized)."""
+        import mdbmodel_gob
+        self.gob = mdbmodel_gob.MewloDbModel_Gob()
+        objtypename = self.calc_gobtypename()
+        self.gob.objecttype = objtypename
+        return self.gob
 
-
-
-
-
+    def calc_gobtypename(self):
+        return self.get_dbtablename()
 
 
 
@@ -81,29 +85,11 @@ class MewloDbModel(object):
 
 
 
-    def gobify(self, objtypename=None):
-        """Create a gob global unique resource object for us.  The gob table stores the type of object it refers to (but not the foreign id in order to stay normalized)."""
-        import mdbmodel_gob
-        self.gob = mdbmodel_gob.MewloDbModel_Gob()
-        if (objtypename==None):
-            objtypename = self.get_dbtablename()
-        self.gob.objecttype = objtypename
-        return self.gob
-
-
-
 
     @classmethod
     def dbm(cls):
         """Shortcut to get info from class object."""
         return cls.dbmanager
-
-
-
-
-
-
-
 
 
     @classmethod
@@ -183,7 +169,6 @@ class MewloDbModel(object):
     def get_fieldlist(cls):
         """Return the database fields."""
         return cls.fieldlist
-
 
     @classmethod
     def hash_fieldlist(cls):

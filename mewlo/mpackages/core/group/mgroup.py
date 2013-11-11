@@ -27,6 +27,9 @@ class MewloGroup(mdbmodel.MewloDbModel):
     flag_mixin_atroot = False
 
 
+    def __init__(self):
+        self.init()
+
     def init(self):
         """Manually called init on manually created new instances."""
         self.gobify()

@@ -352,13 +352,13 @@ class MewloSite_Test1(MewloSite):
         from mewlo.mpackages.core.group import mgroup
         #
         usera = muser.MewloUser()
-        usera.init()
+#        usera.init()
         userb = muser.MewloUser()
-        userb.init()
+#        userb.init()
         groupa = mgroup.MewloGroup()
-        groupa.init()
+#        groupa.init()
         groupb = mgroup.MewloGroup()
-        groupb.init()
+#        groupb.init()
 
         # save users and groups
         usera.save()

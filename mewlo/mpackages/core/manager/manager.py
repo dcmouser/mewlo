@@ -19,10 +19,12 @@ class MewloManager(object):
     def startup(self, mewlosite, eventlist):
         """Startup everything."""
         self.mewlosite = mewlosite
+        self.mewlosite.logevent("Startup of manager ({0}).".format(self.__class__.__name__))
 
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
+        self.mewlosite.logevent("Shutdown of manager ({0}).".format(self.__class__.__name__))
         pass
 
 
