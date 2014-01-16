@@ -250,11 +250,11 @@ class MewloSite(object):
         # rbac system
         self.rbac.shutdown()
 
-        # database manager
-        self.dbmanager.shutdown()
-
         #  log system
         self.logmanager.shutdown()
+
+        # database manager
+        self.dbmanager.shutdown()
 
         # update state (note this won't be logged since we will have shutdown log/db by now)
         self.set_state(MewloSettings.DEF_SITESTATE_SHUTDOWN_END)

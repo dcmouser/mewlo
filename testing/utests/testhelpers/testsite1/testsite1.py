@@ -45,7 +45,8 @@ class MewloSite_Test1(MewloSite):
 
 
     def add_settings_early(self):
-        """This is called by default by the base MewloSite as the first thing to do at startup; here we expect to set some site settings that might be used during startup."""
+        """This is called by default by the base MewloSite as the first thing to do at startup;
+        here we expect to set some site settings that might be used during startup."""
 
         # config settings
         config = {
@@ -81,7 +82,8 @@ class MewloSite_Test1(MewloSite):
                 'table_prefix': 'mewlo_',
                 'flag_echologging' : False,
                 },
-            'mstry' : {
+            'mysql_unused' : {
+                # Sample configuration for mysql
                 'url' : 'mysql://mewlo_user:mewlo_pass@localhost:3306/mewlo_testsite1',
                 'table_prefix': 'mewlo_'
                 },
@@ -323,6 +325,8 @@ class MewloSite_Test1(MewloSite):
 
 
 
+
+
     def pre_runroute_callable(self, route, request):
         """This is called by default when a route is about to be invoked.  Subclassed sites can override it."""
         request.logevent(EWarning("This is a test1 warning called PRE run route: " + request.get_path()))
@@ -352,13 +356,9 @@ class MewloSite_Test1(MewloSite):
         from mewlo.mpackages.core.group import mgroup
         #
         usera = muser.MewloUser()
-#        usera.init()
         userb = muser.MewloUser()
-#        userb.init()
         groupa = mgroup.MewloGroup()
-#        groupa.init()
         groupb = mgroup.MewloGroup()
-#        groupb.init()
 
         # save users and groups
         usera.save()
@@ -400,16 +400,16 @@ def main():
     # commandline args
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--debug", help="run in debug mode (combine with others)",action="store_true", default=False)
     parser.add_argument("-s", "--runserver", help="run the web server",action="store_true", default=False)
-    parser.add_argument("-t", "--runtests", help="run some testsr",action="store_true", default=False)
-    parser.add_argument("-d", "--debug", help="run in debug mode",action="store_true", default=False)
+    parser.add_argument("-t", "--querytests", help="run some testsr",action="store_true", default=False)
     parser.add_argument("-m", "--modeltests", help="run some model tests",action="store_true", default=False)
     args = parser.parse_args()
     #
     flag_debugsite = args.debug
-    flag_runtests = args.runtests
+    flag_runtests_query = args.querytests
+    flag_runtests_model = args.modeltests
     flag_runserver = args.runserver
-    flag_runmodeltests = args.modeltests
 
 
     # Create a site manager and ask it to instantiate a site of the class we specify
@@ -427,28 +427,32 @@ def main():
 
     # start by displaying some debug info
     if (flag_debugsite):
+        print "Debugging site manager."
         print sitemanager.dumps()
 
 
-    # run tests?
-    if (flag_runtests):
-        # simulate some simple requests
+    if (flag_runtests_query):
+        # simulate some simple simulated query requests
+        print "Running query tests."
         print sitemanager.test_submit_path('/')
         print sitemanager.test_submit_path('/help/about')
         print sitemanager.test_submit_path('/page/mystery')
         print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
 
-    if (flag_runmodeltests):
+    if (flag_runtests_model):
+        # run model tests
+        print "Running model tests."
         MewloSite_Test1.runmodeltests()
 
 
-    # start serving the web server and process all web requests
     if (flag_runserver):
-        # now process web requests
+        # start serving the web server and process all web requests
+        print "Starting web server."
         sitemanager.create_and_start_webserver_wsgiref()
 
 
     # shutdown sites - we do this before exiting
+    print "Shutting down."
     sitemanager.shutdown()
 
 

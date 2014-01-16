@@ -35,6 +35,8 @@ class DbmSqlAlchemyHelper(object):
         self.metadata = None
         self.connection = None
         self.session = None
+        #
+        sqlalchemy.orm.clear_mappers()
 
 
     def ensurecreate(self):

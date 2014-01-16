@@ -56,7 +56,7 @@ Ugly Code
 
 
 10/13/13:
-    * Refactor the settings class so that we dont need to INTERCEPT normal settings functions, but use pre/post op functions
+    * Refactor the settings class so that we dont need to INTERCEPT/OVERRIDE normal settings functions, but use pre/post op functions
 
 
 10/31/13:
@@ -67,10 +67,6 @@ Ugly Code
     * Move all/most sqlalchemy to declarative style?
 
 
-11/9/13:
-    * The mixin module is weird and inconsistent
-
-
 11/10/13:
     * Instead of manually calling every "manager" in site startup and shutdown, can we iterate through a list?
 
@@ -79,3 +75,10 @@ Ugly Code
 
     * We implement here some serialized support functions in mmdbmodel_log but they shouldn't be there, they should be more generically implemented in model or field class.  And we should use a special sqlalchemy column class that knows how to treat it specially.
     * See all mdbmodel_settings
+
+
+1/16/14:
+
+    * There are currently some class-level variables in the MewloDbModel class hierarchy that keep track of things like sqlalchemy tables/relations, etc.; when running things like unit tests which build a site multiple times, this requires some kludgey ugly resetting of this data between creations.
+    * Too many imports in testsite1.py
+

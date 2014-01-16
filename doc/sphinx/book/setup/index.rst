@@ -9,3 +9,4 @@ From here you can learn more about installing and setting up Mewlo
    installation
    configuring
    deploying
+   updating

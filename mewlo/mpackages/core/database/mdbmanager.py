@@ -27,6 +27,9 @@ class MewloDatabaseManager(manager.MewloManager):
         super(MewloDatabaseManager,self).shutdown()
         self.flush_all_dbs()
 
+        # model class resets to let go of sqla cached class vars
+        self.reset_classdata_forallmodelclasses()
+
 
 
 
@@ -198,6 +201,15 @@ class MewloDatabaseManager(manager.MewloManager):
             modelclass = self.modelclasses[key]
             self.set_isreadytodb_formodelclass(modelclass)
 
+    def reset_classdata_forallmodelclasses(self):
+        """Reset all chached data for sqla database stuff for model classes."""
+        for key in self.modelclasses.keys():
+            # map database fields for it
+            modelclass = self.modelclasses[key]
+            self.reset_classdata_forallmodelclasse(modelclass)
+
+
+
 
 
     def create_prerequisites_formodelclass(self, modelclass):
@@ -235,8 +247,11 @@ class MewloDatabaseManager(manager.MewloManager):
             modelclass = self.modelclasses[modelclass]
         modelclass.set_isreadytodb(True)
 
-
-
+    def reset_classdata_forallmodelclasse(self, modelclass):
+        """Reset cached sqla database data."""
+        if (isinstance(modelclass,basestring)):
+            modelclass = self.modelclasses[modelclass]
+        modelclass.reset_classdata()
 
 
 

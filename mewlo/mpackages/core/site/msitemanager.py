@@ -183,6 +183,7 @@ class MewloSiteManager(object):
         outstr = " "*indent + "MewloSiteManager reporting in.\n"
         outstr += self.prepeventlist.dumps(indent+1)
         outstr += self.debug_sites(indent+1)
+        outstr += " "*indent + "MewloSiteManager finished report.\n"
         return outstr
 
 

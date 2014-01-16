@@ -24,6 +24,7 @@ class SetupToolsPlugin_MewloPackageObject(MewloPackageObject):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        str = " "*indent + "Mewlo SetupToolsPlugin_MewloPackageObject reporting in.\n"
+        str = " "*indent + "Mewlo SetupToolsPlugin_MewloPackageObject v2 reporting in.\n"
         return str
+
 

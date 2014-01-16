@@ -7,6 +7,6 @@ MewloTestPluginViaSetupTools.egg-info/entry_points.txt
 MewloTestPluginViaSetupTools.egg-info/not-zip-safe
 MewloTestPluginViaSetupTools.egg-info/top_level.txt
 mewlosetuptoolsplugintest/__init__.py
-mewlosetuptoolsplugintest/discoveryhelper.py
 mewlosetuptoolsplugintest/mewlotestplug_mpackage.json
 mewlosetuptoolsplugintest/mewlotestplugin_mpackage.py
+mewlosetuptoolsplugintest/setuptools_discoveryhelper.py

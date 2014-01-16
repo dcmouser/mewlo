@@ -2,7 +2,9 @@
 mdbmodel_relation.py
 
 This file contains some common model relation helpers.
-ATTN: THIS CODE NEEDS REVIEW/REWRITING
+Essentially these are full model classes, which serve to map two tables (models) to each other, in an MxN relationship of some sort.
+
+ATTN: THIS CODE IS NOT CURRENTLY USED!
 
 """
 
@@ -27,6 +29,7 @@ class MewloDbRelationModel(mdbmodel.MewloDbModel):
 
 class MewloDbRelationModel_SimpleMtoN(MewloDbRelationModel):
     """A relation object helper."""
+    # ATTN: NOT CURRENTLY USED
     pass
 
 
@@ -124,6 +127,7 @@ class MewloDbRelationModel_SimpleMtoN(MewloDbRelationModel):
 
 class MewloDbRelationModel_FullMtoN(MewloDbRelationModel):
     """A relation object helper."""
+    # ATTN: NOT CURRENTLY USED
     pass
 
 
@@ -201,24 +205,8 @@ class MewloDbRelationModel_FullMtoN(MewloDbRelationModel):
         # and now register the subclass with the manager
         dbmanager.register_modelclass(ownerclass, subclass)
 
-
-# ATTN: we try creating this in relation class now (11/6/13)
-        # and now we want to add fields to left and right class so they map to each other through us
-        # so this field we add to our LEFT class, with a 1-N relationship with out association class, but calling it by name of right hand set
-        # in the created association class we will add to the RIGHT class
-#        leftitemname = leftclass.get_dbtablename()
-#        rightcollectionname = rightclass.get_dbtablename()+'s'
-#        leftfields = [
-#            mdbfield.DbfNtoM_SimpleRelation(rightcollectionname,{
-#                'associationclass':None,
-#                'otherclass':subclass,
-#                'backrefname':leftitemname}),
-#            ]
-#        leftclass.extend_extrafields(leftfields)
-# ATTN: now that we have moved this code, the direction of the backref is changed -- we should make sure there arent unintended consequences
-
-        # save subclass INSIDE leftclass so we can refer to it later; useful so we can look up the class of the association
-        leftclass.save_friendclass('AssociationRelation_'+rightclass.get_dbtablename(),subclass)
+        # save subclass INSIDE leftclass so we can refer to it later; useful so we can look up the class of the association?
+#        leftclass.save_friendclass('AssociationRelation_'+rightclass.get_dbtablename(),subclass)
 
         # return the newly created class
         return subclass

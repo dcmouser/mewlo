@@ -105,3 +105,5 @@ Python files:
             3rd party lib imports
             # python imports
             built in python library imports
+
+    * __init__.py files should not have any content; they serve only to mark directories as python traversable packages.

@@ -21,11 +21,11 @@ import unittest
 class BasicSiteTest(unittest.TestCase):
 
 
-    def DISABLED_testSimpleSiteInstantiation(self):
+    def testSimpleSiteInstantiation(self):
         """A simple test that just creates a small sample site and checks for errors."""
 
         # create sitemanager and start it up
-        sitemanager = self.makesitemanager()
+        sitemanager = self.makestart_sitemanager()
 
         # fail or pass test depending on if there were any preparation errors
         self.failIf(sitemanager.prepeventlist.count_errors() > 0)
@@ -39,7 +39,10 @@ class BasicSiteTest(unittest.TestCase):
         """Test of some database stuff."""
 
         # create sitemanager and start it up
-        sitemanager = self.makesitemanager()
+        sitemanager = self.makestart_sitemanager()
+
+        # fail or pass test depending on if there were any preparation errors
+        self.failIf(sitemanager.prepeventlist.count_errors() > 0)
 
         # shutdown sitemanager and site
         sitemanager.shutdown()
@@ -52,7 +55,7 @@ class BasicSiteTest(unittest.TestCase):
 
 
 
-    def makesitemanager(self):
+    def makestart_sitemanager(self):
         """Support helper function for tests."""
 
         # start up in debug mode?
