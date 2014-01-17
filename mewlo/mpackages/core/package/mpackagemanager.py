@@ -82,7 +82,7 @@ class MewloPackageManager(manager.MewloManager):
         self.discover_packages(eventlist)
         # ok now that we have disocvered the packages, we walk them and apply any settings the might enable or disable them
         for package in self.packages:
-            failure = self.startup_package_auto(package, eventlist)
+            failure = self.startup_package_auto(mewlosite, package, eventlist)
             if (failure != None):
                 # if we get a hard failure here, we add it to our list of failures, and to the eventlist
                 eventlist.add(failure)
@@ -286,7 +286,7 @@ class MewloPackageManager(manager.MewloManager):
 
 
 
-    def startup_package_auto(self, package, eventlist):
+    def startup_package_auto(self, mewlosite, package, eventlist):
         """Before we instantiate a package, we preprocess it using our settings, which may disable/enabe them."""
         # let's see if user WANTS this package enabled or disabled based on settings
         (flag_enable, reason) = self.want_enable_package(package, eventlist)
@@ -296,9 +296,9 @@ class MewloPackageManager(manager.MewloManager):
             if (not dependencies_met):
                 # dependency fail, disable it and return the dependency error
                 flag_enable = False
-                package.do_enabledisable(flag_enable, reason, eventlist)
+                package.do_enabledisable(mewlosite, flag_enable, reason, eventlist)
                 return EFailure(failurereason)
-        failure = package.do_enabledisable(flag_enable, reason, eventlist)
+        failure = package.do_enabledisable(mewlosite, flag_enable, reason, eventlist)
         return failure
 
 

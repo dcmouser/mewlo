@@ -68,7 +68,7 @@ class MewloPackage(object):
         self.eventlist = EventList()
 
 
-    def do_enabledisable(self, flag_enable, reason, eventlist):
+    def do_enabledisable(self, mewlosite, flag_enable, reason, eventlist):
         """
         Set the disabled flag for the package.  If False than the code for the package will not be loaded and run.
         return None on success, or failure on error.
@@ -83,7 +83,7 @@ class MewloPackage(object):
         elif (flag_enable):
             # we want to enable this package that is currently not enabled
             # ATTN: todo - do we want to OVERRIDE/IGNORE any settings that say to disable this package when we are told to explicitly enable it? I say yes.
-            retv = self.startup()
+            retv = self.startup(mewlosite, eventlist)
         elif (not flag_enable):
             # we want to disable this package that is currently enabled
             retv = self.shutdown()
@@ -220,7 +220,7 @@ class MewloPackage(object):
 
 
 
-    def startup(self):
+    def startup(self, mewlosite, eventlist):
         """Do any startup stuff."""
         if (self.readytoloadcode):
             # load the code module
@@ -230,7 +230,7 @@ class MewloPackage(object):
                 failure = self.packageobject.checkusable()
                 if (failure!=None):
                     return failure
-                failure = self.packageobject.startup()
+                failure = self.packageobject.startup(mewlosite, eventlist)
                 return failure
         # ATTN: do we want to throw an error/failure in this case where the code module is not ready to run?
 

@@ -30,7 +30,7 @@ class MewloPackageObject(object):
     def get_mewlosite(self):
         return self.package.get_mewlosite()
 
-    def startup(self):
+    def startup(self, mewlosite, eventlist):
         """Do any startup stuff."""
         return None
 

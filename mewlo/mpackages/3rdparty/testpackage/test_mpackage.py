@@ -46,10 +46,10 @@ class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
         super(Test_MewloPackageObject, self).__init__(package)
 
 
-    def startup(self):
+    def startup(self, mewlosite, eventlist):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # return failure if any, or None on success
-        retv = self.setup_everything()
+        retv = self.setup_everything(mewlosite, eventlist)
         if (retv != None):
             return retv
         #
@@ -68,7 +68,7 @@ class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
 
 
 
-    def setup_everything(self):
+    def setup_everything(self, mewlosite, eventlist):
         # ATTN: as a test, let's set up a signal listener for ALL signals
         if (True):
             # create receiver
@@ -79,7 +79,7 @@ class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
             flag_returnsvalue = True
             signalreceiver = msignal.MewloSignalReceiver(self, callback, idfilter, sourcefilter, extra, flag_returnsvalue)
             # now register it with the site dispatcher
-            mglobals.mewlosite().dispatcher.register_receiver(signalreceiver)
+            mewlosite.dispatcher.register_receiver(signalreceiver)
 
 
         # ATTN: as a test let's add an object to the registry
@@ -91,10 +91,10 @@ class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
             # now create the component wrapper around it
             component = mregistry.MewloComponent('test_plugin_service', self, features, obj)
             # now register it with the site registry
-            mglobals.mewlosite().registry.register_component(component)
+            mewlosite.registry.register_component(component)
 
         # lastly, call the parent startup (important!)
-        super(Test_MewloPackageObject, self).startup()
+        super(Test_MewloPackageObject, self).startup(mewlosite, eventlist)
 
         # success
         return None

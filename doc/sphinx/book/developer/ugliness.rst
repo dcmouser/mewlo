@@ -82,3 +82,4 @@ Ugly Code
     * There are currently some class-level variables in the MewloDbModel class hierarchy that keep track of things like sqlalchemy tables/relations, etc.; when running things like unit tests which build a site multiple times, this requires some kludgey ugly resetting of this data between creations.
     * Too many imports in testsite1.py
 
+    * The mglobals package is small but still ugly

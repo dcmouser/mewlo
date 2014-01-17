@@ -31,10 +31,10 @@ class Core_MewloPackageObject(mpackageobject.MewloPackageObject):
         super(Core_MewloPackageObject, self).__init__(package)
 
 
-    def startup(self):
+    def startup(self, mewlosite, eventlist):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # return failure if any, or None on success
-        retv = self.setup_everything()
+        retv = self.setup_everything(mewlosite, eventlist)
         if (retv != None):
             return retv
         #
@@ -50,7 +50,7 @@ class Core_MewloPackageObject(mpackageobject.MewloPackageObject):
 
 
 
-    def setup_everything(self):
+    def setup_everything(self, mewlosite, eventlist):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # let's register database classes
         ##self.setup_databaseclasses()
