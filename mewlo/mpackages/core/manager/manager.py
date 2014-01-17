@@ -13,7 +13,7 @@ class MewloManager(object):
     """Base class for high-level site-helping managers; base class does little."""
 
     def __init__(self):
-        pass
+        self.mewlosite = None
 
 
     def startup(self, mewlosite, eventlist):

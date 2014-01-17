@@ -119,6 +119,19 @@ class MewloSettingsDb(MewloSettings):
         return retv
 
 
+    def update(self, newsettings):
+        """Update and overwrite a value at a section, replacing whatever was there."""
+        self.db_lock([])
+        try:
+            retv = super(MewloSettingsDb, self).update(newsettings)
+            self.sync_save_keys(newsettings.keys())
+        except Exception as exp:
+            raise
+        finally:
+            self.db_unlock()
+        return retv
+
+
     def get(self):
         """Get all."""
         self.sync_load_all()

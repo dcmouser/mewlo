@@ -119,6 +119,9 @@ class MewloSettings(object):
         #self.merge_settings(newsettings)
         self.settingdict = newsettings
 
+    def update(self, newsettings):
+        """Overwrite all."""
+        self.settingdict.update(newsettings)
 
     def get(self):
         """Get all."""

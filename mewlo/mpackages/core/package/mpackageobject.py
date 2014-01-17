@@ -1,6 +1,6 @@
 """
 mpackagepbject.py
-Works with packagemanager.py to support our package/extension/addon system
+Works with mpackagemanager.py and mpackage.py to support our package/extension/addon system
 """
 
 

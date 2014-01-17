@@ -37,22 +37,28 @@ This data includes node properties
             * flag_visible = whether this item is visible (note that when making the json navdata, we will NOT generate navnodes for items clearly not visible); but this flag might still be used for ajax functions
             * flag_enabled = whether this item should be shown as disabled
             * children = hierarchical list of children nodes
-        Note that eventually we will want any property here to be able to be specified as an ajax function; this allows us to do lazy evaluation of dynamic stuff
+        Note that eventually we may want any property here to be able to be specified as an ajax function; this allows us to do lazy evaluation of dynamic stuff
 
 
-ATTN: There are some aspects of the current implementation that are unpleasant.
+ATTN: There are some aspects of the current implementation that are unpleasant:
 As it stands now, the site has a NavNodeManager which is a collection of NavNodes.
 NavNodes themselves contain properties which may involve lambdas and aliases that resolve differently for each request (such as showing user name on logout menu item).
-So when we build a menu for a user's request, we will dynamically resolve some of these NavNode properties, and store this information local to the request.
+So when we build a menu for a user's request, we will dynamically resolve some of these NavNode properties, and cache this information local to the request.
 This is a bit messy as we would really like to carry around such information annotated onto the NavNodes themselves, but that isn't feasible since they are shared among requests.
 It's also an issue because we may have several functions invoked from the view templates that make use of the same NavNodes (for example breadcrumbs and menus)
-and we would prefer not to have to resolve properties twice on the same request.  Solving this means caching results of resolving properties and storing local to the results.
+and we would prefer not to have to resolve properties twice on the same request.  Solving this means caching results of resolving properties and storing local to the response object.
 
 For now I have implemented a messy caching system that caches resolved navnode properties in the response context object (which also holds information about the current navnode pageid, etc).
 This isn't such a bad solution in theory, as it makes it possible for us to both add a per-request annotated properties to nodes (like indicating which nodes are on the active path),
-as well as letting us cache node dynamic values (like dynamic titles and visibility computations) so that we only have to do it once even if using multiple menus.
-However, it used a very inefficient looking deep dictionary lookup like (context['nodes']['nodeid']['propertyname']) and i worry about the cost of this, as well as the polution to responsecontext.
-A reasonable solution might be to use a special data structure for cached note properties, and perhaps give navnodes a unique numeric counter id when building site navnodes, and index by that.
+as well as letting us cache node dynamic values (like dynamic titles and visibility computations) so that we only have to do it once even if using multiple menus (breadcrumbs, etc.).
+
+However, it uses a very inefficient looking deep dictionary lookup like (context['nodes']['nodeid']['propertyname']) and i worry about the cost of this, as well as the polution to responsecontext.
+A reasonable solution might be to use a special data structure for cached note properties, and perhaps assign navnodes a unique numeric counter id at startup, and index by that.
+
+Another thing we do is allow nodes to specify a list of parents and/or children by nodename.  This lets one create a hierarchy dynamically and add to it from wherever you want.
+
+Controllers should set the current page id and other context available to navigation nodes using the reponse.set_pagecontext() function, e.g.     response.set_pagecontext('contact', {'isloggedin':True, 'username':'mouser'} )
+
 """
 
 
@@ -205,7 +211,7 @@ class NavNodeManager(manager.MewloManager):
 
     def find_current_and_root(self, rootnode, responsecontext):
         """Given response and a possible explicit rootnode, find current node and rootnode to use."""
-        currentnodeid = responsecontext.get_value('pagenode',None)
+        currentnodeid = responsecontext.get_value('pagenodeid',None)
         currentnode = self.lookupnode(currentnodeid)
         # decide rootnode
         if (currentnode != None and rootnode == None):
@@ -307,7 +313,6 @@ class NavNodeManager(manager.MewloManager):
             # if we got any noded, sort and then add them
             if (len(row)>0):
                 # sort the row
-#                row = self.sort_nodelist_byproperty(row, responsecontext, True, ['label','id'],'')
                 row = self.sort_nodelist_byproperty(row, responsecontext, False, ['sortweight'],0.0)
                 rows.append(row)
 
@@ -572,7 +577,7 @@ class NavNode(object):
     """
 
     def __init__(self, id, properties={}):
-        """Constructor for the clas."""
+        """Constructor for the class."""
         self.id = id
         self.properties = properties
         self.resetbuild(None)

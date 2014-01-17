@@ -80,3 +80,14 @@ the signal dispatcher startup() code is failing to call startup() for the regist
 1/17/14
 Log requests and request errors in log
 //---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+1/17/14
+Implement the more efficient node counter id and property caching (see mnav.py)
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+1/17/14
+adopt a naming convention for private vs public functions (see callables.py for example)
+//---------------------------------------------------------------------------

@@ -20,23 +20,24 @@ import os
 
 class MewloPackage(object):
     """
-    The MewloPackage class represents an mewlo "package" aka extension/plugin/addon/component.
+    The MewloPackage class represents a mewlo "package" aka extension/plugin/addon/component.
     It is *not* the same as a Python "package".
-    All code (both core builtin code and 3rd party extensions/plugins) is always in the form of a mewlo package.
+    All code (both core builtin code and 3rd party extensions/plugins) is always represented/supervised/versioned by one and only one mewlo package.
     The MewloPackage class exposes author and version info about a package, supports online, version checking, database updating, dependency chains, etc.
 
-    The Package is a class represents a dynamically found module that can be used as an addon package.
     It is actually a fairly light-weight structure that:
         * loads a json info file with information about the "addon package".
         * dynamically loads(imports) a python code module specified by the json info file.
         * dynamically instantiates a PackageObject object from the above python code module.
     It is actually the PackageObject object that, once instantiated, does the work of the addon.
     So, the right way to think of a Package is as the bridge middleman responsible for instantiating a PackageObject addon.
+    One reason we use this middleman object is so that we can instantiate (just) the middleman wrapper around the json info file, even when the addon is DISABLED.
+    In this way, we can have instantiated MewloPackage objects even for missing/disabled MewloPackageObjects.
     Additional features that the Package class provides:
         * displaying addon info, version info, update checking, etc.
         * handles dependency checking, etc.
-    A Package also keeps an eventlist of any warnings or errors encountered while trying to instantiate the PackageObject.
-    If an addon cannot be located/loaded/etc., the error information will be stores in this eventlist, and the addon will be disabled.
+    A MewloPackage also keeps an eventlist of any warnings or errors encountered while trying to instantiate the PackageObject.
+    If an addon cannot be located/loaded/etc., the error information will be stored in this eventlist, and the addon will be disabled.
     """
 
     # class constants

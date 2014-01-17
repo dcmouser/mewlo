@@ -9,6 +9,9 @@ import traceback
 
 
 
+
+
+
 def smart_dotted_idpath(obj):
     """
     We try to get a nice dotted path for an object, by assuming it has attribute accessor functions of get_parent and get_id
@@ -34,6 +37,80 @@ def smart_dotted_idpath(obj):
             break
     # return the built string
     return retstr
+
+
+
+
+def compute_traceback_astext(traceback_object=None, flag_fulltrace=True):
+    """Convert traceback object to nice text.  See http://effbot.org/librarybook/traceback.htm."""
+    import sys
+    if (traceback_object==None):
+        traceback_object = sys.exc_info()[2]
+    if (flag_fulltrace):
+        tblist = traceback.extract_stack() + traceback.extract_tb(traceback_object)
+    else:
+        tblist = traceback.extract_stack() + traceback.extract_tb(traceback_object)
+    #
+    return compute_traceback_astext_fromlist(tblist)
+
+
+
+
+
+def calc_caller_dict(depth=0):
+    """
+    Helper function that returns info about the caller; useful for displaying what linenumber something happened in, etc.
+    Depth of 0 will give us the CALLERS info.  Depth of 1 will be caller's caller.
+    """
+    stackitem = calc_caller_tuple(depth)
+    stackdict = {
+        'filename': stackitem[1],
+        'lineno': stackitem[2],
+        'function_name': stackitem[3],
+        }
+    return stackdict
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------------------------
+# internal functions
+# ---------------------------------------------------------------------------
+
+
 
 
 
@@ -85,17 +162,6 @@ def smart_dotted_idpath_getparentobj(obj):
 
 
 
-def compute_traceback_astext(traceback_object=None, flag_fulltrace=True):
-    """Convert traceback object to nice text.  See http://effbot.org/librarybook/traceback.htm."""
-    import sys
-    if (traceback_object==None):
-        traceback_object = sys.exc_info()[2]
-    if (flag_fulltrace):
-        tblist = traceback.extract_stack() + traceback.extract_tb(traceback_object)
-    else:
-        tblist = traceback.extract_stack() + traceback.extract_tb(traceback_object)
-    #
-    return compute_traceback_astext_fromlist(tblist)
 
 
 
@@ -132,18 +198,6 @@ def calc_caller_tuple(depth=0):
     return stackitem
 
 
-def calc_caller_dict(depth=0):
-    """
-    Helper function that returns info about the caller; useful for displaying what linenumber something happened in, etc.
-    Depth of 0 will give us the CALLERS info.  Depth of 1 will be caller's caller.
-    """
-    stackitem = calc_caller_tuple(depth)
-    stackdict = {
-        'filename': stackitem[1],
-        'lineno': stackitem[2],
-        'function_name': stackitem[3],
-        }
-    return stackdict
 
 
 

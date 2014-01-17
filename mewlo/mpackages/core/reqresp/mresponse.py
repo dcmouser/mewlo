@@ -107,17 +107,14 @@ class MewloResponse(object):
 
 
 
-    def set_pagecontext(self, pageid, args=None):
+    def set_pageid(self, pageid):
         """Shortcut to set some context settings."""
-        cdict = {
-            'pagenode': pageid
-            }
-        if (args != None):
-            cdict.update(args)
-        self.context.set(cdict)
+        self.context.update({'pagenodeid':pageid})
 
 
-
+    def add_pagecontext(self, args):
+        """Shortcut to set some context settings."""
+        self.context.update(args)
 
 
 

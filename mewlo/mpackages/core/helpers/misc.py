@@ -16,6 +16,9 @@ import time
 
 
 
+
+
+
 def get_value_from_dict(thedict, keyname, defaultval=None):
     """Very simple function to get value from dictionary or fall back to default value."""
     if (keyname in thedict):
@@ -71,9 +74,6 @@ def readfile_asjson(filepath, nicelabel):
 
 
 
-
-
-
 def does_dict_filter_match(object_features, feature_filter):
     """Compare feature_filter against objectfeatures, return True if its a match."""
     # ATTN: we migh want to implement more sophisticated filter "DSL language" in the future
@@ -113,6 +113,7 @@ def resolve_expand_string(patternstring, replacementdict, depthcount=0):
 
 
 
+
 def append_text(mainstring, newstring, separator = "; "):
     """Add some text to a string which is accumulating it."""
     if (mainstring==None or mainstring==''):
@@ -135,7 +136,6 @@ def serialize_for_readability(obj):
         # ok we hit an exception here, so now walk list/dictionary and use strings for objects
         safeobj = serialize_for_readability_makesafe(obj)
         serializedtext = pickle.dumps(safeobj)
-    #
     return serializedtext
 
 

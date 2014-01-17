@@ -6,16 +6,17 @@ Note that our term "package" here is not referring to python packages (directori
 
 The package system here is made up of 3 classes:
 
-    * PackageManager - holds a list of Packages.
-    * Package - a thin wrapper around a package object.
-    * PackageObject - the object that will be subclassed to do real work.
+    * MewloPackageManager - holds a list of Packages.
+    * MewloPackage - a thin wrapper around a package object.
+    * MewloPackageObject - the object that will be subclassed to do real work.
 
-The Package is the thing that is autocreated on discovery of a .json definition file.
+The MewloPackage is the thing that is autocreated on discovery of a .json definition file.
 It will be instantiated even if this extension is disabled.
 
 The PackageObject is only instantiated when the extension is enabled.
 
-When coding a new plugin/extension, ONLY a derived PackageObject class would be created.
+When you code a new plugin/extension, you ONLY create a derived MewloPackageObject class.
+The MewloPackage is created by the manager.
 
 """
 
@@ -155,7 +156,7 @@ class MewloPackageManager(manager.MewloManager):
         # first find all files
         for dirpath in self.dirlist:
             packagefilepaths += self.findfilepaths(dirpath, filepattern)
-        # setup tools entrypoint loading?
+        # add any from setup tools entrypoint loading
         packagefilepaths += self.discover_setuptools_entrypoints_packagefilepaths()
         # now for each file, create a package from it
         for filepath in packagefilepaths:

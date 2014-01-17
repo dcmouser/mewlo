@@ -1,7 +1,7 @@
 """
 callables.py
 This module contains functions that can lookup and return a reference to a function in a module, where both are specified by module imports or dotted strings.
-
+These functions are used, for example, in mcontroller.py where a site specifies the controller function associated with a route.
 """
 
 
@@ -60,6 +60,52 @@ def find_callable(callableroot, callableobj):
     return func
 
 
+
+
+
+
+
+
+
+def importmodule_bypath(path):
+    """Import a python module by file path."""
+    # we had several versions of the do_import function, hence the simple redirection call here
+    return do_importmodule_bypath(path)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------------------------
+# Private functions
+# ---------------------------------------------------------------------------
 
 
 
@@ -156,10 +202,12 @@ def split_dottedpath_modulepath_and_funcname(dottedname):
 
 
 
-def importmodule_bypath(path):
-    """Import a module by path."""
-    # we had several versions of the do_import function, hence the simple redirection call here
-    return do_importmodule_bypath(path)
+
+
+
+
+
+
 
 
 
@@ -263,10 +311,6 @@ def guess_module_importname_or_adjust_pythonpath(dirpath, name):
     bestpath = None
     bestlen = 0
     import sys
-
-
-
-
 
     # ok now we are going to walk the loaded modules, looking for ones named __init__.py[c] that are prefixes of our directory
     # that is, we are looking for modules that are really aliases of package directorys, which we can use as our prefix for referring to THIS module
