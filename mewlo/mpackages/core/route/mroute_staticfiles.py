@@ -12,7 +12,7 @@ import mroute
 
 class MewloRoute_StaticFiles(mroute.MewloRoute):
     """
-    The MewloRoute_StaticFiles handles routes tos tatic files
+    The MewloRoute_StaticFiles handles routes to static files
     """
 
 

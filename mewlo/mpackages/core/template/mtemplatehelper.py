@@ -1,6 +1,7 @@
 """
 mtemplatehelper.py
 This module contains classes and functions that are passed to template to assist in producing text (menus, navbars, etc.)
+The template files can refer to and make calls of this class [see testsite1/views/heeader.jn2 which makes calls like {{ thelper.nav_bar_html(response) }} ]
 """
 
 # mewlo imports

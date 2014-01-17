@@ -1,6 +1,6 @@
 """
 mroute.py
-This file contains classes to support routes
+This file contains classes to support url routes
 """
 
 
@@ -455,7 +455,7 @@ class MewloRoute(object):
 
 class MewloRouteGroup(object):
     """
-    The MewloRouteGroup class holds a list of routes (or child RouteGroups)
+    The MewloRouteGroup class holds a list of routes (or child RouteGroups); it's a way of letting us organize collections of routes
     """
 
     def __init__(self, id='', controllerroot=None, routes=None):
@@ -570,7 +570,7 @@ class MewloRouteGroup(object):
 
 class MewloRouteManager(manager.MewloManager):
     """
-    The MewloRouteManager class manages the routes in a site; it's just thin derived class from MewloRouteGroup
+    The MewloRouteManager class manages the routes in a site; it is a thin class that owns a single route group
     """
 
     def __init__(self, id='', controllerroot=None, routes=None):

@@ -1,6 +1,7 @@
 """
 mrequest.py
-This file contains classes to support web server requests
+This file contains classes to support web server requests.
+For now our requests are just lightly wrapped werkzeug requests.
 """
 
 
@@ -71,7 +72,7 @@ class MewloRequest(object):
     def logevent(self, event):
         """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
         # add it via site
-        mglobals.mewlosite().logevent(event,request = self)
+        self.mewlosite.logevent(event,request = self)
 
 
 

@@ -1,6 +1,7 @@
 """
 mresponse.py
-This file contains classes to support response to requests
+This file contains classes to support response to requests.
+For now, our MewloResponse class is just a thin wrapper over a werkzeug response.
 """
 
 
@@ -19,6 +20,7 @@ from werkzeug.wrappers import Response
 class MewloResponse(object):
     """
     The MewloResponse class handles the response to a server request
+    Note that our response class contains a reference to the request object.
     """
 
     def __init__(self, request):
@@ -28,6 +30,7 @@ class MewloResponse(object):
         self.wresp = None
         #
         self.statuscode = None
+        #
         #self.headers = None
         self.headers = [('Content-Type', 'text/html; charset=utf-8')]
         self.responsedata = None

@@ -30,20 +30,22 @@ class MewloLogTarget_Database(MewloLogTarget):
         self.tablename = tablename
         self.logclass = None
         self.isprocessing = False
+        #
+        self.dbmanager = None
 
 
 
-    def startup(self):
+    def startup(self, mewlosite, eventlist):
         """Startup everything."""
         # create the logging class we will use for this table
         customclassname = self.baseclass.__name__ + '_' + self.tablename
-        dbmanager = mglobals.db()
+        self.dbmanager = mewlosite.dbmanager
         # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
-        self.logclass = dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
+        self.logclass = self.dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
         # now register it
-        dbmanager.register_modelclass(self, self.logclass)
+        self.dbmanager.register_modelclass(self, self.logclass)
         # parent
-        super(MewloLogTarget_Database,self).startup()
+        super(MewloLogTarget_Database,self).startup(mewlosite, eventlist)
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
@@ -82,9 +84,7 @@ class MewloLogTarget_Database(MewloLogTarget):
         """Write out the logmessage to the file."""
 
         # we must disable sqlalchemy logging while we do this or it will recurse
-        mglobals.db().sqlalchemydebuglevel_temporarydisable()
-
-        #print ("ATTN:DEBUG - WRITING Log message: "+str(logmessage))
+        self.dbmanager.sqlalchemydebuglevel_temporarydisable()
 
         # build a modelobj for the log message
         modelobj = self.logclass.new()
@@ -94,7 +94,7 @@ class MewloLogTarget_Database(MewloLogTarget):
         modelobj.save()
 
         # now we can turn back on sqlalchemy logging
-        mglobals.db().sqlalchemydebuglevel_donetemporarydisable()
+        self.dbmanager.sqlalchemydebuglevel_donetemporarydisable()
 
         # return 1 saying it was written
         return 1

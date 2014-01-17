@@ -1,1 +1,1 @@
-The views folder is for template views.
+The views folder is for template views for the site.

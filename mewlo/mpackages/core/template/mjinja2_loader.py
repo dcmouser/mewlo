@@ -1,6 +1,7 @@
 """
 mninja2_loader.py
 Custom loader used to find jinja2 templates.
+This is a class that Jinja system uses to help it lookup referenced files; our version lets it find mewlo files.
 """
 
 

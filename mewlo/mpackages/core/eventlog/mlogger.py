@@ -70,7 +70,7 @@ class MewloLogManager(manager.MewloManager):
         """Startup everything, we are about to exit."""
         super(MewloLogManager,self).startup(mewlosite,eventlist)
         for logger in self.loggers:
-            logger.startup()
+            logger.startup(mewlosite, eventlist)
 
 
     def shutdown(self):
@@ -145,7 +145,7 @@ class MewloLogFilter(object):
         self.andfilters = []
 
 
-    def startup(self):
+    def startup(self, mewlosite, eventlist):
         """Any initial startup to do?"""
         pass
 
@@ -257,7 +257,7 @@ class MewloLogTarget(object):
         return self.isenabled
 
 
-    def startup(self):
+    def startup(self, mewlosite, eventlist):
         """Any initial startup to do?"""
         self.startedup = True
 
@@ -388,12 +388,12 @@ class MewloLogger(object):
         self.targets.append(target)
 
 
-    def startup(self):
+    def startup(self, mewlosite, eventlist):
         """Any initial startup stuff to do?"""
         for filter in self.filters:
-            filter.startup()
+            filter.startup(mewlosite, eventlist)
         for target in self.targets:
-            target.startup()
+            target.startup(mewlosite, eventlist)
 
 
     def shutdown(self):

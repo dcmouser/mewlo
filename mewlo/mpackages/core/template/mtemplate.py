@@ -1,6 +1,7 @@
 """
 mtemplate.py
 This module contains classes and functions for interfacing with template system.
+The MewloTemplateManager knows about all registered template types, and can find the right one to use given a template filename.
 """
 
 
@@ -110,3 +111,4 @@ class MewloTemplateManager(manager.MewloManager):
         for templatetype in self.templatetypes:
             outstr += templatetype.dumps(indent+1)
         return outstr
+

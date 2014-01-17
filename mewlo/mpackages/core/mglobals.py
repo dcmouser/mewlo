@@ -81,7 +81,7 @@ MewloGlobalClass.onimport()
 # shortcut functions for common stuff
 
 
-def mewlosite():
+def UNUSED_mewlosite():
     """Return the global MewloSite reference."""
     return MewloGlobalClass.globals['site']
 
@@ -91,7 +91,7 @@ def set_mewlosite(val):
 
 
 
-def debugmode():
+def UNUSED_debugmode():
     """Return True if debugmode is enabled -- note that we let the SITE track the actual debugmode variable."""
     return mewlosite().get_debugmode()
 
@@ -101,7 +101,7 @@ def set_debugmode(val):
 
 
 
-def db():
+def UNUSED_db():
     """Return reference to site database manager."""
     return mewlosite().dbmanager
 

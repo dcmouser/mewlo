@@ -1,1 +1,1 @@
-The controllers directory holds custom code written to handle requests.
+The controllers directory holds custom code written to handle requests for this site.

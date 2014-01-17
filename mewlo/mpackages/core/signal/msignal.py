@@ -62,7 +62,7 @@ class MewloSignalReceiver(object):
         self.flag_returnsvalue = flag_returnsvalue
 
 
-    def startup(self):
+    def startup(self, mewlosite, eventlist):
         #print "**** IN SIGNALRECEIVER STARTUP ****"
         pass
 
@@ -174,7 +174,13 @@ class MewloSignalManager(manager.MewloManager):
 
     def startup(self, mewlosite, eventlist):
         super(MewloSignalManager,self).startup(mewlosite,eventlist)
-
+        # and now the receivers and senders
+        # ATTN: problem -- receivers are not created yet at this time, so this code is useless
+        #print "ATTN: in signal dispatcher startup with {0} receivers.".format(len(self.receivers))
+        for receiver in self.receivers:
+            receiver.startup()
+        for sender in self.senders:
+            sender.startup()
 
     def shutdown(self):
         super(MewloSignalManager,self).shutdown()

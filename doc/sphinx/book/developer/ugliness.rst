@@ -82,4 +82,10 @@ Ugly Code
     * There are currently some class-level variables in the MewloDbModel class hierarchy that keep track of things like sqlalchemy tables/relations, etc.; when running things like unit tests which build a site multiple times, this requires some kludgey ugly resetting of this data between creations.
     * Too many imports in testsite1.py
 
+1/17/14:
+
     * The mglobals package is small but still ugly
+    * The database backed settings class (mdbsettings) is a litle bit ugly
+    * The msettings class is a big ugly (especially all the constant setting names)
+    * We need to standardize our startup() functions; many take a mewlosite,eventlist, some do not
+

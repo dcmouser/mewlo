@@ -60,19 +60,23 @@ decide how to handle url ? args
 
 
 
-//---------------------------------------------------------------------------
-1/15/14
-There is some problem with unit tests running multiple tests
-try:
- E:\WebsiteHttp\mewlo\testing\utests>python utest1.py
 
-and in utest1.py enable both tests -- you'll get an sqlalchemy exception on second test.
-suggests that their is some global/singleton problem.
-//---------------------------------------------------------------------------
 
 
 //---------------------------------------------------------------------------
-This problem with unit tests is a bigger problem having to do with using class variables
- that do not clear when starting new unit tests.
+1/17/14
+Make summary flowcharts/writeups of mewlo startup and url processing workflow steps involved.
 //---------------------------------------------------------------------------
 
+
+
+//---------------------------------------------------------------------------
+1/17/14
+the signal dispatcher startup() code is failing to call startup() for the registered receivers+senders because they are created AFTER startup
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+1/17/14
+Log requests and request errors in log
+//---------------------------------------------------------------------------

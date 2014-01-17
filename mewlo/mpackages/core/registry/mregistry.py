@@ -13,7 +13,7 @@ Everything else, from the class of the wrapped Component objects to the kinds of
 
 This is a very minimalist system for registering objects and making it possible for them to be discovered by other parts of code.
 
-For an alternate way of supporting discovery of objects, one could use the Signal system.
+For an alternate way of supporting discovery of and communication between objects, one could use the Signal system.
 
 Some fields for the Component "feature" dictionary:
     * 'name' - should always be specified to aid in debugging (need not be unique)
@@ -120,7 +120,7 @@ class MewloRegistryManager(manager.MewloManager):
         self.components.append(component)
         # store it in component hash
         id = component.id
-        if (id!=None and id!=''):
+        if (id != None and id != ''):
             self.componenthash[id] = component
 
 
@@ -132,7 +132,6 @@ class MewloRegistryManager(manager.MewloManager):
     def register_class(self, owner, classobj):
         """Proxy for registering a class object, creates a simple component around it."""
         id = self.idfromclassobjectname(classobj.__name__)
-        #print "IN REGISTERCLASS with "+classobj.__name__
         component = MewloComponent(id, owner, {'type':'classwrapper'}, classobj)
         return self.register_component(component)
 

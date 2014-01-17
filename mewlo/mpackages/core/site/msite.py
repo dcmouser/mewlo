@@ -306,11 +306,11 @@ class MewloSite(object):
         """We may want to preprocess/cache some settings before we start."""
         # cache some stuff?
         self.controllerroot = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_controllerroot)
-        # package manager init
+        # package manager settings
         self.packagemanager.set_directories( self.get_root_package_directory_list() + self.get_site_package_directory_list() )
         self.packagemanager.set_packagesettings( self.settings.get_value(MewloSettings.DEF_SECTION_packages) )
         self.packagemanager.set_default_packagesettings(MewloSettings.DEF_SETTINGVAL_default_package_settings)
-        # database manager init
+        # database manager settings
         self.dbmanager.set_databasesettings( self.settings.get_value(MewloSettings.DEF_SECTION_database) )
 
 
