@@ -89,5 +89,41 @@ Implement the more efficient node counter id and property caching (see mnav.py)
 
 //---------------------------------------------------------------------------
 1/17/14
-adopt a naming convention for private vs public functions (see callables.py for example)
+Adopt a naming convention for private vs public functions (see callables.py for example)
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+1/17/14
+We register a python hook to catch python log events.  This works fine,
+EXCEPT that such events happen without context -- i.e. without us knowing which MewloSite they belong to (if multiple sites are running)
+We need to check what happens with regard to catching python logging hooks (see mlogger.py) when we have multiple sites running,
+ and how we handle this.  This may require use of mglobals.mewlosite().  The idea would be to have either only one hook, and route it to log manager of the site identified by global as currently running, or let each site have their own hook and ignore when its not about our global site.
+We also need to check if we let go of python hooks on logger shutdown.
+#
+NOTE: Looking at how our python hook is done (see mdbmanager_sqlalchemy.py, it *MAY* be that there is nothing to worry about, that we are hooking a particular instance of some object (e.g. sql alchemy instance) and so there is no overlap.
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+1/17/14
+There are several places where we are creating some "clever" database models/table dynamically on the fly.
+I'm not sure this is really a wise thing to do. For example see mdbmodel_fieldset.py
+You can see this also with creating dynamic database-backed settings classes.
+It might be better to explicitly create class definitions for these kinds of things.
+Doing so explicitly would make it easier for us to customize, derive, and name these classes and tables, but mostly because it would make it easier to read the code and comport with our clarity-first guidelines.
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+1/17/14
+in mdbmodel_log see "# ATTN:TODO all of thes serialization functions should be done away with and handled transparently by a serialized field type"
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+1/17/14
+can we move all database model class-based data to a helper object? or will sqlalchemy not let us
 //---------------------------------------------------------------------------

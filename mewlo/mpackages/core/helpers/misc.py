@@ -152,8 +152,8 @@ def serialize_for_readability_makesafe(obj):
         elif (isinstance(obj, dict)):
             # it's a dict
             safeobj = {}
-            for key in obj.keys():
-                safeobj[key] = serialize_for_readability_makesafe(obj[key])
+            for key,val in obj.iteritems():
+                safeobj[key] = serialize_for_readability_makesafe(val)
         elif (isinstance(obj, tuple)):
             # it's a tuple
             safeobj = ()

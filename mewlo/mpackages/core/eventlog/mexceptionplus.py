@@ -1,6 +1,7 @@
 """
 mexceptionplus.py
 This module contains classes and functions for custom exception handling
+They are used to help us easily wrap a python exception in our event class system
 """
 
 

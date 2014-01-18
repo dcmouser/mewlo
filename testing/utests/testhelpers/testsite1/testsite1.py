@@ -183,22 +183,6 @@ class MewloSite_Test1(MewloSite):
                 controller = MewloController(function=requests.request_article),
                 ))
 
-
-
-
-
-        #static file server
-        routegroup.append(
-            MewloRoute_StaticFiles(
-                id  = 'static_files',
-                path = '/public_html',
-                sourcepath = '${sitefilepath}/public_html',
-                controller = MewloController_StaticFiles(),
-                ))
-
-
-
-
         routegroup.append(
             MewloRoute(
                 id = 'help',
@@ -238,6 +222,20 @@ class MewloSite_Test1(MewloSite):
                 path = '/user/logout',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_logout'),
                 ))
+
+
+        #static file server
+        routegroup.append(
+            MewloRoute_StaticFiles(
+                id  = 'static_files',
+                path = '/public_html',
+                controller = MewloController_StaticFiles(
+                    sourcepath = '${sitefilepath}/public_html'
+                    ),
+                ))
+
+
+
 
 
         # add routegroup we just created to the site

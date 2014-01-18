@@ -68,14 +68,14 @@ class MewloLogTarget_Database(MewloLogTarget):
             if (logmessage.fields['source']=='sqlalchemy'):
                 if (not flag_isfromqueue):
                     self.queuelog(logmessage)
-                    return 0
+                    return False
 
         # if not flushing but there are waiting, do them first
         if (not flag_isfromqueue and len(self.logqueue)>0):
             self.flushqueue()
 
-        retv = self.write(logmessage, flag_isfromqueue)
-        return retv
+        bretv = self.write(logmessage, flag_isfromqueue)
+        return bretv
 
 
 
@@ -96,8 +96,8 @@ class MewloLogTarget_Database(MewloLogTarget):
         # now we can turn back on sqlalchemy logging
         self.dbmanager.sqlalchemydebuglevel_donetemporarydisable()
 
-        # return 1 saying it was written
-        return 1
+        # return True saying it was written
+        return True
 
 
 

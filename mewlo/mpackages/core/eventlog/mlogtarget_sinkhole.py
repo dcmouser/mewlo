@@ -1,6 +1,7 @@
 """
 logger_sinkholetarget.py
 This module defines a derived logging class that just swallows messages and does nothing.
+We would use this if we wanted to ignore certain log messages and stop them from progressing to other log targets.
 """
 
 # helper imports
@@ -23,7 +24,7 @@ class MewloLogTarget_Sinkhole(MewloLogTarget):
     def process(self, logmessage):
         """
         Called by logger parent to actually do the work.
-        We overide this in our subclass to do actual work.
         """
-        return 0
+        # return True to signify that we were successful
+        return True
 

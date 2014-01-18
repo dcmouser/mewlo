@@ -2,7 +2,9 @@
 mevent.py
 This module contains classes and functions for custom event/error handling.
 
-Two alternatives were possible for the Event class.
+We use this Event class to store data associated with an event/error/warning/etc, and to write such events out to a log file or database log.
+
+There are some alternatives for how we might represent the data associated with an Event class.
 
 One alternative would be to define lots of specific separate member properties for all (most) fields we may want to record.
 This would be the classic OOP method.
@@ -78,7 +80,8 @@ class Event(object):
         logging.WARNING : 'WARNING',
         logging.ERROR : 'ERROR'
         }
-
+    #
+    flag_safetycheckfields = True
 
 
     def __init__(self, fields=None, defaultfields=None):
@@ -123,11 +126,11 @@ class Event(object):
 
     def mergemissings(self, fields):
         """Merge in missing fields."""
-        for fieldname in fields.keys():
-            if (not fieldname in self.fields) or (self.fields[fieldname] == None):
-                self.fields[fieldname] = fields[fieldname]
+        for key,val in fields.iteritems():
+            if (not key in self.fields) or (self.fields[key] == None):
+                self.fields[key] = val
                 # check field safety?
-                self.safetycheck_fieldname(fieldname)
+                self.safetycheck_fieldname(key)
 
 
     def fieldmatches(self, fieldname, fieldval):
@@ -151,6 +154,8 @@ class Event(object):
         Check to make sure this is an allowed fieldname -- helps to catch coding typo errors
         ATTN: disable on optimization.
         """
+        if (not self.flag_safetycheckfields):
+            return
         if (not fieldname in Event.DEF_SAFE_FIELDNAME_LIST):
             if (not fieldname.startswith('custom_')):
                 raise Exception("Fieldname '{0}' specified for an Event that is not in our list of safe fieldnames [{1}] and does not begin with 'custom_'.".format(fieldname , ",".join(Event.DEF_SAFE_FIELDNAME_LIST)))
@@ -160,8 +165,10 @@ class Event(object):
         Check to make sure fields are allowed fieldnames -- helps to catch coding typo errors
         ATTN: we should disable this on optimization.
         """
-        for fieldname in fields.keys():
-            self.safetycheck_fieldname(fieldname)
+        if (self.flag_safetycheckfields):
+            return
+        for key in fields.keys():
+            self.safetycheck_fieldname(key)
 
 
     def stringify(self):
@@ -219,9 +226,34 @@ class Event(object):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class EventList(object):
     """Event list holds multiple events and provides some helper functions for working with multiple events."""
     # ATTN: Do we really need a custom list type for this?
+    # ATTN: If so, let's at least make it derive from list?
 
     def __init__(self):
         # init
@@ -266,7 +298,6 @@ class EventList(object):
             event.setfield('context', self.context)
         # now add it
         self.events.append(event)
-
 
 
 
@@ -324,7 +355,6 @@ class EventList(object):
 
 
 
-
     def dumps(self, indent=0):
         return self.stringify(indent)
 
@@ -354,7 +384,9 @@ class EventList(object):
 
 
 # These are shortcut helper functions
+# These are capitalized functions because they act like object constructors, and are designed to be concise highly visible ways to create error/events
 # ATTN: todo -- refactor these to use args,kargs to simplify them?
+
 
 def EFailure(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
     """Helper function to create failure type event"""

@@ -23,12 +23,10 @@ class MewloLogFormatter_Pretty(mlogger.MewloLogFormatter):
     def format_logmessage_as_string(self, logmessage):
         """Return a string which formates the event."""
         outfields = {}
-        for fieldkey in logmessage.fields.keys():
-            if (fieldkey == 'timestamp'):
-                val = time.ctime(logmessage.fields[fieldkey])
-            else:
-                val = logmessage.fields[fieldkey]
-            outfields[fieldkey]=val
+        for key,val in logmessage.fields.iteritems():
+            if (key == 'timestamp'):
+                val = time.ctime(logmessage.fields[key])
+            outfields[key]=val
         return str(outfields)
 
 

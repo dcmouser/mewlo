@@ -21,8 +21,16 @@ import sqlalchemy.orm
 
 
 
+
+
+
 class DbmSqlAlchemyHelper(object):
-    """Helper for MewloDatabaseManagerSqlA that holds engine, metadata, session, connection, data."""
+    """
+    Helper for MewloDatabaseManagerSqlA that holds engine, metadata, session, connection, data.
+    We can have multiple DbmSqlAlchemyHelper's, so that some models can be using some databases, and some using others.
+    We use the concept of 'schema' to group models with different database setups (DbmSqlAlchemyHelper's).
+    Each model class also caches a reference to the DbmSqlAlchemyHelper that manages the class.
+    """
 
 
     def __init__(self, dbmanager, dbsettings):
@@ -120,6 +128,11 @@ class DbmSqlAlchemyHelper(object):
 
 
 
+
+
+
+
+
 class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
     """Derived DatabaseManager class built for sqlalchemy."""
 
@@ -144,8 +157,8 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         super(MewloDatabaseManagerSqlA,self).startup(mewlosite, eventlist)
         # create helpers
         #print "ATTN: DATABASE SETTINGS2 ARE: "+str(self.databasesettings)
-        for idname in self.databasesettings.keys():
-            self.alchemyhelpers[idname] = DbmSqlAlchemyHelper(self, self.databasesettings[idname])
+        for key,val in self.databasesettings.iteritems():
+            self.alchemyhelpers[key] = DbmSqlAlchemyHelper(self, val)
         # settings
         self.sqlalchemy_loglevel = get_value_from_dict(self.databasesettings['settings'],'sqlalchemy_loglevel',logging.DEBUG)
         # let's put in place some log catchers
@@ -156,8 +169,8 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         # call parent func
         super(MewloDatabaseManagerSqlA,self).shutdown()
         # shutdown helpers
-        for idname in self.alchemyhelpers.keys():
-            self.alchemyhelpers[idname].shutdown()
+        for key,val in self.alchemyhelpers.iteritems():
+            val.shutdown()
 
 
 
@@ -175,8 +188,8 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
     def flush_all_dbs(self):
         """Ask all helpers to flush."""
         #print "DEBUG: FLUSHING DBs"
-        for idname in self.alchemyhelpers.keys():
-            self.alchemyhelpers[idname].dbflush()
+        for key,val in self.alchemyhelpers.iteritems():
+            val.dbflush()
 
 
 
@@ -348,8 +361,8 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         Ask sqlalchemy to build the actual tables for the models that have been created so-far.
         NOTE: we may call this more than once; once initially for some early models we need, and then later after startup completes.
         """
-        for idname in self.alchemyhelpers.keys():
-            self.alchemyhelpers[idname].makedbtable()
+        for key,val in self.alchemyhelpers.iteritems():
+            val.makedbtable()
 
 
 

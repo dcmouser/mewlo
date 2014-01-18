@@ -49,3 +49,5 @@ Easier Issues:
         * So instead of "import mewlo.core.User; myuser = User.user()" we would instead have "import mewlo.core.ComponentManager; ComponentManager.DoImport("User"); mysuser = ComponentManger.CreateObject("User.user");
 
 
+
+

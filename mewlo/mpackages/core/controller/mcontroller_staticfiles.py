@@ -19,9 +19,10 @@ class MewloController_StaticFiles(mcontroller.MewloController):
     The MewloController_StaticFiles class handles requests for static files
     """
 
-    def __init__(self):
+    def __init__(self, sourcepath):
         # Invoke parent init and tell it to invoke our local controller_call when triggered
         super(MewloController_StaticFiles,self).__init__(function = self.controller_call)
+        self.sourcepath = sourcepath
 
 
     def controller_call(self, request, response):
@@ -29,7 +30,7 @@ class MewloController_StaticFiles(mcontroller.MewloController):
 
         # ok let's build the filepath being requests
         route = request.route
-        basefilepath = route.sourcepath
+        basefilepath = self.sourcepath
         relpath = '/'.join(request.parsedargs['requestargs'])
         filepath = basefilepath + "/" + relpath
         filepath = request.mewlosite.resolve(filepath)

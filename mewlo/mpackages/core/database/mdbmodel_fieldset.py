@@ -1,6 +1,8 @@
 """
 mdbmodelfieldset.py
-Fieldset is a helper MewloDbObject that holds a set of fields in a has-a relationship with another object
+MewloDbFieldset is a helper MewloDbObject that holds a set of fields in a has-a relationship with another object.
+You can how this class is used via calls to make_fieldset_dbobjectclass() from muser.py and mgroup.py,
+ essentially they allow the dynamic creation of helper database tables that are associated with users and groups, etc.
 """
 
 
@@ -14,7 +16,6 @@ import mdbfield
 
 class MewloDbFieldset(mdbmodel.MewloDbModel):
     """Helper MewloDbObject that holds a set of fields in a has-a relationship with another object."""
-
 
     @classmethod
     def set_ownerclass(cls, ownerclass):
@@ -50,7 +51,7 @@ class MewloDbFieldset(mdbmodel.MewloDbModel):
     def make_fieldset_dbobjectclass(cls, ownerclass, propname, proplabel, backrefname, dbmanager, subfields):
         """Make a new derived database model class that will store some fields in a has-a relationship with us."""
 
-        # ok dynamically create a new class for this purpose
+        # ok dynamically create a new class for this purpose -- note the base class IS derived from MewloDbFieldset above (cls)
         basesubclass = cls
         subclassname = ownerclass.__name__ + '_' + propname
         subclasstablename = ownerclass.get_dbtablename()+'_'+propname

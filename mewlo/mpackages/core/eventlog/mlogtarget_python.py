@@ -75,8 +75,8 @@ class MewloLogTarget_Python(MewloLogTarget):
             pythonlogrecord = self.pythonlogger.makeRecord(pythonloggername, level, pathname, lineno, msg, args, exc_info, func)
             # log record
             self.pythonlogger.handle(pythonlogrecord)
-        # return 1 saying it was written
-        return 1
+        # return True saying it was written
+        return True
 
 
 

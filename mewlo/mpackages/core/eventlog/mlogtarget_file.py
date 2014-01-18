@@ -93,8 +93,8 @@ class MewloLogTarget_File(MewloLogTarget):
         print(outline, file=filep)
         # flush file right away so file is written before closing
         filep.flush()
-        # return 1 saying it was written
-        return 1
+        # return True saying it was written
+        return True
 
 
 

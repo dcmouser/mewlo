@@ -89,3 +89,6 @@ Ugly Code
     * The msettings class is a big ugly (especially all the constant setting names)
     * We need to standardize our startup() functions; many take a mewlosite,eventlist, some do not
 
+1/17/14:
+    * Eventlist in mevent.py -- let's derive this from a true list
+

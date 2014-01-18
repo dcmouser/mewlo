@@ -547,8 +547,8 @@ class MewloRouteGroup(object):
                 else:
                     # add with prefix
                     prefix = route.id + '.'
-                    for keyname in childroutehash.keys():
-                        self.routehash[prefix+keyname]=childroutehash[keyname]
+                    for key,val in childroutehash.iteritems():
+                        self.routehash[prefix+key]=val
             else:
                 # it's a leaf route
                 self.routehash[route.id] = route

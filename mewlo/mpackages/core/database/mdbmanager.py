@@ -111,7 +111,7 @@ class MewloDatabaseManager(manager.MewloManager):
         """
         Create a new *CLASS* based on another model class, with a custom classname and tablename.
         We only need to use this when we want to dynamically create multiple tables based from the same base model class.
-        NOTE: This function does *not* register the class and define its database fields.
+        NOTE: This function does *not* register the class with Mewlo and define its database fields.
         """
         # create the new class
         if (classname==None):
@@ -175,38 +175,37 @@ class MewloDatabaseManager(manager.MewloManager):
 
     def create_prerequisites_forallmodelclasses(self):
         """Create fields for all registered model classes (that haven't already been created)."""
-        for key in self.modelclasses.keys():
+        # ATTN: TODO - This is somewhat odd and needs to be looked into, because we can end up adding modelclasses within these calls to create_prereqs; it's not clear we handle that case properly
+        # in other words recursive prerequisitite class creation may fail
+        modeclasskeys = self.modelclasses.keys()
+        for key in modeclasskeys:
             # map database fields for it
             modelclass = self.modelclasses[key]
             self.create_prerequisites_formodelclass(modelclass)
 
     def create_table_forallmodelclasses(self):
         """Create fields for all registered model classes (that haven't already been created)."""
-        for key in self.modelclasses.keys():
+        for key,val in self.modelclasses.iteritems():
             # map database fields for it
-            modelclass = self.modelclasses[key]
-            self.create_table_formodelclass(modelclass)
+            self.create_table_formodelclass(val)
 
     def create_mapper_forallmodelclasses(self):
         """Create relationships for all registered model classes (that haven't already been created)."""
-        for key in self.modelclasses.keys():
+        for key,val in self.modelclasses.iteritems():
             # map database fields for it
-            modelclass = self.modelclasses[key]
-            self.create_mapper_formodelclass(modelclass)
+            self.create_mapper_formodelclass(val)
 
     def set_isreadytodb_forallmodelclasses(self):
-        """Create relationships for all registered model classes (that haven't already been created)."""
-        for key in self.modelclasses.keys():
+        """Set ready flag for all model classes."""
+        for key,val in self.modelclasses.iteritems():
             # map database fields for it
-            modelclass = self.modelclasses[key]
-            self.set_isreadytodb_formodelclass(modelclass)
+            self.set_isreadytodb_formodelclass(val)
 
     def reset_classdata_forallmodelclasses(self):
         """Reset all chached data for sqla database stuff for model classes."""
-        for key in self.modelclasses.keys():
+        for key,val in self.modelclasses.iteritems():
             # map database fields for it
-            modelclass = self.modelclasses[key]
-            self.reset_classdata_forallmodelclasse(modelclass)
+            self.reset_classdata_forallmodelclasse(val)
 
 
 
@@ -242,7 +241,7 @@ class MewloDatabaseManager(manager.MewloManager):
             modelclass.did_create_mapper = True
 
     def set_isreadytodb_formodelclass(self, modelclass):
-        """Create the relationships for this model."""
+        """Set ready flag for this model."""
         if (isinstance(modelclass,basestring)):
             modelclass = self.modelclasses[modelclass]
         modelclass.set_isreadytodb(True)

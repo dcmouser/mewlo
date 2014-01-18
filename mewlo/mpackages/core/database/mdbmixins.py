@@ -2,6 +2,7 @@
 mdbmodelmixins.py
 
 This file contains some common model mixins to make it easier to add fields to a model.
+We use these "mixins" as a way for us to add common fields, and sets of fields to models.
 
 """
 

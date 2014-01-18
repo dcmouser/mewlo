@@ -1,11 +1,8 @@
 """
 mdbsettings.py
 This file contains classes to support hierarchical settings.
-
 We really don't do anything fancy here -- in fact some of it is a bit ugly and could use rewriting.
-
 Essentially we are just maintaining a hierarchical dictionary with some support functions to ease access.
-
 """
 
 
@@ -34,6 +31,8 @@ class MewloSettingsDb(MewloSettings):
         * We will keep the in-memory dictionary synchronized with a database table behind the scenes.
         * We must allow that other processes may be trying to modify the data at the same time as us, so we only trust our cached values IFF the database supports a way of telling when a row was last written
         * Furthermore, some operations require a read and then write of a row, and we would like to lock the table/row during such operations.
+    ToDo:
+        * Why are we starting up and initializing using a dbmodelclassNAME and then looking up the name in the registry? Why not pass in directly the modelclass used for settings
     """
 
     def __init__(self, dbmodelclassname):

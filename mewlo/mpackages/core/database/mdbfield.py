@@ -1,7 +1,14 @@
 """
 mdbfield.py
 The MewloDbField class handles one column of a model.
-ATTN: THIS CODE NEEDS REVIEW/REWRITING
+
+The approach we take is that each model in the system (MewloDbModel in mdbmodel.py) defined a list of MewloDbFields.
+The MewloDbFields roughly map to columns in a database table, but may also define relationships with other tables (absent a column).
+The MewloDbField should define all information needed for not just database storage but also visual display, sorting, searching, etc.
+That is, we are aiming for a DRY approach to model data by storing information in MewloDbFields.
+They also serve as a layer of abstraction on top of the SqlAlchemy library, which does the heavy lifting.
+
+ATTN: THIS CODE NEEDS REVIEW/REWRITING -- especially the relations code
 """
 
 

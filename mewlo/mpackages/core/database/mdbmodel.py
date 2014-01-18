@@ -29,7 +29,7 @@ class MewloDbModel(object):
     dbtablename = None
     dbschemaname = None
 
-    # ATTN: 1/16/14 - see reset_classdata(cls), which duplicates much of this
+    # ATTN: 1/16/14 - see reset_classdata(cls), which duplicates some of this
     #
     dbsqlatable = None
     dbsqlahelper = None
@@ -42,8 +42,6 @@ class MewloDbModel(object):
     #
     fieldlist = []
     fieldhash = {}
-    #
-    #friendclasses = {}
 
 
 
@@ -160,36 +158,6 @@ class MewloDbModel(object):
                 cls.fieldlist = addfieldlist + cls.fieldlist
             else:
                 cls.fieldlist.extend(addfieldlist)
-
-
-# these functions were used at some point in full MxN relationship mappers, but we currently don't use them
-#    @classmethod
-#    def save_friendclass(cls, friendname, friendclass):
-#        """Add fields."""
-#        # we need to do a kludgey thing here because derived classes inherit default value from parent, and extending that list would be bad.
-#        if (len(cls.friendclasses)==0 or cls.friendclasses == MewloDbModel.friendclasses):
-#            cls.friendclasses={friendname:friendclass}
-#        else:
-#            cls.friendclasses[friendname]=friendclass
-#        #print "set_friend for "+str(cls.__name__)+" from "+str(cls.friendclasses)
-#
-#    @classmethod
-#    def lookup_friendclass(cls, friendname):
-#        """lookup friendclass."""
-#        #print "lookup_friend for "+str(cls.__name__)+" from "+str(cls.friendclasses)
-#        return cls.friendclasses[friendname]
-#
-#    @classmethod
-#    def makenew_friendclass(cls, friendname):
-#        """lookup friendclass."""
-#        #print "lookup_friend for "+str(cls.__name__)+" from "+str(cls.friendclasses)
-#        modelclass = cls.friendclasses[friendname]
-#        # makenew
-#        return modelclass()
-
-
-
-
 
 
     @classmethod

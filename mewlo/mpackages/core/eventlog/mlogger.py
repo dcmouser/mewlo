@@ -63,7 +63,9 @@ class MewloLogManager(manager.MewloManager):
     def __init__(self, debugmode):
         super(MewloLogManager,self).__init__()
         self.loggers = []
+        self.pythonlogginghooks = []
         self.debugmode = debugmode
+
 
 
     def startup(self, mewlosite, eventlist):
@@ -78,7 +80,19 @@ class MewloLogManager(manager.MewloManager):
         super(MewloLogManager,self).shutdown()
         for logger in self.loggers:
             logger.shutdown()
+        # unhook python logging
+        for pythonlogginghook in self.pythonlogginghooks:
+            pythonlogger = pythonlogginghook['pythonlogger']
+            pythonloghandler = pythonlogginghook['pythonloghandler']
+            pythonlogger.removeHandler(pythonloghandler)
+        self.pythonlogginghooks = []
 
+
+    def add_pythonlogginghook(self, pythonlogger, pythonloghandler):
+        """Register a python logging handler, and record it for later removal."""
+        pythonlogger.addHandler(pythonloghandler)
+        entry = {'pythonlogger':pythonlogger, 'pythonloghandler':pythonloghandler}
+        self.pythonlogginghooks.append(entry)
 
 
     def set_debugmode(self, val):
@@ -95,15 +109,18 @@ class MewloLogManager(manager.MewloManager):
         #print "PROCESSING MESSAGE "+str(logmessage)+ " for "+str(len(self.loggers))+" loggers."
         wrotecount = 0
         for logger in self.loggers:
-            wrotecount += logger.process(logmessage, wrotecount)
+            bretv = logger.process(logmessage)
+            if (bretv):
+                wrotecount += 1
         # if debug mode, and no one else handled it, print it
         if (wrotecount==0):
             if (self.debugmode):
                 # echo it on screen if there are no loggers registered?
                 if (False):
                     print str(logmessage)
-        # return if true
-        return wrotecount
+        # return True if we wrote any
+        bretv = (wrotecount>0)
+        return bretv
 
 
     def hook_pythonlogger(self, pythonlogger_name, pythonlogger_level=logging.DEBUG):
@@ -113,7 +130,7 @@ class MewloLogManager(manager.MewloManager):
         pythonlogger.setLevel(pythonlogger_level)
         # now we add a handler that calls into us
         pythonloghandler = PythonLogHandler(self, pythonlogger_name)
-        pythonlogger.addHandler(pythonloghandler)
+        self.add_pythonlogginghook(pythonlogger,pythonloghandler)
         return pythonlogger
 
 
@@ -128,6 +145,15 @@ class MewloLogManager(manager.MewloManager):
         for logger in self.loggers:
             outstr += logger.dumps(indent+1)
         return outstr
+
+
+
+
+
+
+
+
+
 
 
 
@@ -156,43 +182,42 @@ class MewloLogFilter(object):
 
     def add_andfilter(self, filter):
         """Add a chained filter which is treated like an AND."""
-
         self.andfilters.append(filter)
 
 
-    def doesmatch_full(self, logmessage, wrotecount):
+    def doesmatch_full(self, logmessage):
         """Check if the logmessage matches our filter (or ALL of them if there are multiple chained with us."""
 
         # first check against ourself, if fail, then no point going any further
-        if (not self.doesmatch_us(logmessage, wrotecount)):
+        if (not self.doesmatch_us(logmessage)):
             # doesn't match our condition
             return False
         # it matched us, now let's make sure it matches ALL of our AND filters (if any)
-        if (not self.doesmatch_andchains(logmessage, wrotecount)):
+        if (not self.doesmatch_andchains(logmessage)):
             # doesn't match one of our registered AND chain of filters
             return False
         # it's good!
         return True
 
 
-
-    def doesmatch_andchains(self, logmessage, wrotecount):
-        """Check if logmessages matches any attached "AND" chained filters (we may have none)."""
-
-        # test ALL and reject if any reject
-        for filter in self.andfilters:
-            if (not filter.doesmatch_full(logmessage, wrotecount)):
-                return False
-        # it matched ALL, so it's good
-        return True
-
-
-
-    def doesmatch_us(self, logmessage, wrotecount):
+    def doesmatch_us(self, logmessage):
         """This is the exposed public function to check if a logmessage matches the filter. It will normally be implemented by a subclass."""
 
         # parent class just returns True so it will always match
         return True
+
+
+
+    def doesmatch_andchains(self, logmessage):
+        """Check if logmessages matches any attached "AND" chained filters (we may have none)."""
+
+        # test ALL and reject if any reject
+        for filter in self.andfilters:
+            if (not filter.doesmatch_full(logmessage)):
+                return False
+        # it matched ALL, so it's good
+        return True
+
 
 
     def dumps(self, indent=0):
@@ -212,6 +237,24 @@ class MewloLogFilter(object):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class MewloLogModifier(object):
     """MewloLogModifier - runs early and can modify/add stuff to log events before they are sent to a LogTarget."""
     # ATTN: We don't actually tie-in the MewloLogModifier yet to anything.
@@ -225,8 +268,32 @@ class MewloLogModifier(object):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class MewloLogFormatter(object):
-    """MewloLogFormatter - one and only one of these can be used to format a log string before writing it out to some file."""
+    """MewloLogFormatter - one and only one of these can be used to format a log string before writing it out to some file.
+    A MewloLogFormatter is attached to a MewloLogTarget
+    """
 
     def __init__(self, formatstr=None):
         self.formatstr = formatstr
@@ -234,6 +301,31 @@ class MewloLogFormatter(object):
     def format_logmessage_as_string(self, logmessage):
         """Return a string which formates the event."""
         return logmessage.as_string()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -280,8 +372,8 @@ class MewloLogTarget(object):
     def process(self, logmessage):
         """Process the target action (write to file, save to database, emailing, etc.).  This should be overridden by subclass to do actual work."""
         print "Activating base LogTarget action, which is to write log message to screen: " + logmessage.dumps() + "\n"
-        # return 1 to say it was written by target
-        return 1
+        # return True to say it was written by target
+        return True
 
     def get_nicelabel(self):
         return self.__class__.__name__
@@ -315,7 +407,7 @@ class MewloLogTarget(object):
 
     def process_or_queue(self, logmessage):
         """Process a line if we are ready, or queue it if not."""
-        thiswrotecount = 0
+        didwritelog = False
         try:
             #print "Considering target: "+str(self.get_nicelabel())+" with "+str(logmessage)
             if (self.readytowrite()):
@@ -324,7 +416,7 @@ class MewloLogTarget(object):
                 if (self.get_queuelen()>0):
                     self.flushqueue()
                 # send new message
-                thiswrotecount += self.process(logmessage, False)
+                didwritelog = self.process(logmessage, False)
                 #print "Sent to "+str(target)
             else:
                 # send it to target queue
@@ -340,8 +432,8 @@ class MewloLogTarget(object):
             # raise a modified wrapper exception which can add some text info, to show who owns the object causing the exception to provide extra info
             # we probably wouldn't consider this a fatal error that should stop program from executing.
             reraiseplus(exp, "Disabling the logger where the error occurred: ", obj=self)
-        # return items written
-        return thiswrotecount
+        # return True if we wrote
+        return didwritelog
 
 
 
@@ -409,25 +501,25 @@ class MewloLogger(object):
 
 
 
-    def process(self, logmessage, wrotecount):
+    def process(self, logmessage):
         """Process a logmessage(Event).  This may involve ignoring it if it doesn't match our filters, or sending it to Targets immediately if it does."""
-        thiswrotecount = 0
-        if (self.doesmatch_filters(logmessage, wrotecount)):
-            thiswrotecount = self.run_targets(logmessage)
+        didwritelog = False
+        if (self.doesmatch_filters(logmessage)):
+            didwritelog = self.run_targets(logmessage)
         else:
             pass
-        return thiswrotecount
+        return didwritelog
 
 
 
-    def doesmatch_filters(self, logmessage, wrotecount):
+    def doesmatch_filters(self, logmessage):
         """Return True if this message matches ANY of the filter(s) for the logger.."""
         # if no filters added, then it's an automatic match
         if (len(self.filters) == 0):
             return True
         # see if any filter matches it
         for filter in self.filters:
-            if (filter.doesmatch_full(logmessage, wrotecount)):
+            if (filter.doesmatch_full(logmessage)):
                 return True
         # nothing matched, so it's false
         return False
@@ -441,8 +533,12 @@ class MewloLogger(object):
         for target in self.targets:
             #print "Considering target: "+str(target.get_nicelabel())
             if (target.get_isenabled()):
-                thiswrotecount += target.process_or_queue(logmessage)
-        return thiswrotecount
+                bretv = target.process_or_queue(logmessage)
+                if (bretv):
+                    thiswrotecount += 1
+        # return True if we wrote it
+        bretv = (thiswrotecount>0)
+        return bretv
 
 
     def dumps(self, indent=0):
@@ -482,7 +578,7 @@ class MewloLogger(object):
 
 
 class PythonLogHandler(logging.Handler):
-    """A custom log handler we use to route python log messages to the log manager."""
+    """A custom log handler we register with python log handling system, to route python log messages to our log manager."""
 
     def __init__(self, logmanager, label):
         # run the regular Handler __init__
@@ -491,12 +587,13 @@ class PythonLogHandler(logging.Handler):
         self.label = label
 
     def emit(self, record):
+        # called by python when a PYTHON logging event occurs; we convert it to our system and trigger it
         # record.message is the log message
         msg = self.format(record)
         level = record.levelname
         eventtype = Event.pythonlogginglevel_to_eventlevel(level)
         #
         event = Event({'msg':msg, 'type':eventtype, 'source':self.label})
-        #print "EMITTING: "+msg
+        #
         self.logmanager.process(event)
 

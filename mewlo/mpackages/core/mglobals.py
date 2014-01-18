@@ -12,7 +12,9 @@ Use:
  All mewlo globals go in this dictionary
  But as a point of fact, i think we prefer to have NO globals other than the site, and let the site object hold anything else that might otherwise be considered a "global"
 
-ATTN: As of 1/17/14 - we do NOT actually use any globals; you can see that by the 'UNUSED_' prefix on the get accessor functions.
+ATTN: As of 1/17/14 - we do NOT actually currently use any of these globals (yay).
+You can see that by the 'UNUSED_' prefix on the get accessor functions.
+I'm leaving this code for now -- it's conceivable that we would still want to use this, rarely, in some logging error situation where we don't have context.
 """
 
 
@@ -62,9 +64,9 @@ class MewloGlobalClass:
 
 
 # call this class method every time this module is imported
-# note that due to some very strange python behavior (i called it a messed up f*cking bug),
+# note that due to some very strange python behavior (i call it a messed up f*cking bug),
 #  this module can be reloaded after another dynamic extension is loaded, causing it to lose any static class data,
-#  meaning this function will get called multiple times.
+#  meaning this function will get called multiple times.  We detect this situation and freak out loudly if it happens.
 MewloGlobalClass.onimport()
 
 

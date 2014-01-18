@@ -63,15 +63,15 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
         extrafields = {}
         fieldids = self.fieldhash.keys()
         # walk properties in dictionary and set object properties and extrafields dictionary
-        for key in dict.keys():
+        for key,val in dict.iteritems():
             if (key in fieldids):
                 # ok there is a field for this, so just save it
-                self.set_property_byname(key, dict[key])
+                self.set_property_byname(key, val)
             else:
                 # ok we don't have a field for it
                 if (key not in self.ignored_logfields):
                     # add it to our extra fields dictionary to serialize
-                    extrafields[key] = dict[key]
+                    extrafields[key] = val
         # handle extrafields
         if (len(extrafields)==0):
             self.store_serialize_fields(None)

@@ -2,10 +2,8 @@
 massetmanager.py
 This module contains classes and functions to manage static file assets and aliases.
 
-The asset manager has several functions:
-
-    * It allows aliases to be set, and ensures all references to files and urls are resolved with these aliases.
-
+A MewloSite has a single MewloAssetManager, which it uses to help resolve any references with aliases.
+A MewloAssetManager allows aliases to be set, and ensures all references to files and urls are resolved with these aliases.
 
 """
 
@@ -82,6 +80,10 @@ class MewloAssetManager(manager.MewloManager):
         # ATTN: Note that most aliases will not need resolving, but some may recurively include each other, that's why we have to do this
         # ATTN: Note that this could be quite slow unless we do it smartly -- would be nice to cache this result so that we don't have to recreate it each call
         aliases = {}
-        for aliaskey in self.alias_settings.keys():
-            aliases[aliaskey] = resolve_expand_string(self.alias_settings[aliaskey], self.alias_settings)
+        for key,val in self.alias_settings.iteritems():
+            aliases[key] = resolve_expand_string(val, self.alias_settings)
         return aliases
+
+
+
+

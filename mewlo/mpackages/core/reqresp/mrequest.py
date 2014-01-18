@@ -19,6 +19,7 @@ from werkzeug.test import create_environ
 class MewloRequest(object):
     """
     The MewloRequest class handles a web server request
+    Note that our request class contains a reference to the response object.
     """
 
     def __init__(self):
