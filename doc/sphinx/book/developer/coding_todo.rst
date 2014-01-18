@@ -4,14 +4,12 @@ Coding ToDo
 
 8/10/13
 
-    * Views may have the same kind of hierarchical group, dynanamic dotted-string-path based specification
+    * Views may have the same kind of hierarchical group, dynanamic dotted-string-path based specification?
     * Should we generalize the route and routegroup class to make it cover View "classes"/files too?
 
 
 8/12/13
 
-    * Python egg and setuptools have a way of supporting plugins via "entry points"
-    * We need to think about whether we want to use this for our plugin system, or how to combine our plugin mechanism with it.
     * See http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/advanced_pylons/entry_points_and_plugins.html
     * See http://stackoverflow.com/questions/7051577/alternative-implementations-of-python-setuptools-entry-points-extensions-in-ot
     * See http://aroberge.blogspot.com/2008/12/plugins-part-6-setuptools-based.html
@@ -21,9 +19,8 @@ Coding ToDo
 
 8/13/13
 
-    * In mcontroller and helper/callables we are still throwing some exception; change to EFailures or EException.
-    * Add obj parameter to Event shortcuts.
+    * Add obj parameter to Event shortcuts?
 
 
 8/13.13
-    * catch exceptions in the requst processing top-level loop, and log them.
+    * catch exceptions in the requst processing top-level loop, and log them?

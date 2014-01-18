@@ -68,6 +68,8 @@ class MewloPackage(object):
         #
         self.eventlist = EventList()
 
+    def get_infofilepath(self):
+        return self.infofilepath
 
     def do_enabledisable(self, mewlosite, flag_enable, reason, eventlist):
         """

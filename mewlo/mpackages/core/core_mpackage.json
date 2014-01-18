@@ -15,7 +15,9 @@
 	"url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/core",
 	"url.version": "http://www.donationcoder.com/Software/Mouser/mewlo/core/version.json",
 
-	"requires": [],
+	"requires_justkidding": {
+			"packages": ["mouser.nonexistantplugintest"]
+		},
 
 	"codefile": "core_mpackage.py",
 	"codeclass": "Core_MewloPackageObject",

@@ -287,6 +287,9 @@ class EventList(object):
             self.context.append('.' + context)
 
 
+    def append(self,event):
+        self.add(event)
+
 
     def add(self, event):
         """Just append a new event."""

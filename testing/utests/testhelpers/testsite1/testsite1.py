@@ -67,7 +67,10 @@ class MewloSite_Test1(MewloSite):
                 },
             'mouser.testpackage' : {
                 'enabled': True,
-                }
+                },
+#            'mewlo.core' : {
+#                'enabled': False,
+#                }
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_packages, packageconfig)
 
