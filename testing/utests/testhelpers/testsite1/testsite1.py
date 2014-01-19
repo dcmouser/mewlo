@@ -48,17 +48,37 @@ class MewloSite_Test1(MewloSite):
         """This is called by default by the base MewloSite as the first thing to do at startup;
         here we expect to set some site settings that might be used during startup."""
 
+
         # config settings
         config = {
             # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
             MewloSettings.DEF_SETTINGNAME_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
+            MewloSettings.DEF_SETTINGNAME_flag_importsetuptoolspackages: True,
             MewloSettings.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
             MewloSettings.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
-            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public_html',
-            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public_html',
+            }
+        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
+
+        # config settings
+        config = {
+            #MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/',
+            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public',
+            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public',
             MewloSettings.DEF_SETTINGNAME_sitename: 'Mewlo',
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
+
+        # config settings
+        config = {
+            MewloSettings.DEF_SETTINGNAME_isenabled: True,
+            MewloSettings.DEF_SETTINGNAME_isonline: True,
+            MewloSettings.DEF_SETTINGNAME_offline_mode: 'maintenance',
+            MewloSettings.DEF_SETTINGNAME_offline_message: 'We are down for leap-year maintenance; we will be back soon.',
+            MewloSettings.DEF_SETTINGNAME_offline_allowadmin: False,
+            }
+        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
+
+
 
         # extension package config
         packageconfig = {
@@ -68,9 +88,6 @@ class MewloSite_Test1(MewloSite):
             'mouser.testpackage' : {
                 'enabled': True,
                 },
-#            'mewlo.core' : {
-#                'enabled': False,
-#                }
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_packages, packageconfig)
 
@@ -92,6 +109,10 @@ class MewloSite_Test1(MewloSite):
                 },
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_database, databaseconfig)
+
+
+
+
 
 
 
@@ -231,7 +252,7 @@ class MewloSite_Test1(MewloSite):
         routegroup.append(
             MewloRoute_StaticFiles(
                 id  = 'static_files',
-                path = '/public_html',
+                path = '/static',
                 controller = MewloController_StaticFiles(
                     sourcepath = '${sitefilepath}/public_html'
                     ),
@@ -258,12 +279,12 @@ class MewloSite_Test1(MewloSite):
         # create some test NavNodes
         nodes = [
             NavNode('home', {
-                'label': '${sitename} home page',
-                'label_short': 'home',
+                'menulabel': '${sitename} home page',
+                'menulabel_short': 'home',
                 'children': [],
                 'parent': 'site',
                 'sortweight': 1.0,
-                'hint' : 'Return to the home page'
+                'menuhint' : 'Return to the home page'
                 }),
             NavNode('help', {
                 'parent': 'site',
@@ -288,12 +309,13 @@ class MewloSite_Test1(MewloSite):
                 'sortweight': 8.0,
                 }),
             NavNode('logout', {
-                'label': lambda navnode,context: "logout ({0})".format(context.get_value('username')),
-                'label_short': 'logout',
-                'hint' : 'logout of your account',
+                'menulabel': lambda navnode,context: "logout ({0})".format(context.get_value('username')),
+                'menulabel_short': 'logout',
+                'menuhint' : 'logout of your account',
                 'visible': lambda navnode,context: context.get_value('isloggedin',False),
                 'parent': 'site',
                 'sortweight': 8.0,
+                'pagetitle': 'Logout Page',
                 }),
             ]
 

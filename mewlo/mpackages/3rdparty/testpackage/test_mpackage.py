@@ -142,9 +142,12 @@ class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
             self.packagesettings.remove_subkey(self.get_settingkey(),'toggleval')
         else:
             self.packagesettings.set_subvalue(self.get_settingkey(),'toggleval',1)
-        #
+        # As a test, say we cannot be run
+        if (False):
+            return EFailure("TEST: The package 'test_mpackage' needs to run a database update before it can run.")
+        # it's good to run
         return None
-        #return EFailure("The package 'test_mpackage' needs to run a database update before it can run.")
+
 
     def generate_update_choices(self):
         """

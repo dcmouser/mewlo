@@ -6,6 +6,8 @@
 	"description": "This pacakge manages the Mewlo core code.",
 
 	"group": "core",
+  "genre": "core",
+
 	"required": true,
 
 	"author": "mouser@donationcoder.com",

@@ -362,7 +362,7 @@ class NavNodeManager(manager.MewloManager):
     def makenav_noderow_to_html(self, row, responsecontext):
         """Build html from a noderow."""
         html = ''
-        labelproplist = ['label']
+        labelproplist = ['menulabel']
         for node in row:
             nodehtml = self.makenav_node_to_html(node, labelproplist, responsecontext)
             html += nodehtml
@@ -412,7 +412,7 @@ class NavNodeManager(manager.MewloManager):
         """Take a list of built node rows and return html for them."""
         # init
         html = ''
-        labelproplist = ['label_short', 'label']
+        labelproplist = ['menulabel_short', 'menulabel']
         # build nodehtmls
         for node in nodelist:
             nodehtml = self.makenav_node_to_html(node, labelproplist, responsecontext)
@@ -503,8 +503,18 @@ class NavNodeManager(manager.MewloManager):
 
 
 
-
-
+    def calcnav_currentpage_title(self, responsecontext):
+        """
+        Return title of current page from current navnode
+        """
+        # init
+        # get currentnode and rootnode to use
+        (currentnode, rootnode) = self.find_current_and_root(None, responsecontext)
+        # if nothing to do, return now
+        if (currentnode == None):
+            # unknown pagetitle
+            return ''
+        return currentnode.get_pagetitle(responsecontext)
 
 
 
@@ -678,7 +688,12 @@ class NavNode(object):
 
 
 
-
+    def get_pagetitle(self, responsecontext):
+        """Return value for menu/navbar creation."""
+        val = self.get_propertyl(['pagetitle','menulabel','menulabel_short'],None,True,responsecontext)
+        if (val==None):
+            val=self.id
+        return val
 
 
     def get_label(self, labelproplist, responsecontext):
@@ -698,11 +713,14 @@ class NavNode(object):
             if (self.route != None):
                 # ATTN: TODO - eventually we will need to pass context info to this function to account for url parameters, etc.
                 val = self.route.construct_url()
+        else:
+            # val is the url, but we need to add site prefix
+            val = self.relative_url(val)
         return val
 
     def get_menu_hint(self, responsecontext):
         """Return value for menu/navbar creation."""
-        val = self.get_propertyl(['hint','help'], None, True, responsecontext)
+        val = self.get_propertyl(['menuhint','menuhelp'], None, True, responsecontext)
         return val
 
     def get_isvisible(self, responsecontext):
@@ -724,5 +742,8 @@ class NavNode(object):
         return responsecontext.get_subsubvalue('navnodes',self.id,propertyname,defaultval)
 
 
+    def relative_url(self, url):
+        """Ask site to construct proper relative url on the site by adding site prefix."""
+        return self.mewlosite.relative_url(url)
 
 

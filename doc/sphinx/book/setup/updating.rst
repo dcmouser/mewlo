@@ -9,3 +9,5 @@ But updates should be classifiable as being in one of two qualitatively differen
 
 The first class are not-time-sensitive -- the system can run as is, without the updates being applies.
 The second class are time-sensitive and critical, and the system should STOP SERVING ALL REQUESTS other than admin access until the upgrade is applied or an override flag is set to bypass this.
+
+See the updating topic under the Developer section

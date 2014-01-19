@@ -32,50 +32,50 @@ MewloSiteManager reporting in.
        sourcefilter: None
        extra: None
        flag_returnsvalue: True
-       callback: <bound method Test_MewloPackageObject.signalcallback_test of <mewlo.mpackages.3rdparty.testpackage.test_mpackage.Test_MewloPackageObject object at 0x02A7B710>>
+       callback: <bound method Test_MewloPackageObject.signalcallback_test of <mewlo.mpackages.3rdparty.testpackage.test_mpackage.Test_MewloPackageObject object at 0x02A7C6D0>>
 
     Component Registry (MewloRegistryManager) reporting in.
      Registered Components: 12
       Component (MewloComponent) reporting in.
        features: {'type': 'classwrapper', 'id': '_classobj:DbModel_Settings_Package'}
-       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x0294BBB0>
+       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x02944B70>
        obj: <class 'mewlo.mpackages.core.database.mdbmanager.DbModel_Settings_Package'>
       Component (MewloComponent) reporting in.
        features: {'type': 'classwrapper', 'id': '_classobj:DbModel_Settings_Main'}
-       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x0294BBB0>
+       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x02944B70>
        obj: <class 'mewlo.mpackages.core.database.mdbmanager.DbModel_Settings_Main'>
       Component (MewloComponent) reporting in.
        features: {'type': 'classwrapper', 'id': '_classobj:MewloDbModel_Gob'}
-       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x0294BBB0>
+       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x02944B70>
        obj: <class 'mewlo.mpackages.core.database.mdbmodel_gob.MewloDbModel_Gob'>
       Component (MewloComponent) reporting in.
        features: {'type': 'classwrapper', 'id': '_classobj:MewloDbModel_Log_log'}
-       owner: <mewlo.mpackages.core.eventlog.mlogtarget_database.MewloLogTarget_Database object at 0x0294BD90>
+       owner: <mewlo.mpackages.core.eventlog.mlogtarget_database.MewloLogTarget_Database object at 0x02944D50>
        obj: <class 'mewlo.mpackages.core.database.mdbmanager.MewloDbModel_Log_log'>
       Component (MewloComponent) reporting in.
        features: {'type': 'custom', 'ptype': 'object', 'id': 'test_plugin_service'}
-       owner: <mewlo.mpackages.3rdparty.testpackage.test_mpackage.Test_MewloPackageObject object at 0x02A7B710>
-       obj: <mewlo.mpackages.3rdparty.testpackage.test_mpackage.Test_MewloPackage_Service object at 0x02AA3AB0>
+       owner: <mewlo.mpackages.3rdparty.testpackage.test_mpackage.Test_MewloPackageObject object at 0x02A7C6D0>
+       obj: <mewlo.mpackages.3rdparty.testpackage.test_mpackage.Test_MewloPackage_Service object at 0x02AA47B0>
         Mewlo Test_MewloPackage_Service reporting in.
       Component (MewloComponent) reporting in.
        features: {'type': 'classwrapper', 'id': '_classobj:MewloUser'}
-       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x0294BBB0>
+       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x02944B70>
        obj: <class 'mewlo.mpackages.core.user.muser.MewloUser'>
       Component (MewloComponent) reporting in.
        features: {'type': 'classwrapper', 'id': '_classobj:MewloGroup'}
-       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x0294BBB0>
+       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x02944B70>
        obj: <class 'mewlo.mpackages.core.group.mgroup.MewloGroup'>
       Component (MewloComponent) reporting in.
        features: {'type': 'classwrapper', 'id': '_classobj:MewloRole'}
-       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x0294BBB0>
+       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x02944B70>
        obj: <class 'mewlo.mpackages.core.rbac.mrbac.MewloRole'>
       Component (MewloComponent) reporting in.
        features: {'type': 'classwrapper', 'id': '_classobj:MewloRoleHierarchy'}
-       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x0294BBB0>
+       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x02944B70>
        obj: <class 'mewlo.mpackages.core.rbac.mrbac.MewloRoleHierarchy'>
       Component (MewloComponent) reporting in.
        features: {'type': 'classwrapper', 'id': '_classobj:MewloRoleAssignment'}
-       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x0294BBB0>
+       owner: <testhelpers.testsite1.testsite1.MewloSite_Test1 object at 0x02944B70>
        obj: <class 'mewlo.mpackages.core.rbac.mrbac.MewloRoleAssignment'>
       Component (MewloComponent) reporting in.
        features: {'type': 'classwrapper', 'id': '_classobj:MewloGroup_tracking'}
@@ -93,57 +93,118 @@ MewloSiteManager reporting in.
      Directories scanned:
       e:\websitehttp\mewlo\mewlo/mpackages
       E:\WebsiteHttp\mewlo\testing\utests\testhelpers\testsite1\mpackages
+     Also scanning installed mewlo python-setuptools-based packages: True.
+     Info files found:
+      e:\websitehttp\mewlo\mewlo\mpackages\3rdparty\testpackage\test_mpackage.json
+      e:\websitehttp\mewlo\mewlo\mpackages\core\core_mpackage.json
+      C:\Langs\Python2\venv\mewlo\lib\site-packages\mewlotestpluginviasetuptools-1.0.0-py2.7.egg\mewlosetuptoolsplugintest\mewlotestplug_mpackage.json
 
-       Package reporting in:
+       Package 'mouser.testpackage' reporting in:
         Events: None.
         Enabled: True (explicitly enabled in site settings).
         Info dictionary: e:\websitehttp\mewlo\mewlo\mpackages\3rdparty\testpackage\test_mpackage.json:
-         '{"license": "BSD", "versiondate": "jul 18, 2013", "group": "test", "description": "This is a test package to aid in testing package addons.", "nicename": "TestPackage", "author": "mouser@donationcoder.com", "url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/testpackage", "codeclass": "Test_MewloPackageObject", "label": "Test Package Number 1", "version": "1.0.0", "uniqueid": "mouser.testpackage", "codefile": "test_mpackage.py", "requires": {"packages": ["mouser.mewlotestplug"]}, "url.version": "http://www.donationcoder.com/Software/Mouser/mewlo/testpackage/version.json"}'
+         '{
+         "license": "BSD", 
+         "versiondate": "jul 18, 2013", 
+         "group": "test", 
+         "description": "This is a test package to aid in testing package addons.", 
+         "nicename": "TestPackage", 
+         "author": "mouser@donationcoder.com", 
+         "url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/testpackage", 
+         "codeclass": "Test_MewloPackageObject", 
+         "label": "Test Package Number 1", 
+         "version": "1.0.0", 
+         "uniqueid": "mouser.testpackage", 
+         "codefile": "test_mpackage.py", 
+         "requires": {
+                  "packages": [
+                           "mouser.mewlotestplug"
+                  ]
+         }, 
+         "url.version": "http://www.donationcoder.com/Software/Mouser/mewlo/testpackage/version.json"
+}'
         Code module file: e:\websitehttp\mewlo\mewlo\mpackages\3rdparty\testpackage/test_mpackage.py
         Code module: <module 'mewlo.mpackages.3rdparty.testpackage.test_mpackage' from 'e:\websitehttp\mewlo\mewlo\mpackages\3rdparty\testpackage\test_mpackage.pyc'>
-        Package object: <mewlo.mpackages.3rdparty.testpackage.test_mpackage.Test_MewloPackageObject object at 0x02A7B710>
+        Package object: <mewlo.mpackages.3rdparty.testpackage.test_mpackage.Test_MewloPackageObject object at 0x02A7C6D0>
          Mewlo Test_MewloPackageObject reporting in.
 
-       Package reporting in:
+       Package 'mewlo.core' reporting in:
         Events: None.
         Enabled: True (required package).
         Info dictionary: e:\websitehttp\mewlo\mewlo\mpackages\core\core_mpackage.json:
-         '{"requires_justkidding": {"packages": ["mouser.nonexistantplugintest"]}, "versiondate": "jul 18, 2013", "group": "core", "description": "This pacakge manages the Mewlo core code.", "nicename": "Mewlo Core", "author": "mouser@donationcoder.com", "url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/core", "required": true, "codeclass": "Core_MewloPackageObject", "label": "Mewlo Core Code Package", "versionlog": {"1.0.0": "first private release"}, "version": "1.0.0", "uniqueid": "mewlo.core", "codefile": "core_mpackage.py", "url.version": "http://www.donationcoder.com/Software/Mouser/mewlo/core/version.json"}'
+         '{
+         "requires_justkidding": {
+                  "packages": [
+                           "mouser.nonexistantplugintest"
+                  ]
+         }, 
+         "versiondate": "jul 18, 2013", 
+         "group": "core", 
+         "description": "This pacakge manages the Mewlo core code.", 
+         "nicename": "Mewlo Core", 
+         "author": "mouser@donationcoder.com", 
+         "url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/core", 
+         "required": true, 
+         "codeclass": "Core_MewloPackageObject", 
+         "label": "Mewlo Core Code Package", 
+         "versionlog": {
+                  "1.0.0": "first private release"
+         }, 
+         "version": "1.0.0", 
+         "uniqueid": "mewlo.core", 
+         "codefile": "core_mpackage.py", 
+         "url.version": "http://www.donationcoder.com/Software/Mouser/mewlo/core/version.json"
+}'
         Code module file: e:\websitehttp\mewlo\mewlo\mpackages\core/core_mpackage.py
         Code module: <module 'mewlo.mpackages.core.core_mpackage' from 'e:\websitehttp\mewlo\mewlo\mpackages\core\core_mpackage.pyc'>
-        Package object: <mewlo.mpackages.core.core_mpackage.Core_MewloPackageObject object at 0x02AAC2D0>
+        Package object: <mewlo.mpackages.core.core_mpackage.Core_MewloPackageObject object at 0x02AAC1F0>
          Core_MewloPackageObject reporting in.
 
-       Package reporting in:
+       Package 'mouser.mewlotestplug' reporting in:
         Events: None.
         Enabled: True (explicitly enabled in site settings).
         Info dictionary: C:\Langs\Python2\venv\mewlo\lib\site-packages\mewlotestpluginviasetuptools-1.0.0-py2.7.egg\mewlosetuptoolsplugintest\mewlotestplug_mpackage.json:
-         '{"license": "BSD", "versiondate": "sep 01, 2013", "group": "test", "description": "This is a test package to aid in testing package addons; autodiscovered via setuptools entry_points.", "nicename": "MewloTestPluginViaSetupTools", "author": "mouser@donationcoder.com", "url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/testpackage", "codeclass": "SetupToolsPlugin_MewloPackageObject", "label": "Test Package Number 2", "version": "1.0.0", "uniqueid": "mouser.mewlotestplug", "codefile": "mewlotestplugin_mpackage.py", "requires": [], "url.version": "http://www.donationcoder.com/Software/Mouser/mewlo/testpackage/version.json"}'
+         '{
+         "license": "BSD", 
+         "versiondate": "sep 01, 2013", 
+         "group": "test", 
+         "description": "This is a test package to aid in testing package addons; autodiscovered via setuptools entry_points.", 
+         "nicename": "MewloTestPluginViaSetupTools", 
+         "author": "mouser@donationcoder.com", 
+         "url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/testpackage", 
+         "codeclass": "SetupToolsPlugin_MewloPackageObject", 
+         "label": "Test Package Number 2", 
+         "version": "1.0.0", 
+         "uniqueid": "mouser.mewlotestplug", 
+         "codefile": "mewlotestplugin_mpackage.py", 
+         "requires": [], 
+         "url.version": "http://www.donationcoder.com/Software/Mouser/mewlo/testpackage/version.json"
+}'
         Code module file: C:\Langs\Python2\venv\mewlo\lib\site-packages\mewlotestpluginviasetuptools-1.0.0-py2.7.egg\mewlosetuptoolsplugintest/mewlotestplugin_mpackage.py
         Code module: <module 'mewlosetuptoolsplugintest.mewlotestplugin_mpackage' from 'C:\Langs\Python2\venv\mewlo\lib\site-packages\mewlotestpluginviasetuptools-1.0.0-py2.7.egg\mewlosetuptoolsplugintest\mewlotestplugin_mpackage.pyc'>
-        Package object: <mewlosetuptoolsplugintest.mewlotestplugin_mpackage.SetupToolsPlugin_MewloPackageObject object at 0x02AAC590>
+        Package object: <mewlosetuptoolsplugintest.mewlotestplugin_mpackage.SetupToolsPlugin_MewloPackageObject object at 0x02AAC690>
          Mewlo SetupToolsPlugin_MewloPackageObject v2 reporting in.
 
 
     MewloRouteManager reporting in:
      MewloRouteGroup reporting in:
       Root for controllers: <module 'testhelpers.testsite1.controllers' from 'E:\WebsiteHttp\mewlo\testing\utests\testhelpers\testsite1\controllers\__init__.pyc'>
-      Route hash: {'about': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02956130>, 'help': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029560B0>, 'static_files': <mewlo.mpackages.core.route.mroute_staticfiles.MewloRoute_StaticFiles object at 0x02956230>, 'register': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02956170>, 'contact': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029560F0>, 'logout': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029561F0>, 'home': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x0294BE10>, 'article': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02956070>, 'login': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029561B0>, 'hello': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x0294BE90>}
+      Route hash: {'about': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029500F0>, 'help': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02950070>, 'static_files': <mewlo.mpackages.core.route.mroute_staticfiles.MewloRoute_StaticFiles object at 0x029501F0>, 'register': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02950130>, 'contact': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029500B0>, 'logout': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029501B0>, 'home': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02944DD0>, 'article': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02950030>, 'login': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02950170>, 'hello': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02944E50>}
 
       MewloRouteGroup reporting in:
        Root for controllers: <module 'testhelpers.testsite1.controllers' from 'E:\WebsiteHttp\mewlo\testing\utests\testhelpers\testsite1\controllers\__init__.pyc'>
-       Route hash: {'about': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02956130>, 'help': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029560B0>, 'static_files': <mewlo.mpackages.core.route.mroute_staticfiles.MewloRoute_StaticFiles object at 0x02956230>, 'register': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02956170>, 'contact': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029560F0>, 'logout': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029561F0>, 'article': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02956070>, 'home': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x0294BE10>, 'login': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029561B0>, 'hello': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x0294BE90>}
+       Route hash: {'about': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029500F0>, 'help': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02950070>, 'static_files': <mewlo.mpackages.core.route.mroute_staticfiles.MewloRoute_StaticFiles object at 0x029501F0>, 'register': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02950130>, 'contact': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029500B0>, 'logout': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x029501B0>, 'article': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02950030>, 'home': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02944DD0>, 'login': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02950170>, 'hello': <mewlo.mpackages.core.route.mroute.MewloRoute object at 0x02944E50>}
 
        MewloRoute 'home':
         path: /
         MewloController (MewloController):
-         callable: <function request_home at 0x02936770>
+         callable: <function request_home at 0x0292E8B0>
         Route Args: None.
 
        MewloRoute 'hello':
         path: /test/hello
         MewloController (MewloController):
-         callable: <function request_sayhello at 0x02951E70>
+         callable: <function request_sayhello at 0x0294AFB0>
         Route Args: 
          MewloRouteArg 'name':
           argtype: String
@@ -159,7 +220,7 @@ MewloSiteManager reporting in.
        MewloRoute 'article':
         path: /article
         MewloController (MewloController):
-         callable: <function request_article at 0x02951EB0>
+         callable: <function request_article at 0x0294F030>
         Route Args: 
          MewloRouteArg 'title':
           argtype: String
@@ -170,43 +231,43 @@ MewloSiteManager reporting in.
        MewloRoute 'help':
         path: /user/help
         MewloController (MewloController):
-         callable: <function request_help at 0x029367B0>
+         callable: <function request_help at 0x0292E8F0>
         Route Args: None.
 
        MewloRoute 'contact':
         path: /help/contact
         MewloController (MewloController):
-         callable: <function request_contact at 0x02936BF0>
+         callable: <function request_contact at 0x0292ED30>
         Route Args: None.
 
        MewloRoute 'about':
         path: /help/about
         MewloController (MewloController):
-         callable: <function request_about at 0x02936C30>
+         callable: <function request_about at 0x0292ED70>
         Route Args: None.
 
        MewloRoute 'register':
         path: /user/register
         MewloController (MewloController):
-         callable: <function request_register at 0x02951E30>
+         callable: <function request_register at 0x0294AF70>
         Route Args: None.
 
        MewloRoute 'login':
         path: /user/login
         MewloController (MewloController):
-         callable: <function request_login at 0x02936CB0>
+         callable: <function request_login at 0x0292EDF0>
         Route Args: None.
 
        MewloRoute 'logout':
         path: /user/logout
         MewloController (MewloController):
-         callable: <function request_logout at 0x0294E770>
+         callable: <function request_logout at 0x029478B0>
         Route Args: None.
 
        MewloRoute 'static_files':
         path: /public_html
         MewloController (MewloController_StaticFiles):
-         callable: <bound method MewloController_StaticFiles.controller_call of <mewlo.mpackages.core.controller.mcontroller_staticfiles.MewloController_StaticFiles object at 0x02956210>>
+         callable: <bound method MewloController_StaticFiles.controller_call of <mewlo.mpackages.core.controller.mcontroller_staticfiles.MewloController_StaticFiles object at 0x029501D0>>
         Route Args: None.
 
 
@@ -234,17 +295,17 @@ MewloSiteManager reporting in.
       children: none.
       route: about.
      Navnode 'register' reporting in:
-      properties: {'visible': <function <lambda> at 0x02951EF0>, 'sortweight': 1.0, 'parent': 'site', 'id': 'register'}.
+      properties: {'visible': <function <lambda> at 0x0294F070>, 'sortweight': 1.0, 'parent': 'site', 'id': 'register'}.
       parents: site.
       children: none.
       route: register.
      Navnode 'login' reporting in:
-      properties: {'visible': <function <lambda> at 0x02951F70>, 'sortweight': 8.0, 'parent': 'site', 'id': 'login'}.
+      properties: {'visible': <function <lambda> at 0x0294F0F0>, 'sortweight': 8.0, 'parent': 'site', 'id': 'login'}.
       parents: site.
       children: none.
       route: login.
      Navnode 'logout' reporting in:
-      properties: {'parent': 'site', 'hint': 'logout of your account', 'label_short': 'logout', 'label': <function <lambda> at 0x02951FB0>, 'visible': <function <lambda> at 0x02959030>, 'id': 'logout', 'sortweight': 8.0}.
+      properties: {'parent': 'site', 'hint': 'logout of your account', 'label_short': 'logout', 'label': <function <lambda> at 0x0294F130>, 'visible': <function <lambda> at 0x0294F170>, 'id': 'logout', 'sortweight': 8.0}.
       parents: site.
       children: none.
       route: logout.
@@ -258,7 +319,7 @@ MewloSiteManager reporting in.
       children: none.
 
     Settings (MewloSettingsDb):
-     {u'Test_MewloPackageObject': {'date_lastuse': datetime.datetime(2014, 1, 18, 4, 47, 40, 500000), 'toggleval': 1, 'database_version': 2, 'usecount': 115}}
+     {u'Test_MewloPackageObject': {'date_lastuse': datetime.datetime(2014, 1, 18, 19, 42, 14, 953000), 'usecount': 134, 'database_version': 2}}
 
     MewloTemplateHelper (MewloTemplateHelper) reporting in.
 

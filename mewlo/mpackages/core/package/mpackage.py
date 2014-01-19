@@ -46,6 +46,8 @@ class MewloPackage(object):
     DEF_INFOFIELD_uniqueid = 'uniqueid'
     DEF_INFOFIELD_enabled = 'enabled'
     DEF_INFOFIELD_requiredpackages = 'packages'
+    DEF_INFOFIELD_codefile = 'codefile'
+    DEF_INFOFIELD_codeclass = 'codeclass'
 
 
 
@@ -128,7 +130,10 @@ class MewloPackage(object):
 
 
     def load_codemodule(self):
-        """Import the codemodule associated with this package."""
+        """
+        Import the codemodule associated with this package.
+        Return None on success or failure on error
+        """
 
         # init
         self.codemodule = None
@@ -150,11 +155,12 @@ class MewloPackage(object):
             # success so mark it as ready to run
             self.readytorun = True
         else:
-            # failed; add the error message to our eventlist, and continue with this package marked as not useable
+            # failed; add the error message to our eventlist, and continue with this package marked as not useable? or raise exception right away
             self.eventlist.add(failure)
             if (True):
                 raise ExceptionPlus(failure)
-
+        # return failure
+        return failure
 
 
     def get_pathtocodemodule(self):
@@ -166,7 +172,7 @@ class MewloPackage(object):
         name, ext = os.path.splitext(fullname)
         pathtocodemodule_default = name + '.py'
         # override with explicit
-        pathtocodemodule = dir + '/' + self.get_infofile_property('codefile', pathtocodemodule_default)
+        pathtocodemodule = dir + '/' + self.get_infofile_property(MewloPackage.DEF_INFOFIELD_codefile, pathtocodemodule_default)
         # return it
         return pathtocodemodule, None
 
@@ -183,7 +189,7 @@ class MewloPackage(object):
             return EFailure("No code module imported to instantiate package object from.")
 
         # object class defined in info dictionary?
-        packageobject_classname = self.get_infofile_property("codeclass", None)
+        packageobject_classname = self.get_infofile_property(MewloPackage.DEF_INFOFIELD_codeclass, None)
         if (packageobject_classname == None):
             return EFailure("Package info file is missing the 'codeclass' property which defines the class of the MewloPackage derived class in the package module.")
 
@@ -227,7 +233,9 @@ class MewloPackage(object):
         """Do any startup stuff."""
         if (self.readytoloadcode):
             # load the code module
-            self.load_codemodule()
+            failure = self.load_codemodule()
+            if (failure!=None):
+                return failure
             if (self.packageobject!=None):
                 # now start it up
                 failure = self.packageobject.checkusable()
@@ -253,7 +261,7 @@ class MewloPackage(object):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
 
-        outstr = " "*indent + "Package reporting in:\n"
+        outstr = " "*indent + "Package '{0}' reporting in:\n".format(self.get_infofile_property(MewloPackage.DEF_INFOFIELD_uniqueid,'[uniqueid_not_specified]'))
         indent += 1
         #
         outstr += self.eventlist.dumps(indent)
@@ -261,7 +269,7 @@ class MewloPackage(object):
         outstr += " "*indent + "Enabled: " + str(self.enabled) + " ("+self.enabledisablereason+").\n"
         #
         outstr += " "*indent + "Info dictionary: " + self.infofilepath + ":\n"
-        jsonstring = json.dumps(self.infodict, indent+1)
+        jsonstring = json.dumps(self.infodict, indent=indent+1)
         outstr += " "*indent + " '" + jsonstring + "'\n"
         #
         outstr += " "*indent + "Code module file: " + self.codemodule_path + "\n"

@@ -6,6 +6,7 @@
 	"description": "This is a test package to aid in testing package addons.",
 
 	"group": "test",
+  "genre": "addon",
 
 	"author": "mouser@donationcoder.com",
 	"version": "1.0.0",

@@ -60,10 +60,6 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
 
-    def process_request_starts(self, request):
-        """Do stuff before processing a request."""
-        pass
-
     def process_request_ends(self, request):
         """Do stuff before processing a request."""
         self.flushdb_on_request_ends()

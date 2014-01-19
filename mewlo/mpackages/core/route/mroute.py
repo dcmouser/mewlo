@@ -160,6 +160,7 @@ class MewloRoute(object):
         self.forcedargs = forcedargs
         #
         self.controllerroot = None
+        self.mewlosite = None
         #
         # the controller should be a MewloController derived class, or createable from whatever is passed
         if (isinstance(controller, mcontroller.MewloController)):
@@ -177,12 +178,15 @@ class MewloRoute(object):
         return self.parent
     def get_id(self):
         return self.id
+    def get_mewlosite(self):
+        return self.mewlosite
 
 
-    def startup(self, parent, eventlist):
+    def startup(self, parent, mewlosite, eventlist):
         """Startup any info/caching; this is called before system startup by our parent site."""
 
         self.parent = parent
+        self.mewlosite = mewlosite
         # root propagation
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
@@ -230,7 +234,7 @@ class MewloRoute(object):
         """
 
         routepath = self.path
-        requestpath = request.get_path()
+        requestpath = request.get_sitepath()
         routepathlen = len(routepath)
         requestpathlen = len(requestpath)
         requestextra = ''
@@ -445,7 +449,7 @@ class MewloRoute(object):
     def construct_url(self):
         """Construct a url for this route.
         ATTN: TODO - this is preliminary version; eventually we will want to be able to accept info for context so we can fill parameters."""
-        return self.path
+        return self.mewlosite.relative_url(self.path)
 
 
 
@@ -464,13 +468,14 @@ class MewloRouteGroup(object):
         self.routes = []
         #
         self.parent = None
+        self.mewlosite = None
         self.routehash = {}
         #
         if (routes != None):
             self.append(routes)
 
 
-    def startup(self, parent, eventlist):
+    def startup(self, parent, mewlosite, eventlist):
         """Initial preparation, invoked by parent."""
 
         self.parent = parent
@@ -479,7 +484,7 @@ class MewloRouteGroup(object):
             self.controllerroot = parent.get_controllerroot()
         # recursive startup
         for route in self.routes:
-            route.startup(self, eventlist)
+            route.startup(self, mewlosite, eventlist)
 
 
 
@@ -580,7 +585,7 @@ class MewloRouteManager(manager.MewloManager):
 
     def startup(self, mewlosite, eventlist):
         super(MewloRouteManager,self).startup(mewlosite,eventlist)
-        self.routegroup.startup(mewlosite, eventlist)
+        self.routegroup.startup(mewlosite, mewlosite, eventlist)
         self.routegroup.build_routehash()
 
 

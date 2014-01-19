@@ -29,6 +29,7 @@ class MewloRequest(object):
         self.parsedargs = None
         self.route = None
         self.mewlosite = None
+        self.sitepath = None
         # note that a request contains a response, to be filled in during processing of request
         self.response = mresponse.MewloResponse(self)
 
@@ -36,6 +37,14 @@ class MewloRequest(object):
 
     def get_path(self):
         return self.wreq.path
+
+    def get_sitepath(self):
+        if (self.sitepath != None):
+            return self.sitepath
+        return self.get_path()
+
+    def set_sitepath(self,val):
+        self.sitepath = val
 
     def get_environ(self):
         return self.wreq.environ
@@ -74,6 +83,26 @@ class MewloRequest(object):
         """Shortcut helper just sends the log message to the site to handle, after adding the request to the log function call being invoked."""
         # add it via site
         self.mewlosite.logevent(event,request = self)
+
+
+
+    def preprocess_siteprefix(self, siteprefix):
+        """Check if request matches siteprefix, if so, set self.sitepath and return True, otherwise clear sitepath return False."""
+        requestpath = self.get_path()
+        if (requestpath.startswith(siteprefix)):
+            # it matches, strip prefix and set sitepath
+            self.set_sitepath(requestpath[len(siteprefix):])
+            return True
+        # does not match
+        #print "Failed to match request '{0}' against prefix of '{1}'.".format(siteprefix,requestpath)
+        self.set_sitepath(None)
+        return False
+
+
+
+
+
+
 
 
 

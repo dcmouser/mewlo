@@ -71,6 +71,9 @@ class MewloSite(object):
         self.fallbacklogger = None
         # exposed to templates
         self.templatehelper = None
+        #
+        self.isenabled = False
+        self.siteurl_relative = ''
 
 
         # setup log manager helper early so that log manager can receive messages
@@ -122,6 +125,11 @@ class MewloSite(object):
 
 
 
+    def get_isenabled(self):
+        return self.isenabled
+
+    def get_siteprefix(self):
+        return self.siteprefix
 
 
 
@@ -310,11 +318,12 @@ class MewloSite(object):
         self.packagemanager.set_directories( self.get_root_package_directory_list() + self.get_site_package_directory_list() )
         self.packagemanager.set_packagesettings( self.settings.get_value(MewloSettings.DEF_SECTION_packages) )
         self.packagemanager.set_default_packagesettings(MewloSettings.DEF_SETTINGVAL_default_package_settings)
+        self.packagemanager.set_flag_loadsetuptoolspackages(self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_flag_importsetuptoolspackages, MewloSettings.DEF_SETTINGVAL_flag_importsetuptoolspackages))
         # database manager settings
         self.dbmanager.set_databasesettings( self.settings.get_value(MewloSettings.DEF_SECTION_database) )
-
-
-
+        # isenabled flag
+        self.isenabled = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_isenabled, self.isenabled)
+        self.siteurl_relative = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_relative, self.siteurl_relative)
 
 
 
@@ -562,13 +571,12 @@ class MewloSite(object):
         """Set default alias settings."""
         aliases = {
             MewloSettings.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_absolute),
-            MewloSettings.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_relative),
+            MewloSettings.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_relative,'/'),
             MewloSettings.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitefilepath),
             MewloSettings.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
             MewloSettings.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
             MewloSettings.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
             MewloSettings.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitename),
-
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
         self.alias_settings_change()
@@ -671,6 +679,16 @@ class MewloSite(object):
         Run the request through the routes and handle it if it matches any.
         :return: True if the request is for this site and we have set request.response
         """
+        # if the site is disabled, then it's like it's invisible, so it's not a match for this site
+        if (not self.get_isenabled()):
+            return False
+
+        # if the request does not match site prefix, then it's not a match for this site
+        if (not self.request_match_siteprefix(request)):
+            return False;
+
+        # ok, looks like it was meant for us
+
         # before we start a request we might have stuff to do
         self.process_request_starts(request)
         # handle the request
@@ -682,13 +700,22 @@ class MewloSite(object):
 
 
 
+    def request_match_siteprefix(self, request):
+        """See if the request matches the prefix for this site (which could be blank)."""
+        if (self.siteurl_relative == '/'):
+            return True
+        # check (and strip) site prefx
+        return request.preprocess_siteprefix(self.siteurl_relative)
+
+
+
 
 
     def process_request_starts(self, request):
         """
         Do stuff before processing a request
         """
-        self.dbmanager.process_request_starts(request)
+        pass
 
 
     def process_request_ends(self, request):
@@ -716,8 +743,6 @@ class MewloSite(object):
 
     def relative_url(self, relpath):
         return self.assetmanager.relative_url(relpath)
-
-
 
 
 

@@ -22,5 +22,14 @@ Coding ToDo
     * Add obj parameter to Event shortcuts?
 
 
-8/13.13
+8/13/13
+
     * catch exceptions in the requst processing top-level loop, and log them?
+
+
+1/19/14
+
+    * let user specify custom alias values in site config
+
+
+

@@ -62,10 +62,12 @@ class MewloPackageManager(manager.MewloManager):
         # stuff
         super(MewloPackageManager,self).__init__()
         self.dirlist = []
+        self.infofilepaths = []
         self.filepatternsuffix = ''
         self.setuptools_entrypoint_groupname = ''
         self.packagesettings = {}
         self.default_packagesettings = {}
+        self.flag_loadsetuptoolspackages = True
         # package collection
         self.packages = []
         self.packagehash = {}
@@ -118,6 +120,9 @@ class MewloPackageManager(manager.MewloManager):
     def set_default_packagesettings(self, default_packagesettings):
         self.default_packagesettings = default_packagesettings
 
+    def set_flag_loadsetuptoolspackages(self, val):
+        self.flag_loadsetuptoolspackages = val
+
 
     def create_package(self, filepath):
         """Create an appropriate child package."""
@@ -157,17 +162,18 @@ class MewloPackageManager(manager.MewloManager):
     def discover_packages(self, eventlist):
         """Scan all package directories and discover packages."""
         # init
-        packagefilepaths = []
         filepattern = self.calc_packageinfofile_pattern()
-        # remove any EXISTING packages
+        # remove any EXISTING packages and clear our list of infofilepaths
         self.packages = []
-        # first find all files
+        self.infofilepaths = []
+        # add list of directories to scan
         for dirpath in self.dirlist:
-            packagefilepaths += self.findfilepaths(dirpath, filepattern)
+            self.infofilepaths += self.findfilepaths(dirpath, filepattern)
         # add any from setup tools entrypoint loading
-        packagefilepaths += self.discover_setuptools_entrypoints_packagefilepaths()
+        if (self.flag_loadsetuptoolspackages):
+            self.infofilepaths += self.discover_setuptools_entrypoints_infofilepaths()
         # now for each file, create a package from it
-        for filepath in packagefilepaths:
+        for filepath in self.infofilepaths:
             # create the package wrapper from the file
             pkg = self.createadd_package_frominfofile(filepath, eventlist)
 
@@ -194,7 +200,7 @@ class MewloPackageManager(manager.MewloManager):
 
 
 
-    def discover_setuptools_entrypoints_packagefilepaths(self):
+    def discover_setuptools_entrypoints_infofilepaths(self):
         """Discover any setuptools based entry-point plugins that are exposing their info."""
         if (self.setuptools_entrypoint_groupname == ''):
             return []
@@ -415,6 +421,10 @@ class MewloPackageManager(manager.MewloManager):
         indent += 1
         outstr += " "*indent + "Directories scanned:\n"
         for dirpath in self.dirlist:
+            outstr += " "*indent + " "+dirpath + "\n"
+        outstr += " "*indent + "Also scanning installed mewlo python-setuptools-based packages: {0}.\n".format(str(self.flag_loadsetuptoolspackages))
+        outstr += " "*indent + "Info files found:\n"
+        for dirpath in self.infofilepaths:
             outstr += " "*indent + " "+dirpath + "\n"
         outstr += "\n"
         #

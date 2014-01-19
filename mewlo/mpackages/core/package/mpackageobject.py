@@ -44,6 +44,15 @@ class MewloPackageObject(object):
 
 
 
+
+
+
+
+
+
+
+
+
     def checkusable(self):
         """
         Check if this package object is actually able to run, before startup is called.
@@ -87,6 +96,15 @@ class MewloPackageObject(object):
         :return: None on success, or failure event if not.
         """
         return None
+
+
+
+
+
+
+
+
+
 
 
 

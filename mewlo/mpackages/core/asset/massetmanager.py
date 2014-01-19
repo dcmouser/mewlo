@@ -64,14 +64,21 @@ class MewloAssetManager(manager.MewloManager):
 
     def absolute_url(self, relpath):
         """Shortcut to resolve a url given a relative path."""
+        if (self.isabsoluteurl(relpath)):
+            return relpath
         return self.resolve('${siteurl_absolute}' + relpath)
 
     def relative_url(self, relpath):
         """Shortcut to resolve a url that is relative to our server root."""
+        if (self.isabsoluteurl(relpath)):
+            return relpath
         return self.resolve('${siteurl_relative}' + relpath)
 
-
-
+    def isabsoluteurl(self, urlpath):
+        """Return True if urlpath is already an absolute path (starting with http)."""
+        if (urlpath.startswith('http')):
+            return True
+        return False
 
 
 

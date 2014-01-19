@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Title of the template document</title>
-<link rel="stylesheet" type="text/css" href="/public_html/navbar.css" media="screen" />
+<title>{{ thelper.nav_pagetitle(response) }}</title>
+<link rel="stylesheet" type="text/css" href="{{alias.siteurl_relative}}/static/navbar.css" media="screen" />
 </head>
 
 {{ thelper.nav_bar_html(response) }}

@@ -36,9 +36,18 @@ class MewloSettings(object):
     DEF_SETTINGNAME_dbfilepath = 'dbfilepath'
     DEF_SETTINGNAME_siteview_filepath = 'siteviewpath'
     DEF_SETTINGNAME_sitename = 'sitename'
+    DEF_SETTINGNAME_flag_importsetuptoolspackages = 'flag_importsetuptoolspackages'
+    #
+    DEF_SETTINGNAME_isenabled = 'isenabled'
+    DEF_SETTINGNAME_isonline = 'isonline'
+    DEF_SETTINGNAME_offline_mode = 'offline_mode'
+    DEF_SETTINGNAME_offline_message = 'offline_message'
+    DEF_SETTINGNAME_offline_allowadmin = 'offline_allowadmin'
+
     # default values
     DEF_SETTINGVAL_default_logfilename_defaultvalue = '${logfilepath}/mewlo.log'
     DEF_SETTINGVAL_default_package_settings = { 'enabled': False }
+    DEF_SETTINGVAL_flag_importsetuptoolspackages = True
     #
     DEF_Mewlo_BasePackage_subdirlist = ['mpackages']
     # so others can interogate state of site and tell when it is shutting down, etc
@@ -144,6 +153,11 @@ class MewloSettings(object):
             if (keysubname in self.settingdict[keyname]):
                 return self.settingdict[keyname][keysubname]
         return defaultval
+
+    def get_subvalue_required(self, keyname, keysubname):
+        """Lookup value from our settings dictionary at a certain root section, and return it or raise exception."""
+        return self.settingdict[keyname][keysubname]
+
 
     def set_subvalue(self, keyname, keysubname, val):
         """Set propery sub value."""
