@@ -571,7 +571,7 @@ class MewloSite(object):
         """Set default alias settings."""
         aliases = {
             MewloSettings.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_absolute),
-            MewloSettings.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_relative,'/'),
+            MewloSettings.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_relative,''),
             MewloSettings.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitefilepath),
             MewloSettings.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
             MewloSettings.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
@@ -702,7 +702,7 @@ class MewloSite(object):
 
     def request_match_siteprefix(self, request):
         """See if the request matches the prefix for this site (which could be blank)."""
-        if (self.siteurl_relative == '/'):
+        if (self.siteurl_relative == ''):
             return True
         # check (and strip) site prefx
         return request.preprocess_siteprefix(self.siteurl_relative)

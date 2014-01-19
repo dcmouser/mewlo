@@ -61,9 +61,11 @@ class MewloSite_Test1(MewloSite):
 
         # config settings
         config = {
-            #MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/',
-            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public',
-            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public',
+            # these siteurls should not end in / so if you are serving a site at root just use relative of '' and absolute of 'http://sitename.com'
+            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '',
+            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080',
+#            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public/publicity',
+#            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public/publicity',
             MewloSettings.DEF_SETTINGNAME_sitename: 'Mewlo',
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
