@@ -94,3 +94,13 @@ Ugly Code
 
 1/20/14:
     * I'd really like to remove all of this stuff where we are passing eventlists to functions for collecting warnings, etc.  There has to be a better way.
+
+1/21/14:
+    * We have a problem with the workflow for checking package updates and specifically critical web update checking, and package initialization.
+    * As it is, we discover packages, load their code, all at startup, and only then can we check for web/database updates.
+    * And we cannot check for database updates UNTIL we have loaded the package objects.
+    * What should? workflow look like? 1. discover packages, 2. do web update checks, 3. load code objects, 4. do database update check, 5. enable 
+    * Current workflow: 1. discover packages, 2. load code objects + do database update checks, and enable, 3. do web update checks and database update checks
+
+1/21/14
+    * I dont think we can support multiple sites if we are using sqlalchemy. think about the fact that model classes are being instrumented, and thus cannot be shared across multiple different tables for different sites.

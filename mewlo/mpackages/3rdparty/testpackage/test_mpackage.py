@@ -128,7 +128,7 @@ class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
         Check if this package object needs to run a database update before it can be used.
         :return: tuple (isdatabaseupdateneeded, failure)
         """
-        if (True):
+        if (False):
             # test to say a db update is needed
             return True, EWarning("TEST: The package 'test_mpackage' needs to run a database update before it can run.")
         return False, None

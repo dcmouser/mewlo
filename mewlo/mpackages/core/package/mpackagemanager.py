@@ -84,14 +84,18 @@ class MewloPackageManager(manager.MewloManager):
         super(MewloPackageManager,self).startup(mewlosite, eventlist)
         # discover the packages in the package directories
         self.discover_packages(eventlist)
-        # ok now that we have disocvered the packages, we walk them and apply any settings the might enable or disable them
+        # startup packages right away?
+        if (True):
+            self.startup_packages(eventlist)
+
+
+    def startup_packages(self, eventlist):
+        """Startup packages.  We do this separately from normal startup() because we may want to check for updates first."""
         for package in self.packages:
-            failure = self.startup_package_auto(mewlosite, package, eventlist)
+            failure = self.startup_package_auto(self.mewlosite, package, eventlist)
             if (failure != None):
                 # if we get a hard failure here, we add it to our list of failures, and to the eventlist
                 eventlist.add(failure)
-
-
 
 
 

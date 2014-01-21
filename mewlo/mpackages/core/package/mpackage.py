@@ -50,6 +50,7 @@ class MewloPackage(object):
     DEF_INFOFIELD_url_download = 'url.download'
     DEF_INFOFIELD_version = 'version'
     DEF_INFOFIELD_versiondate = 'versiondate'
+    DEF_INFOFIELD_versioncritical = 'versioncritical'
 
 
     def __init__(self, packagemanager, filepath):
@@ -88,6 +89,7 @@ class MewloPackage(object):
         self.clear_eventlist()
         self.update_webfiles_needupdate = None
         self.update_database_needupdate = None
+        self.update_webfiles_iscritical = None
 
 
     def get_uniqueid(self):
@@ -230,7 +232,7 @@ class MewloPackage(object):
             return EFailure("Package class object '{0}' was found in package module, but could not be instantiated.".format(packageobject_classname))
 
         # always prepare it first
-        failure = packageobj.prepare(self.packagemanager.mewlosite.packagesettings)
+        failure = packageobj.prepare(self.get_mewlosite().packagesettings)
         if (failure != None):
             # failure to prepare, so we let it go and return the failure
             packageobj = None
@@ -260,6 +262,10 @@ class MewloPackage(object):
 
     def startup(self, mewlosite, eventlist):
         """Do any startup stuff."""
+        if (self.update_webfiles_iscritical):
+            # do not allow startup since there is a critical update available
+            # ATTN: as the code is now, this never triggers because we dont check for web updates until AFTER this code runs
+            return EFailure("Cannot enable/startup package because a *critical* web update is available.")
         if (self.readytoloadcode):
             # load the code module
             failure = self.load_codemodule()
@@ -329,6 +335,8 @@ class MewloPackage(object):
         #
         outstr += " "*indent + "Update check results:\n"
         outstr += " "*indent + " Web has newer version available? {0}\n".format(strvalnone(self.update_webfiles_needupdate,'not checked'))
+        if (self.update_webfiles_needupdate == True):
+            outstr += " "*indent + "  Web update is critical? {0}\n".format(strvalnone(self.update_webfiles_iscritical,'not checked'))
         outstr += " "*indent + " Database needs update? {0}\n".format(strvalnone(self.update_database_needupdate,'not checked'))
         outstr += self.eventlist.dumps(indent+1)
         #
@@ -398,7 +406,7 @@ class MewloPackage(object):
         self.clear_updateinfo()
 
         # first check for web file update available
-        self.update_webfiles_needupdate, webinfodict, failure = self.updatecheck_checkfornewfiles()
+        self.update_webfiles_needupdate, self.update_webfiles_iscritical, webinfodict, failure = self.updatecheck_checkfornewfiles()
         if (failure != None):
             # error
             self.appendevent(failure)
@@ -441,7 +449,7 @@ class MewloPackage(object):
         self.clear_updateinfo()
 
         # first check for web file update available
-        self.update_webfiles_needupdate, webinfodict, failure = self.updatecheck_checkfornewfiles()
+        self.update_webfiles_needupdate, self.update_webfiles_iscritical, webinfodict, failure = self.updatecheck_checkfornewfiles()
         if (failure != None):
             self.appendevent(failure)
             return self.update_webfiles_needupdate, failure
@@ -498,40 +506,51 @@ class MewloPackage(object):
             2. web check at some central repository based on uniqueid
             3. check in local "to-install" folder
             4. identification of the file to download
-        :return: tuple (isneweravail, webdictionary, failure)
+        :return: tuple (isneweravail, isupdatecritical, webdictionary, failure)
         """
 
         # download web version info json file and parse it
         webinfodict, failure = self.download_versioninfodict()
         if (failure != None):
-            return False, failure
+            return False, False, webinfodict, failure
 
         # ok let's get the remote version string (and local one)
         localversion = self.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_version, None)
         remoteversion = self.get_aninfofile_property(webinfodict, MewloPackage.DEF_INFOFIELD_version, None)
         remotedate  = self.get_aninfofile_property(webinfodict, MewloPackage.DEF_INFOFIELD_versiondate, 'undated')
+        isremoteversioncritical = self.get_aninfofile_property(webinfodict, MewloPackage.DEF_INFOFIELD_versioncritical, False)
         if (remoteversion==None):
             # error, no remote version info
             versionfile_url = self.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_url_version, None)
             failure = EFailure("No remote version specified in remote info file ({0}).".format(versionfile_url))
-            return False, webinfodict, failure
+            return False, False, webinfodict, failure
 
         # ok we have local and remote version strings, let's compare
         isneweravail, failure = compare_versionstrings_isremotenewer(localversion, remoteversion)
         if (failure != None):
-            return isneweravail, webinfodict, failure
+            return isneweravail, isremoteversioncritical, webinfodict, failure
 
         # no newer version available?
         if (not isneweravail):
             # should we log a non-error message saying no new version vailable?
             self.appendevent(EInfo("Online check confirms latest version is installed ({0} - {1}).".format(localversion,remotedate)))
-            return False, webinfodict, None
+            return False, False, webinfodict, None
 
         # new version is available, add event saying so (note we dont RETURN this message as a failure, we add it to our event log, because its not an error)
-        self.appendevent(EInfo("Newer version ({0} - {1}) is available online.".format(remoteversion,remotedate)))
+        if (isremoteversioncritical):
+            # the remote version is labeled as a critical version -- we don't want to let the current version run
+            reasonstr = "New *CRITICAL* version ({0} - {1}) is available online.".format(remoteversion,remotedate)
+            self.appendevent(EInfo(reasonstr))
+            # if the package is ALREADY enabled, we DISABLE it and set it as being blocked from running
+            if (self.enabled):
+                self.do_enabledisable(self.get_mewlosite(), False, reasonstr, self.eventlist)
+                self.hasfailedstartup = True
+        else:
+            # normal optional new version
+            self.appendevent(EInfo("Newer version ({0} - {1}) is available online.".format(remoteversion,remotedate)))
 
         # new version available and no error
-        return True, webinfodict, None
+        return True, isremoteversioncritical, webinfodict, None
 
 
 
