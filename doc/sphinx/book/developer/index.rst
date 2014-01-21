@@ -19,3 +19,5 @@ From here you can learn about extending the Mewlo system.
    to_resolve
    ugliness
    updating
+   updating2
+   updating3

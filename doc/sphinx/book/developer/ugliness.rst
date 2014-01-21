@@ -92,3 +92,5 @@ Ugly Code
 1/17/14:
     * Eventlist in mevent.py -- let's derive this from a true list
 
+1/20/14:
+    * I'd really like to remove all of this stuff where we are passing eventlists to functions for collecting warnings, etc.  There has to be a better way.

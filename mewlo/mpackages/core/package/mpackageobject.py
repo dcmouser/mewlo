@@ -53,57 +53,6 @@ class MewloPackageObject(object):
 
 
 
-    def checkusable(self):
-        """
-        Check if this package object is actually able to run, before startup is called.
-        This is where we might check any more detailed prerequisited, and check if a database update is required first.
-        :return: None if all is good and its runable, or failure event if not.
-        """
-        return None
-
-
-    def generate_admin_menu(self):
-        """
-        Here we want to return a list of update choices to present the user.
-        ATTN: TODO - figure out the format of how to return this information.
-        The idea would be to basicall return a dynamically list of menu items with attributes, so maybe something like:
-            return [
-                    {
-                    'name': 'install',
-                    'label': 'Install this addon',
-                    'description': 'Run the installation script for this plugin, install database tables, etc.',
-                    'auto-update': False,
-                    'important': True,
-                    },
-                    {
-                    'name': 'update',
-                    'label': 'Update database for this addon',
-                    'description': 'Upgrade from v1.0 to v2.02 (will modify tables x,y,z); perform a backup first! Read more at http://www.donationcoder.com',
-                    'auto-update': True,
-                    'important': True,
-                    }
-                ]
-        Then the user could trigger these items interactively from a pacakge administration page, or possibly the system could run the items marked as 'auto-update' automatically.
-        Note that this function is called after the system is initialized and while it is starting up, so we have access to settings and databases, etc.
-        So this would be a place where we could check if we need a database update or install.
-        """
-        return None
-
-
-    def invoke_admin_menuitem(self, admin):
-        """
-        We are invoking one of the items returned from generate_admin_menu function; we will be passed the dictionary of the list item selected.
-        :return: None on success, or failure event if not.
-        """
-        return None
-
-
-
-
-
-
-
-
 
 
 
@@ -111,7 +60,7 @@ class MewloPackageObject(object):
 
 
     def log_signalmessage(self, txt, receiverobject, id, message, request, source):
-        # helper function to log a message related to a signal
+        """Just a shortcut function to log a message related to a signal."""
         txtplus = txt + " ReceiverObject: "+str(receiverobject)+"; id: "+id+"; message: "+str(message)+"; source: "+str(source)+"; request: "+str(request)
         # display message onscreen?
         if (False):
@@ -122,15 +71,52 @@ class MewloPackageObject(object):
 
 
     def log_event(self, event, request = None):
+        """Just a shortcut function to ask our mewlosite to log an event for us."""
         self.get_mewlosite().logevent(event, request)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     def get_databaseversion(self):
-        dbversion = self.packagesettings.get_subvalue(self.get_settingkey(),'database_version')
-        return dbversion
+        """
+        This is a helper function that a package can use to persistently set (in database) the version of the current database tables in use by the package.
+        This is a key feature that allows a package to tell when it needs to update its database tables, and to ensure consistency between code version and database changes between versions.
+        The database_version is a string, typically of format ##.##.##
+        """
+        return self.packagesettings.get_subvalue(self.get_settingkey(),'database_version')
+
+
 
     def set_databaseversion(self, val):
+        """
+        This is a helper function that a package can use to persistently set (in database) the version of the current database tables in use by the package.
+        This is a key feature that allows a package to tell when it needs to update its database tables, and to ensure consistency between code version and database changes between versions.
+        The database_version is a string, typically of format ##.##.##
+        """
         self.packagesettings.set_subvalue(self.get_settingkey(),'database_version',val)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -139,5 +125,70 @@ class MewloPackageObject(object):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "Base PackageObject reporting in.\n"
         return outstr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def updatecheck_checkdatabase(self):
+        """
+        This function should be implemented by derived classes.
+        Check if this package object needs to run a database update before it can be used.
+        :return: tuple (isdatabaseupdateneeded, failure)
+        """
+        return False, None
+
+
+
+
+    def updaterun_database(self):
+        """
+        This function should be implemented by derived classes.
+        Run a database update.
+        :return: tuple (didupdate, failure)
+        """
+        return False, None
+
+
+
+
+
+
+
+
+
+    def check_isusable(self):
+        """
+        This function should be implemented by derived classes.
+        Check if this package object is actually able to run, before startup is called.
+        :return: None if all is good and its runable, or failure event if not.
+        Note that elsewhere are performed checks according to whether the package info file specifies pre-requisite required co-packaged are met and enabled.
+        Note that elsewhere we check if the database needs an update.
+        So this function is just for more specific tests beyond those.
+        :return: failure (or None on success)
+        """
+        return None
 
 

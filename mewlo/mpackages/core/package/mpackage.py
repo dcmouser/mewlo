@@ -5,15 +5,14 @@ Works with packagemanager.py to support our package/extension/addon system
 
 
 # mewlo imports
-from ..helpers.misc import readfile_asjson
-from ..eventlog.mevent import EventList, EFailure
+from ..helpers.misc import readfile_asjson, compare_versionstrings_isremotenewer, strvalnone
+from ..eventlog.mevent import EventList, EFailure, EWarning, EInfo
 from ..eventlog.mexceptionplus import ExceptionPlus
-
+from ..helpers.webhelp import download_file_as_jsondict, download_file_to_file
 
 # python imports
 import json
 import os
-
 
 
 
@@ -41,14 +40,16 @@ class MewloPackage(object):
     """
 
     # class constants
-    DEF_INFOFIELD_required = 'required'
+    DEF_INFOFIELD_isrequired = 'isrequired'
     DEF_INFOFIELD_requires = 'requires'
     DEF_INFOFIELD_uniqueid = 'uniqueid'
-    DEF_INFOFIELD_enabled = 'enabled'
     DEF_INFOFIELD_requiredpackages = 'packages'
     DEF_INFOFIELD_codefile = 'codefile'
     DEF_INFOFIELD_codeclass = 'codeclass'
-
+    DEF_INFOFIELD_url_version = 'url.version'
+    DEF_INFOFIELD_url_download = 'url.download'
+    DEF_INFOFIELD_version = 'version'
+    DEF_INFOFIELD_versiondate = 'versiondate'
 
 
     def __init__(self, packagemanager, filepath):
@@ -67,8 +68,30 @@ class MewloPackage(object):
         self.readytorun = False
         self.enabled = False
         self.enabledisablereason = "n/a"
+        self.hasfailedstartup = True
         #
         self.eventlist = EventList()
+        self.clear_updateinfo()
+
+
+    def clear_eventlist(self):
+        self.eventlist.clear()
+
+    def appendevent(self, event):
+        if (event != None):
+            self.eventlist.append(event)
+
+    def get_eventlist(self):
+        return self.eventlist
+
+    def clear_updateinfo(self):
+        self.clear_eventlist()
+        self.update_webfiles_needupdate = None
+        self.update_database_needupdate = None
+
+
+    def get_uniqueid(self):
+        return self.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_uniqueid,'[uniqueid_not_specified]')
 
     def get_infofilepath(self):
         return self.infofilepath
@@ -96,6 +119,8 @@ class MewloPackage(object):
         if (retv==None):
             self.enabled = flag_enable
             self.enabledisablereason = reason
+        # keep track of whether we are in the state we want to be in
+        self.hasfailedstartup = (flag_enable != self.enabled)
         # return
         return retv
 
@@ -122,7 +147,7 @@ class MewloPackage(object):
             self.readytoloadcode = True
         else:
             # failed; add the error message to our eventlist, and continue with this package marked as not useable
-            self.eventlist.add(failure)
+            self.appendevent(failure)
             # we could raise an exception immediately if we wanted from the failure
             if (True):
                 raise ExceptionPlus(failure)
@@ -156,7 +181,7 @@ class MewloPackage(object):
             self.readytorun = True
         else:
             # failed; add the error message to our eventlist, and continue with this package marked as not useable? or raise exception right away
-            self.eventlist.add(failure)
+            self.appendevent(failure)
             if (True):
                 raise ExceptionPlus(failure)
         # return failure
@@ -172,7 +197,7 @@ class MewloPackage(object):
         name, ext = os.path.splitext(fullname)
         pathtocodemodule_default = name + '.py'
         # override with explicit
-        pathtocodemodule = dir + '/' + self.get_infofile_property(MewloPackage.DEF_INFOFIELD_codefile, pathtocodemodule_default)
+        pathtocodemodule = dir + '/' + self.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_codefile, pathtocodemodule_default)
         # return it
         return pathtocodemodule, None
 
@@ -189,7 +214,7 @@ class MewloPackage(object):
             return EFailure("No code module imported to instantiate package object from.")
 
         # object class defined in info dictionary?
-        packageobject_classname = self.get_infofile_property(MewloPackage.DEF_INFOFIELD_codeclass, None)
+        packageobject_classname = self.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_codeclass, None)
         if (packageobject_classname == None):
             return EFailure("Package info file is missing the 'codeclass' property which defines the class of the MewloPackage derived class in the package module.")
 
@@ -218,13 +243,17 @@ class MewloPackage(object):
 
 
 
-    def get_infofile_property(self, propertyname, defaultval=None):
+    def get_ourinfofile_property(self, propertyname, defaultval=None):
         """Lookup property in our info dict and return it, or defaultval if not found."""
+        return self.get_aninfofile_property(self.infodict,propertyname,defaultval)
 
-        if (self.infodict == None):
+    def get_aninfofile_property(self, infodict, propertyname, defaultval=None):
+        """Lookup property in an info dict and return it, or defaultval if not found."""
+
+        if (infodict == None):
             return defaultval
-        if (propertyname in self.infodict):
-            return self.infodict[propertyname]
+        if (propertyname in infodict):
+            return infodict[propertyname]
         return defaultval
 
 
@@ -236,9 +265,16 @@ class MewloPackage(object):
             failure = self.load_codemodule()
             if (failure!=None):
                 return failure
+            # we loaded the code, now lets see if it reports it needs a database update
+            database_needupdate, failure = self.update_database_check()
+            if (failure!=None):
+                return failure
+            if (database_needupdate):
+                # cannot allow startup since it needs a database update
+                return EWarning("Cannot start package because it reports that it needs to run a database update first.")
             if (self.packageobject!=None):
-                # now start it up
-                failure = self.packageobject.checkusable()
+                # ok we loaded the code, now we need to ask the code itself if its ready to run
+                failure = self.packageobject.check_isusable()
                 if (failure!=None):
                     return failure
                 failure = self.packageobject.startup(mewlosite, eventlist)
@@ -258,17 +294,26 @@ class MewloPackage(object):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
 
-        outstr = " "*indent + "Package '{0}' reporting in:\n".format(self.get_infofile_property(MewloPackage.DEF_INFOFIELD_uniqueid,'[uniqueid_not_specified]'))
+        outstr = " "*indent + "Package '{0}' reporting in:\n".format(self.get_uniqueid())
         indent += 1
-        #
-        outstr += self.eventlist.dumps(indent)
         #
         outstr += " "*indent + "Enabled: " + str(self.enabled) + " ("+self.enabledisablereason+").\n"
         #
-        outstr += " "*indent + "Info dictionary: " + self.infofilepath + ":\n"
+        outstr += " "*indent + "Info dictionary: " + self.get_infofilepath() + ":\n"
         jsonstring = json.dumps(self.infodict, indent=indent+1)
         outstr += " "*indent + " '" + jsonstring + "'\n"
         #
@@ -282,5 +327,280 @@ class MewloPackage(object):
         if (self.packageobject):
             outstr += self.packageobject.dumps(indent+1)
         #
+        outstr += " "*indent + "Update check results:\n"
+        outstr += " "*indent + " Web has newer version available? {0}\n".format(strvalnone(self.update_webfiles_needupdate,'not checked'))
+        outstr += " "*indent + " Database needs update? {0}\n".format(strvalnone(self.update_database_needupdate,'not checked'))
+        outstr += self.eventlist.dumps(indent+1)
+        #
         return outstr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def get_hasfailedstartup(self):
+        """Return true if the package has failed to startup for any reason (needs update, etc.)."""
+        return self.hasfailedstartup
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def updatecheck(self):
+        """
+        Check package for updates.
+        Note this covers not just web updates available, but database updates needed.
+        Division of labor:
+            We (the MewloPackage wrapper) can do a web check
+            but we have to ask the MewloPackageObject to do the database check.
+        """
+
+        # clear eventlist and needupdate flags
+        self.clear_updateinfo()
+
+        # first check for web file update available
+        self.update_webfiles_needupdate, webinfodict, failure = self.updatecheck_checkfornewfiles()
+        if (failure != None):
+            # error
+            self.appendevent(failure)
+            return self.update_webfiles_needupdate, failure
+
+        if (self.update_webfiles_needupdate):
+            # new web version available so stop here and say yes
+            return True, None
+
+        # database check
+        self.update_database_needupdate, failure = self.update_database_check()
+        return self.update_database_needupdate, failure
+
+
+
+    def update_database_check(self):
+        """
+        Check if there needs to be a database update for this module.
+        """
+        if (self.packageobject!=None):
+            # no file update available, so check for database update
+            self.update_database_needupdate, failure = self.packageobject.updatecheck_checkdatabase()
+            self.appendevent(failure)
+            return self.update_database_needupdate, failure
+        # no package object available -- so do nothing (it should error elsewhere)
+        return False, None
+
+
+    def updaterun(self):
+        """
+        Check package for updates.
+        Note this covers not just web updates available, but database updates needed.
+        Division of labor:
+            We (the MewloPackage wrapper) can do a web check
+            but we have to ask the MewloPackageObject to do the database check.
+        :return: tuple (didupdate, failure)
+        """
+
+        # clear eventlist and needupdate flags
+        self.clear_updateinfo()
+
+        # first check for web file update available
+        self.update_webfiles_needupdate, webinfodict, failure = self.updatecheck_checkfornewfiles()
+        if (failure != None):
+            self.appendevent(failure)
+            return self.update_webfiles_needupdate, failure
+
+        if (self.update_webfiles_needupdate):
+            # ok we want to download and apply the web file update
+            # first we make a merged version of the info dict, overriding local with remote -- this allows remote to override download location IFF it wants
+            mergedinfodict = self.infodict.copy()
+            mergedinfodict.update(webinfodict)
+            # now get download url
+            remotedownloadurl = self.get_aninfofile_property(mergedinfodict, MewloPackage.DEF_INFOFIELD_url_download, None)
+            # download it and install it
+            failure = self.update_download_and_install(mergedinfodict, remotedownloadurl)
+            if (failure != None):
+                self.appendevent(failure)
+                return False, failure
+            # we successfully ran a file upodate so we will NOT drop down and check for database update (until next restart)
+            return True, None
+
+        # new version not available on web; check if a database update is needed
+        if (self.packageobject!=None):
+            didupdate, failure = self.packageobject.updaterun_database()
+            if (failure != None):
+                self.appendevent(failure)
+                return False, failure
+            return didupdate, None
+
+        # nothing done
+        return False, None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def updatecheck_checkfornewfiles(self):
+        """
+        Check web for new files available, and check our download staging directory for these?
+        The different components here are:
+            1. web check at url specified in our info file for an online version check
+            2. web check at some central repository based on uniqueid
+            3. check in local "to-install" folder
+            4. identification of the file to download
+        :return: tuple (isneweravail, webdictionary, failure)
+        """
+
+        # download web version info json file and parse it
+        webinfodict, failure = self.download_versioninfodict()
+        if (failure != None):
+            return False, failure
+
+        # ok let's get the remote version string (and local one)
+        localversion = self.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_version, None)
+        remoteversion = self.get_aninfofile_property(webinfodict, MewloPackage.DEF_INFOFIELD_version, None)
+        remotedate  = self.get_aninfofile_property(webinfodict, MewloPackage.DEF_INFOFIELD_versiondate, 'undated')
+        if (remoteversion==None):
+            # error, no remote version info
+            versionfile_url = self.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_url_version, None)
+            failure = EFailure("No remote version specified in remote info file ({0}).".format(versionfile_url))
+            return False, webinfodict, failure
+
+        # ok we have local and remote version strings, let's compare
+        isneweravail, failure = compare_versionstrings_isremotenewer(localversion, remoteversion)
+        if (failure != None):
+            return isneweravail, webinfodict, failure
+
+        # no newer version available?
+        if (not isneweravail):
+            # should we log a non-error message saying no new version vailable?
+            self.appendevent(EInfo("Online check confirms latest version is installed ({0} - {1}).".format(localversion,remotedate)))
+            return False, webinfodict, None
+
+        # new version is available, add event saying so (note we dont RETURN this message as a failure, we add it to our event log, because its not an error)
+        self.appendevent(EInfo("Newer version ({0} - {1}) is available online.".format(remoteversion,remotedate)))
+
+        # new version available and no error
+        return True, webinfodict, None
+
+
+
+
+    def download_versioninfodict(self):
+        """
+        Download and parse web info file
+        :return: tuple (webdictionary, failure)
+        """
+        versionfile_url = self.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_url_version, None)
+        if (versionfile_url == None):
+            failure = EFailure("No url to check online for updates specified ('url.version').")
+            return None, failure
+
+        webinfodict, failure = download_file_as_jsondict(versionfile_url)
+        if (failure != None):
+            return False, failure
+
+        #success
+        #print "ATTN: downloaded webinfo dict from {0} as:".format(versionfile_url) + str(webinfodict)
+        return webinfodict, None
+
+
+
+
+
+
+
+
+
+
+
+    def update_download_and_install(self, mergedinfodict, remotedownloadurl):
+        """Download update file and install it."""
+        # generate a desired local filename
+        # ATTN: TO FIX -- for now im just testing with a hardcoded path
+        update_download_dir = 'E:/WebsiteHttp/mewlo/mewlo/updates/pending'
+        update_download_fname = 'test.zip'
+        #
+        update_download_filepath = update_download_dir + '/' + update_download_fname
+        downloadedfilepath, failure = download_file_to_file(remotedownloadurl, update_download_filepath)
+        if (failure != None):
+            return failure
+
+        # downloaded, now install
+        self.appendevent(EInfo("Downloaded update ({0}), ready to install.".format(downloadedfilepath)))
+
+        # ATTN: not finished yet
+        failure = EFailure("New version downloaded but not installed, because installation of new package downloads not supported yet.")
+        return failure
+
+        return None
+
+
+
+
+
+
+
+
+
+    def update_nicestring(self, msg=''):
+        """Return a warning with info about package id."""
+        msg = "Package '{0}' with info file '{1}': ".format(self.get_uniqueid(), self.get_infofilepath()) + msg
+        return msg
+
+    def updatemessage(self, msg):
+        """Return a warning with info about package id."""
+        msg = self.update_nicestring(msg)
+        return EInfo(msg)
+
 

@@ -31,5 +31,9 @@ Coding ToDo
 
     * let user specify custom alias values in site config
 
+1/19/14
+
+    * allow sites to specify custom 404 route/view
+    * do we want to allow some kind of exception to cause a 404 view
 
 

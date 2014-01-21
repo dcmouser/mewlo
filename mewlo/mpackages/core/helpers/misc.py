@@ -181,3 +181,54 @@ def serialize_for_readability_makesafe(obj):
     return safeobj
 
 
+
+
+
+
+def compare_versionstrings_isremotenewer(localversion, remoteversion):
+    """
+    Return true if remote version is newer.
+    We expect versions to be of format ##.##.## where ## can be 0 leading or not, and .05 is same a .5, we integerize the #s
+    :return: tuple (isremotenewer, failure)
+    """
+    if (localversion == None):
+        localversionparts = []
+    else:
+        localversionparts = localversion.split('.')
+    if (remoteversion == None):
+        remoteversionparts = []
+    else:
+        remoteversionparts = remoteversion.split('.')
+
+    # loop through the parts
+    minlen = min(len(localversionparts),len(remoteversionparts))
+    for i in range(0,minlen):
+        localpartval = int(localversionparts[i])
+        remotepartval = int(remoteversionparts[i])
+        if (localpartval<remotepartval):
+            # remote version is newer!
+            return True, None
+        elif (localpartval>remotepartval):
+            # local version is newer (!)
+            return False, mevent.EError("Locally installed version ({0}) is newer than remote version ({1}).".format(localversion,remoteversion))
+        # a match for this part of version, keep checking
+
+    # all parts in loop match, so now the only question is if there are more parts not yet parsed in remote
+    if (len(localversionparts) < len(remoteversionparts)):
+        # remote version is newer becase it has an additional part (i.e 2.0 < 2.0.000001
+        return True, None
+
+    # local version is same or newer
+    return False, None
+
+
+
+
+def strvalnone(val,noneval='n/a'):
+    """Return string cast of a value or a default value if None."""
+    if (val == None):
+        return noneval
+    return str(val)
+
+
+

@@ -9,7 +9,7 @@ from ..reqresp import mrequest
 from .. import mglobals
 
 # helper imports
-from ..eventlog.mevent import Event, EventList
+from ..eventlog import mevent
 
 # python imports
 from datetime import datetime
@@ -33,7 +33,7 @@ class MewloSiteManager(object):
     def __init__(self, debugmode, siteclass=None):
         # the collection of sites that this manager takes care of
         self.sites = list()
-        self.prepeventlist = EventList()
+        self.prepeventlist = mevent.EventList()
         # if a siteclass was pased, create it
         if (siteclass!=None):
             self.create_add_site_from_class(siteclass, debugmode)
@@ -197,5 +197,184 @@ class MewloSiteManager(object):
         for site in self.sites:
             outstr += site.dumps(indent+1) + "\n"
         return outstr
+
+
+
+
+
+
+
+    def is_readytoserve(self):
+        """Check if there were any site prep errors, OR if any packages report they are not ready to run (need update, etc.)."""
+        isreadytoserve = True
+        # check sites
+        for site in self.sites:
+            if (not site.is_readytoserve()):
+                isreadytoserve = False
+        # any fatal errors
+        if (self.has_preparationerrors()):
+            isreadytoserve = False
+        # it's ready?
+        return isreadytoserve
+
+
+    def has_preparationerrors(self):
+        """Return true if there were fatal preparation errors."""
+        if (self.prepeventlist.count_errors() > 0):
+            return True
+        return False
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def updatecheck(self):
+        """
+        Check all packages for updates.  The packages themselves will store details about update check results.
+        Note this covers not just web updates available, but database updates needed.
+        """
+        for site in self.sites:
+            site.updatecheck()
+
+
+    def updaterun(self):
+        """
+        Check all packages for updates.  The packages themselves will store details about update check results.
+        Note this covers not just web updates available, but database updates needed.
+        """
+        for site in self.sites:
+            site.updaterun()
+
+
+    def get_allpackage_events(self):
+        """
+        Get combined eventlist for all packages on all sites
+        """
+        alleventlist = mevent.EventList()
+        for site in self.sites:
+            siteeventlist = site.get_allpackage_events()
+            alleventlist.appendlist(siteeventlist)
+        return alleventlist
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @classmethod
+    def do_main_commandline_startup(cls, siteclass, parser = None):
+        """
+        Shortcut helper function to create a sitemanager and site and parse main commandline options.
+        :return: tuple (args, sitemanager)
+        """
+
+        # create commandline parser if none passed
+        if (parser == None):
+            import argparse
+            parser = argparse.ArgumentParser()
+
+        # add standard args
+        parser.add_argument("-d", "--debug", help="run in debug mode (combine with others)",action="store_true", default=False)
+        parser.add_argument("-s", "--runserver", help="run the web server",action="store_true", default=False)
+        parser.add_argument("-uc", "--updatecheck", help="check for updates",action="store_true", default=False)
+        parser.add_argument("-ur", "--updaterun", help="perform updates",action="store_true", default=False)
+        args = parser.parse_args()
+
+        # Create a site manager and ask it to instantiate a site of the class we specify
+        sitemanager = MewloSiteManager(args.debug, siteclass)
+
+        # early stuff
+        sitemanager.do_main_commandline_early(args)
+
+        # return it
+        return args, sitemanager
+
+
+
+    def do_main_commandline_early(self, args):
+        """Commandline early default processing."""
+
+        # startup sites - this will generate any preparation errors
+        self.startup()
+
+        flag_debugsite = args.debug
+        flag_updates_check = args.updatecheck
+        flag_updates_run = args.updaterun
+
+        # update checking?
+        if (flag_updates_check):
+            self.updatecheck()
+            print "Debugging update check results:"
+            eventlist = self.get_allpackage_events()
+            print eventlist.dumps()
+
+        # update running
+        if (flag_updates_run):
+            self.updaterun()
+            print "Debugging update run results:"
+            eventlist = self.get_allpackage_events()
+            print eventlist.dumps()
+
+        # display some debug info
+        if (flag_debugsite):
+            print "Debugging site manager."
+            print self.dumps()
+
+
+
+
+    def do_main_commandline_late(self, args):
+        """Commandline late default processing."""
+
+        # some things we can only do if everything went well enough to serve
+        if (self.is_readytoserve()):
+            # run server?
+            if (args.runserver):
+                # start serving the web server and process all web requests
+                print "Starting web server."
+                self.create_and_start_webserver_wsgiref()
+        else:
+            print "Sitemanager reports it is not ready to run:"
+            print self.prepeventlist.dumps()
+
+        # we are responsible for shutting down
+        print "Shutting down."
+        self.shutdown()
+
+
+
+
+
+
+
+
+
+
+
+
 
 

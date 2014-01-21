@@ -11,6 +11,7 @@ From here you can learn about secondary packages for the Mewlo system.
    blacklist
    bookmark
    cache
+   consoletool
    daemon
    digest
    feed

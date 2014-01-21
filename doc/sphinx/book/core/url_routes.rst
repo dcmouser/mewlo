@@ -63,3 +63,17 @@ The second answer has more to do with following the philosophy of the approach. 
 We can always relax this behavior at some point if we need to, but I'd prefer we keep it if we can.  I think one solution to supporting legacy urls is to allow internal re-writing of regex url requests to standard url formats.  That should give us best of both worlds, plus allow logging of such requests, etc.
 
 In general, however, we should not offer alternative ways to do things simply because the designer prefers it to *LOOK* one way rather than the Mewlo-proscribed way.  Although it runs counter to the idea of accommodating designers, we want to try hard to have a consistent vision that removes stylistic options.
+
+
+
+
+
+
+How do we want to handle error displays, like 404 not found, or when site is taken "offline" into maintenance mode, etc.?
+The best approach might be to define "virtual" routes that we can trigger, or virtual controller actions.
+What's the best way to do that?
+Is it ok to trigger a controller action without a route being active? Do we need to make sure we never assume there is always a route associated with a request controller action.
+
+Some frameworks/cms allow one to raise some exceptions that will trigger specific views/controllers -- we probably want to allow this.
+
+Do we want to trigger a controller? or a view?

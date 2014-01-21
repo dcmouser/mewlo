@@ -11,7 +11,7 @@ from mewlo.mpackages.core.registry import mregistry
 from mewlo.mpackages.core import mglobals
 
 # helper imports
-from mewlo.mpackages.core.eventlog.mevent import EFailure
+from mewlo.mpackages.core.eventlog.mevent import EFailure, EWarning
 
 # python imports
 import datetime
@@ -122,8 +122,19 @@ class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
 
 
 
+    def updatecheck_checkdatabase(self):
+        """
+        This function should be implemented by derived classes.
+        Check if this package object needs to run a database update before it can be used.
+        :return: tuple (isdatabaseupdateneeded, failure)
+        """
+        if (True):
+            # test to say a db update is needed
+            return True, EWarning("TEST: The package 'test_mpackage' needs to run a database update before it can run.")
+        return False, None
 
-    def checkusable(self):
+
+    def check_isusable(self):
         """
         See base class for documentation.
         """
@@ -135,34 +146,28 @@ class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
         else:
             self.log_event("Package 'test_mpackage' reporting that it's installed database version is: {0}.".format(databaseversion))
         # TEST: some things to help us test package settings stuff
-        usecount = self.packagesettings.get_subvalue(self.get_settingkey(),'usecount',0)
-        self.packagesettings.set_subvalue(self.get_settingkey(),'usecount',usecount+1)
-        self.packagesettings.set_subvalue(self.get_settingkey(),'date_lastuse',datetime.datetime.now())
-        if (self.packagesettings.value_exists(self.get_settingkey(),'toggleval')):
-            self.packagesettings.remove_subkey(self.get_settingkey(),'toggleval')
-        else:
-            self.packagesettings.set_subvalue(self.get_settingkey(),'toggleval',1)
+        if (True):
+            # ATTN: this code should not be done here -- we should not be changing the database in this function
+            usecount = self.packagesettings.get_subvalue(self.get_settingkey(),'usecount',0)
+            self.packagesettings.set_subvalue(self.get_settingkey(),'usecount',usecount+1)
+            self.packagesettings.set_subvalue(self.get_settingkey(),'date_lastuse',datetime.datetime.now())
+            if (self.packagesettings.value_exists(self.get_settingkey(),'toggleval')):
+                self.packagesettings.remove_subkey(self.get_settingkey(),'toggleval')
+            else:
+                self.packagesettings.set_subvalue(self.get_settingkey(),'toggleval',1)
         # As a test, say we cannot be run
         if (False):
-            return EFailure("TEST: The package 'test_mpackage' needs to run a database update before it can run.")
+            return EWarning("TEST: The package 'test_mpackage' needs to run a database update before it can run.")
         # it's good to run
         return None
 
 
-    def generate_update_choices(self):
-        """
-        Here we want to return a list of update choices to present the user.
-        ATTN: TODO - figure out the format of how to return this information.
-        """
-        return None
 
-    def run_update(self, updatechoice):
-        """
-        Here we want to run an update.
-        ATTN: TODO - figure out the format of the updatechoice stuff.
-        :return: None on success, or failure event if not.
-        """
-        return None
+
+
+
+
+
 
 
 

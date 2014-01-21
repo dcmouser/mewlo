@@ -20,7 +20,14 @@ from mewlo.mpackages.core.eventlog.mlogger import MewloLogger
 from mewlo.mpackages.core.eventlog.mlogtarget_file import MewloLogTarget_File
 from mewlo.mpackages.core.eventlog.mlogtarget_python import MewloLogTarget_Python
 from mewlo.mpackages.core.eventlog.mevent import EWarning
-from mewlo.mpackages.core.rbac import mrbac
+
+
+
+# python imports
+import os, sys
+import logging
+
+
 
 
 
@@ -29,9 +36,6 @@ from mewlo.mpackages.core.rbac import mrbac
 import mpackages as pkgdirimp_sitempackages
 import controllers as pkgdirimp_controllers
 
-# python imports
-import os, sys
-import logging
 
 
 
@@ -45,33 +49,36 @@ class MewloSite_Test1(MewloSite):
 
 
     def add_settings_early(self):
-        """This is called by default by the base MewloSite as the first thing to do at startup;
-        here we expect to set some site settings that might be used during startup."""
-
+        """
+        This is called by default by the base MewloSite as the first thing to do at startup;
+        here we expect to set some site settings that might be used early during startup.
+        """
 
         # config settings
         config = {
-            # we set some package-directory-imports which will be the ROOT from which dynamic imports are done
+            # some generic settings for every site, to point to location of some stuff
             MewloSettings.DEF_SETTINGNAME_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
-            MewloSettings.DEF_SETTINGNAME_flag_importsetuptoolspackages: True,
             MewloSettings.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
             MewloSettings.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
+            # should we also load mewlo site installed setuptools plugins
+            MewloSettings.DEF_SETTINGNAME_flag_importsetuptoolspackages: True,
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
 
         # config settings
         config = {
+            # Specify where this site serves from
             # these siteurls should not end in / so if you are serving a site at root just use relative of '' and absolute of 'http://sitename.com'
             MewloSettings.DEF_SETTINGNAME_siteurl_relative: '',
             MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080',
-#            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public/publicity',
-#            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public/publicity',
-            MewloSettings.DEF_SETTINGNAME_sitename: 'Mewlo',
+            #            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public/publicity',
+            #            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public/publicity',
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
 
         # config settings
         config = {
+            MewloSettings.DEF_SETTINGNAME_sitename: 'Mewlo',
             MewloSettings.DEF_SETTINGNAME_isenabled: True,
             MewloSettings.DEF_SETTINGNAME_isonline: True,
             MewloSettings.DEF_SETTINGNAME_offline_mode: 'maintenance',
@@ -81,17 +88,25 @@ class MewloSite_Test1(MewloSite):
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
 
 
+        # config some aliases we can use (for example in our templates)
+        aliases = {
+            # let's add an alias to where we are going to serve static files from (note this is pointing not to a directory but to a ROUTE path)
+            'staticurl': '${siteurl_relative}/static',
+            }
+        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
 
-        # extension package config
+
+        # extension package config -- we need to explicitly enable plugins
         packageconfig = {
             'mouser.mewlotestplug' : {
-                'enabled': True,
+                'isenabled': True,
                 },
             'mouser.testpackage' : {
-                'enabled': True,
+                'isenabled': True,
                 },
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_packages, packageconfig)
+
 
         # database config
         databaseconfig = {
@@ -261,9 +276,6 @@ class MewloSite_Test1(MewloSite):
                 ))
 
 
-
-
-
         # add routegroup we just created to the site
         self.routemanager.append(routegroup)
 
@@ -278,7 +290,7 @@ class MewloSite_Test1(MewloSite):
     def add_navnodes(self):
         """Create navigational structure for site pages."""
 
-        # create some test NavNodes
+        # these are related to Routes above, except that NavNodes are like a hierarchical menu structure / site map, wheras Routes are flat patterns that map to controllers
         nodes = [
             NavNode('home', {
                 'menulabel': '${sitename} home page',
@@ -352,9 +364,12 @@ class MewloSite_Test1(MewloSite):
 
 
 
+
+
+
     def pre_runroute_callable(self, route, request):
         """This is called by default when a route is about to be invoked.  Subclassed sites can override it."""
-        request.logevent(EWarning("This is a test1 warning called PRE run route: " + request.get_path()))
+        request.logevent(EWarning("This is a test warning called PRE run route: " + request.get_path()))
         # ATTN: test, let's trigger a signale
         if (True):
             id = 'signal.site.pre_runroute'
@@ -367,8 +382,32 @@ class MewloSite_Test1(MewloSite):
 
     def post_runroute_callable(self, request):
         """This is called by default after a route has been invoked.  Subclassed sites can override it."""
-        request.logevent(EWarning("This is a test2 warning called POST run route: " + request.get_path(), flag_loc=True))
+        request.logevent(EWarning("This is a test warning called POST run route: " + request.get_path(), flag_loc=True))
         return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -377,6 +416,9 @@ class MewloSite_Test1(MewloSite):
     @classmethod
     def runmodeltests(cls):
         """Some tests that we should move elsewhere eventually."""
+        # ATTN: i'm confused how this can run without a mewlosite instance...
+
+        from mewlo.mpackages.core.rbac import mrbac
         from mewlo.mpackages.core.user import muser
         from mewlo.mpackages.core.group import mgroup
         #
@@ -417,68 +459,48 @@ class MewloSite_Test1(MewloSite):
 
 
 
+
+
+
+
+
+
+
+
+
+
 def main():
     """This function is invoked by the python interpreter if this script itself is executed as the main script."""
 
-
-
-    # commandline args
+    # custom commandline args
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", help="run in debug mode (combine with others)",action="store_true", default=False)
-    parser.add_argument("-s", "--runserver", help="run the web server",action="store_true", default=False)
-    parser.add_argument("-t", "--querytests", help="run some testsr",action="store_true", default=False)
+    parser.add_argument("-t", "--querytests", help="run some test queries",action="store_true", default=False)
     parser.add_argument("-m", "--modeltests", help="run some model tests",action="store_true", default=False)
-    args = parser.parse_args()
-    #
-    flag_debugsite = args.debug
-    flag_runtests_query = args.querytests
-    flag_runtests_model = args.modeltests
-    flag_runserver = args.runserver
-
 
     # Create a site manager and ask it to instantiate a site of the class we specify
-    sitemanager = MewloSiteManager(flag_debugsite, MewloSite_Test1)
+    args, sitemanager = MewloSiteManager.do_main_commandline_startup(MewloSite_Test1, parser)
 
-    # startup sites - this will generate any preparation errors
-    sitemanager.startup()
+    # on successful creation, we can parse and do some stuff
+    if (sitemanager != None):
+        # sitemanager was created and early commandline processing done
+        # now we have some custom commandline arg proessing we might want to do
+        if (sitemanager.is_readytoserve()):
+            # this stuff only is entertained if sitemanager says all green lights
+            if (args.querytests):
+                # simulate some simple simulated query requests
+                print "Running query tests."
+                print sitemanager.test_submit_path('/')
+                print sitemanager.test_submit_path('/help/about')
+                print sitemanager.test_submit_path('/page/mystery')
+                print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
+            if (args.modeltests):
+                # run model tests
+                print "Running model tests."
+                MewloSite_Test1.runmodeltests()
 
-    # check f there were any errors encountered during preparation of the s
-    if (sitemanager.prepeventlist.count_errors() > 0):
-        print "Stopping due to sitemanager preparation errors:"
-        print sitemanager.prepeventlist.dumps()
-        sys.exit(0)
-
-
-    # start by displaying some debug info
-    if (flag_debugsite):
-        print "Debugging site manager."
-        print sitemanager.dumps()
-
-
-    if (flag_runtests_query):
-        # simulate some simple simulated query requests
-        print "Running query tests."
-        print sitemanager.test_submit_path('/')
-        print sitemanager.test_submit_path('/help/about')
-        print sitemanager.test_submit_path('/page/mystery')
-        print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
-
-    if (flag_runtests_model):
-        # run model tests
-        print "Running model tests."
-        MewloSite_Test1.runmodeltests()
-
-
-    if (flag_runserver):
-        # start serving the web server and process all web requests
-        print "Starting web server."
-        sitemanager.create_and_start_webserver_wsgiref()
-
-
-    # shutdown sites - we do this before exiting
-    print "Shutting down."
-    sitemanager.shutdown()
+        # now any late generic commandline stuff
+        sitemanager.do_main_commandline_late(args)
 
 
 if __name__ == '__main__':

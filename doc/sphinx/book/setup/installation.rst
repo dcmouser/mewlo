@@ -39,6 +39,10 @@ Install the jinja2 template package which is used for template output
   pip install jinja2
 
 
+Install the Requests module used for web downloading
+  pip install requests
+
+
 
 To build documentation:
 	pip install Sphinx

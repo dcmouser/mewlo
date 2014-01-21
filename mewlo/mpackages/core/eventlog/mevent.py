@@ -103,6 +103,9 @@ class Event(object):
     def __str__(self):
         return self.stringify()
 
+    def add_msgprefix(self, prefixstr):
+        # add prefix to exsting message
+        self.setfield('msg', prefixstr+self.getfield('msg',''))
 
 
     def setfield(self, fieldname, fieldval):
@@ -114,6 +117,10 @@ class Event(object):
         if (fieldname in self.fields):
             return self.fields[fieldname]
         return defaultval
+
+
+    def makecopy(self):
+        return Event(self.fields)
 
 
     def mergefields(self, fields):
@@ -274,6 +281,9 @@ class EventList(object):
         return iter(self.events)
 
 
+    def clear(self):
+        self.events = []
+
 
     def set_context(self, context):
         """Set context value -- useful when generating lots of events that all have same parent-set context."""
@@ -285,6 +295,8 @@ class EventList(object):
             self.context = context
         else:
             self.context.append('.' + context)
+
+
 
 
     def append(self,event):
@@ -302,6 +314,22 @@ class EventList(object):
         # now add it
         self.events.append(event)
 
+
+    def appendlist(self, eventlist):
+        if (eventlist==None):
+            return
+        for event in eventlist:
+            self.append(event)
+
+    def mergefields_allevents(self, fields):
+        for event in self.events:
+            event.mergefields(fields)
+
+    def makecopy(self):
+        eventlist = EventList()
+        for event in self.events:
+            eventlist.append(event.makecopy())
+        return eventlist
 
 
 

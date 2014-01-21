@@ -514,8 +514,9 @@ class MewloSite(object):
 
     def setup_early(self):
         """Do early setup stuff.  Most of the functions invoked here are empty and are intended for subclasses to override."""
+        self.add_earlydefault_settings()
         self.add_settings_early()
-        self.add_default_settings()
+        self.add_latesettings_aliases()
         self.add_loggers()
         self.add_routes()
         self.add_navnodes()
@@ -553,13 +554,13 @@ class MewloSite(object):
         self.settings.merge_settings(settings)
 
 
-    def add_default_settings(self):
+    def add_earlydefault_settings(self):
         """Set some default overrideable settings."""
-        self.set_default_settings_config()
-        self.set_default_settings_aliases()
+        self.add_default_settings_config()
+        self.add_default_settings_aliases()
 
 
-    def set_default_settings_config(self):
+    def add_default_settings_config(self):
         """Set default config settings."""
         config = {
             MewloSettings.DEF_SETTINGNAME_default_logfilename: MewloSettings.DEF_SETTINGVAL_default_logfilename_defaultvalue,
@@ -567,20 +568,26 @@ class MewloSite(object):
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
 
 
-    def set_default_settings_aliases(self):
+    def add_default_settings_aliases(self):
         """Set default alias settings."""
+        aliases = {
+            MewloSettings.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
+            MewloSettings.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
+            MewloSettings.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
+            }
+        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
+
+
+    def add_latesettings_aliases(self):
+        """Add some late aliases."""
         aliases = {
             MewloSettings.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_absolute),
             MewloSettings.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_relative,''),
             MewloSettings.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitefilepath),
-            MewloSettings.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
-            MewloSettings.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
-            MewloSettings.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
             MewloSettings.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitename),
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
         self.alias_settings_change()
-
 
 
     def alias_settings_change(self):
@@ -691,10 +698,13 @@ class MewloSite(object):
 
         # before we start a request we might have stuff to do
         self.process_request_starts(request)
+
         # handle the request
         ishandled = self.routemanager.process_request(self, request)
-        # after we end a request we might have stuff to do
-        self.process_request_ends(request)
+
+        # after we end a request we might have stuff to do (this might include, for example, flushing the database)
+        self.process_request_ends(request, ishandled)
+
         # return whether we handled it
         return ishandled
 
@@ -718,11 +728,12 @@ class MewloSite(object):
         pass
 
 
-    def process_request_ends(self, request):
+    def process_request_ends(self, request, ishandled):
         """
         Do stuff before processing a request
         """
-        self.dbmanager.process_request_ends(request)
+        if (ishandled):
+            self.dbmanager.process_request_ends(request)
 
 
 
@@ -810,6 +821,60 @@ class MewloSite(object):
         outstr += self.templatehelper.dumps(indent+1)
         outstr += "\n"
         return outstr
+
+
+
+
+
+
+
+
+    def is_readytoserve(self):
+        """Check if there were any site prep errors, OR if any packages report they are not ready to run (need update, etc.)."""
+        isreadytoserve = True
+        if (not self.packagemanager.is_readytoserve()):
+            isreadytoserve = False
+        return isreadytoserve
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def updatecheck(self):
+        """
+        Check all packages for updates.  The packages themselves will store details about update check results.
+        Note this covers not just web updates available, but database updates needed.
+        """
+        self.packagemanager.updatecheck_allpackages()
+
+
+    def updaterun(self):
+        """
+        Check all packages for updates.  The packages themselves will store details about update check results.
+        Note this covers not just web updates available, but database updates needed.
+        """
+        self.packagemanager.updaterun_allpackages()
+
+
+
+    def get_allpackage_events(self):
+        """
+        Get combined eventlist for all packages on sites
+        """
+        return self.packagemanager.get_allpackage_events()
+
 
 
 

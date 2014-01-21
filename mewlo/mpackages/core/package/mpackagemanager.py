@@ -23,10 +23,11 @@ The MewloPackage is created by the manager.
 
 # mewlo imports
 from ..helpers.callables import importmodule_bypath
-from ..eventlog.mevent import EFailure, EDebug
+from ..eventlog.mevent import EFailure, EDebug, EventList
 from ..helpers.misc import get_value_from_dict, append_text
 from mpackage import MewloPackage
 from ..manager import manager
+from ..setting.msettings import MewloSettings
 
 # python imports
 import imp
@@ -80,7 +81,7 @@ class MewloPackageManager(manager.MewloManager):
 
     def startup(self, mewlosite, eventlist):
         """Any initial startup stuff to do?"""
-        super(MewloPackageManager,self).startup(mewlosite,eventlist)
+        super(MewloPackageManager,self).startup(mewlosite, eventlist)
         # discover the packages in the package directories
         self.discover_packages(eventlist)
         # ok now that we have disocvered the packages, we walk them and apply any settings the might enable or disable them
@@ -137,7 +138,7 @@ class MewloPackageManager(manager.MewloManager):
             # load the info file related to it
             pkg.load_infofile()
             # now add it to hash
-            apackageid = pkg.get_infofile_property(MewloPackage.DEF_INFOFIELD_uniqueid)
+            apackageid = pkg.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_uniqueid)
             if (apackageid in self.packagehash):
                 # duplicate package id
                 failure = EFailure("Two packages found with same .json uniqueid ('{0}' vs '{1}').".format(self.packagehash[apackageid].get_infofilepath(),pkg.get_infofilepath()))
@@ -304,7 +305,7 @@ class MewloPackageManager(manager.MewloManager):
 
     def startup_package_auto(self, mewlosite, package, eventlist):
         """Before we instantiate a package, we preprocess it using our settings, which may disable/enabe them."""
-        packageid = package.get_infofile_property(MewloPackage.DEF_INFOFIELD_uniqueid)
+        packageid = package.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_uniqueid)
         # let's see if user WANTS this package enabled or disabled based on settings
         (flag_enable, reason) = self.want_enable_package(package, eventlist)
         # if they want it enabled, lets see if it meets initial dependency check if not, its a failure
@@ -315,7 +316,7 @@ class MewloPackageManager(manager.MewloManager):
                 flag_enable = False
                 package.do_enabledisable(mewlosite, flag_enable, reason, eventlist)
                 return EFailure(failurereason)
-        elif (package.get_infofile_property(MewloPackage.DEF_INFOFIELD_required)):
+        elif (package.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_isrequired)):
             # required packaged is disabled, that's an error
             failurereason = "required package '{0}' is {1}; mewlo cannot run".format(packageid,reason)
             return EFailure(failurereason)
@@ -326,19 +327,19 @@ class MewloPackageManager(manager.MewloManager):
 
     def want_enable_package(self, package, eventlist):
         """Do settings say to disable this package? Return tuple of (flag_enable, reasonstring)."""
-        packageid = package.get_infofile_property(MewloPackage.DEF_INFOFIELD_uniqueid)
+        packageid = package.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_uniqueid)
         #
         reason = "n/a"
         # get any settings for the package
         packagesettings = self.get_settings_forpackage(packageid)
-        flag_enable = get_value_from_dict(packagesettings,MewloPackage.DEF_INFOFIELD_enabled)
+        flag_enable = get_value_from_dict(packagesettings,MewloSettings.DEF_SETTINGNAME_isenabled)
         # is the package REQUIRED?
-        if (package.get_infofile_property(MewloPackage.DEF_INFOFIELD_required) and flag_enable != False):
+        if (package.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_isrequired) and flag_enable != False):
             # set to enable if enabled explicitly or nothing specified
             reason = "required package"
             flag_enable = True
         elif (flag_enable==None):
-            flag_enable = get_value_from_dict(self.default_packagesettings, MewloPackage.DEF_INFOFIELD_enabled)
+            flag_enable = get_value_from_dict(self.default_packagesettings, MewloSettings.DEF_SETTINGNAME_isenabled)
             reason = "default enable/disable state for packages"
         else:
            if (flag_enable):
@@ -373,7 +374,7 @@ class MewloPackageManager(manager.MewloManager):
         """
         reason = ""
         result = True
-        packageid = package.get_infofile_property(MewloPackage.DEF_INFOFIELD_uniqueid)
+        packageid = package.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_uniqueid)
         if (requirer==None):
             requirer = "Package '{0}'".format(packageid)
         # is this package already on our assumed good list? if so just return and and say good (this avoids circular dependencies)
@@ -382,7 +383,7 @@ class MewloPackageManager(manager.MewloManager):
         # add this packageid to our list of assumed good
         assumegoodlist.append(packageid)
         # first get the list of what this package requires
-        requiredict = package.get_infofile_property(MewloPackage.DEF_INFOFIELD_requires)
+        requiredict = package.get_ourinfofile_property(MewloPackage.DEF_INFOFIELD_requires)
         if (requiredict != None):
             # ok let's check for required PACKAGES (not python packages but our packages)
             requiredpackages = get_value_from_dict(requiredict, MewloPackage.DEF_INFOFIELD_requiredpackages)
@@ -407,11 +408,14 @@ class MewloPackageManager(manager.MewloManager):
             return self.packagehash[packageid]
         # not found in hash, we assume hash is up to date
         return None
-#        for package in self.packages:
-#            apackageid = package.get_infofile_property(MewloPackage.DEF_INFOFIELD_uniqueid)
-#            if (packageid == apackageid):
-#                return package
-#        return None
+
+
+
+
+
+
+
+
 
 
 
@@ -432,5 +436,78 @@ class MewloPackageManager(manager.MewloManager):
         for package in self.packages:
             outstr += package.dumps(indent+1) + "\n"
         return outstr
+
+
+
+
+
+    def is_readytoserve(self):
+        """Check if there were any site prep errors, OR if any packages report they are not ready to run (need update, etc.)."""
+        isreadytoserve = True
+        for package in self.packages:
+            # is this package such that we can't serve?
+            if (package.get_hasfailedstartup()):
+                isreadytoserve = False
+        return isreadytoserve
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def updatecheck_allpackages(self):
+        """
+        Check all packages for updates.  The packages themselves will store details about update check results.
+        Note this covers not just web updates available, but database updates needed.
+        """
+        for package in self.packages:
+            package.updatecheck()
+
+
+    def updaterun_allpackages(self):
+        """
+        Check all packages for updates.  The packages themselves will store details about update check results.
+        Note this covers not just web updates available, but database updates needed.
+        """
+        for package in self.packages:
+            package.updaterun()
+
+
+    def get_allpackage_events(self):
+        """
+        Get combined eventlist for all packages.
+        We merge in fields about the package so they are available for debugging.
+        """
+        alleventlist = EventList()
+        for package in self.packages:
+            packagefields = {'package':package.get_uniqueid(), 'package_infofile':package.get_infofilepath()}
+            packageeventlist = (package.get_eventlist()).makecopy()
+            packageeventlist.mergefields_allevents(packagefields)
+            alleventlist.appendlist(packageeventlist)
+        return alleventlist
+
+
+
+
+
+
+
 
 

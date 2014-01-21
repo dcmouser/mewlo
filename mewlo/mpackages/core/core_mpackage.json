@@ -8,23 +8,32 @@
 	"group": "core",
   "genre": "core",
 
-	"required": true,
+	"isrequired": true,
 
 	"author": "mouser@donationcoder.com",
+
+
+
+
 	"version": "1.0.0",
 	"versiondate": "jul 18, 2013",
 
-	"url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/core",
-	"url.version": "http://www.donationcoder.com/Software/Mouser/mewlo/core/version.json",
+	"versionlog": {
+		"1.0.0": "first private release"
+		},
+
+	"url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/core",
+	"url.version":  "http://www.donationcoder.com/Software/Mouser/mewlo/updates/core/core_mpackage.json",
+	"url.download": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/core/core_mpackage.zip",
+
+
 
 	"requires_justkidding": {
 			"packages": ["mouser.nonexistantplugintest"]
 		},
 
 	"codefile": "core_mpackage.py",
-	"codeclass": "Core_MewloPackageObject",
+	"codeclass": "Core_MewloPackageObject"
 
-	"versionlog": {
-		"1.0.0": "first private release"
-		}
+
 }
