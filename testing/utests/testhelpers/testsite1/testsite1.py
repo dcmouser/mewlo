@@ -67,18 +67,20 @@ class MewloSite_Test1(MewloSite):
 
         # config settings
         config = {
+            # Name of site
+            MewloSettings.DEF_SETTINGNAME_sitename: 'Mewlo',
             # Specify where this site serves from
             # these siteurls should not end in / so if you are serving a site at root just use relative of '' and absolute of 'http://sitename.com'
             MewloSettings.DEF_SETTINGNAME_siteurl_relative: '',
             MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080',
-            #            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public/publicity',
-            #            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public/publicity',
+            #MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public/publicity',
+            #MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public/publicity',
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
 
         # config settings
         config = {
-            MewloSettings.DEF_SETTINGNAME_sitename: 'Mewlo',
+            # online status information
             MewloSettings.DEF_SETTINGNAME_isenabled: True,
             MewloSettings.DEF_SETTINGNAME_isonline: True,
             MewloSettings.DEF_SETTINGNAME_offline_mode: 'maintenance',
@@ -146,13 +148,13 @@ class MewloSite_Test1(MewloSite):
         logger.add_target(MewloLogTarget_File(filename=self.resolve('${logfilepath}/testlogout1.txt'), filemode='w'))
 
         if (False):
-            # want to test raising an exception on failure to write/open file? uncomment this
+            # want to test raising an exception on failure to write/open file? uncomment this -- the bad blank filename will throw an exception
             logger.add_target(MewloLogTarget_File(filename=''))
 
         if (True):
-            # let's add standard python logging as a test, and route that to file
+            # let's add standard python logging as a test, and route that to file; this creates a standard python-style logger and catches events sent to that
             import logging
-            pythonlogger = MewloLogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolve('${logfilepath}/testlogout3.txt'))
+            pythonlogger = MewloLogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolve('${logfilepath}/testlogout_python.txt'))
             logger.add_target(MewloLogTarget_Python(pythonlogger))
             # and then as a test, let's create an error message in this log
             pythonlogger.error("This is a manual python test error.")
@@ -367,11 +369,18 @@ class MewloSite_Test1(MewloSite):
 
 
 
+
+
+
+
+
+
     def pre_runroute_callable(self, route, request):
         """This is called by default when a route is about to be invoked.  Subclassed sites can override it."""
-        request.logevent(EWarning("This is a test warning called PRE run route: " + request.get_path()))
-        # ATTN: test, let's trigger a signale
-        if (True):
+
+        #request.logevent(EInfo("pre_runroute_callable Request URL: {0} from {1}.".format(request.get_full_path(), request.get_remote_addr())))
+        # ATTN: test, let's trigger a signal
+        if (False):
             id = 'signal.site.pre_runroute'
             message = {'route':route}
             source = None
@@ -380,9 +389,11 @@ class MewloSite_Test1(MewloSite):
         return None
 
 
+
     def post_runroute_callable(self, request):
         """This is called by default after a route has been invoked.  Subclassed sites can override it."""
-        request.logevent(EWarning("This is a test warning called POST run route: " + request.get_path(), flag_loc=True))
+
+        #request.logevent(EWarning("This is a test warning called POST run route: " + request.get_path()))
         return None
 
 
@@ -404,43 +415,6 @@ class MewloSite_Test1(MewloSite):
 
 
 
-
-
-
-
-
-
-
-
-
-    @classmethod
-    def runmodeltests(cls):
-        """Some tests that we should move elsewhere eventually."""
-        # ATTN: i'm confused how this can run without a mewlosite instance...
-
-        from mewlo.mpackages.core.rbac import mrbac
-        from mewlo.mpackages.core.user import muser
-        from mewlo.mpackages.core.group import mgroup
-        #
-        usera = muser.MewloUser()
-        userb = muser.MewloUser()
-        groupa = mgroup.MewloGroup()
-        groupb = mgroup.MewloGroup()
-
-        # save users and groups
-        usera.save()
-        userb.save()
-        groupa.save()
-        groupb.save()
-
-        # role test
-        from mewlo.mpackages.core.rbac import mrbac
-        rolea = mrbac.MewloRole()
-        roleb = mrbac.MewloRole()
-        rolea.save()
-        roleb.save()
-        rolea.childroles.append(roleb)
-        rolea.save()
 
 
 
@@ -476,9 +450,8 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--querytests", help="run some test queries",action="store_true", default=False)
-    parser.add_argument("-m", "--modeltests", help="run some model tests",action="store_true", default=False)
 
-    # Create a site manager and ask it to instantiate a site of the class we specify
+    # Create a site manager and ask it to instantiate a site of the class we specify, and handle some generic commandline options
     args, sitemanager = MewloSiteManager.do_main_commandline_startup(MewloSite_Test1, parser)
 
     # on successful creation, we can parse and do some stuff
@@ -494,12 +467,8 @@ def main():
                 print sitemanager.test_submit_path('/help/about')
                 print sitemanager.test_submit_path('/page/mystery')
                 print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
-            if (args.modeltests):
-                # run model tests
-                print "Running model tests."
-                MewloSite_Test1.runmodeltests()
 
-        # now any late generic commandline stuff
+        # now any late generic commandline stuff (including serving the website)
         sitemanager.do_main_commandline_late(args)
 
 

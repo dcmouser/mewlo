@@ -22,7 +22,7 @@ from ..template import mtemplate
 from ..template import mtemplatehelper
 from ..asset import massetmanager
 from ..eventlog import mlogger
-from ..eventlog.mevent import Event, EventList, EWarning, EError, EDebug
+from ..eventlog.mevent import Event, EventList, EWarning, EError, EDebug, EInfo
 from ..eventlog.mlogger import MewloLogger
 from ..eventlog.mlogtarget_file import MewloLogTarget_File
 from ..helpers.misc import get_value_from_dict
@@ -699,6 +699,10 @@ class MewloSite(object):
         # before we start a request we might have stuff to do
         self.process_request_starts(request)
 
+        # log it
+        #self.logevent(EInfo("Request URL: {0} from {1}.".format(request.get_full_path(), request.get_remote_addr())),request=request)
+        self.logevent(EInfo("Request URL: {0} from {1}.".format(request.get_full_path(), request.get_remote_addr())))
+
         # handle the request
         ishandled = self.routemanager.process_request(self, request)
 
@@ -707,6 +711,7 @@ class MewloSite(object):
 
         # return whether we handled it
         return ishandled
+
 
 
 

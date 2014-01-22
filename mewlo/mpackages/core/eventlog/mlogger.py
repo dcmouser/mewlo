@@ -112,6 +112,8 @@ class MewloLogManager(manager.MewloManager):
             bretv = logger.process(logmessage)
             if (bretv):
                 wrotecount += 1
+                if (logger.get_stopprocessing()):
+                    break
         # if debug mode, and no one else handled it, print it
         if (wrotecount==0):
             if (self.debugmode):
@@ -121,6 +123,7 @@ class MewloLogManager(manager.MewloManager):
         # return True if we wrote any
         bretv = (wrotecount>0)
         return bretv
+
 
 
     def hook_pythonlogger(self, pythonlogger_name, pythonlogger_level=logging.DEBUG):
@@ -341,12 +344,19 @@ class MewloLogTarget(object):
         self.startedup = False
         self.logqueue = []
         self.logformatter = logformatter
+        self.stopprocessing = False
 
 
     def set_isenabled(self, flagval):
         self.isenabled = flagval
     def get_isenabled(self):
         return self.isenabled
+
+    def set_stopprocessing(self, val):
+        self.stopprocessing = val
+    def get_stopprocessing(self):
+        return self.stopprocessing
+
 
 
     def startup(self, mewlosite, eventlist):
@@ -464,10 +474,16 @@ class MewloLogger(object):
         self.filters = []
         self.targets = []
         self.deferredmessages = []
+        #
+        self.stopprocessing = False
 
     def get_id(self):
         return self.id
 
+    def set_stopprocessing(self, val):
+        self.stopprocessing = val
+    def get_stopprocessing(self):
+        return self.stopprocessing
 
     def add_filter(self, filter):
         """Append a filter.  Multiple appended filters are treated like OR conditions (you can simulate AND by chaining filters together."""
@@ -536,6 +552,8 @@ class MewloLogger(object):
                 bretv = target.process_or_queue(logmessage)
                 if (bretv):
                     thiswrotecount += 1
+                    if (target.get_stopprocessing()):
+                        break
         # return True if we wrote it
         bretv = (thiswrotecount>0)
         return bretv

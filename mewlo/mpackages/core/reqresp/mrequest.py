@@ -38,6 +38,9 @@ class MewloRequest(object):
     def get_path(self):
         return self.wreq.path
 
+    def get_full_path(self):
+        return self.wreq.full_path
+
     def get_sitepath(self):
         if (self.sitepath != None):
             return self.sitepath
@@ -49,6 +52,8 @@ class MewloRequest(object):
     def get_environ(self):
         return self.wreq.environ
 
+    def get_remote_addr(self):
+        return self.wreq.remote_addr
 
     def set_route_parsedargs(self, parsedargs):
         self.parsedargs = parsedargs

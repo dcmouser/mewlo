@@ -1,5 +1,5 @@
 Mewlo Templating
-=================
+================
 
 
 It is common practice in designing web applications to separate the main logic of an application from the textual/html output page contents.
@@ -50,3 +50,5 @@ Some candiate template libraries include:
     * Mako
 
 For now, we have chosen: JINJA2.
+
+

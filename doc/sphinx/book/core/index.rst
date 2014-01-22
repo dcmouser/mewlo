@@ -17,3 +17,4 @@ From here you can learn about the core Mewlo packages.
    settings
    templates
    url_routes
+   views
