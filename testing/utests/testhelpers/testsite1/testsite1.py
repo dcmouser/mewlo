@@ -20,13 +20,13 @@ from mewlo.mpackages.core.eventlog.mlogger import MewloLogger
 from mewlo.mpackages.core.eventlog.mlogtarget_file import MewloLogTarget_File
 from mewlo.mpackages.core.eventlog.mlogtarget_python import MewloLogTarget_Python
 from mewlo.mpackages.core.eventlog.mevent import EWarning
-
+#
+from mewlo.mpackages.site_addons.login import msiteaddon_login
 
 
 # python imports
 import os, sys
 import logging
-
 
 
 
@@ -247,25 +247,6 @@ class MewloSite_Test1(MewloSite):
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_about'),
                 ))
 
-        routegroup.append(
-            MewloRoute(
-                id = 'register',
-                path = '/user/register',
-                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_register'),
-                ))
-        routegroup.append(
-            MewloRoute(
-                id = 'login',
-                path = '/user/login',
-                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_login'),
-                ))
-        routegroup.append(
-            MewloRoute(
-                id = 'logout',
-                path = '/user/logout',
-                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_logout'),
-                ))
-
 
         #static file server
         routegroup.append(
@@ -314,25 +295,6 @@ class MewloSite_Test1(MewloSite):
                 'parent': 'help',
                 'sortweight': 9.0,
                 }),
-            NavNode('register', {
-                'visible': lambda navnode,context: not context.get_value('isloggedin',False),
-                'parent': 'site',
-                'sortweight': 1.0,
-                }),
-            NavNode('login', {
-                'visible': lambda navnode,context: not context.get_value('isloggedin',False),
-                'parent': 'site',
-                'sortweight': 8.0,
-                }),
-            NavNode('logout', {
-                'menulabel': lambda navnode,context: "logout ({0})".format(context.get_value('username')),
-                'menulabel_short': 'logout',
-                'menuhint' : 'logout of your account',
-                'visible': lambda navnode,context: context.get_value('isloggedin',False),
-                'parent': 'site',
-                'sortweight': 8.0,
-                'pagetitle': 'Logout Page',
-                }),
             ]
 
         # add nodes to site
@@ -345,7 +307,11 @@ class MewloSite_Test1(MewloSite):
 
 
 
-
+    def add_addons(self):
+        """Add any site addons."""
+        # Add login site addon
+        siteaddon = msiteaddon_login.MewloSiteAddon_Login()
+        self.siteaddonmanager.append(siteaddon)
 
 
 

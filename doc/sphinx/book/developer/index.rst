@@ -15,6 +15,7 @@ From here you can learn about extending the Mewlo system.
    error_handling_discussion
    error_handling_policy
    extending
+   siteaddons
    testing
    to_resolve
    ugliness

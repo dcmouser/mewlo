@@ -30,6 +30,7 @@ from ..helpers.misc import resolve_expand_string
 from ..user import muser
 from ..group import mgroup
 from ..rbac import mrbac
+from ..siteaddon import msiteaddon
 
 # python imports
 import os
@@ -99,6 +100,9 @@ class MewloSite(object):
         # collection of mewlo addon packages
         self.packagemanager = mpackagemanager.MewloPackageManager()
 
+        # site addon manager
+        self.siteaddonmanager = msiteaddon.MewloSiteAddonManager()
+
         # route manager
         self.routemanager = mroute.MewloRouteManager()
 
@@ -157,6 +161,9 @@ class MewloSite(object):
 
         # any settings caching or other pre-preparation we need to do
         self.preprocess_settings(eventlist)
+
+        # site addons
+        self.siteaddonmanager.startup(self, eventlist)
 
         # validate site and settings first to make sure all is good
         self.validate(eventlist)
@@ -233,6 +240,9 @@ class MewloSite(object):
 
         # templates
         self.templates.shutdown()
+
+        # site addons
+        self.siteaddonmanager.shutdown()
 
         # packages
         self.packagemanager.shutdown()
@@ -520,6 +530,7 @@ class MewloSite(object):
         self.add_loggers()
         self.add_routes()
         self.add_navnodes()
+        self.add_addons()
         # we add fallback loggers at END, after user-site added loggers
         self.add_fallback_loggers()
 
@@ -540,7 +551,9 @@ class MewloSite(object):
         """Does nothing in base class, but subclass can overide."""
         pass
 
-
+    def add_addons(self):
+        """Does nothing in base class, but subclass can overide."""
+        pass
 
 
 
@@ -816,6 +829,8 @@ class MewloSite(object):
         outstr += self.templates.dumps(indent+1)
         outstr += "\n"
         outstr += self.packagemanager.dumps(indent+1)
+        outstr += "\n"
+        outstr += self.siteaddonmanager.dumps(indent+1)
         outstr += "\n"
         outstr += self.routemanager.dumps(indent+1)
         outstr += "\n"

@@ -10,48 +10,37 @@ This file holds controller functions that will be invoked by route manager as ro
 
 
 
-def request_home(request, response):
-    """Show home page."""
-    # set page info first (as it may be used in page contents)
-    response.set_pageid('home')
-    # then page contents
-    response.render_from_template_file('${siteviewpath}/home.jn2')
-    # success
-    return None
-
-
-
-
-
-
-def request_help(request, response):
+def request_login(request, response):
     """Controller function."""
     # set page info first (as it may be used in page contents)
-    response.set_pageid('help')
+    response.set_pageid('login')
     # then page contents
-    response.render_from_template_file('${siteviewpath}/help.jn2')
+    response.render_from_template_file('${addon_login_path}/views/login.jn2')
     # success
     return None
 
-def request_contact(request, response):
-    """Show contact page."""
+
+def request_logout(request, response):
+    """Controller function."""
     # set page info first (as it may be used in page contents)
-    response.set_pageid('contact')
-    response.add_pagecontext( {'isloggedin':True, 'username':'mouser'} )
+    response.set_pageid('logout')
+    response.add_pagecontext( {'isloggedin':True, 'username':'mouser'})
     # then page contents
-    response.render_from_template_file('${siteviewpath}/contact.jn2')
+    response.render_from_template_file('${addon_login_path}/views/logout.jn2')
     # success
     return None
 
-def request_about(request, response):
-    """Show about page."""
+
+def request_register(request, response):
+    """Controller function."""
     # set page info first (as it may be used in page contents)
-    response.set_pageid('about')
-    response.add_pagecontext( {'isloggedin':True, 'username':'mouser'} )
+    response.set_pageid('register')
     # then page contents
-    response.render_from_template_file('${siteviewpath}/about.jn2')
+    response.render_from_template_file('${addon_login_path}/views/register.jn2')
     # success
     return None
+
+
 
 
 

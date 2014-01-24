@@ -5,7 +5,6 @@ Team Mewlo
 Members of the Mewlo Development Team:
 
    * Jesse (Mouser) Reichler
-   * John (Gothic) Sennesael
 
 Would you be interested in joining the team?  We need you!
 

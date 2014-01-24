@@ -87,6 +87,7 @@ class NavNodeManager(manager.MewloManager):
 
     def startup(self, mewlosite, eventlist):
         """Called at start of application."""
+
         super(NavNodeManager,self).startup(mewlosite,eventlist)
         # initial nodes
         self.sitenode = NavNode('site')
@@ -174,6 +175,7 @@ class NavNodeManager(manager.MewloManager):
                 parents = node.get_property('parents',[],False,None)
             parents = self.convert_nodeidlist_to_nodelist(parents)
             # now walk parents and add them to our parent list, and add us to their child list
+            #print "ATTN: debug building navnode structure with node {0} having parents {1}.".format(node.id,str(parents))
             for parent in parents:
                 if (parent not in node.parents):
                     node.parents.append(parent)
@@ -198,6 +200,8 @@ class NavNodeManager(manager.MewloManager):
             node = self.lookupnode(nodeid)
             if (node!=None):
                 nodelist.append(node)
+            else:
+                raise Exception("Could not find navnode with id '{0}'.".format(nodeid))
         return nodelist
 
 
