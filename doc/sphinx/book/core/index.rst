@@ -16,5 +16,6 @@ From here you can learn about the core Mewlo packages.
    registry
    settings
    templates
+   themes
    url_routes
    views

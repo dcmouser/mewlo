@@ -43,3 +43,11 @@ In the first case, we have two choices -- we can either modify URLS with overrid
 Modifying the filenames before serving would be the most parsimonious approach and would mean everything is done with one single type of override.
 
 However, it would break the ability to serve static files efficiently using a non-mewlo web server system, and loses any efficiency to be gained from caching web page outputs.
+
+
+Wrapping Pages
+--------------
+
+In addition to completely overriding/replacing template files in order to enforce a custom site look, and replacing select static asset files, there is a separate issue of "wrapping" page content.
+
+This covers things like letting a site layout a page layout with locations for widgets and sidebars, and using custom site headers and footers.

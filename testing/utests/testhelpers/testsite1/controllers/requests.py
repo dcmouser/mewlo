@@ -59,26 +59,6 @@ def request_about(request, response):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def request_sayhello(request, response):
     """Show simple hello page with some arguments."""
     # set page info first (as it may be used in page contents)

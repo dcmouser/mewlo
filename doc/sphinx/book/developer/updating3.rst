@@ -36,3 +36,12 @@ Drupal
 
     * https://drupal.org/node/250790
     * http://drupaleasy.com/blogs/ultimike/2010/08/fast-safe-module-updates-drush-svn
+
+
+
+Django
+------
+
+    * Django seems to have a powerful system of automatically tracking database changes between versions and updating them
+    * https://docs.djangoproject.com/en/dev/intro/tutorial01/
+    * http://south.readthedocs.org/en/latest/
