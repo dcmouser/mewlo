@@ -171,15 +171,23 @@ class MewloResponse(object):
         template = self.get_mewlosite().templates.from_file(templatefilepath)
         return self.render_from_template(template, args)
 
+    def renderstr_from_template_file(self, templatefilepath, args={}):
+        """Shortcut to return html for a template and set responsedata from it, passing response object to template as an extra arg."""
+        template = self.get_mewlosite().templates.from_file(templatefilepath)
+        return self.renderstr_from_template(template, args)
+
 
     def render_from_template(self, template, args={}):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
+        self.set_responsedata(self.renderstr_from_template(template,args))
+        return None
+
+    def renderstr_from_template(self, template, args={}):
+        """Shortcut to return html for a template and set responsedata from it, passing response object to template as an extra arg."""
         # ATTN: TODO note we are mutating the passed args in order to add a response item -- this will be fine most of the time but we may want to copy instead
         templateargs = self.get_mewlosite().templatehelper.make_templateargs(args, self.request, self)
         renderedtext = template.render_string(templateargs)
-        self.set_responsedata(renderedtext)
-        return None
-
+        return renderedtext
 
 
 

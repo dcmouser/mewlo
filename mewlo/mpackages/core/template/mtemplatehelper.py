@@ -80,6 +80,72 @@ class MewloTemplateHelper(manager.MewloManager):
 
 
 
+
+
+
+
+
+
+
+
+    def html_autoform(self, form):
+        """Render form html automatically by inspecting form fields."""
+        reth = ''
+        reth += '<form method="POST">\n'
+        # generic error?
+        genericerrorstr = form.get_genericerrorstr()
+        if (genericerrorstr != None):
+            reth += '<div class="form_errors_generic">There are errors on this form: ' + genericerrorstr + '</div><br/>\n'
+        #
+        for field in form:
+            reth += self.html_formfield_witherror(field)
+        #
+        reth += '<br/>\n'
+        reth += '<input type="submit"/>\n';
+        reth += '</form>\n';
+        #
+        return reth
+
+
+
+
+    def html_formfield_witherror(self, field):
+        """Return html for the form with inline errors."""
+        #
+        css_class = ''
+        #
+        reth = ''
+        reth += '<div class="form_field">\n'
+        # label
+        reth += str(field.label) + ': '
+        # field with errors
+        if (field.errors):
+            # if it's got an error, set the field class so we can render it differently
+            css_class = 'has_error'
+            reth += field(class_=css_class)+'\n'
+            reth += '<ul class="form_errors">\n'
+            for error in field.errors:
+                reth += '<li>{0}</li>\n'.format(error)
+            reth += '</ul>\n'
+        else:
+            reth += field()+'\n'
+        reth += '</div>\n'
+        #
+        return reth
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloTemplateHelper (" + self.__class__.__name__ + ") reporting in.\n"

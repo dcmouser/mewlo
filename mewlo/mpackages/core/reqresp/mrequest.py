@@ -67,6 +67,11 @@ class MewloRequest(object):
     def get_route(self):
         return self.route
 
+    def get_postdata(self):
+        # accessor
+        if (self.wreq.method == 'POST'):
+            return self.wreq.form
+        return None
 
 
 

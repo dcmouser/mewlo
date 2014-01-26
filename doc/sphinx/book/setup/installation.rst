@@ -34,13 +34,14 @@ STEP 3 - Install required helper packages
 Install the Werkzeug package which is temporarily being used to do some lower-level request+response work:
   pip install Werkzeug
 
-
 Install the jinja2 template package which is used for template output
   pip install jinja2
 
-
 Install the Requests module used for web downloading
   pip install requests
+
+Install the WTForm module used for form processing
+  pip install wtform
 
 
 

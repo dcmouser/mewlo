@@ -1,5 +1,9 @@
 {% include "${siteviewpath}/header.jn2" %}
 
-Register page.
+<h1>Register</h1>
+
+
+{{ thelper.html_autoform(form) }}
+
 
 {% include "${siteviewpath}/footer.jn2" %}

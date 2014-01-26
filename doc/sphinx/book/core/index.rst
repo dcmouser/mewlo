@@ -10,6 +10,7 @@ From here you can learn about the core Mewlo packages.
    commonobjects
    database
    dispatcher
+   forms
    logging
    navigation
    packages

@@ -1,0 +1,6 @@
+Related Projects
+================
+
+.. toctree::
+
+   redirecting
