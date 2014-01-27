@@ -8,7 +8,7 @@ Updated 7/27/13
 STEP 1 - Create virtual environment for Mewlo development
 ---------------------------------------------------------
 
-You want to isolate your install of mewlo, to test in a prestine environment
+You want to isolate your install of mewlo, to test in a pristine environment
 
 Create a virtualenv to isolate mewlo development, eg:
   On windows:

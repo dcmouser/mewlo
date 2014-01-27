@@ -39,7 +39,10 @@ class MewloResponse(object):
         #
         self.eventlist = EventList()
         #
+        # ATTN: ugly, why are we calling this 'context'??
         self.context = msettings.MewloSettings()
+        #
+        self.pendingcookiedict = {}
 
 
 
@@ -51,6 +54,8 @@ class MewloResponse(object):
         # note if the werkzeug is already made, do nothing more, just return it
         if (self.wresp == None):
             self.wresp = Response(response=self.responsedata, status=self.statuscode, headers=self.headers, direct_passthrough=self.direct_passthrough, mimetype=self.mimetype)
+            # merge pending cookies to save
+            self.merge_pendingcookiedict()
         return self.wresp
 
 
@@ -102,6 +107,24 @@ class MewloResponse(object):
 
     def calc_wsgiref_status_string(self):
         return str(self.statuscode)
+
+
+
+    def set_cookieval(self, cookiename, cookieval):
+        """Set cookie value."""
+        if (self.wresp == None):
+            # response is not created yet, save it to our internal cookie dictionary which will get copied in when wresp is created
+            self.pendingcookiedict[cookiename] = cookieval
+        else:
+            self.wresp.set_cookie(cookiename,cookieval)
+
+    def merge_pendingcookiedict(self):
+        """Because wresp response object may not be created at time of cookie setting, we may have deferred cookie values to set when we create the wresp."""
+        for key,val in self.pendingcookiedict.iteritems():
+            self.wresp.set_cookie(key,val)
+
+
+
 
 
 

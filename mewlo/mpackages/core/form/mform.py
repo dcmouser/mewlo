@@ -66,6 +66,6 @@ class MewloForm(Form):
             else:
                 if (key==MewloForm.DEF_GenericErrorKey):
                     self.add_genericerror(val)
-        print "ERRORS NOW: "+str(self.errors)
+
 
 

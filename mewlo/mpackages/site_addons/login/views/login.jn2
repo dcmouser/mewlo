@@ -2,6 +2,7 @@
 
 <h1>Login page</h1>
 
+User sessionid = {{ sessionid }}<br/>
 
 {{ thelper.html_autoform(form) }}
 

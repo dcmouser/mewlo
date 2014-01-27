@@ -184,6 +184,20 @@ def serialize_for_readability_makesafe(obj):
 
 
 
+def serialize_forstorage(obj):
+    if (obj==None):
+        return None
+    return serialize_for_readability(obj)
+
+def unserialize_fromstorage(serializedtext, defaultval=None):
+    """Throw exception on error."""
+    if (serializedtext==None or serializedtext==''):
+        return defaultval
+    obj = pickle.loads(str(serializedtext))
+    return obj
+
+
+
 
 def compare_versionstrings_isremotenewer(localversion, remoteversion):
     """

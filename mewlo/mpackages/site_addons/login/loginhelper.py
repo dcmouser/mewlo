@@ -42,8 +42,12 @@ class LoginHelper(object):
             form.merge_errordict(errordict)
             # drop down and re-present form with errors
 
+        # sessionid, as a test
+        mewlosession = self.request.get_session()
+        sessionid = mewlosession.hashid
+
         # render form
-        self.render_localview('login.jn2',{'form':form})
+        self.render_localview('login.jn2',{'form':form, 'sessionid': sessionid})
         # success
         return None
 

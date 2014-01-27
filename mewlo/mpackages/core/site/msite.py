@@ -20,6 +20,7 @@ from ..rbac import mrbac
 from ..navnode import mnav
 from ..template import mtemplate
 from ..template import mtemplatehelper
+from ..session import msessionhelper
 from ..asset import massetmanager
 from ..eventlog import mlogger
 from ..eventlog.mevent import Event, EventList, EWarning, EError, EDebug, EInfo
@@ -31,6 +32,7 @@ from ..user import muser
 from ..group import mgroup
 from ..rbac import mrbac
 from ..siteaddon import msiteaddon
+from ..session import msession
 
 # python imports
 import os
@@ -124,8 +126,14 @@ class MewloSite(object):
         # template helper
         self.templatehelper = mtemplatehelper.MewloTemplateHelper()
 
+        # session helper
+        self.sessionhelper = msessionhelper.MewloSessionHelper()
+
+
+
         # update state
         self.set_state(MewloSettings.DEF_SITESTATE_INITIALIZE_END)
+
 
 
 
@@ -214,6 +222,9 @@ class MewloSite(object):
         # template helper
         self.templatehelper.startup(self, eventlist)
 
+        # session helper
+        self.sessionhelper.startup(self, eventlist)
+
         # log all startup events
         self.logevents(eventlist)
 
@@ -264,6 +275,9 @@ class MewloSite(object):
 
         # template helper
         self.templatehelper.shutdown()
+
+        # session helper
+        self.sessionhelper.shutdown()
 
         # rbac system
         self.rbac.shutdown()
@@ -663,6 +677,24 @@ class MewloSite(object):
         dbmanager.register_modelclass(self, mrbac.MewloRole)
         dbmanager.register_modelclass(self, mrbac.MewloRoleHierarchy)
         dbmanager.register_modelclass(self, mrbac.MewloRoleAssignment)
+        # session
+        dbmanager.register_modelclass(self, msession.MewloSession)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -688,6 +720,46 @@ class MewloSite(object):
         :return: failure on error
         """
         return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -724,6 +796,45 @@ class MewloSite(object):
 
         # return whether we handled it
         return ishandled
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -839,6 +950,8 @@ class MewloSite(object):
         outstr += self.packagesettings.dumps(indent+1)
         outstr += "\n"
         outstr += self.templatehelper.dumps(indent+1)
+        outstr += "\n"
+        outstr += self.sessionhelper.dumps(indent+1)
         outstr += "\n"
         return outstr
 

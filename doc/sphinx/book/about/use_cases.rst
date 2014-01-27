@@ -6,7 +6,7 @@ Some non-obvious but important use cases:
 
 Pages where moderators (or users) can manage a huge table of data:
 
-    * nice pagintion
+    * nice pagination
     * complex column display
     * complex column filtering
     * action on rows

@@ -317,6 +317,20 @@ class DbfServerIp(MewloDbField):
 
 
 
+class DbfCryptoHash(MewloDbField):
+    """Ip of an accessing computer."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfCryptoHash, self).__init__(id, properties)
+
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))]
+
+
+
+
 
 
 

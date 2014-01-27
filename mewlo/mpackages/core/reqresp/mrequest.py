@@ -30,6 +30,8 @@ class MewloRequest(object):
         self.route = None
         self.mewlosite = None
         self.sitepath = None
+        #
+        self.session = None
         # note that a request contains a response, to be filled in during processing of request
         self.response = mresponse.MewloResponse(self)
 
@@ -67,11 +69,39 @@ class MewloRequest(object):
     def get_route(self):
         return self.route
 
+
+
+
+
+
     def get_postdata(self):
         # accessor
         if (self.wreq.method == 'POST'):
             return self.wreq.form
         return None
+
+    def get_cookieval(self,cookiename):
+        # accessor
+        return self.wreq.cookies.get(cookiename)
+
+
+
+
+
+
+    def get_session(self):
+        # create or load session object
+        if (self.session == None):
+            self.session = self.mewlosite.sessionhelper.get_session(self)
+        return self.session
+
+
+
+
+
+
+
+
 
 
 
