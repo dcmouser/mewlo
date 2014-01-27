@@ -34,23 +34,17 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
 
     def __init__(self):
         # initialize when creating manually
-        self.serialized_fields = None
+        self.extrafields_serialized = None
 
 
 
 
     # all of thes serialization functions should be done away with and handled transparently by a serialized field type
 
-    def get_unserialized_fields(self):
-        """Unserialized the string property."""
-        if (self.serialized_fields == None):
-            return None
-        return self.unserialize(self.serialized_fields)
 
-
-    def store_serialize_fields(self, fields):
-        """Serialize an object into the serialized_fields property."""
-        self.serialized_fields = self.serialize(fields)
+    def set_extrafields_dict(self, fields):
+        """Serialize an object into the extrafields_serialized property."""
+        self.extrafields_serialized = self.serialize_forstorage(fields)
 
 
     def set_property_byname(self, propname, propval):
@@ -59,7 +53,7 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
 
 
     def map_dict_to_properties(self, dict):
-        """Store dictionary 'dict' into the object's existing defined fields, and any fields that don't match, serialize into serialized_fields."""
+        """Store dictionary 'dict' into the object's existing defined fields, and any fields that don't match, serialize into extrafields_serialized."""
         extrafields = {}
         fieldids = self.fieldhash.keys()
         # walk properties in dictionary and set object properties and extrafields dictionary
@@ -74,9 +68,9 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
                     extrafields[key] = val
         # handle extrafields
         if (len(extrafields)==0):
-            self.store_serialize_fields(None)
+            self.set_extrafields_dict(None)
         else:
-            self.store_serialize_fields(extrafields)
+            self.set_extrafields_dict(extrafields)
 
 
 
@@ -93,8 +87,8 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
                 'label': "The primary key and id# for this row"
                 }),
             # an arbitrarily long string serializing any other log properties that we don't have explicit fields for.
-            mdbfield.DbfSerialized('serialized_fields', {
-                'label': "The serialzed text version of the dictionary/array data being stored"
+            mdbfield.DbfSerialized('extrafields_serialized', {
+                'label': "Arbitrary dictionary of extra fields"
                 }),
             # actual log msg text
             mdbfield.DbfTimestamp('timestamp', {

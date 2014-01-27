@@ -16,6 +16,7 @@ From here you can learn about extending the Mewlo system.
    error_handling_discussion
    error_handling_policy
    extending
+   naming_style
    siteaddons
    testing
    to_resolve

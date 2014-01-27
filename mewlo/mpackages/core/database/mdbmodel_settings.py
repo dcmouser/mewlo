@@ -27,20 +27,18 @@ class MewloDbModel_Settings(mdbmodel.MewloDbModel):
 
     def __init__(self):
         """Init on manual construct of object."""
-        self.serialized_dict = None
+        self.settingdict_serialized = None
 
 
 
-    def get_unserialized_dict(self):
+    def get_settingdict_unserialized(self):
         """Unserialized the loaded key string."""
-        if (self.serialized_dict == None):
-            return None
-        return self.unserialize(self.serialized_dict)
+        return self.unserialize_fromstorage(self.settingdict_serialized,None)
 
 
-    def store_serialize_dict(self, datadict):
+    def set_settingdict_serialize(self, datadict):
         """Unserialized the loaded key string."""
-        self.serialized_dict = self.serialize(datadict)
+        self.settingdict_serialized = self.serialize_forstorage(datadict)
 
 
 
@@ -67,7 +65,7 @@ class MewloDbModel_Settings(mdbmodel.MewloDbModel):
                 'label': "The unique key name for this group of properties"
                 }),
             # an arbitrarily long string serializing a dictionary or array, etc.
-            mdbfield.DbfSerialized('serialized_dict', {
+            mdbfield.DbfSerialized('settingdict_serialized', {
                 'label': "The serialzed text version of the dictionary/array data being stored"
                 })
             ]

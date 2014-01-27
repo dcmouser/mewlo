@@ -44,7 +44,7 @@ class LoginHelper(object):
 
         # sessionid, as a test
         mewlosession = self.request.get_session()
-        sessionid = mewlosession.hashid
+        sessionid = mewlosession.hashkey
 
         # render form
         self.render_localview('login.jn2',{'form':form, 'sessionid': sessionid})

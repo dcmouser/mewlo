@@ -399,7 +399,7 @@ class MewloSettingsDb(MewloSettings):
         if (modelobj == None):
             propdict = {}
         else:
-            propdict = modelobj.get_unserialized_dict()
+            propdict = modelobj.get_settingdict_unserialized()
         # set it
         self.settingdict[keyname] = propdict
 
@@ -419,7 +419,7 @@ class MewloSettingsDb(MewloSettings):
                 modelobj = self.dbmodelclass.new()
             # now modify it with new values
             modelobj.keyname = keyname
-            modelobj.store_serialize_dict(get_value_from_dict(self.settingdict, keyname, None))
+            modelobj.set_settingdict_serialize(get_value_from_dict(self.settingdict, keyname, None))
             # and save it
             modelobj.save()
         except Exception as exp:
@@ -439,5 +439,5 @@ class MewloSettingsDb(MewloSettings):
         for modelobj in modelobjs:
             #print "DEBUGGING All ONE modelobj = "+str(modelobj)
             keyname = modelobj.keyname
-            self.settingdict[keyname] = modelobj.get_unserialized_dict()
+            self.settingdict[keyname] = modelobj.get_settingdict_unserialized()
 

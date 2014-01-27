@@ -374,16 +374,14 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def serialize(cls, obj):
+    def serialize_forstorage(cls, obj):
         """Helper function to serialize arbitrary object."""
-        # ATTN: illogical that one calls pickle directly and other calls misc helper
-        return misc.serialize_for_readability(obj)
+        return misc.serialize_forstorage(obj)
 
     @classmethod
-    def unserialize(cls, serializedtext):
+    def unserialize_fromstorage(cls, serializedtext, defaultval=None):
         """Helper function to unserialize arbitrary text."""
-        # ATTN: maybe remove this?
-        return pickle.loads(str(serializedtext))
+        return misc.unserialize_fromstorage(serializedtext, defaultval)
 
 
 

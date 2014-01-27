@@ -52,11 +52,11 @@ class MewloSession(mdbmodel.MewloDbModel):
                 'label': "The primary key and id# for this user"
                 }),
             # hashid - the unique string stored in user cookie that we use to lookup stuff (needs index)
-            mdbfield.DbfCryptoHash('hashid', {
-                'label': "The unique hash id for this session"
+            mdbfield.DbfCryptoHash('hashkey', {
+                'label': "The unique hash key for this session"
                 }),
             # userid - quick user id field - so we might avoid unserialized large data for the most common things
-            mdbfield.DbfForeignUserId('userid', {
+            mdbfield.DbfForeignUserId('user_id', {
                 'label': "The user id owning this session"
                 }),
             # date fields

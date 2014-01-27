@@ -57,7 +57,7 @@ class MewloSessionHelper(manager.MewloManager):
         if (sessionid != None):
             # look it up
             # ATTN: TODO - sanitize sessionid
-            keydict = {'hashid':sessionid}
+            keydict = {'hashkey':sessionid}
             mewlosession = MewloSession.find_one_bykey(keydict,None)
             if (mewlosession == None):
                 # wasn't found, so drop down and make them a new one
@@ -77,28 +77,29 @@ class MewloSessionHelper(manager.MewloManager):
             # make new one
             mewlosession = MewloSession()
             # create unique hashid
-            sessionid = str(self.create_unique_sessionhashid())
-            mewlosession.hashid = sessionid
+            sessionid = str(self.create_unique_sessionhashkey())
+            mewlosession.hashkey = sessionid
             # other fields to set on creation
             mewlosession.date_create = time.time()
             mewlosession.date_update = mewlosession.date_create
             mewlosession.date_access = mewlosession.date_create
             mewlosession.ip = request.get_remote_addr()
             # test of serialized field
-            mewlosession.set_sessionvar('access_count',0)
+            access_count = 0
+            mewlosession.set_sessionvar('access_count', access_count)
             # save it to our database right away?
             mewlosession.save()
             # and for sure save it to response cookie
             request.response.set_cookieval(self.sessionid_cookiename,sessionid)
         # debug
-        self.mewlosite.logevent('Session id = {0}.'.format(sessionid))
+        self.mewlosite.logevent('Session id = {0} and access count = {1}.'.format(sessionid,access_count))
         # return it
         return mewlosession
 
 
 
-    def create_unique_sessionhashid(self):
-        """Create a new unique session hashid."""
+    def create_unique_sessionhashkey(self):
+        """Create a new unique session hashkey."""
         sessionid = uuid.uuid4()
         return sessionid
 
