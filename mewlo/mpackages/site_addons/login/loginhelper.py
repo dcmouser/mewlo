@@ -134,13 +134,14 @@ class LoginHelper(object):
         # page id
         self.response.set_pageid(pageid)
         # test
-        user = self.request.get_user(False)
-        if (user == None):
-            print "Request is from anonymous guest user."
-        else:
-            print "Request is from user: '{0}'.".format(str(user.username))
+        if (False):
+            user = self.request.get_user(False)
+            if (user == None):
+                print "Request is from anonymous guest user."
+            else:
+                print "Request is from user: '{0}'.".format(str(user.username))
         # page context
-        self.response.add_pagecontext( {'isloggedin':True, 'username':'mouser'})
+        #self.response.add_pagecontext( {'isloggedin':True, 'username':'mouser'})
 
 
 
@@ -173,7 +174,6 @@ class LoginHelper(object):
         # set session user to None
         self.request.set_user(None)
         return None
-
 
 
 

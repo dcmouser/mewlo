@@ -31,24 +31,6 @@ class MewloTemplateHelper(manager.MewloManager):
 
 
 
-
-
-    def make_templateargs(self, inargs, request, response):
-        """Add default args to expose information and provide args that the template can use."""
-        templateargs = inargs.copy()
-        # make data available to temlate (these are available at root level
-        templateargs['response'] = response
-        templateargs['request'] = request
-        templateargs['thelper'] = self
-        templateargs['site'] = request.mewlosite
-        # we could also add all site aliases/resolving to root level
-        resolvedaliases = request.mewlosite.assetmanager.get_resolvedaliases()
-        templateargs['alias'] = resolvedaliases
-        return templateargs
-
-
-
-
     def nav_bar_html(self, response):
         """Make a navar html."""
         # get response context

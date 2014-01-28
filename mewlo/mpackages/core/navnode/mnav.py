@@ -215,7 +215,7 @@ class NavNodeManager(manager.MewloManager):
 
     def find_current_and_root(self, rootnode, responsecontext):
         """Given response and a possible explicit rootnode, find current node and rootnode to use."""
-        currentnodeid = responsecontext.get_value('pagenodeid',None)
+        currentnodeid = responsecontext.get_value('pagenodeid')
         currentnode = self.lookupnode(currentnodeid)
         # decide rootnode
         if (currentnode != None and rootnode == None):
@@ -638,6 +638,7 @@ class NavNode(object):
         return self.get_propertyl([propname], defaultval, flag_resolve, responsecontext)
 
     def get_propertyl(self, propnames, defaultval, flag_resolve, responsecontext):
+        #print "ATTN: in get_propertyl {0} with context = {1}".format(str(propnames),str(responsecontext))
         for propname in propnames:
             if (responsecontext != None):
                 # check for a cached value
@@ -737,13 +738,13 @@ class NavNode(object):
 
     def set_response_property(self, propertyname, value, responsecontext):
         """Set a 'cached' value in response context for this node."""
-        responsecontext.set_subsubvalue('navnodes',self.id,propertyname,value)
+        responsecontext['settings'].set_subsubvalue('navnodes',self.id,propertyname,value)
 
     def get_response_property(self, propertyname, responsecontext, defaultval):
         """Set a 'cached' value in response context for this node."""
         if (responsecontext == None):
             return defaultval
-        return responsecontext.get_subsubvalue('navnodes',self.id,propertyname,defaultval)
+        return responsecontext['settings'].get_subsubvalue('navnodes',self.id,propertyname,defaultval)
 
 
     def relative_url(self, url):

@@ -8,6 +8,7 @@ For now our requests are just lightly wrapped werkzeug requests.
 # mewlo imports
 import mresponse
 from .. import mglobals
+from ..user import muser
 
 # werkzeug imports
 from werkzeug.wrappers import Request
@@ -165,6 +166,12 @@ class MewloRequest(object):
             self.session.save()
             # and make sure the user gets a cookie pointing to this session
             self.response.set_cookieval(self.mewlosite.sessionhelper.get_sessionid_cookiename(), self.session.hashkey)
+        # shall we autosave session user?
+        # ATTN: i don't know how smart db is about avoiding resave if nothing changed
+        # ATTN: TODO avoid trying to save if not diry
+        user = self.get_user(False)
+        if (user != None):
+            user.save()
 
     def get_user(self, flag_makeuserifnone):
         """Lazy get the user object of the requesting user.
@@ -181,7 +188,16 @@ class MewloRequest(object):
         self.get_session(True).set_user(userobject)
         self.user = userobject
 
-
+    def get_user_or_maketemporaryguest(self):
+        """Lazy get the user object of the requesting user.
+        This will trigger session creation, then session lookup of user if need be."""
+        if (self.user == None):
+            # quick temporary user, without causing session creation
+            user = self.get_user(False)
+            if (user == None):
+                user = muser.MewloUser.getmake_guestuserobject()
+            return user
+        return self.user
 
 
 
@@ -271,6 +287,8 @@ class MewloRequest(object):
         request.make_werkzeugrequest(wsgiref_environ)
         # return it
         return request
+
+
 
 
 

@@ -8,6 +8,7 @@ For now, our MewloResponse class is just a thin wrapper over a werkzeug response
 # helper imports
 from ..eventlog.mevent import EventList, EError, EWarning
 from ..setting import msettings
+from ..helpers import thindict
 
 # werkzeug imports
 import werkzeug
@@ -40,7 +41,9 @@ class MewloResponse(object):
         self.eventlist = EventList()
         #
         # ATTN: ugly, why are we calling this 'context'??
-        self.context = msettings.MewloSettings()
+        #self.context = msettings.MewloSettings()
+        self.context = thindict.MThinDict()
+        self.did_add_defaultcontext = False
         #
         self.pendingcookiedict = {}
 
@@ -132,15 +135,33 @@ class MewloResponse(object):
         """Shortcut to set some context settings."""
         self.context.update({'pagenodeid':pageid})
 
-
     def add_pagecontext(self, args):
         """Shortcut to set some context settings."""
         self.context.update(args)
 
 
+    def add_defaultcontext(self):
+        """Add some default context."""
+        # ATTN: see mtemplatehelper for some non-DRY repetition of code; improve
+        mewlosite = self.get_mewlosite()
+        #
+        self.context['settings'] = msettings.MewloSettings()
+        self.context['request'] = self.request
+        self.context['response'] = self
+        self.context['site'] = mewlosite
+        #
+        self.context['user'] = self.request.get_user_or_maketemporaryguest()
+        #
+        self.context['thelper'] = mewlosite.templatehelper
+        self.context['alias'] = mewlosite.assetmanager.get_resolvedaliases()
+        #
+        self.did_add_defaultcontext = True
 
 
-
+    def run_beforeview(self):
+        """Do stuff before any views."""
+        if (not self.did_add_defaultcontext):
+            self.add_defaultcontext()
 
 
     def finalize_response(self):
@@ -186,27 +207,32 @@ class MewloResponse(object):
 
 
 
-    def render_from_template_file(self, templatefilepath, args={}):
+    def render_from_template_file(self, templatefilepath, args=None):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
         template = self.get_mewlosite().templates.from_file(templatefilepath)
         return self.render_from_template(template, args)
 
-    def renderstr_from_template_file(self, templatefilepath, args={}):
+    def renderstr_from_template_file(self, templatefilepath, args=None):
         """Shortcut to return html for a template and set responsedata from it, passing response object to template as an extra arg."""
         template = self.get_mewlosite().templates.from_file(templatefilepath)
         return self.renderstr_from_template(template, args)
 
 
-    def render_from_template(self, template, args={}):
+    def render_from_template(self, template, args=None):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
         self.set_responsedata(self.renderstr_from_template(template,args))
         return None
 
-    def renderstr_from_template(self, template, args={}):
+    def renderstr_from_template(self, template, args=None):
         """Shortcut to return html for a template and set responsedata from it, passing response object to template as an extra arg."""
         # ATTN: TODO note we are mutating the passed args in order to add a response item -- this will be fine most of the time but we may want to copy instead
-        templateargs = self.get_mewlosite().templatehelper.make_templateargs(args, self.request, self)
-        renderedtext = template.render_string(templateargs)
+        # ATTN: TODO in future use self.context instead of make_templateargs() to remove DRY violation
+        # ensure we have added default keys to response context dictionary
+        self.run_beforeview()
+        # now merge in any passed to us
+        if (args != None):
+            self.context.update(args)
+        renderedtext = template.render_string(self.context)
         return renderedtext
 
 

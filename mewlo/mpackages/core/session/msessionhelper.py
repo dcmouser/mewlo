@@ -67,6 +67,8 @@ class MewloSessionHelper(manager.MewloManager):
                 # test of serialized session var
                 access_count = mewlosession.get_sessionvar('access_count',0)
                 mewlosession.set_sessionvar('access_count',access_count+1)
+        else:
+            sessionhashkey = None
 
         if (sessionhashkey == None):
             # no session exists yet

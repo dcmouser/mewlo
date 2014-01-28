@@ -70,6 +70,26 @@ class MewloUser(mdbmodel.MewloDbModel):
 
 
 
+
+
+
+
+    def get_isloggedin(self):
+        """Return true if this is a real user logged in, and not guest account, etc."""
+        # ATTN: todo improve this
+        return ((self.id != None) and (self.id>0))
+
+    def get_username(self):
+        """Accessor."""
+        return self.username
+
+
+
+
+
+
+
+
     @classmethod
     def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
@@ -152,8 +172,6 @@ class MewloUser(mdbmodel.MewloDbModel):
             user.save()
             # and force a flush right now so that it's id is accessible right away
             user.flush_toupdate()
-            print "ATTN: New user has been created and now saved:"
-            print user.dumps()
         # check again for errors (this allows us to handle save errors eventually)
         if (len(errordict)>0):
             # errors, clear user object

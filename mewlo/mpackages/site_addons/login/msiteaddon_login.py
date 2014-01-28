@@ -128,20 +128,20 @@ class MewloSiteAddon_Login(msiteaddon.MewloSiteAddon):
         # these are related to Routes above, except that NavNodes are like a hierarchical menu structure / site map, wheras Routes are flat patterns that map to controllers
         nodes = [
             NavNode('register', {
-                'visible': lambda navnode,context: not context.get_value('isloggedin',False),
+                'visible': lambda navnode,context: not (context.get_value('user').get_isloggedin()),
                 'parent': 'site',
                 'sortweight': 1.0,
                 }),
             NavNode('login', {
-                'visible': lambda navnode,context: not context.get_value('isloggedin',False),
+                'visible': lambda navnode,context: not (context.get_value('user').get_isloggedin()),
                 'parent': 'site',
                 'sortweight': 8.0,
                 }),
             NavNode('logout', {
-                'menulabel': lambda navnode,context: "logout ({0})".format(context.get_value('username')),
+                'menulabel': lambda navnode,context: "logout ({0})".format(context.get_value('user').get_username()),
                 'menulabel_short': 'logout',
                 'menuhint' : 'logout of your account',
-                'visible': lambda navnode,context: context.get_value('isloggedin',False),
+                'visible': lambda navnode,context: context.get_value('user').get_isloggedin(),
                 'parent': 'site',
                 'sortweight': 8.0,
                 'pagetitle': 'Logout Page',

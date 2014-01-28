@@ -37,7 +37,6 @@ def request_contact(request, response):
     """Show contact page."""
     # set page info first (as it may be used in page contents)
     response.set_pageid('contact')
-    response.add_pagecontext( {'isloggedin':True, 'username':'mouser'} )
     # then page contents
     response.render_from_template_file('${siteviewpath}/contact.jn2')
     # success
@@ -47,7 +46,6 @@ def request_about(request, response):
     """Show about page."""
     # set page info first (as it may be used in page contents)
     response.set_pageid('about')
-    response.add_pagecontext( {'isloggedin':True, 'username':'mouser'} )
     # then page contents
     response.render_from_template_file('${siteviewpath}/about.jn2')
     # success
