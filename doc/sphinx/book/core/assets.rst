@@ -22,10 +22,10 @@ A Strategy for Referencing Asset Files
 We adopt the following strategy when it comes to asset files:
 
     * We use a "global" alias system that holds short, dynamically created aliases to file paths.
-    * The aliases provide a way to use dottedpath names to refer to package asset directories and files without having to refer to paths.
+    * The aliases provide a way to use dotted path names to refer to package asset directories and files without having to refer to paths.
     * Some items will have both file paths and url paths; in such cases we want a uniform pattern for naming both.
     * There are cases where we want to set a base path within a context; such as a base view path from within a controller, etc.  In such cases we will use a simple alias ${b} to represent this value.
-    * To enable users and addons to replace asset files non-invasively, the site alias system will allow for the registering of search+replace patterns in asset paths.  Asset alias resolution will perform these.
+    * To enable users and addons to replace asset files non-invasively, the site alias system will allow for the registering of search and replace patterns in asset paths.  Asset alias resolution will perform these.
     * In this way, single files or entire subdirectories can be dynamically replaced.
     * We may want to support a replacement specification which only affects asset files where the replacement file is actually found.  This would enable a skin-like replacement of a subset of files, as found.
 

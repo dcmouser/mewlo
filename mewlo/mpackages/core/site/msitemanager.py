@@ -190,7 +190,7 @@ class MewloSiteManager(object):
 
         if (not ishandled):
             # no site handled it, so this is an error
-            request.response.add_status_error(404, "Page not found or supported on any site: '{0}'.".format(request.get_path()))
+            request.response.add_status_error(404, "Page not found or supported on any site: '{0}'.".format(request.get_urlpath_original()))
 
         # return response
         return True
@@ -244,6 +244,13 @@ class MewloSiteManager(object):
         request = mrequest.MewloRequest.createrequest_from_wsgiref_environ(environ)
         # get response
         ishandled = self.process_request(request)
+
+        # write out any pending session data that needs saving
+        request.save_session_ifdirty()
+
+        # finalize response if it needs it
+        request.response.finalize_response()
+
         # process response
         return request.response.start_and_make_wsgiref_response(start_response)
 

@@ -24,4 +24,4 @@ Unresolved logging issues
 
 Todo:
 
-    * Add apache logging format
+    * Add Apache logging format as an option

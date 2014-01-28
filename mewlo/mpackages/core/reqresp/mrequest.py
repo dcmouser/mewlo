@@ -29,7 +29,7 @@ class MewloRequest(object):
         self.parsedargs = None
         self.route = None
         self.mewlosite = None
-        self.sitepath = None
+        self.siteurlpath = None
         #
         self.session = None
         # note that a request contains a response, to be filled in during processing of request
@@ -37,36 +37,36 @@ class MewloRequest(object):
 
 
 
-    def get_path(self):
-        return self.wreq.path
 
-    def get_full_path(self):
-        return self.wreq.full_path
 
-    def get_sitepath(self):
-        if (self.sitepath != None):
-            return self.sitepath
-        return self.get_path()
+    # accessors
 
-    def set_sitepath(self,val):
-        self.sitepath = val
+    def get_urlpath(self):
+        """Return the url path of the request.
+        This value is cached, and represents the relative path within the 'site' configuration, excluding any site prefix path.
+        This function is called after preprocessing a reqest and is the call you would use in almost all cases when examining path."""
+        if (self.siteurlpath != None):
+            return self.siteurlpath
+        return self.get_urlpath_original()
 
-    def get_environ(self):
-        return self.wreq.environ
-
-    def get_remote_addr(self):
-        return self.wreq.remote_addr
+    def set_urlpath(self,val):
+        """Set the cached url parth ed url for this request, called after stripping off any site prefix part of the path."""
+        self.siteurlpath = val
 
     def set_route_parsedargs(self, parsedargs):
+        """Store parsed args for the request."""
         self.parsedargs = parsedargs
     def get_route_parsedargs(self):
+        """Get previously parsed args for the request."""
         return self.parsedargs
 
     def set_matched(self, route, mewlosite):
+        """Set values to track which route this request matched and is being processed by."""
         self.route = route
         self.mewlosite = mewlosite
 
     def get_route(self):
+        """Get the route that this request was matched against and processed by."""
         return self.route
 
 
@@ -74,15 +74,75 @@ class MewloRequest(object):
 
 
 
+
+
+
+
+
+
+
+
+    # werkzeug-related thin accessors
+
+    def get_urlpath_original(self):
+        """Get full true original path of request, without any get arguements."""
+        return self.wreq.path
+
+    def get_fullurlpath_original(self):
+        """Get full true original url path of request, including any get arguements."""
+        return self.wreq.full_path
+
+    def get_environ(self):
+        """Get werkzeug environment for request.  This is used when calling into some werkzeug functions (see wresp() function in mrespoonse.py)."""
+        return self.wreq.environ
+
+    def get_remote_addr(self):
+        """Get ip of client in request."""
+        return self.wreq.remote_addr
+
     def get_postdata(self):
-        # accessor
-        if (self.wreq.method == 'POST'):
-            return self.wreq.form
-        return None
+        """
+        Get form post data (dictionary)
+        return None if there is none.
+        """
+        if (not self.get_ispostmethod()):
+            # the form data wasn't posted (gett'd?), so we disallow
+            return None
+        return self.wreq.form
 
     def get_cookieval(self,cookiename):
-        # accessor
+        """Return cookie from client browser request."""
         return self.wreq.cookies.get(cookiename)
+
+    def get_ispostmethod(self):
+        """Return True if request was submitting data with POST method."""
+        return (self.wreq.method == 'POST')
+
+    def make_werkzeugrequest(self, wsgiref_environ):
+        """Create a werkzeug request from the environment and attach it to us."""
+        self.wreq = Request(wsgiref_environ)
+        return self.wreq
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -90,11 +150,20 @@ class MewloRequest(object):
 
 
     def get_session(self):
-        # create or load session object
+        """Lazy create or load session object."""
         if (self.session == None):
             self.session = self.mewlosite.sessionhelper.get_session(self)
         return self.session
 
+    def save_session_ifdirty(self):
+        """Lazy save session data IFF it needs it; this will also set client browser cookie for session."""
+        if (self.session == None):
+            return
+        if (self.session.get_isdirty()):
+            # session has changes to save, so save it
+            self.session.save()
+            # and make sure the user gets a cookie pointing to this session
+            self.response.set_cookieval(self.mewlosite.sessionhelper.get_sessionid_cookiename(), self.session.hashkey)
 
 
 
@@ -106,10 +175,23 @@ class MewloRequest(object):
 
 
 
-    def make_werkzeugrequest(self, wsgiref_environ):
-        """Create a werkzeug request from the environment and attach it to us."""
-        self.wreq = Request(wsgiref_environ)
-        return self.wreq
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -127,15 +209,15 @@ class MewloRequest(object):
 
 
     def preprocess_siteprefix(self, siteprefix):
-        """Check if request matches siteprefix, if so, set self.sitepath and return True, otherwise clear sitepath return False."""
-        requestpath = self.get_path()
+        """Check if request matches siteprefix, if so, set self.siteurlpath and return True, otherwise clear siteurlpath return False."""
+        requestpath = self.get_urlpath_original()
         if (requestpath.startswith(siteprefix)):
-            # it matches, strip prefix and set sitepath
-            self.set_sitepath(requestpath[len(siteprefix):])
+            # it matches, strip prefix and set siteurlpath
+            self.set_urlpath(requestpath[len(siteprefix):])
             return True
         # does not match
         #print "Failed to match request '{0}' against prefix of '{1}'.".format(siteprefix,requestpath)
-        self.set_sitepath(None)
+        self.set_urlpath(None)
         return False
 
 
@@ -149,7 +231,7 @@ class MewloRequest(object):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloRequest reporting in:\n"
-        outstr += " "*indent + " URL: " + self.get_path() + "\n"
+        outstr += " "*indent + " URL: " + self.get_urlpath_original() + "\n"
         return outstr
 
 

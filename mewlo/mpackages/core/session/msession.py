@@ -8,6 +8,8 @@ Database object for storing session data
 from ..database import mdbmodel
 from ..database import mdbfield
 
+# python imports
+import time
 
 
 class MewloSession(mdbmodel.MewloDbModel):
@@ -38,6 +40,23 @@ class MewloSession(mdbmodel.MewloDbModel):
 
 
 
+    # helper accessors
+    def set_newvalues(self, sessionhashkey, ip):
+        """Set values for a new session."""
+        self.hashkey = sessionhashkey
+        curtime = time.time()
+        self.date_create = curtime
+        self.date_update = curtime
+        self.date_access = curtime
+        self.ip = ip
+        self.set_isdirty(True)
+
+
+    def update_access(self):
+        """Update access time."""
+        curtime = time.time()
+        self.date_access = curtime
+        self.set_isdirty(True)
 
 
 
@@ -71,7 +90,7 @@ class MewloSession(mdbmodel.MewloDbModel):
                 }),
             # ip - for increased security checking
             mdbfield.DbfServerIp('ip', {
-                'label': "Date when session was last accessed (read)"
+                'label': "IP of user when session was created"
                 }),
             # serialized (pickled) data - large text field storing arbitrary data
             mdbfield.DbfSerialized('sessionvars_serialized', {

@@ -404,11 +404,11 @@ class MewloSite(object):
 
 
 
-    def logevent(self, event, request = None):
+    def logevent(self, event, request = None, fields={}):
         """Shortcut to add a log message from an event/failure."""
         # convert it to an event if its just a plain string
         if (isinstance(event, basestring)):
-            event = EDebug(event)
+            event = EDebug(event,fields=fields)
         # add request field (if it wasn't already set in mevent)
         if (request != None):
             missingfields = { 'request': request }
@@ -785,8 +785,8 @@ class MewloSite(object):
         self.process_request_starts(request)
 
         # log it
-        #self.logevent(EInfo("Request URL: {0} from {1}.".format(request.get_full_path(), request.get_remote_addr())),request=request)
-        self.logevent(EInfo("Request URL: {0} from {1}.".format(request.get_full_path(), request.get_remote_addr())))
+        #self.logevent(EInfo("Request URL: {0} from {1}.".format(request.get_fullurlpath_original(), request.get_remote_addr())),request=request)
+        self.logevent(EInfo("Request URL: {0} from {1}.".format(request.get_fullurlpath_original(), request.get_remote_addr())))
 
         # handle the request
         ishandled = self.routemanager.process_request(self, request)

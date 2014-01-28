@@ -41,7 +41,7 @@ class MewloController_StaticFiles(mcontroller.MewloController):
         # file exist?
         if (not os.path.isfile(filepath)):
             # file does not exist, respond with error
-            request.response.add_status_error(404, "Static file not found or supported on any site: '{0}'.".format(request.get_path()))
+            request.response.add_status_error(404, "Static file not found or supported on any site: '{0}'.".format(request.get_urlpath_original()))
             return None
 
         # file exists, serve it

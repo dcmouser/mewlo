@@ -234,7 +234,7 @@ class MewloRoute(object):
         """
 
         routepath = self.path
-        requestpath = request.get_sitepath()
+        requestpath = request.get_urlpath()
         routepathlen = len(routepath)
         requestpathlen = len(requestpath)
         requestextra = ''

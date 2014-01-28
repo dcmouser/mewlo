@@ -63,8 +63,6 @@ class MewloResponse(object):
     def start_and_make_wsgiref_response(self, wsgiref_start_response):
         """This is invoked when we want to send a final response to the wsgi web server."""
 
-        # finalize response, checks any self-consistency stuff
-        self.finalize_response()
         # now create werkzeug response via werkzeug
         wresp = self.make_werkzeugresponse()
         # now response to wsgiref from werkzeug is to invoke the callable
@@ -155,7 +153,6 @@ class MewloResponse(object):
         if (self.isfinalized):
             return
         self.isfinalized = True
-
 
         if (self.eventlist.count_errors() == 0):
             # if there are no EXPLICIT errors, then we check if we need to add any

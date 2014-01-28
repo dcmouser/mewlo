@@ -69,7 +69,7 @@ In general, however, we should not offer alternative ways to do things simply be
 
 
 
-How do we want to handle error displays, like 404 not found, or when site is taken "offline" into maintenance mode, etc.?
+How do we want to handle error displays, like "404 not found", or when site is taken "offline" into maintenance mode, etc.?
 The best approach might be to define "virtual" routes that we can trigger, or virtual controller actions.
 What's the best way to do that?
 Is it ok to trigger a controller action without a route being active? Do we need to make sure we never assume there is always a route associated with a request controller action.

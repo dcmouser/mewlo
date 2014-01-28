@@ -5,7 +5,7 @@ Mewlo Database / Model System
 We propose to use the SQLAlchemy library to handle all database/orm functionality.
 This breaks with our general approach of not using existing 3rd party libraries, but it's one of the few areas where we really don't want to reinvent the wheel.
 
-It would be nice if we could isolate and wrap the SQL Alchemy functionality in our own layer to make it easier to port and swap out SQLAlchemy but i'm not sure that's really feasible.
+It would be nice if we could isolate and wrap the SQL Alchemy functionality in our own layer to make it easier to port and swap out SQLAlchemy but I'm not sure that's really feasible.
 
 We can however, list some desires we have for the ORM codebase:
 
@@ -69,4 +69,4 @@ Database Model Classes as Tables vs Instantiated Database Model Managers
 	* The ModelManager would be instantiated and be in charge of table-wide stuff, and of defining the table mappings with the Model object, etc.
 	* One advantage of this is that it makes it more natural to think about instantiating multiple copies of a manager, to handle tables that are nearly identical (think about having multiple log file tables).
 	* It also seems perhaps cleaner in terms of preserving data for the manager object vs relying on class-based variables.
-	* In the case of python, a class is an object, so the differences are much smaller, but i think the principle is valid.
+	* In the case of python, a class is an object, so the differences are much smaller, but I think the principle is valid.

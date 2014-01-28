@@ -11,7 +11,6 @@ from msession import MewloSession
 
 # python imports
 import uuid
-import time
 
 
 
@@ -39,68 +38,70 @@ class MewloSessionHelper(manager.MewloManager):
 
 
 
-
+    def get_sessionid_cookiename(self):
+        return self.sessionid_cookiename
 
 
     def get_session(self, request):
         """Get or create a session data for a request."""
-        sessionid = request.get_cookieval(self.sessionid_cookiename)
+        sessionidinput = request.get_cookieval(self.sessionid_cookiename)
         # now lookup or make new session object (note that sessionid will be None if user does not have cookie set)
-        sessionobject = self.lookup_or_make_sessionobject(request, sessionid)
+        sessionobject = self.lookup_or_make_sessionobject(request, sessionidinput)
         return sessionobject
 
 
 
 
-    def lookup_or_make_sessionobject(self, request, sessionid):
+    def lookup_or_make_sessionobject(self, request, sessionidinput):
         """Lookup or make new session object (note that sessionid will be None if user does not have cookie set)."""
-        if (sessionid != None):
+        if (sessionidinput != None):
             # look it up
-            # ATTN: TODO - sanitize sessionid
-            keydict = {'hashkey':sessionid}
+            sessionhashkey = self.sanitize_input_sessionid(sessionidinput)
+            keydict = {'hashkey':sessionhashkey}
             mewlosession = MewloSession.find_one_bykey(keydict,None)
             if (mewlosession == None):
                 # wasn't found, so drop down and make them a new one
-                sessionid = None
+                sessionhashkey = None
             else:
                 # ok we found it (and loaded it), no need to create it
                 # any fields to set on access?
-                # test of serialized field
+                mewlosession.update_access()
+                # test of serialized session var
                 access_count = mewlosession.get_sessionvar('access_count',0)
                 mewlosession.set_sessionvar('access_count',access_count+1)
-                #access_count = mewlosession.getfield_serialized('serialized_dict','access_count',0)
-                #mewlosession.setfield_serialized('serialized_dict','access_count',access_count+1)
-                # save it to our database
-                mewlosession.save()
 
-        if (sessionid == None):
+        if (sessionhashkey == None):
             # make new one
             mewlosession = MewloSession()
             # create unique hashid
-            sessionid = str(self.create_unique_sessionhashkey())
-            mewlosession.hashkey = sessionid
-            # other fields to set on creation
-            mewlosession.date_create = time.time()
-            mewlosession.date_update = mewlosession.date_create
-            mewlosession.date_access = mewlosession.date_create
-            mewlosession.ip = request.get_remote_addr()
-            # test of serialized field
+            sessionhashkey = str(self.create_unique_sessionhashkey())
+            mewlosession.set_newvalues(sessionhashkey, request.get_remote_addr())
+            # test of serialized session var
             access_count = 0
             mewlosession.set_sessionvar('access_count', access_count)
-            # save it to our database right away?
-            mewlosession.save()
-            # and for sure save it to response cookie
-            request.response.set_cookieval(self.sessionid_cookiename,sessionid)
+            ## make sure we also send it to client browser via cookie or its useless
+            # this is now auto-done by response when saving changed session
+            #request.response.set_cookieval(self.sessionid_cookiename, sessionhashkey)
+
         # debug
-        self.mewlosite.logevent('Session id = {0} and access count = {1}.'.format(sessionid,access_count))
+        self.mewlosite.logevent('Session hashkey = {0} and access count = {1}.'.format(sessionhashkey,access_count),fields={'accessocount':access_count})
         # return it
         return mewlosession
+
+
+
 
 
 
     def create_unique_sessionhashkey(self):
         """Create a new unique session hashkey."""
         sessionid = uuid.uuid4()
+        return sessionid
+
+
+    def sanitize_input_sessionid(self, sessionid):
+        """sessionid is provided by user client, sanitize it or return None on error / bad syntax."""
+        #ATTN: TODO - sanitize against regex [0-9A-Za-z_\-]
         return sessionid
 
 

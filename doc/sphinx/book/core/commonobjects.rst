@@ -13,8 +13,8 @@ Some common object stuff to think about:
 
 
 
-Some strategies follow
------------------------
+Some strategies to follow
+-------------------------
 
 
 Generic Versioning Table:
@@ -56,7 +56,7 @@ Supporting the addition of new attributes (aka fields, columns, properties):
     * Addons/extensions would normally add complete PropertySets.
     * I suppose it would be possible for them to splice new fields into an existing PropertySet (or even into a main model).
     * The database API should hide whether such stuff is done via RDBMS table modififications or in fact a nosql thing.
-    * When we find/get objects we can ask that some/all propertysets be loaded at the same time.
+    * When we find/get objects we can ask that some/all PopertySets be loaded at the same time.
 
 
 The ACL System is made up of 3 sub-systems:

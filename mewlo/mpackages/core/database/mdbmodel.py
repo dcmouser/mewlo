@@ -116,12 +116,14 @@ class MewloDbModel(object):
         # create on first use
         sdict = self.getcreate_serializedbdict_forfield(serialized_dict_fieldname)
         sdict.set_keyval(keyname, val)
+        self.set_isdirty(True)
 
     def deletefield_serialized(self, serialized_dict_fieldname, keyname):
         """Remove a SERIALIZED dictionary key value."""
         # create on first use
         sdict = self.getcreate_serializedbdict_forfield(serialized_dict_fieldname)
         sdict.delete_keyval(keyname)
+        self.set_isdirty(True)
 
 
     def getcreate_serializedbdict_forfield(self, serialized_dict_fieldname):
@@ -195,6 +197,13 @@ class MewloDbModel(object):
 
 
 
+    def set_isdirty(self, val):
+        self.isdirty = val
+    def get_isdirty(self):
+        if (not hasattr(self,'isdirty')):
+            return False
+        return self.isdirty
+
 
 
 
@@ -207,11 +216,19 @@ class MewloDbModel(object):
         """Add the model to database."""
         self.presavemodel()
         self.dbm().model_add(self)
+        self.set_isdirty(False)
 
     def save(self):
         """Update/Save the model to database."""
         # same as add, just call add
         self.add()
+
+    def save_ifdirty(self):
+        """
+        Save only if dirty.
+        ATTN: TODO improve dirty detection -- right now this will not trigger on manually created items so we rely on manual setting of isdirty."""
+        if (self.get_isdirty()):
+            self.save()
 
     def delete(self):
         """Delete the model from database."""

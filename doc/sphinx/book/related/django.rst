@@ -31,3 +31,8 @@ Thoughts:
     * In "Pro Django" book, a weirdly complex mechanism for keeping track of "currently logged in user" throughout processing; perhaps because the concept of the currently logged in user is not a core concept?
     * In "Pro Django" book, a quite nice (though suspiciously automatic) system for keeping historical track of model changes.
     * Django may be the closest thing to Mewlo, and as such it may pay to spend some serious time contrasting it to Mewlo and thinking about how Mewlo is different.
+
+
+Nice study of django complexity:
+
+    * http://thegarywilson.com/blog/2012/software-metrics-django-case-study/

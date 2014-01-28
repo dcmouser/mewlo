@@ -30,9 +30,9 @@ We would like as much as possible of the CORE of Mewlo to be built as "Packages"
 
 There will be 3 places where packages may be installed:
 
-    * mewlo/mpackages/core - the base core required packagesthat power Mewlo (required and non-optional)
-    * mewlo/mpackages/user - any user-installed optional packagesthat are available for ALL Mewlo sites using this Mewlo install.
-    * SpecificSite/packages/user - any user-installed optional packagesthat are localized for this one site application.
+    * mewlo/mpackages/core - the base core required packages that power Mewlo (required and non-optional)
+    * mewlo/mpackages/user - any user-installed optional packages that are available for ALL Mewlo sites using this Mewlo install.
+    * SpecificSite/packages/user - any user-installed optional packages that are localized for this one site application.
 
 
 Example of a good lightweight python plugin system: http://yapsy.sourceforge.net/
