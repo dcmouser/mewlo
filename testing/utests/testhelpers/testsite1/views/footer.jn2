@@ -1,6 +1,7 @@
 <br/><br/>
 <hr>
 <div align="center">
+{{ thelper.html_debugfooter(request) }}<br/>
 <img src="{{alias.staticurl}}/Cody.png"/><br/>
-<i>mewlo is copyright 2013-2014 by donationcoder.com</i>
+<i>mewlo is copyright 2013-2014 - donationcoder.com</i>
 </div>

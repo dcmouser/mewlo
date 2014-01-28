@@ -32,6 +32,7 @@ class MewloRequest(object):
         self.siteurlpath = None
         #
         self.session = None
+        self.user = None
         # note that a request contains a response, to be filled in during processing of request
         self.response = mresponse.MewloResponse(self)
 
@@ -147,12 +148,12 @@ class MewloRequest(object):
 
 
 
+    # lazy stuff
 
-
-    def get_session(self):
+    def get_session(self, flag_makesessionifnone):
         """Lazy create or load session object."""
         if (self.session == None):
-            self.session = self.mewlosite.sessionhelper.get_session(self)
+            self.session = self.mewlosite.sessionhelper.get_session(self,flag_makesessionifnone)
         return self.session
 
     def save_session_ifdirty(self):
@@ -164,6 +165,21 @@ class MewloRequest(object):
             self.session.save()
             # and make sure the user gets a cookie pointing to this session
             self.response.set_cookieval(self.mewlosite.sessionhelper.get_sessionid_cookiename(), self.session.hashkey)
+
+    def get_user(self, flag_makeuserifnone):
+        """Lazy get the user object of the requesting user.
+        This will trigger session creation, then session lookup of user if need be."""
+        if (self.user == None):
+            session = self.get_session(flag_makeuserifnone)
+            if (session != None):
+                self.user = session.get_user(flag_makeuserifnone)
+        return self.user
+
+    def set_user(self, userobject):
+        """Set the user object of the requesting user.
+        This will trigger session creation if need be."""
+        self.get_session(True).set_user(userobject)
+        self.user = userobject
 
 
 

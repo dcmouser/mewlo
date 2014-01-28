@@ -7,9 +7,11 @@ Database object for storing session data
 # mewlo imports
 from ..database import mdbmodel
 from ..database import mdbfield
+from ..user import muser
 
 # python imports
 import time
+import uuid
 
 
 class MewloSession(mdbmodel.MewloDbModel):
@@ -41,15 +43,28 @@ class MewloSession(mdbmodel.MewloDbModel):
 
 
     # helper accessors
-    def set_newvalues(self, sessionhashkey, ip):
+    def init_values(self, ip):
         """Set values for a new session."""
-        self.hashkey = sessionhashkey
         curtime = time.time()
         self.date_create = curtime
         self.date_update = curtime
         self.date_access = curtime
         self.ip = ip
+        self.user_id = None
+        self.set_randomhashkey()
         self.set_isdirty(True)
+
+
+    def set_randomhashkey(self):
+        """Set a random hashkey for the session.
+        This is slightly awkward since we would really like to keep the session function generator in the SessionHelper class.
+        But then we don't know how to invoke that here since a session doesn't get a reference to the helper (we could change that).
+        ATTN: UNFINISHED.
+        """
+        sessionhashkey = str(self.create_unique_sessionhashkey())
+        self.hashkey = sessionhashkey
+        self.set_isdirty(True)
+
 
 
     def update_access(self):
@@ -57,6 +72,76 @@ class MewloSession(mdbmodel.MewloDbModel):
         curtime = time.time()
         self.date_access = curtime
         self.set_isdirty(True)
+
+
+    def set_user(self, userobject):
+        """
+        Set the user for a session.
+        This may happen after a login, or after a guest user account is set up for a visitor.
+        There is one important security concern we should be aware of:
+        We may want to force a change of the session id any time the user identity changes from one user to another.
+        That would prevent a client from tricking another client to use their session id and then login, essentially upgrading the previous session id user.
+        """
+        # assign new user object
+        self.user = userobject
+        if (userobject == None):
+            self.user_id = None
+        else:
+            # ok it's a valid user object
+            if (self.user_id != None and self.user_id != userobject.id):
+                # we are CHANGING the user associated with this session, so for a new random sessionid
+                self.set_randomhashkey()
+            # assign new user id
+            if (userobject.id == None):
+                # userobject is valid but it has no id, that just means it hasn't been saved yet
+                raise Exception("User object not saved yet.")
+            self.user_id = userobject.id
+        self.set_isdirty(True)
+
+
+
+    # lazy user requester object creation
+    def get_user(self, flag_makeuserifnone):
+        """Lazy return the user OBJECT associated with this session."""
+        if (not hasattr(self,'user')):
+            # it's not yet cached, so find user and cache
+            if (self.user_id == None):
+                # no user
+                self.user = None
+            else:
+                # we need to load it
+                self.user = muser.MewloUser.find_one_byprimaryid(self.user_id,None)
+        # no user object? should we make a GUEST one?
+        if (self.user == None and flag_makeuserifnone):
+            # ok we want to "make" a user object (which may just mean loading GUEST user object from db); and then remember to set self.user and self.user_id
+            self.set_user(muser.MewloUser.getmake_guestuserobject())
+        # return it
+        return self.user
+
+
+
+    def create_unique_sessionhashkey(self):
+        """Create a new unique session hashkey."""
+        sessionid = uuid.uuid4()
+        return sessionid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

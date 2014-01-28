@@ -1,0 +1,16 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+<h1>Thank you for registering</h1>
+
+<div>
+<p>You have now registered with:</p>
+
+<ul>
+<li>Username: {{ request.get_user(False).username }}</li>
+<li>Email: {{ request.get_user(False).email }}</li>
+<li>Password: {{ request.get_user(False).password_hashed }}</li>
+</ul:
+
+</div>
+
+{% include "${siteviewpath}/footer.jn2" %}

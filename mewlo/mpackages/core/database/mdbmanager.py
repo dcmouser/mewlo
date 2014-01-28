@@ -25,7 +25,7 @@ class MewloDatabaseManager(manager.MewloManager):
         Before we do, we flush it to save any pending saves.
         """
         super(MewloDatabaseManager,self).shutdown()
-        self.flush_all_dbs()
+        self.commit_all_dbs()
 
         # model class resets to let go of sqla cached class vars
         self.reset_classdata_forallmodelclasses()
@@ -62,13 +62,13 @@ class MewloDatabaseManager(manager.MewloManager):
 
     def process_request_ends(self, request):
         """Do stuff before processing a request."""
-        self.flushdb_on_request_ends()
+        self.commitdb_on_request_ends()
 
-    def flushdb_on_request_ends(self):
+    def commit_on_request_ends(self):
         """Nothing to do in base class."""
         pass
 
-    def flush_all_dbs(self):
+    def commit_all_dbs(self):
         """Nothing to do in base class."""
         pass
 

@@ -6,6 +6,7 @@ This file contains helper code for login stuff
 
 # mewlo imports
 from mewlo.mpackages.core.form.mform import MewloForm
+from mewlo.mpackages.core.user import muser
 
 # python imports
 
@@ -38,16 +39,17 @@ class LoginHelper(object):
         # valid submission?
         if (formdata != None and form.validate()):
             # form data is valid
-            errordict = self.try_login(form.username, form.password)
-            form.merge_errordict(errordict)
+            errordict = self.try_login(form.username.data, form.password.data)
+            if ((errordict == None) or (len(errordict)==0)):
+                # all good
+                self.render_localview('loggedin.jn2')
+                # success
+                return None
             # drop down and re-present form with errors
-
-        # sessionid, as a test
-        mewlosession = self.request.get_session()
-        sessionid = mewlosession.hashkey
+            form.merge_errordict(errordict)
 
         # render form
-        self.render_localview('login.jn2',{'form':form, 'sessionid': sessionid})
+        self.render_localview('login.jn2',{'form':form})
         # success
         return None
 
@@ -63,9 +65,16 @@ class LoginHelper(object):
         # valid submission?
         if (formdata != None and form.validate()):
             # form data is valid
-            errordict = self.try_register(form.username, form.password, form.email)
-            form.merge_errordict(errordict)
-            # drop down and re-present form with errors
+            errordict = self.try_register(form.username.data, form.password.data, form.email.data)
+            if ((errordict == None) or (len(errordict)==0)):
+                # success
+                # render form
+                self.render_localview('register_complete.jn2')
+                # success
+                return None
+            else:
+                form.merge_errordict(errordict)
+                # drop down and re-present form with errors
 
         # render form
         self.render_localview('register.jn2',{'form':form})
@@ -124,6 +133,12 @@ class LoginHelper(object):
         # ATTN: we should move this to a site-based method function which smarly settings pagecontext stuff
         # page id
         self.response.set_pageid(pageid)
+        # test
+        user = self.request.get_user(False)
+        if (user == None):
+            print "Request is from anonymous guest user."
+        else:
+            print "Request is from user: '{0}'.".format(str(user.username))
         # page context
         self.response.add_pagecontext( {'isloggedin':True, 'username':'mouser'})
 
@@ -155,7 +170,8 @@ class LoginHelper(object):
 
     def try_logout(self):
         """Just log the user out, and redirect them somewhere."""
-        #ATTN: unfinished
+        # set session user to None
+        self.request.set_user(None)
         return None
 
 
@@ -164,11 +180,15 @@ class LoginHelper(object):
 
 
 
-    def try_login(self, username, password):
+    def try_login(self, username, password_plaintext):
         """Try logging in, return a dictionary of errors or REDIRECT if no error."""
         errordict = {}
         #ATTN: test
-        errordict['password'] = "Password is incorrect."
+        user, errordict = muser.MewloUser.login_user(username=username, password_plaintext=password_plaintext)
+        if (user != None):
+            # ok it's a success, user was created.
+            # tell the session about the user's identity
+            self.request.set_user(user)
         return errordict
 
 
@@ -176,11 +196,14 @@ class LoginHelper(object):
 
 
 
-    def try_register(self, username, password, email):
+    def try_register(self, username, password_plaintext, email):
         """Try registering user, return a dictionary of errors or REDIRECT if no error."""
-        errordict = {}
         #ATTN: test
-        errordict[MewloForm.DEF_GenericErrorKey] = "Registration is currently closed."
+        user, errordict = muser.MewloUser.create_user(username=username, password_plaintext=password_plaintext, email=email)
+        if (user != None):
+            # ok it's a success, user was created.
+            # tell the session about the user's identity
+            self.request.set_user(user)
         return errordict
 
 

@@ -96,7 +96,7 @@ class DbmSqlAlchemyHelper(object):
     def makedbtable(self):
         # create table if it doesn't exist
         if (self.metadata!=None):
-            self.dbflush()
+            self.dbcommit()
             self.metadata.create_all()
 
 
@@ -117,11 +117,18 @@ class DbmSqlAlchemyHelper(object):
 
 
     def dbflush(self):
-        """Flush db if appropriate."""
+        """Flush db if appropriate (less than commit)."""
+        # see http://stackoverflow.com/questions/4201455/sqlalchemy-whats-the-difference-between-flush-and-commit
+        if (self.session!=None):
+            self.session.flush()
+
+    def dbcommit(self):
+        """Flush and commit db if appropriate.
+        sqlalchemy does flush as part of commit.
+        """
+        # see http://stackoverflow.com/questions/4201455/sqlalchemy-whats-the-difference-between-flush-and-commit
         if (self.session!=None):
             self.session.commit()
-
-
 
 
 
@@ -179,19 +186,27 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-    def flushdb_on_request_ends(self):
+    def UNUSED_flushdb_on_request_ends(self):
         """Flush any sessions."""
         self.flush_all_dbs()
 
+    def commitdb_on_request_ends(self):
+        """Flush any sessions."""
+        self.commit_all_dbs()
 
 
-    def flush_all_dbs(self):
+
+    def UNUSED_flush_all_dbs(self):
         """Ask all helpers to flush."""
         #print "DEBUG: FLUSHING DBs"
         for key,val in self.alchemyhelpers.iteritems():
             val.dbflush()
 
-
+    def commit_all_dbs(self):
+        """Ask all helpers to flush."""
+        #print "DEBUG: FLUSHING DBs"
+        for key,val in self.alchemyhelpers.iteritems():
+            val.dbcommit()
 
 
 
@@ -303,6 +318,11 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         return None
 
 
+    def model_sessionflush(self, modelobj):
+        """Flush the session associated with model."""
+        session = modelobj.dbsession()
+        session.flush()
+
 
     def modelclass_deleteall(self, modelclass):
         """Delete all items (rows) in the table."""
@@ -315,6 +335,17 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         # ATTN: Unfinished
         pass
 
+
+
+    def modelclass_find_one_byprimaryid(self, modelclass, primaryid, defaultval):
+        """Find and return an instance object for the single row specified by keydict.
+        :return: defaultval if not found
+        """
+        session = modelclass.dbsession()
+        result = session.query(modelclass).get(primaryid)
+        if (result!=None):
+            return result
+        return defaultval
 
 
     def modelclass_find_one_bykey(self, modelclass, keydict, defaultval):

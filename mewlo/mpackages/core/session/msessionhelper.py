@@ -9,8 +9,7 @@ from ..manager import manager
 from msession import MewloSession
 
 
-# python imports
-import uuid
+
 
 
 
@@ -42,23 +41,22 @@ class MewloSessionHelper(manager.MewloManager):
         return self.sessionid_cookiename
 
 
-    def get_session(self, request):
+    def get_session(self, request, flag_makesessionifnone):
         """Get or create a session data for a request."""
         sessionidinput = request.get_cookieval(self.sessionid_cookiename)
         # now lookup or make new session object (note that sessionid will be None if user does not have cookie set)
-        sessionobject = self.lookup_or_make_sessionobject(request, sessionidinput)
+        sessionobject = self.lookup_or_make_sessionobject(request, sessionidinput, flag_makesessionifnone)
         return sessionobject
 
 
 
 
-    def lookup_or_make_sessionobject(self, request, sessionidinput):
+    def lookup_or_make_sessionobject(self, request, sessionidinput, flag_makesessionifnone):
         """Lookup or make new session object (note that sessionid will be None if user does not have cookie set)."""
         if (sessionidinput != None):
             # look it up
             sessionhashkey = self.sanitize_input_sessionid(sessionidinput)
-            keydict = {'hashkey':sessionhashkey}
-            mewlosession = MewloSession.find_one_bykey(keydict,None)
+            mewlosession = MewloSession.find_one_bykey({'hashkey':sessionhashkey}, None)
             if (mewlosession == None):
                 # wasn't found, so drop down and make them a new one
                 sessionhashkey = None
@@ -71,11 +69,15 @@ class MewloSessionHelper(manager.MewloManager):
                 mewlosession.set_sessionvar('access_count',access_count+1)
 
         if (sessionhashkey == None):
+            # no session exists yet
+            if (not flag_makesessionifnone):
+                # just return saying there is no session
+                return None
             # make new one
             mewlosession = MewloSession()
-            # create unique hashid
-            sessionhashkey = str(self.create_unique_sessionhashkey())
-            mewlosession.set_newvalues(sessionhashkey, request.get_remote_addr())
+            mewlosession.init_values(request.get_remote_addr())
+            # get hash key
+            sessionhashkey = mewlosession.hashkey
             # test of serialized session var
             access_count = 0
             mewlosession.set_sessionvar('access_count', access_count)
@@ -93,10 +95,6 @@ class MewloSessionHelper(manager.MewloManager):
 
 
 
-    def create_unique_sessionhashkey(self):
-        """Create a new unique session hashkey."""
-        sessionid = uuid.uuid4()
-        return sessionid
 
 
     def sanitize_input_sessionid(self, sessionid):

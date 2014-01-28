@@ -12,6 +12,8 @@ from ..eventlog import mexceptionplus
 import re
 import pickle
 import time
+import hashlib, uuid
+
 
 
 
@@ -243,6 +245,101 @@ def strvalnone(val,noneval='n/a'):
     if (val == None):
         return noneval
     return str(val)
+
+
+
+
+
+
+
+
+
+
+
+# ATTN: todo move this somewhere
+DEF_salthash_algorithm_u4s512v1 = 'u4s512v1'
+
+
+def encode_hash_and_salt(plaintext):
+    """Given plaintext, create a random-salted hash suitable for db storage; the salted+hashed string includes an algorithmstring to let us change algorithms later."""
+    # use the latest algorithm (algorithm also covers how salt is chosen).
+    algorithmstring = DEF_salthash_algorithm_u4s512v1
+    # use a random salt
+    salt = uuid.uuid4().hex
+    # create the hash-salted string
+    return encode_hash_and_salt_withparams(plaintext, algorithmstring, salt)
+
+
+def encode_hash_and_salt_withparams(plaintext, algorithmstring, salt):
+    """Given plaintext, create a salted hash suitable for db storage; the salted+hashed string includes an algorithmstring to let us change algorithms later."""
+    if (salt == None):
+        raise Exception("Blank salt not allowed.")
+    if (algorithmstring==DEF_salthash_algorithm_u4s512v1):
+        hashed_string = hashlib.sha512(plaintext + salt).hexdigest()
+    else:
+        if (algorithmstring == None):
+            raise Exception("Algorithm string is not specified.")
+        else:
+            raise Exception("Unknown salthash algorithm specified: '{0}'.".format(algorithmstring))
+    # the string is simple concatenation of params
+    encodedstring = 'a={0}|s={1}|h={2}'.format(algorithmstring, salt, hashed_string)
+    return encodedstring
+
+
+def does_plaintext_rehash(plaintext, hashedchecktext):
+    """We want to see if the plaintext matches the hashedchecktext."""
+    # first sanity check against hashedchecktext
+    if (hashedchecktext == None):
+        return False
+    # parse the parameters in the hashstring
+    hashparams = parse_salthash_parameters(hashedchecktext)
+    if ('a' not in hashparams):
+        raise Exception("Algorithmstring value not specified in encoded salthash string.")
+    if ('s' not in hashparams):
+        raise Exception("Salt value not specified in encoded salthash string.")
+    if ('h' not in hashparams):
+        raise Exception("Hashed contents not specified in encoded salthash string.")
+    algorithmstring = hashparams['a']
+    salt = hashparams['s']
+    # now recompute the hash
+    plaintexthashed = encode_hash_and_salt_withparams(plaintext, algorithmstring, salt)
+    # compare it to passed in hashed text (retrieved from db)
+    # we could either compare plaintexthashed==hashedchecktext or hashparams['h']==parse_salthash_parameters(plaintexthashed)['h']
+    # the only reason to do the latter is if additional keys might be added to the salthash string over time
+    if (plaintexthashed == hashedchecktext):
+        # it's a match
+        return True
+    # no match
+    return False
+
+
+def parse_salthash_parameters(hashedtext):
+    """
+    Parse the parameters in the hashstring which takes the form a={0}|s={1}|h={2}.
+    Return dictionary of var=val.
+    """
+    paramdict = {}
+    # first split on the |
+    if (hashedtext != None):
+        pipeparts = hashedtext.split('|')
+        for pipepart in pipeparts:
+            # split on v = val
+            equalparts = pipepart.split('=',1)
+            if (len(equalparts)==2):
+                # parse it
+                varpart = equalparts[0]
+                valpart = equalparts[1]
+                paramdict[varpart] = valpart
+    # return it
+    return paramdict
+
+
+
+
+
+
+
+
 
 
 

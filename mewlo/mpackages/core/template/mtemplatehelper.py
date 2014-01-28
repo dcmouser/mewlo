@@ -136,8 +136,19 @@ class MewloTemplateHelper(manager.MewloManager):
 
 
 
-
-
+    def html_debugfooter(self, request):
+        """Some simple debug html at bottom of page."""
+        session = request.get_session(False)
+        if (session != None):
+            user = session.get_user(False)
+            if (user != None):
+                username = user.username
+            else:
+                username = 'anonymous'
+            reth = "[ Sessionid: {0} | User: {1} ]".format(session.hashkey,username)
+        else:
+            reth = "[no session created for this request]"
+        return reth
 
 
 

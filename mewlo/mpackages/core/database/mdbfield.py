@@ -119,10 +119,45 @@ class DbfString(MewloDbField):
         """Constructor."""
         # call parent function
         super(DbfString, self).__init__(id, properties)
-
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
         return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',256)))]
+
+
+
+
+class DbfUsername(MewloDbField):
+    """Limited length text field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfUsername, self).__init__(id, properties)
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',32)))]
+
+class DbfEmail(MewloDbField):
+    """Limited length text field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfEmail, self).__init__(id, properties)
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',96)))]
+
+class DbfHashedPassword(MewloDbField):
+    """Limited length text field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfHashedPassword, self).__init__(id, properties)
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',256)))]
+
+
+
 
 
 

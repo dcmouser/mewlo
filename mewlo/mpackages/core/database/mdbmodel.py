@@ -235,7 +235,9 @@ class MewloDbModel(object):
         self.dbm().model_delete(self)
 
 
-
+    def flush_toupdate(self):
+        """Important: This needs to be called after saving a new object if we need to access the id of the object."""
+        self.dbm().model_sessionflush(self)
 
 
 
@@ -376,7 +378,14 @@ class MewloDbModel(object):
         cls.dbm().modelclass_deletebykey(cls, keydict)
 
     @classmethod
-    def find_one_bykey(cls, keydict, defaultval):
+    def find_one_byprimaryid(cls, primaryid, defaultval = None):
+        """Find and return an instance object for the single row specified by keydict.
+        :return: defaultval if not found
+        """
+        return cls.dbm().modelclass_find_one_byprimaryid(cls, primaryid, defaultval)
+
+    @classmethod
+    def find_one_bykey(cls, keydict, defaultval = None):
         """Find and return an instance object for the single row specified by keydict.
         :return: defaultval if not found
         """
