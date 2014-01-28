@@ -127,3 +127,5 @@ in mdbmodel_log see "# ATTN:TODO all of thes serialization functions should be d
 1/17/14
 can we move all database model class-based data to a helper object? or will sqlalchemy not let us
 //---------------------------------------------------------------------------
+
+

@@ -18,3 +18,11 @@ class MThinDict(dict):
         if (key in self):
             return self[key]
         return defaultval
+
+
+    def get_subvalue(self, key, subkey, defaultval=None):
+        # two levels deep
+        if (key in self):
+            if (subkey in self[key]):
+                return self[key][subkey]
+        return defaultval

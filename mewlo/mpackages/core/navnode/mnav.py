@@ -59,6 +59,9 @@ Another thing we do is allow nodes to specify a list of parents and/or children 
 
 Controllers should set the current page id and other context available to navigation nodes using the reponse.set_pagecontext() function, e.g.     response.set_pagecontext('contact', {'isloggedin':True, 'username':'mouser'} )
 
+ATTN: 1/28/14
+I don't understand the clearing/expiration caching of values for menu -- i think we may not be properly clearing cached values -- that is, i fear we may be persisting them when we shouldn't.
+
 """
 
 
@@ -738,13 +741,17 @@ class NavNode(object):
 
     def set_response_property(self, propertyname, value, responsecontext):
         """Set a 'cached' value in response context for this node."""
-        responsecontext['settings'].set_subsubvalue('navnodes',self.id,propertyname,value)
+        keyname = self.id + '_' + propertyname
+        responsecontext['navnodecache'][keyname] = value
 
     def get_response_property(self, propertyname, responsecontext, defaultval):
-        """Set a 'cached' value in response context for this node."""
+        """Get a 'cached' value in response context for this node."""
         if (responsecontext == None):
             return defaultval
-        return responsecontext['settings'].get_subsubvalue('navnodes',self.id,propertyname,defaultval)
+        keyname = self.id + '_' + propertyname
+        return responsecontext.get_subvalue('navnodecache',keyname, defaultval)
+
+
 
 
     def relative_url(self, url):

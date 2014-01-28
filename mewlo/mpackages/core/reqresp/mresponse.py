@@ -142,10 +142,11 @@ class MewloResponse(object):
 
     def add_defaultcontext(self):
         """Add some default context."""
-        # ATTN: see mtemplatehelper for some non-DRY repetition of code; improve
         mewlosite = self.get_mewlosite()
         #
-        self.context['settings'] = msettings.MewloSettings()
+        # navnode cache lets us avoid repeated computations of navnode stuff
+        self.context['navnodecache'] = thindict.MThinDict()
+        #
         self.context['request'] = self.request
         self.context['response'] = self
         self.context['site'] = mewlosite
