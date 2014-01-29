@@ -9,6 +9,7 @@ For now, our MewloResponse class is just a thin wrapper over a werkzeug response
 from ..eventlog.mevent import EventList, EError, EWarning
 from ..setting import msettings
 from ..helpers import thindict
+from ..navnode import mnav
 
 # werkzeug imports
 import werkzeug
@@ -40,10 +41,8 @@ class MewloResponse(object):
         #
         self.eventlist = EventList()
         #
-        # ATTN: ugly, why are we calling this 'context'??
-        #self.context = msettings.MewloSettings()
-        self.context = thindict.MThinDict()
-        self.did_add_defaultcontext = False
+        self.rendercontext = thindict.MThinDict()
+        self.did_add_rendercontext_defaults = False
         #
         self.pendingcookiedict = {}
 
@@ -109,6 +108,8 @@ class MewloResponse(object):
     def calc_wsgiref_status_string(self):
         return str(self.statuscode)
 
+    def get_rendercontext(self):
+        return self.rendercontext
 
 
     def set_cookieval(self, cookiename, cookieval):
@@ -131,38 +132,37 @@ class MewloResponse(object):
 
 
 
-    def set_pageid(self, pageid):
+    def set_renderpageid(self, pageid):
         """Shortcut to set some context settings."""
-        self.context.update({'pagenodeid':pageid})
+        self.rendercontext['pagenodeid'] = pageid
 
-    def add_pagecontext(self, args):
+    def add_rendercontext(self, args):
         """Shortcut to set some context settings."""
-        self.context.update(args)
+        self.rendercontext.update(args)
 
-
-    def add_defaultcontext(self):
+    def add_rendercontext_defaults(self):
         """Add some default context."""
         mewlosite = self.get_mewlosite()
         #
         # navnode cache lets us avoid repeated computations of navnode stuff
-        self.context['navnodecache'] = thindict.MThinDict()
+        self.rendercontext[mnav.NavNodeManager.DEF_navnodecache_keyname] = thindict.MThinDict()
         #
-        self.context['request'] = self.request
-        self.context['response'] = self
-        self.context['site'] = mewlosite
+        self.rendercontext['request'] = self.request
+        self.rendercontext['response'] = self
+        self.rendercontext['site'] = mewlosite
         #
-        self.context['user'] = self.request.get_user_or_maketemporaryguest()
+        self.rendercontext['user'] = self.request.get_user_or_maketemporaryguest()
         #
-        self.context['thelper'] = mewlosite.templatehelper
-        self.context['alias'] = mewlosite.assetmanager.get_resolvedaliases()
+        self.rendercontext['thelper'] = mewlosite.templatehelper
+        self.rendercontext['alias'] = mewlosite.assetmanager.get_resolvedaliases()
         #
-        self.did_add_defaultcontext = True
+        self.did_add_rendercontext_defaults = True
 
 
     def run_beforeview(self):
         """Do stuff before any views."""
-        if (not self.did_add_defaultcontext):
-            self.add_defaultcontext()
+        if (not self.did_add_rendercontext_defaults):
+            self.add_rendercontext_defaults()
 
 
     def finalize_response(self):
@@ -227,13 +227,13 @@ class MewloResponse(object):
     def renderstr_from_template(self, template, args=None):
         """Shortcut to return html for a template and set responsedata from it, passing response object to template as an extra arg."""
         # ATTN: TODO note we are mutating the passed args in order to add a response item -- this will be fine most of the time but we may want to copy instead
-        # ATTN: TODO in future use self.context instead of make_templateargs() to remove DRY violation
+        # ATTN: TODO in future use self.pagecontext instead of make_templateargs() to remove DRY violation
         # ensure we have added default keys to response context dictionary
         self.run_beforeview()
         # now merge in any passed to us
         if (args != None):
-            self.context.update(args)
-        renderedtext = template.render_string(self.context)
+            self.rendercontext.update(args)
+        renderedtext = template.render_string(self.rendercontext)
         return renderedtext
 
 

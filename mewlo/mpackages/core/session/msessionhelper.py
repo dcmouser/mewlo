@@ -56,7 +56,7 @@ class MewloSessionHelper(manager.MewloManager):
         if (sessionidinput != None):
             # look it up
             sessionhashkey = self.sanitize_input_sessionid(sessionidinput)
-            mewlosession = MewloSession.find_one_bykey({'hashkey':sessionhashkey}, None)
+            mewlosession = MewloSession.find_one_bykey({'hashkey':sessionhashkey})
             if (mewlosession == None):
                 # wasn't found, so drop down and make them a new one
                 sessionhashkey = None

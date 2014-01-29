@@ -180,18 +180,32 @@ class MewloUser(mdbmodel.MewloDbModel):
         return user, errordict
 
 
+
+
     @classmethod
-    def login_user(cls, username, password_plaintext):
+    def login_user(cls, username=None, password_plaintext=None, email=None):
         """
         Make a new user account.
         return tuple (userobject, errordict); if there are errors return them and userobject as None
         """
         errordict = {}
         # first find user by username
-        keydict = {'username':username}
-        user = MewloUser.find_one_bykey(keydict,None)
+        user = None
+        if ((username != None) and (username != '')):
+            # find by name
+            keydict = {'username':username}
+            user = MewloUser.find_one_bykey(keydict)
+        if ((user == None) and (email != None) and (email!='')):
+            # find by email
+            keydict = {'email':email}
+            user = MewloUser.find_one_bykey(keydict)
         if (user == None):
-            errordict['username'] = "Username does not exist."
+                if ((username != None) and (email != None)):
+                    errordict['username'] = "No user exists with that username or email."
+                elif (email != None):
+                    errordict['email'] = "No user exists with that email."
+                else:
+                    errordict['username'] = "No user exists with that username."
         else:
             # check password
             does_passwordmatch = user.does_plaintextpasswordmatch(password_plaintext)

@@ -395,7 +395,7 @@ class MewloSettingsDb(MewloSettings):
     def db_loadkey(self, keyname):
         """Load a specific key (row) from the database table and unserialize it into self.settingdict[keyname]."""
         # lookup row in database
-        modelobj = self.dbmodelclass.find_one_bykey({'keyname':keyname}, None)
+        modelobj = self.dbmodelclass.find_one_bykey({'keyname':keyname})
         if (modelobj == None):
             propdict = {}
         else:
@@ -413,7 +413,7 @@ class MewloSettingsDb(MewloSettings):
         self.db_lock([keyname])
         try:
             # try to load it first
-            modelobj = self.dbmodelclass.find_one_bykey({'keyname':keyname}, None)
+            modelobj = self.dbmodelclass.find_one_bykey({'keyname':keyname})
             # if not found, create a new one
             if (modelobj == None):
                 modelobj = self.dbmodelclass.new()

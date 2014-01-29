@@ -31,7 +31,7 @@ class LoginHelper(object):
 
     def renderpage_login(self):
         # set page info first (as it may be used in page contents)
-        self.setpagecontext('login')
+        self.set_renderpageid('login')
         # init form+formdata
         formdata = self.request.get_postdata()
         form = MewloForm_Login(formdata)
@@ -57,7 +57,7 @@ class LoginHelper(object):
 
     def renderpage_register(self):
         # set page info first (as it may be used in page contents)
-        self.setpagecontext('register')
+        self.set_renderpageid('register')
         # init form+formdata
         formdata = self.request.get_postdata()
         form = MewloForm_Register(formdata)
@@ -94,7 +94,7 @@ class LoginHelper(object):
 
     def renderpage_logout(self):
         # set page info first (as it may be used in page contents)
-        self.setpagecontext('logout')
+        self.set_renderpageid('logout')
 
         # logout
         self.try_logout()
@@ -128,24 +128,14 @@ class LoginHelper(object):
 
 
 
-    def setpagecontext(self, pageid):
-        """Helper function to set page id and context."""
-        # ATTN: we should move this to a site-based method function which smarly settings pagecontext stuff
-        # page id
-        self.response.set_pageid(pageid)
-        # test
-        if (False):
-            user = self.request.get_user(False)
-            if (user == None):
-                print "Request is from anonymous guest user."
-            else:
-                print "Request is from user: '{0}'.".format(str(user.username))
-        # page context
-        #self.response.add_pagecontext( {'isloggedin':True, 'username':'mouser'})
+    def set_renderpageid(self, pageid):
+        """Helper function to set page id."""
+        self.response.set_renderpageid(pageid)
 
 
 
-    def render_localview(self, viewfilepath, args={}):
+
+    def render_localview(self, viewfilepath, args=None):
         """Helper function to render relative view file."""
         self.response.render_from_template_file(self.viewbasepath+viewfilepath, args=args)
 

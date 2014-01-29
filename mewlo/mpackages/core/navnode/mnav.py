@@ -57,11 +57,13 @@ A reasonable solution might be to use a special data structure for cached note p
 
 Another thing we do is allow nodes to specify a list of parents and/or children by nodename.  This lets one create a hierarchy dynamically and add to it from wherever you want.
 
-Controllers should set the current page id and other context available to navigation nodes using the reponse.set_pagecontext() function, e.g.     response.set_pagecontext('contact', {'isloggedin':True, 'username':'mouser'} )
+Controllers should set the current page id and other context available to navigation nodes using the reponse.add_rendercontext() function, e.g.     response.add_rendercontext('contact', {'isloggedin':True, 'username':'mouser'} )
 
 ATTN: 1/28/14
-I don't understand the clearing/expiration caching of values for menu -- i think we may not be properly clearing cached values -- that is, i fear we may be persisting them when we shouldn't.
-
+The last time i looked at this code i got confused by the use of responsecontext.
+responsecontext is a dict that serves two purposes -- first it is available for use by lambda functions which can look at request/response/user
+second, it can be written to under key 'navnodecache' which is itself a MThinDict, in order to cache the results of values (lambda functions) for nodes so that we don't have to recompute them multiple times while traversing tree.
+Note that this cache starts off blank on each request.
 """
 
 
@@ -69,8 +71,8 @@ I don't understand the clearing/expiration caching of values for menu -- i think
 from ..helpers import misc
 from ..manager import manager
 
-
 # python imports
+
 
 
 
@@ -79,6 +81,10 @@ class NavNodeManager(manager.MewloManager):
     The NavNodeManager class manages a collection of NavNodes.
     The most common usage would be that each site has a NavNodeManager to represent the site hierarchy
     """
+
+    # class constants
+    DEF_navnodecache_keyname = 'navnodecache'
+
 
     def __init__(self):
         """Constructor for the clas."""
@@ -742,14 +748,14 @@ class NavNode(object):
     def set_response_property(self, propertyname, value, responsecontext):
         """Set a 'cached' value in response context for this node."""
         keyname = self.id + '_' + propertyname
-        responsecontext['navnodecache'][keyname] = value
+        responsecontext[NavNodeManager.DEF_navnodecache_keyname][keyname] = value
 
     def get_response_property(self, propertyname, responsecontext, defaultval):
         """Get a 'cached' value in response context for this node."""
         if (responsecontext == None):
             return defaultval
         keyname = self.id + '_' + propertyname
-        return responsecontext.get_subvalue('navnodecache',keyname, defaultval)
+        return responsecontext.get_subvalue(NavNodeManager.DEF_navnodecache_keyname,keyname, defaultval)
 
 
 
