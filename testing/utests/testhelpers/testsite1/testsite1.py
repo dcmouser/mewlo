@@ -42,9 +42,9 @@ import controllers as pkgdirimp_controllers
 # the test1 demo site class
 class MewloSite_Test1(MewloSite):
 
-    def __init__(self, debugmode):
+    def __init__(self, debugmode, commandlineargs):
         # call parent constructor
-        super(MewloSite_Test1, self).__init__(__name__, debugmode)
+        super(MewloSite_Test1, self).__init__(__name__, debugmode, commandlineargs)
 
 
 
@@ -412,12 +412,13 @@ class MewloSite_Test1(MewloSite):
 def main():
     """This function is invoked by the python interpreter if this script itself is executed as the main script."""
 
-    # custom commandline args
+    # custom commandline args (if we dont have any we can pass None instead of parser to do_main_commandline_startyp()).
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--querytests", help="run some test queries",action="store_true", default=False)
 
     # Create a site manager and ask it to instantiate a site of the class we specify, and handle some generic commandline options
+    # it returns parsed commandline args so we can look for any custom ones
     args, sitemanager = MewloSiteManager.do_main_commandline_startup(MewloSite_Test1, parser)
 
     # on successful creation, we can parse and do some stuff
@@ -435,7 +436,7 @@ def main():
                 print sitemanager.test_submit_path('/test/hello/name/jesse/age/44')
 
         # now any late generic commandline stuff (including serving the website)
-        sitemanager.do_main_commandline_late(args)
+        sitemanager.do_main_commandline_late()
 
 
 if __name__ == '__main__':

@@ -28,14 +28,24 @@ class MewloDatabaseManager(manager.MewloManager):
         self.databasesettings = {}
         self.modelclasses = {}
 
+
+    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+        # register the gob (global object) model; all users/groups/etc have a unique gob id; it lets us set up foreign keys to dif kinds of objects via their gob id
+        self.register_modelclass(self, mdbmodel_gob.MewloDbModel_Gob)
+        # user group role stuff
+        self.register_modelclass(self, muser.MewloUser)
+        self.register_modelclass(self, mgroup.MewloGroup)
+        self.register_modelclass(self, mrbac.MewloRole)
+        self.register_modelclass(self, mrbac.MewloRoleHierarchy)
+        self.register_modelclass(self, mrbac.MewloRoleAssignment)
+        # session
+        self.register_modelclass(self, msession.MewloSession)
+        # verification
+        self.register_modelclass(self, mverification.MewloVerification)
+
+
     def startup(self, eventlist):
         super(MewloDatabaseManager,self).startup(eventlist)
-
-    def startup_stage2(self, eventlist):
-        """For database manager, post startup needs to ask site to do some stuff."""
-        # we need to create some classes very early so that plugins can access them
-        self.create_early_database_classes(eventlist)
-
 
 
     def shutdown(self):
@@ -53,9 +63,14 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
 
-    def makedbtables(self):
+    def makedbtables_all(self):
         """Implemented by subclass to create all database tables from registered models."""
         pass
+
+    def makedbtable_one(self, tablename):
+        """Implemented by subclass to create all database tables from registered models."""
+        pass
+
 
 
     def set_databasesettings(self, databasesettings):
@@ -175,6 +190,19 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
 
+    def create_tableandmapper_foroneclass(self, modelclass):
+        """We are ready to create all fields, THEN all relationships, for a specific model classes."""
+        # It's important that we create all tabled before we try making ANY relationships, etc.
+        self.create_prerequisites_formodelclass(modelclass)
+        self.create_table_formodelclass(modelclass)
+        self.create_mapper_formodelclass(modelclass)
+        # now ask db engine to actually BUILD all tables for all models
+        self.makedbtable_one(modelclass.get_dbtablename())
+        # mark models as ready to be used
+        self.set_isreadytodb_formodelclass(modelclass)
+
+
+
     def create_tableandmapper_forallmodelclasses(self):
         """We are ready to create all fields, THEN all relationships, for known model classes."""
         # It's important that we create all tabled before we try making ANY relationships, etc.
@@ -182,7 +210,7 @@ class MewloDatabaseManager(manager.MewloManager):
         self.create_table_forallmodelclasses()
         self.create_mapper_forallmodelclasses()
         # now ask db engine to actually BUILD all tables for all models
-        self.makedbtables()
+        self.makedbtables_all()
         # mark models as ready to be used
         self.set_isreadytodb_forallmodelclasses()
 
@@ -281,46 +309,6 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
 
-
-
-
-    def create_early_database_classes(self, eventlist):
-        """Setup some database classes.
-        ATTN: We may want to move this elsewhere eventually.
-        """
-        # create some really early database model classes that must exist prior to other early stuff
-        # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
-        newclass = self.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
-        self.register_modelclass(self, newclass)
-        newclass = self.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
-        self.register_modelclass(self, newclass)
-        #
-        self.register_modelclass(self, mdbmodel_gob.MewloDbModel_Gob)
-        # and to create the tables for them, etc.
-        self.create_tableandmapper_forallmodelclasses()
-
-
-
-
-
-
-
-    def create_core_database_classes(self, eventlist):
-        """Setup some database classes.
-        ATTN: We may want to move this elsewhere eventually.
-        """
-        # ATTN: Again, we should do this elsewhere
-        self.register_modelclass(self, muser.MewloUser)
-        self.register_modelclass(self, mgroup.MewloGroup)
-        self.register_modelclass(self, mrbac.MewloRole)
-        self.register_modelclass(self, mrbac.MewloRoleHierarchy)
-        self.register_modelclass(self, mrbac.MewloRoleAssignment)
-        # session
-        self.register_modelclass(self, msession.MewloSession)
-        # verification
-        self.register_modelclass(self, mverification.MewloVerification)
-        # and to create the tables for them, etc.
-        self.create_tableandmapper_forallmodelclasses()
 
 
 

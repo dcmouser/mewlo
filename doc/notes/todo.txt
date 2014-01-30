@@ -166,6 +166,8 @@ My suggestion:
 11. Places where we need to iterate managers/helpers: init, startup, shutdown, dumps
 12. The msite.py module needs the real cleaning in this regard
 13. All managers/helpers should take argument 'flag_debugmost' at construction, then mewlosite,eventlist at startup, and nothing at shutdown
+
+See the managers.rst help document for more justification
 //---------------------------------------------------------------------------
 
 
@@ -177,4 +179,32 @@ My suggestion:
 //---------------------------------------------------------------------------
 1/30/14
 pathprefix for route groups is not going to obey recursive relative paths
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+1/30/14
+in mdbmanager.py we have two functions which do not belong here:
+create_early_database_classes()
+create_core_database_classes()
+
+these functions are needed to inform sqlalchemy to create the models and tables, etc.
+
+find a way to get that code into the managers classes
+
+also see mdbsettings as well for some awkward use of registry to get the database object model for use with settings/ i think it may make more sense 
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+1/30/14
+the use of 
+        self.dbmanager.register_modelclass(self, self.logclass)
+        #self.dbmanager.create_tableandmapper_foroneclass(self.logclass)
+				dbmanager.create_tableandmapper_forallmodelclasses()
+is really kludgey and messy; has to be a better way to ask all managers to register their database classes en masse before starting up.
+
+add a register_databaseclasses() function to managers
 //---------------------------------------------------------------------------

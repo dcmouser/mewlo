@@ -68,11 +68,21 @@ class MewloLogManager(manager.MewloManager):
         self.is_shuttingdown = False
 
 
+    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+        """Startup everything."""
+        super(MewloLogManager,self).prestartup_register_dbclasses(mewlosite, eventlist)
+        for logger in self.loggers:
+            logger.prestartup_register_dbclasses(mewlosite, eventlist)
+
+
     def startup(self, eventlist):
-        """Startup everything, we are about to exit."""
+        """Startup everything."""
         super(MewloLogManager,self).startup(eventlist)
         for logger in self.loggers:
             logger.startup(self.mewlosite, eventlist)
+
+
+
 
 
     def shutdown(self):
@@ -180,6 +190,8 @@ class MewloLogFilter(object):
     def __init__(self):
         self.andfilters = []
 
+    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+        pass
 
     def startup(self, mewlosite, eventlist):
         """Any initial startup to do?"""
@@ -366,10 +378,17 @@ class MewloLogTarget(object):
         return self.stopprocessing
 
 
+    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+        """Startup everything."""
+        pass
+
 
     def startup(self, mewlosite, eventlist):
         """Any initial startup to do?"""
         self.startedup = True
+
+
+
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
@@ -498,11 +517,18 @@ class MewloLogger(object):
         """Append a filter.  Multiple appended filters are treated like OR conditions (you can simulate AND by chaining filters together."""
         self.filters.append(filter)
 
-
-
     def add_target(self, target):
         """Append a target.  Targets will be run when the filters match. Multiple appended targets will be run in sequence."""
         self.targets.append(target)
+
+
+
+    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+        """Startup everything."""
+        for filter in self.filters:
+            filter.prestartup_register_dbclasses(mewlosite, eventlist)
+        for target in self.targets:
+            target.prestartup_register_dbclasses(mewlosite, eventlist)
 
 
     def startup(self, mewlosite, eventlist):
@@ -511,6 +537,7 @@ class MewloLogger(object):
             filter.startup(mewlosite, eventlist)
         for target in self.targets:
             target.startup(mewlosite, eventlist)
+
 
 
     def shutdown(self):

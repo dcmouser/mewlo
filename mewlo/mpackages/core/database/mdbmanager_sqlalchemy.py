@@ -93,11 +93,19 @@ class DbmSqlAlchemyHelper(object):
         return self.dbmanager.resolve(text)
 
 
-    def makedbtable(self):
-        # create table if it doesn't exist
+    def sqlahelper_makedbtables_all(self):
+        # create any tables that don't exit
         if (self.metadata!=None):
             self.dbcommit()
             self.metadata.create_all()
+
+    def sqlahelper_makedbtable_one(self, tablename):
+        # create one table if it doesn't exist
+        if (self.metadata!=None):
+            self.dbcommit()
+            self.metadata.create_all(tables=[tablename])
+
+
 
 
 
@@ -159,17 +167,31 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-    def startup(self, eventlist):
-        # call parent func
-        super(MewloDatabaseManagerSqlA,self).startup(eventlist)
+    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+        """Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup."""
+        super(MewloDatabaseManagerSqlA,self).prestartup_register_dbclasses(mewlosite, eventlist)
+        # this needs to be done at this state so it's ready for database table creation, etc.
+        self.setup_sqlahelpers(eventlist)
+
+    def setup_sqlahelpers(self, eventlist):
         # create helpers
-        #print "ATTN: DATABASE SETTINGS2 ARE: "+str(self.databasesettings)
+        # print "ATTN: DATABASE SETTINGS2 ARE: "+str(self.databasesettings)
         for key,val in self.databasesettings.iteritems():
             self.alchemyhelpers[key] = DbmSqlAlchemyHelper(self, val)
         # settings
         self.sqlalchemy_loglevel = get_value_from_dict(self.databasesettings['settings'],'sqlalchemy_loglevel',logging.DEBUG)
         # let's put in place some log catchers
         self.setup_logcatchers()
+
+
+    def startup(self, eventlist):
+        # call parent func
+        super(MewloDatabaseManagerSqlA,self).startup(eventlist)
+
+
+
+
+
 
 
 
@@ -374,23 +396,19 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-
-
-
-
-
-
-
-
-    def makedbtables(self):
+    def makedbtables_all(self):
         """
         Ask sqlalchemy to build the actual tables for the models that have been created so-far.
         NOTE: we may call this more than once; once initially for some early models we need, and then later after startup completes.
         """
         for key,val in self.alchemyhelpers.iteritems():
-            val.makedbtable()
+            val.sqlahelper_makedbtables_all()
 
 
+    def makedbtable_one(self, tablename):
+        # create one table if it doesn't exist
+        for key,val in self.alchemyhelpers.iteritems():
+            val.sqlahelper_makedbtable_one(tablename)
 
 
 

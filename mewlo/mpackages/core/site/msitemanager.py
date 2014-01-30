@@ -30,13 +30,15 @@ class MewloSiteManager(object):
     """
 
 
-    def __init__(self, debugmode, siteclass=None):
+    def __init__(self, debugmode, siteclass=None, commandlineargs=None):
         # the collection of sites that this manager takes care of
         self.sites = list()
         self.prepeventlist = mevent.EventList()
+        self.commandlineargs = commandlineargs
+        self.debugmode = debugmode
         # if a siteclass was pased, create it
         if (siteclass!=None):
-            self.create_add_site_from_class(siteclass, debugmode)
+            self.create_add_site_from_class(siteclass)
 
 
     def add_site(self, site):
@@ -64,10 +66,10 @@ class MewloSiteManager(object):
 
 
 
-    def create_add_site_from_class(self, siteclass, debugmode):
+    def create_add_site_from_class(self, siteclass):
         """Instatiate a site class and set it to be owned by use."""
         # instantiate the site
-        site = siteclass(debugmode)
+        site = siteclass(self.debugmode, self.commandlineargs)
         # early setup stuff for site
         site.setup_early()
         # tell the site we are the sitemanager for it
@@ -389,25 +391,25 @@ class MewloSiteManager(object):
         args = parser.parse_args()
 
         # Create a site manager and ask it to instantiate a site of the class we specify
-        sitemanager = MewloSiteManager(args.debug, siteclass)
+        sitemanager = MewloSiteManager(args.debug, siteclass, args)
 
         # early stuff
-        sitemanager.do_main_commandline_early(args)
+        sitemanager.do_main_commandline_early()
 
         # return it
         return args, sitemanager
 
 
 
-    def do_main_commandline_early(self, args):
+    def do_main_commandline_early(self):
         """Commandline early default processing."""
 
         # startup sites - this will generate any preparation errors
         self.startup()
 
-        flag_debugsite = args.debug
-        flag_updates_check = args.updatecheck
-        flag_updates_run = args.updaterun
+        # some other flags
+        flag_updates_check = self.commandlineargs.updatecheck
+        flag_updates_run = self.commandlineargs.updaterun
 
         # update checking?
         if (flag_updates_check):
@@ -424,20 +426,20 @@ class MewloSiteManager(object):
             print eventlist.dumps()
 
         # display some debug info
-        if (flag_debugsite):
+        if (self.debugmode):
             print "Debugging site manager."
             print self.dumps()
 
 
 
 
-    def do_main_commandline_late(self, args):
+    def do_main_commandline_late(self):
         """Commandline late default processing."""
 
         # some things we can only do if everything went well enough to serve
         if (self.is_readytoserve()):
             # run server?
-            if (args.runserver):
+            if (self.commandlineargs.runserver):
                 # start serving the web server and process all web requests
                 print "Starting web server."
                 self.create_and_start_webserver_wsgiref()

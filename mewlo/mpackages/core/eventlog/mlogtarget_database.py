@@ -31,8 +31,7 @@ class MewloLogTarget_Database(MewloLogTarget):
         self.dbmanager = None
 
 
-
-    def startup(self, mewlosite, eventlist):
+    def prestartup_register_dbclasses(self, mewlosite, eventlist):
         """Startup everything."""
         # create the logging class we will use for this table
         customclassname = self.baseclass.__name__ + '_' + self.tablename
@@ -41,6 +40,10 @@ class MewloLogTarget_Database(MewloLogTarget):
         self.logclass = self.dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
         # now register it
         self.dbmanager.register_modelclass(self, self.logclass)
+
+
+    def startup(self, mewlosite, eventlist):
+        """Startup everything."""
         # parent
         super(MewloLogTarget_Database,self).startup(mewlosite, eventlist)
 

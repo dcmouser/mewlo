@@ -55,14 +55,15 @@ class MewloSite(object):
 
 
 
-    def __init__(self, sitemodulename, debugmode):
+    def __init__(self, sitemodulename, debugmode, commandlineargs):
         # Nothing that could fail should be done in this __init__ -- save that for later functions
 
-        # set global variable
-        mglobals.set_mewlosite(self)
-
-        # debugmode may be used for very early debug information
+        # save debugmode and commandline args
         self.debugmode = debugmode
+        self.commandlineargs= commandlineargs
+
+        # set global variable (not currently used)
+        mglobals.set_mewlosite(self)
 
         # some defaults which will be overridden by settings
         self.sitename = self.__class__.__name__
@@ -119,7 +120,7 @@ class MewloSite(object):
         self.createappendcomp('rbacmanager', mrbac.MewloRbacManager)
 
         # create persistent(db) package settings
-        self.createappendcomp('packagesettings', mdbsettings.MewloSettingsDb, MewloSettings.DEF_DBCLASSNAME_PackageSettings)
+        self.createappendcomp('packagesettings', mdbsettings.MewloSettingsDb, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
 
         # collection of mewlo addon packages
         self.createappendcomp('packagemanager', mpackagemanager.MewloPackageManager)
@@ -180,6 +181,9 @@ class MewloSite(object):
         # update state
         self.set_statelabel(MewloSettings.DEF_SITESTATE_STARTUP_END)
 
+        # commit any pending db stuff (normally we commit after each request)
+        self.comp('dbmanager').commit_all_dbs()
+
         # and return the eventlist
         return eventlist
 
@@ -190,21 +194,21 @@ class MewloSite(object):
 
         # walk the component list
         for key,obj in self.components.get_tuplelist():
-            # pre startup
-            obj.prestartup(eventlist)
+            # pre startup - register database classes
+            obj.prestartup_register_dbclasses(self, eventlist)
+
+        # now that all database models have been registered with the system, finalize creation of models -- create all db tables, etc
+        self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
 
         # walk the component list
         for key,obj in self.components.get_tuplelist():
             # start up the component
             obj.startup(eventlist)
-            obj.startup_stage2(eventlist)
 
         # walk the component list
         for key,obj in self.components.get_tuplelist():
             # post startup
             obj.poststartup(eventlist)
-
-
 
 
 

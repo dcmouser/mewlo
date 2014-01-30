@@ -61,8 +61,8 @@ class MewloSettings(manager.MewloManager):
     # database classes
     DEF_DBCLASSNAME_PackageSettings = 'DbModel_Settings_Package'
     DEF_DBTABLENAME_PackageSettings = 'settings_package'
-    DEF_DBCLASSNAME_MainSettings = 'DbModel_Settings_Main'
-    DEF_DBTABLENAME_MainSettings = 'settings_main'
+    #DEF_DBCLASSNAME_MainSettings = 'DbModel_Settings_Main'
+    #DEF_DBTABLENAME_MainSettings = 'settings_main'
 
 
 

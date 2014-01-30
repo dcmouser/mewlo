@@ -88,11 +88,6 @@ class MewloPackageManager(manager.MewloManager):
         if (True):
             self.startup_packages(eventlist)
 
-    def poststartup(self, eventlist):
-        # Now we are ready to create the rest of the core database classes and any new db classes added by package manager (maybe this can wait until end?)
-        # ATTN: why are we doing this here after packagemanager?
-        self.mewlosite.comp('dbmanager').create_core_database_classes(eventlist)
-
 
 
     def startup_packages(self, eventlist):

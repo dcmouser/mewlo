@@ -15,17 +15,13 @@ class MewloManager(object):
     def __init__(self, mewlosite, debugmode):
         self.mewlosite = mewlosite
 
-    def prestartup(self, eventlist):
-        """Called before startup."""
+    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+        """Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup."""
         pass
 
     def startup(self, eventlist):
         """Startup everything."""
         self.mewlosite.logevent("Startup of manager ({0}).".format(self.__class__.__name__))
-
-    def startup_stage2(self, eventlist):
-        """Called after startup."""
-        pass
 
     def poststartup(self, eventlist):
         """Called after startup."""

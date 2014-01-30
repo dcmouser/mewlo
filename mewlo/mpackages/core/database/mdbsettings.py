@@ -9,6 +9,7 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 # helper imports
 from ..setting.msettings import MewloSettings
 from ..helpers.misc import get_value_from_dict
+from ..database import mdbmodel_settings
 
 # python imports
 import datetime
@@ -34,24 +35,29 @@ class MewloSettingsDb(MewloSettings):
         * Why are we starting up and initializing using a dbmodelclassNAME and then looking up the name in the registry? Why not pass in directly the modelclass used for settings
     """
 
-    def __init__(self, mewlosite, debugmode, dbmodelclassname):
+    def __init__(self, mewlosite, debugmode, dbmodelclassname, dbmodeltablename):
         # parent constructor
         super(MewloSettingsDb, self).__init__(mewlosite, debugmode)
         # init - record the class name we use and clear some values
         self.dbmodelclassname = dbmodelclassname
+        self.dbmodeltablename = dbmodeltablename
         self.dbmodelclass = None
         # keep track of date of last database sync
         self.sync_timestamps = {}
         self.sync_timestamp_all = None
 
 
+    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+        """Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup."""
+        dbmanager = mewlosite.comp('dbmanager')
+        self.dbmodelclass = dbmanager.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, self.dbmodelclassname, self.dbmodeltablename)
+        dbmanager.register_modelclass(self, self.dbmodelclass)
+
 
     def startup(self, eventlist):
         """Any initial startup stuff to do?"""
         # parent constructor
         super(MewloSettingsDb, self).startup(eventlist)
-        # get the partner modelclass to use to actually do the settings database storage
-        self.dbmodelclass = self.mewlosite.comp('registrymanager').get_class(self.dbmodelclassname);
 
 
     def shutdown(self):
