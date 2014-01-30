@@ -65,7 +65,7 @@ class MewloLogManager(manager.MewloManager):
         self.loggers = []
         self.pythonlogginghooks = []
         self.debugmode = debugmode
-
+        self.is_shuttingdown = False
 
 
     def startup(self, eventlist):
@@ -86,6 +86,8 @@ class MewloLogManager(manager.MewloManager):
             pythonloghandler = pythonlogginghook['pythonloghandler']
             pythonlogger.removeHandler(pythonloghandler)
         self.pythonlogginghooks = []
+        # turn off logging
+        self.is_shuttingdown = True
 
 
     def add_pythonlogginghook(self, pythonlogger, pythonloghandler):
@@ -107,6 +109,11 @@ class MewloLogManager(manager.MewloManager):
     def process(self, logmessage):
         """Process a logmessage(Event), by allowing each of our attached loggers to handle it."""
         #print "PROCESSING MESSAGE "+str(logmessage)+ " for "+str(len(self.loggers))+" loggers."
+
+        if (self.is_shuttingdown):
+            print "The LogManager is shut down -- the following message was not formally logged: "+str(logmessage)
+            return False
+
         wrotecount = 0
         for logger in self.loggers:
             bretv = logger.process(logmessage)

@@ -5,7 +5,6 @@ This file contains classes to support url routes
 
 
 # mewlo imports
-from .. import mglobals
 from ..controller import mcontroller
 from ..eventlog.mevent import EFailure, EFailureExtend
 from ..manager import manager

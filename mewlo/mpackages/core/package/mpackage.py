@@ -232,7 +232,7 @@ class MewloPackage(object):
             return EFailure("Package class object '{0}' was found in package module, but could not be instantiated.".format(packageobject_classname))
 
         # always prepare it first
-        failure = packageobj.prepare(self.get_mewlosite().packagesettings)
+        failure = packageobj.prepare(self.get_mewlosite().comp('packagesettings'))
         if (failure != None):
             # failure to prepare, so we let it go and return the failure
             packageobj = None

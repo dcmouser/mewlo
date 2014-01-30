@@ -7,9 +7,6 @@ LogTarget subclass that writes to database table
 from __future__ import print_function
 
 # mewlo imports
-from .. import mglobals
-
-# helper imports
 from mlogger import MewloLogTarget
 
 # python imports

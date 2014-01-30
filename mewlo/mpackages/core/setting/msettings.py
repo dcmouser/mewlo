@@ -11,10 +11,10 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 
 # helper imports
 from ..helpers.misc import get_value_from_dict
+from ..manager import manager
 
 
-
-class MewloSettings(object):
+class MewloSettings(manager.MewloManager):
     """
     The MewloSettings class stores a hierarchical dictionary of settings
     """
@@ -69,22 +69,11 @@ class MewloSettings(object):
 
 
     def __init__(self, mewlosite, debugmode):
-        self.mewlosite = mewlosite
+        # parent constructor
+        super(MewloSettings, self).__init__(mewlosite, debugmode)
+        #
         self.settingdict = {}
-        # init some sections, so we can get early references to them
-        #self.settingdict[self.DEF_SECTION_aliases] = {}
 
-    def startup(self, eventlist):
-        """Any initial startup stuff to do?"""
-        pass
-
-    def poststartup(self, eventlist):
-        """Any post initial startup stuff to do?"""
-        pass
-
-    def shutdown(self):
-        """Shutdown"""
-        pass
 
 
     def remove_all(self):

@@ -61,29 +61,47 @@ class MewloSite(object):
         # set global variable
         mglobals.set_mewlosite(self)
 
-        # default debugmode
+        # debugmode may be used for very early debug information
         self.debugmode = debugmode
-        # set site name
+
+        # some defaults which will be overridden by settings
         self.sitename = self.__class__.__name__
+        self.siteurl_relative = ''
+
         # record package of the site for relative imports
         self.sitemodulename = sitemodulename
+
         # init misc. settings
         self.sitemanager = None
         self.controllerroot = None
         self.fallbacklogger = None
         self.isenabled = False
-        self.siteurl_relative = ''
-        # components
+
+        # create all components
+        self.create_allcomponents()
+
+        # now update site state
+        self.set_statelabel(MewloSettings.DEF_SITESTATE_INITIALIZE_END)
+
+
+
+
+
+
+
+
+
+    def create_allcomponents(self):
+        """Create all the various components we uses."""
+
+        # we store all components in a list/hash which we iterate for startup/shutdown/dumps debugging, and which can be used to lookup components
         self.components = MDictList()
-
-
-
 
         # setup log manager helper early so that log manager can receive messages
         self.createappendcomp('logmanager', mlogger.MewloLogManager)
 
-        # now update site state
-        self.set_state(MewloSettings.DEF_SITESTATE_INITIALIZE_START)
+        # now update site state (log manager should catch this)
+        self.set_statelabel(MewloSettings.DEF_SITESTATE_INITIALIZE_START)
 
         # create (non-db-persistent) site settings -- these are set by configuration at runtime
         self.settings = self.createappendcomp('settings', MewloSettings)
@@ -101,7 +119,7 @@ class MewloSite(object):
         self.createappendcomp('rbacmanager', mrbac.MewloRbacManager)
 
         # create persistent(db) package settings
-        self.packagesettings = self.createappendcomp('packagesettings', mdbsettings.MewloSettingsDb, MewloSettings.DEF_DBCLASSNAME_PackageSettings)
+        self.createappendcomp('packagesettings', mdbsettings.MewloSettingsDb, MewloSettings.DEF_DBCLASSNAME_PackageSettings)
 
         # collection of mewlo addon packages
         self.createappendcomp('packagemanager', mpackagemanager.MewloPackageManager)
@@ -118,10 +136,10 @@ class MewloSite(object):
         # template manager
         self.createappendcomp('templatemanager', mtemplate.MewloTemplateManager)
 
-        # assetmanager
+        # asset and alias manager
         self.createappendcomp('assetmanager', massetmanager.MewloAssetManager)
 
-        # template helper
+        # template helper (this is available inside template/views and provides helper functions like navigation menus, etc.)
         self.createappendcomp('templatehelper', mtemplatehelper.MewloTemplateHelper)
 
         # session helper
@@ -129,33 +147,6 @@ class MewloSite(object):
 
         # verification helper
         self.createappendcomp('verificationmanager', mverificationmanager.MewloVerificationManager)
-
-        # update state
-        self.set_state(MewloSettings.DEF_SITESTATE_INITIALIZE_END)
-
-
-
-
-    def comp(self, componentname):
-        return self.components.lookup(componentname)
-
-    def appendcomp(self, componentname, component):
-        self.components.append(componentname, component)
-        return component
-
-    def createappendcomp(self, componentname, componentclass, *args, **kwargs):
-        component = componentclass(self, self.debugmode, *args, **kwargs)
-        self.components.append(componentname, component)
-        return component
-
-
-
-
-    def get_isenabled(self):
-        return self.isenabled
-
-    def get_siteprefix(self):
-        return self.siteprefix
 
 
 
@@ -169,7 +160,7 @@ class MewloSite(object):
         """
 
         # update state
-        self.set_state(MewloSettings.DEF_SITESTATE_STARTUP_START)
+        self.set_statelabel(MewloSettings.DEF_SITESTATE_STARTUP_START)
 
         # we log errors/warnings to an eventlist and return it; either one we are passed or we create a new one if needed
         if (eventlist == None):
@@ -187,7 +178,7 @@ class MewloSite(object):
         self.logevents(eventlist)
 
         # update state
-        self.set_state(MewloSettings.DEF_SITESTATE_STARTUP_END)
+        self.set_statelabel(MewloSettings.DEF_SITESTATE_STARTUP_END)
 
         # and return the eventlist
         return eventlist
@@ -199,8 +190,17 @@ class MewloSite(object):
 
         # walk the component list
         for key,obj in self.components.get_tuplelist():
+            # pre startup
+            obj.prestartup(eventlist)
+
+        # walk the component list
+        for key,obj in self.components.get_tuplelist():
             # start up the component
             obj.startup(eventlist)
+            obj.startup_stage2(eventlist)
+
+        # walk the component list
+        for key,obj in self.components.get_tuplelist():
             # post startup
             obj.poststartup(eventlist)
 
@@ -214,13 +214,13 @@ class MewloSite(object):
         """Shutdown everything."""
 
         # update state
-        self.set_state(MewloSettings.DEF_SITESTATE_SHUTDOWN_START)
+        self.set_statelabel(MewloSettings.DEF_SITESTATE_SHUTDOWN_START)
 
         # now shut down all site components
         self.shutdown_allcomponents()
 
         # update state (note this won't be logged since we will have shutdown log/db by now)
-        self.set_state(MewloSettings.DEF_SITESTATE_SHUTDOWN_END)
+        self.set_statelabel(MewloSettings.DEF_SITESTATE_SHUTDOWN_END)
 
         # done
         return eventlist
@@ -248,11 +248,46 @@ class MewloSite(object):
 
 
 
-    def ensure_earlydatabasemodels_mapped(self):
-        """Some database models must be defined in early startup."""
-        #modelclasslist = []
-        #self.dbmanager.earlycreate_formodelclasslist(modelclasslist)
-        pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -266,7 +301,11 @@ class MewloSite(object):
 
 
     def preprocess_settings(self, eventlist):
-        """We may want to preprocess/cache some settings before we start."""
+        """
+        This function is used to preprocess/cache some settings before we start.
+        This function is called early in the startup() function.
+        """
+
         # cache some stuff?
         self.controllerroot = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_controllerroot)
         # package manager settings
@@ -284,7 +323,10 @@ class MewloSite(object):
 
 
     def validatesettings(self, eventlist=None):
-        """Validate settings and return an EventList with errors and warnings"""
+        """
+        Validate settings and return an EventList with errors and warnings.
+        This function is called early in the startup() function, after preprocess_settings().
+        """
         if (eventlist == None):
             eventlist = EventList()
         #
@@ -347,7 +389,6 @@ class MewloSite(object):
         # log it
         self.comp('logmanager').process(event)
 
-
     def logevents(self, events, request = None):
         """Shortcut to add a log message from a *possible* iterable of events."""
         for event in events:
@@ -362,6 +403,49 @@ class MewloSite(object):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def comp(self, componentname):
+        """Shortcut to look up a component."""
+        return self.components.lookup(componentname)
+
+    def appendcomp(self, componentname, component):
+        """Shortcut to append an already created component."""
+        self.components.append(componentname, component)
+        return component
+
+    def createappendcomp(self, componentname, componentclass, *args, **kwargs):
+        """Shortcut to create and then append a component by class."""
+        component = componentclass(self, self.debugmode, *args, **kwargs)
+        self.components.append(componentname, component)
+        return component
+
+
+
+
+
+
+    def get_isenabled(self):
+        """Simple accessor for isenabled flag."""
+        return self.isenabled
+
+    def get_siteprefix(self):
+        """Simple accessor for site prefix (defines a prefix for the url of the site)."""
+        return self.siteprefix
+
+
     def set_debugmode(self, val):
         """Set debugmode for the site, which may also have to pass on this value to components."""
         self.debugmode = val
@@ -371,37 +455,42 @@ class MewloSite(object):
         """Return the debubmode."""
         return self.debugmode
 
-
-
-    def set_state(self, stateval):
-        self.state = stateval
+    def set_statelabel(self, statelabel):
+        """For debugging we keep track of startup state progression."""
+        self.statelabel = statelabel
         if (self.get_debugmode()):
-            self.logevent("Site changes to state '{0}'.".format(stateval))
+            self.logevent("Site changes to state '{0}'.".format(statelabel))
+
+
+    def get_sitename(self):
+        """Simple accessor."""
+        return self.sitename
+
+    def get_id(self):
+        """
+        The get_id() function is a generic one that we use in several places where we have a hierarchy of objects (for example routegroups).
+        Introspection will cause it to be used when displaying debug information.
+        """
+        return self.get_sitename()
+
 
     def set_sitemanager(self, sitemanager):
         """Set sitemanager reference."""
         self.sitemanager = sitemanager
 
     def get_controllerroot(self):
+        """Simple accessor."""
         return self.controllerroot
-    def get_sitename(self):
-        return self.sitename
-    def get_id(self):
-        # generic get_id function used in lots of places to help display debug info
-        return self.get_sitename()
-
 
     def get_sitemodulename(self):
         """Return import of ourself; useful for relative importing."""
         return self.sitemodulename
-
 
     def get_installdir(self):
         """Get the directory path of the mewlo installation from the mewlo package."""
         import mewlo
         path = os.path.dirname(os.path.realpath(mewlo.__file__))
         return path
-
 
     def get_root_package_directory_list(self):
         """Return a list of directories in the base/install path of Mewlo, where addon packages should be scanned"""
@@ -412,7 +501,6 @@ class MewloSite(object):
 
     def get_site_package_directory_list(self):
         """Return a list of absolute directory paths where (addon) packages should be scanned"""
-
         packagedirectories = []
         sitepackages = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_pkgdirimps_sitempackages)
         if (sitepackages == None):
@@ -437,6 +525,39 @@ class MewloSite(object):
         modpath = self.sitemodulename
         dirpath = join(modpath.split('.')[:-1], '.')
         return dirpath
+
+
+    def is_readytoserve(self):
+        """Check if there were any site prep errors, OR if any packages report they are not ready to run (need update, etc.)."""
+        isreadytoserve = True
+        if (not self.comp('packagemanager').is_readytoserve()):
+            isreadytoserve = False
+        return isreadytoserve
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -468,7 +589,10 @@ class MewloSite(object):
 
 
     def setup_early(self):
-        """Do early setup stuff.  Most of the functions invoked here are empty and are intended for subclasses to override."""
+        """
+        Do early setup stuff.  Most of the functions invoked here are empty and are intended for subclasses to override.
+        This function is called by MewloSiteManager, right after site object is instantiated, before startup()
+        """
         self.add_earlydefault_settings()
         self.add_settings_early()
         self.add_latesettings_aliases()
@@ -480,9 +604,28 @@ class MewloSite(object):
         self.add_fallback_loggers()
 
 
+    def add_earlydefault_settings(self):
+        """Set some default overrideable settings."""
+        self.add_default_settings_config()
+        self.add_default_settings_aliases()
+
+
     def add_settings_early(self):
         """Does nothing in base class, but subclass can overide."""
         pass
+
+
+    def add_latesettings_aliases(self):
+        """Add some late aliases."""
+        aliases = {
+            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_absolute),
+            MewloSettings.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_relative,''),
+            MewloSettings.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitefilepath),
+            MewloSettings.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitename),
+            }
+        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
+        self.alias_settings_change()
+
 
     def add_loggers(self):
         """Does nothing in base class, but subclass can overide."""
@@ -501,21 +644,32 @@ class MewloSite(object):
         pass
 
 
+    def add_fallback_loggers(self):
+        """Create any default fallback loggers that we should always put in place."""
+        # We create a fallback default file logger that will log everything from current run to file, and reset each run
+        # ATTN:TODO - we will want to later change this to logrotate or something
+
+        # create a single logger (with no filters); multiple loggers are supported because each logger can have filters that define what this logger filters out
+        self.fallbacklogger = self.add_logger(MewloLogger('FallbackLogger'))
+
+        # now add some targets (handlers) to it
+        fpath = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_default_logfilename)
+        self.fallbacklogger.add_target(MewloLogTarget_File(filename=self.resolve(fpath), filemode='w'))
 
 
 
 
 
 
-    def merge_settings(self, settings):
-        """Merge in some settings to our site settings."""
-        self.settings.merge_settings(settings)
 
 
-    def add_earlydefault_settings(self):
-        """Set some default overrideable settings."""
-        self.add_default_settings_config()
-        self.add_default_settings_aliases()
+
+
+
+
+
+
+
 
 
     def add_default_settings_config(self):
@@ -536,27 +690,31 @@ class MewloSite(object):
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
 
 
-    def add_latesettings_aliases(self):
-        """Add some late aliases."""
-        aliases = {
-            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_absolute),
-            MewloSettings.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_relative,''),
-            MewloSettings.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitefilepath),
-            MewloSettings.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_sitename),
-            }
-        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
-        self.alias_settings_change()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def merge_settings(self, settings):
+        """Merge in some settings to our site settings."""
+        self.settings.merge_settings(settings)
 
 
     def alias_settings_change(self):
         """Inform asset manager of new alias settings.  This *must* be called whenever alias settings may change."""
         self.comp('assetmanager').set_alias_settings(self.settings.get_value(MewloSettings.DEF_SECTION_aliases))
-
-
-
-
-
-
 
 
     def add_logger(self, logger):
@@ -565,17 +723,19 @@ class MewloSite(object):
         return logger
 
 
-    def add_fallback_loggers(self):
-        """Create any default fallback loggers that we should always put in place."""
-        # We create a fallback default file logger that will log everything from current run to file, and reset each run
-        # ATTN:TODO - we will want to later change this to logrotate or something
 
-        # create a single logger (with no filters); multiple loggers are supported because each logger can have filters that define what this logger filters out
-        self.fallbacklogger = self.add_logger(MewloLogger('FallbackLogger'))
 
-        # now add some targets (handlers) to it
-        fpath = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_default_logfilename)
-        self.fallbacklogger.add_target(MewloLogTarget_File(filename=self.resolve(fpath), filemode='w'))
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -673,7 +833,7 @@ class MewloSite(object):
             return False
 
         # if the request does not match site prefix, then it's not a match for this site
-        if (not self.request_match_siteprefix(request)):
+        if (not self.does_request_match_siteprefix(request)):
             return False;
 
         # ok, looks like it was meant for us
@@ -736,7 +896,7 @@ class MewloSite(object):
 
 
 
-    def request_match_siteprefix(self, request):
+    def does_request_match_siteprefix(self, request):
         """See if the request matches the prefix for this site (which could be blank)."""
         if (self.siteurl_relative == ''):
             return True
@@ -767,8 +927,13 @@ class MewloSite(object):
 
 
 
-# these just shortcut to assetmanager
 
+
+
+
+
+
+    # these just shortcut to assetmanager
     def resolve(self, text):
         return self.comp('assetmanager').resolve(text)
 
@@ -799,19 +964,7 @@ class MewloSite(object):
 
 
 
-    @classmethod
-    def create_manager_and_instantiate_site(cls):
-        """
-        This is a convenience (class) helper function to aid in testing of MewloSite derived classes.
-        So the following two lines of code are equivelent:
-            sitemanager = MewloSiteManager(MewloSite_Test1)
-            sitemanager = MewloSite_Test1.create_manager_and_instantiate_site()
-        I find the former more readable; the only advantage of the latter is that it does not require us to import MewloSitemanager.
-        """
-        # create site manager and ask it to instantiate and take ownership of the site defined by the class
-        sitemanager = msitemanager.MewloSiteManager(cls)
-        # now return the manager
-        return sitemanager
+
 
 
 
@@ -823,6 +976,7 @@ class MewloSite(object):
         outstr += " "*indent + "Site settings validation:\n"
         outstr += (self.validatesettings()).dumps(indent+1)
         outstr += "\n"
+        # dumps all components
         outstr += self.components.dumps(indent)
         return outstr
 
@@ -831,14 +985,6 @@ class MewloSite(object):
 
 
 
-
-
-    def is_readytoserve(self):
-        """Check if there were any site prep errors, OR if any packages report they are not ready to run (need update, etc.)."""
-        isreadytoserve = True
-        if (not self.comp('packagemanager').is_readytoserve()):
-            isreadytoserve = False
-        return isreadytoserve
 
 
 
@@ -872,10 +1018,9 @@ class MewloSite(object):
         self.comp('packagemanager').updaterun_allpackages()
 
 
-
     def get_allpackage_events(self):
         """
-        Get combined eventlist for all packages on sites
+        Get combined eventlist (report on update checking, etc.) for all packages on sites
         """
         return self.comp('packagemanager').get_allpackage_events()
 

@@ -8,7 +8,6 @@ This file manages a test package
 from mewlo.mpackages.core.package import mpackageobject
 from mewlo.mpackages.core.signal import msignal
 from mewlo.mpackages.core.registry import mregistry
-from mewlo.mpackages.core import mglobals
 
 # helper imports
 from mewlo.mpackages.core.eventlog.mevent import EFailure, EWarning

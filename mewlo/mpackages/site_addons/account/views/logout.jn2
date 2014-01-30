@@ -1,0 +1,5 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+You are now logged out.
+
+{% include "${siteviewpath}/footer.jn2" %}

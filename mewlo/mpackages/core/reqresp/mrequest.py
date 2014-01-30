@@ -7,7 +7,6 @@ For now our requests are just lightly wrapped werkzeug requests.
 
 # mewlo imports
 import mresponse
-from .. import mglobals
 from ..user import muser
 
 # werkzeug imports

@@ -31,7 +31,7 @@ class MewloDatabaseManager(manager.MewloManager):
     def startup(self, eventlist):
         super(MewloDatabaseManager,self).startup(eventlist)
 
-    def poststartup(self, eventlist):
+    def startup_stage2(self, eventlist):
         """For database manager, post startup needs to ask site to do some stuff."""
         # we need to create some classes very early so that plugins can access them
         self.create_early_database_classes(eventlist)

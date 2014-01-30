@@ -8,7 +8,6 @@ Essentially we are just maintaining a hierarchical dictionary with some support 
 
 # helper imports
 from ..setting.msettings import MewloSettings
-from .. import mglobals
 from ..helpers.misc import get_value_from_dict
 
 # python imports
