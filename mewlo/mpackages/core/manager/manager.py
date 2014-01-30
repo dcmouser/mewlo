@@ -12,15 +12,16 @@ A base class for high-level site-helping managers.
 class MewloManager(object):
     """Base class for high-level site-helping managers; base class does little."""
 
-    def __init__(self):
-        self.mewlosite = None
-
-
-    def startup(self, mewlosite, eventlist):
-        """Startup everything."""
+    def __init__(self, mewlosite, debugmode):
         self.mewlosite = mewlosite
+
+    def startup(self, eventlist):
+        """Startup everything."""
         self.mewlosite.logevent("Startup of manager ({0}).".format(self.__class__.__name__))
 
+    def poststartup(self, eventlist):
+        """Called after startup."""
+        pass
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""

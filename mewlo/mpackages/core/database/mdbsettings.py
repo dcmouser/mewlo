@@ -35,9 +35,9 @@ class MewloSettingsDb(MewloSettings):
         * Why are we starting up and initializing using a dbmodelclassNAME and then looking up the name in the registry? Why not pass in directly the modelclass used for settings
     """
 
-    def __init__(self, dbmodelclassname):
+    def __init__(self, mewlosite, debugmode, dbmodelclassname):
         # parent constructor
-        super(MewloSettingsDb, self).__init__()
+        super(MewloSettingsDb, self).__init__(mewlosite, debugmode)
         # init - record the class name we use and clear some values
         self.dbmodelclassname = dbmodelclassname
         self.dbmodelclass = None
@@ -47,12 +47,12 @@ class MewloSettingsDb(MewloSettings):
 
 
 
-    def startup(self, mewlosite, eventlist):
+    def startup(self, eventlist):
         """Any initial startup stuff to do?"""
         # parent constructor
-        super(MewloSettingsDb, self).startup(mewlosite, eventlist)
+        super(MewloSettingsDb, self).startup(eventlist)
         # get the partner modelclass to use to actually do the settings database storage
-        self.dbmodelclass = mewlosite.comp('registrymanager').get_class(self.dbmodelclassname);
+        self.dbmodelclass = self.mewlosite.comp('registrymanager').get_class(self.dbmodelclassname);
 
 
     def shutdown(self):

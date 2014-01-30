@@ -147,10 +147,10 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
     DEF_SqlAlchemyLoggerName = 'sqlalchemy'
 
 
-    def __init__(self):
+    def __init__(self, mewlosite, debugmode):
         """constructor."""
         # call parent func
-        super(MewloDatabaseManagerSqlA,self).__init__()
+        super(MewloDatabaseManagerSqlA,self).__init__(mewlosite, debugmode)
         # init
         # helpers for different databases
         self.alchemyhelpers = {}
@@ -159,9 +159,9 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-    def startup(self, mewlosite, eventlist):
+    def startup(self, eventlist):
         # call parent func
-        super(MewloDatabaseManagerSqlA,self).startup(mewlosite, eventlist)
+        super(MewloDatabaseManagerSqlA,self).startup(eventlist)
         # create helpers
         #print "ATTN: DATABASE SETTINGS2 ARE: "+str(self.databasesettings)
         for key,val in self.databasesettings.iteritems():
@@ -170,6 +170,7 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         self.sqlalchemy_loglevel = get_value_from_dict(self.databasesettings['settings'],'sqlalchemy_loglevel',logging.DEBUG)
         # let's put in place some log catchers
         self.setup_logcatchers()
+
 
 
     def shutdown(self):

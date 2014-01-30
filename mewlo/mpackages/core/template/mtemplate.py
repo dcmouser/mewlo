@@ -49,12 +49,12 @@ class MewloTemplate(object):
 class MewloTemplateManager(manager.MewloManager):
     """The MewloTemplateManager class is the helper object which implements or interfaces to all template processing functionality."""
 
-    def __init__(self):
-        super(MewloTemplateManager,self).__init__()
+    def __init__(self, mewlosite, debugmode):
+        super(MewloTemplateManager,self).__init__(mewlosite, debugmode)
         self.templatetypes = []
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloTemplateManager,self).startup(mewlosite,eventlist)
+    def startup(self, eventlist):
+        super(MewloTemplateManager,self).startup(eventlist)
         # register some built in template types
         import mtemplate_jinja2
         self.register_templateclass(mtemplate_jinja2.MewloTemplate_Jinja2)

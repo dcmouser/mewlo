@@ -59,9 +59,9 @@ class MewloPackageManager(manager.MewloManager):
     classwide_packagemodules = {}
 
 
-    def __init__(self):
+    def __init__(self, mewlosite, debugmode):
         # stuff
-        super(MewloPackageManager,self).__init__()
+        super(MewloPackageManager,self).__init__(mewlosite, debugmode)
         self.dirlist = []
         self.infofilepaths = []
         self.filepatternsuffix = ''
@@ -79,14 +79,20 @@ class MewloPackageManager(manager.MewloManager):
 
 
 
-    def startup(self, mewlosite, eventlist):
+    def startup(self, eventlist):
         """Any initial startup stuff to do?"""
-        super(MewloPackageManager,self).startup(mewlosite, eventlist)
+        super(MewloPackageManager,self).startup(eventlist)
         # discover the packages in the package directories
         self.discover_packages(eventlist)
         # startup packages right away?
         if (True):
             self.startup_packages(eventlist)
+
+    def poststartup(self, eventlist):
+        # Now we are ready to create the rest of the core database classes and any new db classes added by package manager (maybe this can wait until end?)
+        # ATTN: why are we doing this here after packagemanager?
+        self.mewlosite.comp('dbmanager').create_core_database_classes(eventlist)
+
 
 
     def startup_packages(self, eventlist):

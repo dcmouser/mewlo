@@ -99,16 +99,16 @@ class MewloComponent(object):
 class MewloRegistryManager(manager.MewloManager):
     """The component registry."""
 
-    def __init__(self):
+    def __init__(self, mewlosite, debugmode):
         """Constructor."""
-        super(MewloRegistryManager,self).__init__()
+        super(MewloRegistryManager,self).__init__(mewlosite, debugmode)
         # init
         self.components = []
         self.componenthash = {}
 
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloRegistryManager,self).startup(mewlosite,eventlist)
+    def startup(self, eventlist):
+        super(MewloRegistryManager,self).startup(eventlist)
 
 
     def shutdown(self):

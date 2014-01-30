@@ -487,7 +487,7 @@ class MewloRouteGroup(object):
         """Initial preparation, invoked by parent."""
 
         self.parent = parent
-        # we want to propagage controllerroot from parent down
+        # we want to propagate controllerroot from parent down
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
         # recursive startup
@@ -591,14 +591,14 @@ class MewloRouteManager(manager.MewloManager):
     The MewloRouteManager class manages the routes in a site; it is a thin class that owns a single route group
     """
 
-    def __init__(self, id='', controllerroot=None, routes=None):
-        super(MewloRouteManager,self).__init__()
-        self.routegroup = MewloRouteGroup(id, controllerroot, routes)
+    def __init__(self, mewlosite, debugmode):
+        super(MewloRouteManager,self).__init__(mewlosite, debugmode)
+        self.routegroup = MewloRouteGroup('', None, None)
 
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloRouteManager,self).startup(mewlosite,eventlist)
-        self.routegroup.startup(mewlosite, mewlosite, eventlist)
+    def startup(self, eventlist):
+        super(MewloRouteManager,self).startup(eventlist)
+        self.routegroup.startup(self.mewlosite, self.mewlosite, eventlist)
         self.routegroup.build_routehash()
 
 

@@ -18,11 +18,11 @@ class MewloVerificationManager(manager.MewloManager):
     """The MewloVerificationManager class helps verification management."""
 
 
-    def __init__(self):
-        super(MewloVerificationManager,self).__init__()
+    def __init__(self, mewlosite, debugmode):
+        super(MewloVerificationManager,self).__init__(mewlosite, debugmode)
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloVerificationManager,self).startup(mewlosite,eventlist)
+    def startup(self, eventlist):
+        super(MewloVerificationManager,self).startup(eventlist)
 
     def shutdown(self):
         super(MewloVerificationManager,self).shutdown()

@@ -95,14 +95,14 @@ class MewloSiteAddonManager(manager.MewloManager):
     The MewloSiteAddonManager class manages a set of site addons
     """
 
-    def __init__(self):
-        super(MewloSiteAddonManager,self).__init__()
+    def __init__(self, mewlosite, debugmode):
+        super(MewloSiteAddonManager,self).__init__(mewlosite, debugmode)
         self.siteaddons = []
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloSiteAddonManager,self).startup(mewlosite,eventlist)
+    def startup(self, eventlist):
+        super(MewloSiteAddonManager,self).startup(eventlist)
         for siteaddon in self.siteaddons:
-            siteaddon.startup(mewlosite)
+            siteaddon.startup(self.mewlosite)
 
 
     def shutdown(self):

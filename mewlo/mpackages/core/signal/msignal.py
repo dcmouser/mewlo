@@ -163,17 +163,17 @@ class MewloSignalManager(manager.MewloManager):
     """The signal dispatcher."""
 
 
-    def __init__(self):
+    def __init__(self, mewlosite, debugmode):
         """Constructor."""
-        super(MewloSignalManager,self).__init__()
+        super(MewloSignalManager,self).__init__(mewlosite, debugmode)
         # init
         self.signals = []
         self.senders = []
         self.receivers = []
 
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloSignalManager,self).startup(mewlosite,eventlist)
+    def startup(self, eventlist):
+        super(MewloSignalManager,self).startup(eventlist)
         # and now the receivers and senders
         # ATTN: problem -- receivers are not created yet at this time, so this code is useless
         #print "ATTN: in signal dispatcher startup with {0} receivers.".format(len(self.receivers))

@@ -68,14 +68,19 @@ class MewloSettings(object):
 
 
 
-    def __init__(self):
+    def __init__(self, mewlosite, debugmode):
+        self.mewlosite = mewlosite
         self.settingdict = {}
         # init some sections, so we can get early references to them
         #self.settingdict[self.DEF_SECTION_aliases] = {}
 
-    def startup(self, mewlosite, eventlist):
+    def startup(self, eventlist):
         """Any initial startup stuff to do?"""
-        self. mewlosite = mewlosite
+        pass
+
+    def poststartup(self, eventlist):
+        """Any post initial startup stuff to do?"""
+        pass
 
     def shutdown(self):
         """Shutdown"""

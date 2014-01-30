@@ -6,18 +6,37 @@ This module contains Mewlo database manager class.
 # mewlo imports
 from ..manager import manager
 
+# for core model creation
+from ..user import muser
+from ..group import mgroup
+from ..rbac import mrbac
+from ..session import msession
+from ..verification import mverification
+import mdbsettings, mdbmanager_sqlalchemy, mdbmodel_settings, mdbmodel_gob
+from ..setting.msettings import MewloSettings
+
+
+
+
 
 
 class MewloDatabaseManager(manager.MewloManager):
     """The MewloDatabaseManager supervises database support."""
 
-    def __init__(self):
-        super(MewloDatabaseManager,self).__init__()
+    def __init__(self, mewlosite, debugmode):
+        super(MewloDatabaseManager,self).__init__(mewlosite, debugmode)
         self.databasesettings = {}
         self.modelclasses = {}
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloDatabaseManager,self).startup(mewlosite,eventlist)
+    def startup(self, eventlist):
+        super(MewloDatabaseManager,self).startup(eventlist)
+
+    def poststartup(self, eventlist):
+        """For database manager, post startup needs to ask site to do some stuff."""
+        # we need to create some classes very early so that plugins can access them
+        self.create_early_database_classes(eventlist)
+
+
 
     def shutdown(self):
         """
@@ -142,6 +161,7 @@ class MewloDatabaseManager(manager.MewloManager):
             # store it
             self.modelclasses[modelclass.__name__] = modelclass
             # register it with the registry
+            #print "ATTN: IN register_modelclass with mewlosite = {0}.".format(str(self.mewlosite))
             self.mewlosite.comp('registrymanager').register_class(owner, modelclass)
 
         # success
@@ -247,6 +267,71 @@ class MewloDatabaseManager(manager.MewloManager):
         if (isinstance(modelclass,basestring)):
             modelclass = self.modelclasses[modelclass]
         modelclass.reset_classdata()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def create_early_database_classes(self, eventlist):
+        """Setup some database classes.
+        ATTN: We may want to move this elsewhere eventually.
+        """
+        # create some really early database model classes that must exist prior to other early stuff
+        # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
+        newclass = self.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
+        self.register_modelclass(self, newclass)
+        newclass = self.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
+        self.register_modelclass(self, newclass)
+        #
+        self.register_modelclass(self, mdbmodel_gob.MewloDbModel_Gob)
+        # and to create the tables for them, etc.
+        self.create_tableandmapper_forallmodelclasses()
+
+
+
+
+
+
+
+    def create_core_database_classes(self, eventlist):
+        """Setup some database classes.
+        ATTN: We may want to move this elsewhere eventually.
+        """
+        # ATTN: Again, we should do this elsewhere
+        self.register_modelclass(self, muser.MewloUser)
+        self.register_modelclass(self, mgroup.MewloGroup)
+        self.register_modelclass(self, mrbac.MewloRole)
+        self.register_modelclass(self, mrbac.MewloRoleHierarchy)
+        self.register_modelclass(self, mrbac.MewloRoleAssignment)
+        # session
+        self.register_modelclass(self, msession.MewloSession)
+        # verification
+        self.register_modelclass(self, mverification.MewloVerification)
+        # and to create the tables for them, etc.
+        self.create_tableandmapper_forallmodelclasses()
+
+
+
+
+
+
+
+
+
+
+
 
 
 

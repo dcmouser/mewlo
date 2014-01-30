@@ -21,13 +21,13 @@ from ..manager import manager
 class MewloAssetManager(manager.MewloManager):
     """The derived signal dispatcher."""
 
-    def __init__(self):
+    def __init__(self, mewlosite, debugmode):
         """Constructor."""
-        super(MewloAssetManager,self).__init__()
+        super(MewloAssetManager,self).__init__(mewlosite, debugmode)
         self.alias_settings = None
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloAssetManager,self).startup(mewlosite,eventlist)
+    def startup(self, eventlist):
+        super(MewloAssetManager,self).startup(eventlist)
 
     def shutdown(self):
         super(MewloAssetManager,self).shutdown()

@@ -86,18 +86,17 @@ class NavNodeManager(manager.MewloManager):
     DEF_navnodecache_keyname = 'navnodecache'
 
 
-    def __init__(self):
+    def __init__(self, mewlosite, debugmode):
         """Constructor for the clas."""
-        super(NavNodeManager,self).__init__()
+        super(NavNodeManager,self).__init__(mewlosite, debugmode)
         self.nodes = []
         self.nodehash = {}
-        self.mewlosite = None
 
 
-    def startup(self, mewlosite, eventlist):
+    def startup(self, eventlist):
         """Called at start of application."""
 
-        super(NavNodeManager,self).startup(mewlosite,eventlist)
+        super(NavNodeManager,self).startup(eventlist)
         # initial nodes
         self.sitenode = NavNode('site')
         self.orphannode = NavNode('__orphans__')

@@ -18,13 +18,13 @@ class MewloSessionManager(manager.MewloManager):
     """The MewloSessionManager class helps session management."""
 
 
-    def __init__(self):
-        super(MewloSessionManager,self).__init__()
+    def __init__(self, mewlosite, debugmode):
+        super(MewloSessionManager,self).__init__(mewlosite, debugmode)
         # cookie name
         self.sessionid_cookiename = 'mewlosessionid'
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloSessionManager,self).startup(mewlosite,eventlist)
+    def startup(self, eventlist):
+        super(MewloSessionManager,self).startup(eventlist)
 
     def shutdown(self):
         super(MewloSessionManager,self).shutdown()

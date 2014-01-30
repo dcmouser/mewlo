@@ -19,11 +19,11 @@ import os.path
 class MewloTemplateHelper(manager.MewloManager):
     """The MewloTemplateHelper class helps templates render output."""
 
-    def __init__(self):
-        super(MewloTemplateHelper,self).__init__()
+    def __init__(self, mewlosite, debugmode):
+        super(MewloTemplateHelper,self).__init__(mewlosite, debugmode)
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloTemplateHelper,self).startup(mewlosite,eventlist)
+    def startup(self, eventlist):
+        super(MewloTemplateHelper,self).startup(eventlist)
 
     def shutdown(self):
         super(MewloTemplateHelper,self).shutdown()

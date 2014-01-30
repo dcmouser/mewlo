@@ -163,12 +163,12 @@ class MewloRoleAssignment(mdbmodel.MewloDbModel):
 class MewloRbacManager(manager.MewloManager):
     """The Rbac system manager."""
 
-    def __init__(self):
+    def __init__(self, mewlosite, debugmode):
         """Constructor."""
-        super(MewloRbacManager,self).__init__()
+        super(MewloRbacManager,self).__init__(mewlosite, debugmode)
 
-    def startup(self, mewlosite, eventlist):
-        super(MewloRbacManager,self).startup(mewlosite,eventlist)
+    def startup(self, eventlist):
+        super(MewloRbacManager,self).startup(eventlist)
 
     def shutdown(self):
         super(MewloRbacManager,self).shutdown()

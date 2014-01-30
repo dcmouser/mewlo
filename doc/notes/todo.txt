@@ -169,3 +169,11 @@ My suggestion:
 //---------------------------------------------------------------------------
 
 
+
+
+//---------------------------------------------------------------------------
+For the new site component loops for creation and startup,
+we have made shutdown and dumps() use the list of site components rather than each one being specified
+but for startup and construct/init we have things to do in between which is making this impossible..
+how can we overcome this?
+//---------------------------------------------------------------------------

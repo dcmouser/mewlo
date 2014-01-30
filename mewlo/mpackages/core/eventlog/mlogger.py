@@ -60,19 +60,19 @@ class MewloLogManager(manager.MewloManager):
     MewloLogManager - the main supervisor class that manages a collection of Loggers
     """
 
-    def __init__(self, debugmode):
-        super(MewloLogManager,self).__init__()
+    def __init__(self, mewlosite, debugmode):
+        super(MewloLogManager,self).__init__(mewlosite, debugmode)
         self.loggers = []
         self.pythonlogginghooks = []
         self.debugmode = debugmode
 
 
 
-    def startup(self, mewlosite, eventlist):
+    def startup(self, eventlist):
         """Startup everything, we are about to exit."""
-        super(MewloLogManager,self).startup(mewlosite,eventlist)
+        super(MewloLogManager,self).startup(eventlist)
         for logger in self.loggers:
-            logger.startup(mewlosite, eventlist)
+            logger.startup(self.mewlosite, eventlist)
 
 
     def shutdown(self):
