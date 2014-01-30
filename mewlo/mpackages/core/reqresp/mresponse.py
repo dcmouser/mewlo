@@ -99,7 +99,7 @@ class MewloResponse(object):
     def add_status_error(self, statuscode, errorstr):
         # set values
         self.set_status(statuscode)
-        self.eventlist.add(EError(errorstr,{'statuscode': statuscode}))
+        self.eventlist.append(EError(errorstr,{'statuscode': statuscode}))
 
     def set_responsedata(self, responsedata, statuscode = 200):
         self.responsedata = responsedata
@@ -153,8 +153,8 @@ class MewloResponse(object):
         #
         self.rendercontext['user'] = self.request.get_user_or_maketemporaryguest()
         #
-        self.rendercontext['thelper'] = mewlosite.templatehelper
-        self.rendercontext['alias'] = mewlosite.assetmanager.get_resolvedaliases()
+        self.rendercontext['thelper'] = mewlosite.comp('templatehelper')
+        self.rendercontext['alias'] = mewlosite.comp('assetmanager').get_resolvedaliases()
         #
         self.did_add_rendercontext_defaults = True
 
@@ -210,12 +210,12 @@ class MewloResponse(object):
 
     def render_from_template_file(self, templatefilepath, args=None):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
-        template = self.get_mewlosite().templates.from_file(templatefilepath)
+        template = self.get_mewlosite().comp('templatemanager').from_file(templatefilepath)
         return self.render_from_template(template, args)
 
     def renderstr_from_template_file(self, templatefilepath, args=None):
         """Shortcut to return html for a template and set responsedata from it, passing response object to template as an extra arg."""
-        template = self.get_mewlosite().templates.from_file(templatefilepath)
+        template = self.get_mewlosite().comp('templatemanager').from_file(templatefilepath)
         return self.renderstr_from_template(template, args)
 
 

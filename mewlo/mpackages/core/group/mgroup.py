@@ -32,6 +32,7 @@ class MewloGroup(mdbmodel.MewloDbModel):
 
     def init(self):
         """Manually called init on manually created new instances."""
+        # IMPORTANT: create a new gob database model entry for this object
         self.gobify()
 
 

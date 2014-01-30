@@ -212,18 +212,17 @@ class MewloDbModel(object):
 
     # These methods should not have to be re-implemented by dervived subclasses
 
-    def add(self):
-        """Add the model to database."""
-        self.presavemodel()
-        self.dbm().model_add(self)
-        self.set_isdirty(False)
 
     def save(self):
         """Update/Save the model to database."""
-        # same as add, just call add
-        self.add()
+        self.presavemodel()
+        self.dbm().model_save(self)
+        self.set_isdirty(False)
+        # we might be smart about flushing when there is no id, so that saving a new model gets it's unique id
+        if (self.id == None):
+            self.flush_toupdate()
 
-    def save_ifdirty(self):
+    def UNUSED_save_ifdirty(self):
         """
         Save only if dirty.
         ATTN: TODO improve dirty detection -- right now this will not trigger on manually created items so we rely on manual setting of isdirty."""
@@ -253,6 +252,20 @@ class MewloDbModel(object):
         """Called before any model is saved."""
         # one thing we need to do here is handle any lazy serialization helpers."""
         self.presavemodel_serializationhelpers_updatefields()
+
+
+
+
+
+
+
+    def dumps(self, indent=0):
+        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+        outstr = " "*indent + "MewloDbModel (" + self.__class__.__name__ + ") reporting in.\n"
+        return outstr
+
+
+
 
 
 
@@ -588,5 +601,21 @@ class MewloDbModel(object):
 
 
 
+    def dumps(self, indent=0):
+        """Debug information for object."""
+        outstr = " "*indent + "MewloDbModel object '{0}' attribute values:\n".format(self.__class__.__name__)
+        public_props = (name for name in dir(object) if not name.startswith('_'))
+        for name in public_props:
+            outstr += " "*indent + "{0}: {1}\n".format(name, str(getattr(self,name)))
+        return outstr
 
+
+
+    @classmethod
+    def classdumps(cls, indent=0):
+        """Debug information for CLASS."""
+        outstr = " "*indent + "Model fields:\n"
+        for field in cls.fieldlist:
+            outstr += " "*indent + "{0}: {1}\n".format(field.id, str(field.properties))
+        return outstr
 

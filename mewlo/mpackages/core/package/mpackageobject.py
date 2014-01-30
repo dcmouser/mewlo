@@ -37,8 +37,8 @@ class MewloPackageObject(object):
     def shutdown(self):
         """Do any shutdown stuff."""
         # here we want to unregister any signals and components
-        self.get_mewlosite().registry.unregister_byowner(self)
-        self.get_mewlosite().dispatcher.unregister_byowner(self)
+        self.get_mewlosite().comp('registrymanager').unregister_byowner(self)
+        self.get_mewlosite().comp('signalmanager').unregister_byowner(self)
         return None
 
 

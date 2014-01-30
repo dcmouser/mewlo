@@ -1,6 +1,6 @@
 """
-msessionhelper.py
-Database object for storing session data
+msessionmanager.py
+Helper for database object for storing session data
 """
 
 
@@ -14,25 +14,25 @@ from msession import MewloSession
 
 
 
-class MewloSessionHelper(manager.MewloManager):
-    """The MewloSessionHelper class helps session management."""
+class MewloSessionManager(manager.MewloManager):
+    """The MewloSessionManager class helps session management."""
 
 
     def __init__(self):
-        super(MewloSessionHelper,self).__init__()
+        super(MewloSessionManager,self).__init__()
         # cookie name
         self.sessionid_cookiename = 'mewlosessionid'
 
     def startup(self, mewlosite, eventlist):
-        super(MewloSessionHelper,self).startup(mewlosite,eventlist)
+        super(MewloSessionManager,self).startup(mewlosite,eventlist)
 
     def shutdown(self):
-        super(MewloSessionHelper,self).shutdown()
+        super(MewloSessionManager,self).shutdown()
 
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloSessionHelper (" + self.__class__.__name__ + ") reporting in.\n"
+        outstr = " "*indent + "MewloSessionManager (" + self.__class__.__name__ + ") reporting in.\n"
         return outstr
 
 

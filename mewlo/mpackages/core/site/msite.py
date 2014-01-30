@@ -7,32 +7,31 @@ This file contains classes to handle Mewlo site class.
 # mewlo imports
 import msitemanager
 from .. import mglobals
+from ..helpers.dictlist import MDictList
 from ..package import mpackagemanager
 from ..route import mroute
 from ..signal import msignal
 from ..registry import mregistry
 from ..setting.msettings import MewloSettings
-from ..database import mdbsettings
-from ..database import mdbmanager_sqlalchemy
-from ..database import mdbmodel_settings
-from ..database import mdbmodel_gob
+from ..database import mdbsettings, mdbmanager_sqlalchemy, mdbmodel_settings, mdbmodel_gob
 from ..rbac import mrbac
 from ..navnode import mnav
-from ..template import mtemplate
-from ..template import mtemplatehelper
-from ..session import msessionhelper
+from ..template import mtemplatehelper, mtemplate
+from ..session import msessionmanager, msession
+from ..verification import mverificationmanager, mverification
 from ..asset import massetmanager
 from ..eventlog import mlogger
 from ..eventlog.mevent import Event, EventList, EWarning, EError, EDebug, EInfo
 from ..eventlog.mlogger import MewloLogger
 from ..eventlog.mlogtarget_file import MewloLogTarget_File
-from ..helpers.misc import get_value_from_dict
-from ..helpers.misc import resolve_expand_string
+from ..helpers.misc import get_value_from_dict, resolve_expand_string
 from ..user import muser
 from ..group import mgroup
 from ..rbac import mrbac
 from ..siteaddon import msiteaddon
-from ..session import msession
+
+
+
 
 # python imports
 import os
@@ -72,69 +71,86 @@ class MewloSite(object):
         self.sitemanager = None
         self.controllerroot = None
         self.fallbacklogger = None
-        # exposed to templates
-        self.templatehelper = None
-        #
         self.isenabled = False
         self.siteurl_relative = ''
+        # components
+        self.components = MDictList()
+
+
+
+
+
+
 
 
         # setup log manager helper early so that log manager can receive messages
-        self.logmanager = mlogger.MewloLogManager(self.debugmode)
+        #self.logmanager =
+        self.appendcomp('logmanager', mlogger.MewloLogManager(self.debugmode))
 
         # now update site state
         self.set_state(MewloSettings.DEF_SITESTATE_INITIALIZE_START)
 
-        # create helpers
+        # create managers/helpers
 
         # create (non-db-persistent) site settings -- these are set by configuration at runtime
         self.settings = MewloSettings()
+        self.appendcomp('settings', self.settings)
 
         # database manager
-        self.dbmanager = mdbmanager_sqlalchemy.MewloDatabaseManagerSqlA()
+        self.appendcomp('dbmanager', mdbmanager_sqlalchemy.MewloDatabaseManagerSqlA())
 
         # rbac permission manager
-        self.rbac = mrbac.MewloRbacManager()
+        self.appendcomp('rbacmanager', mrbac.MewloRbacManager())
+
 
         # create persistent(db) package settings
         self.packagesettings = mdbsettings.MewloSettingsDb(MewloSettings.DEF_DBCLASSNAME_PackageSettings)
+        self.appendcomp('packagesettings', self.packagesettings)
 
         # collection of mewlo addon packages
-        self.packagemanager = mpackagemanager.MewloPackageManager()
+        self.appendcomp('packagemanager', mpackagemanager.MewloPackageManager())
 
         # site addon manager
-        self.siteaddonmanager = msiteaddon.MewloSiteAddonManager()
+        self.appendcomp('siteaddonmanager', msiteaddon.MewloSiteAddonManager())
 
         # route manager
-        self.routemanager = mroute.MewloRouteManager()
+        self.appendcomp('routemanager', mroute.MewloRouteManager())
 
         # signal dispatcher
-        self.dispatcher = msignal.MewloSignalManager()
+        self.appendcomp('signalmanager', msignal.MewloSignalManager())
 
         # component registry
-        self.registry = mregistry.MewloRegistryManager()
+        self.appendcomp('registrymanager', mregistry.MewloRegistryManager())
 
         # navnode manager
-        self.navnodes = mnav.NavNodeManager()
+        self.appendcomp('navnodemanager', mnav.NavNodeManager())
 
         # template manager
-        self.templates = mtemplate.MewloTemplateManager()
+        self.appendcomp('templatemanager', mtemplate.MewloTemplateManager())
 
         # assetmanager
-        self.assetmanager = massetmanager.MewloAssetManager()
+        self.appendcomp('assetmanager', massetmanager.MewloAssetManager())
 
         # template helper
-        self.templatehelper = mtemplatehelper.MewloTemplateHelper()
+        self.appendcomp('templatehelper', mtemplatehelper.MewloTemplateHelper())
 
         # session helper
-        self.sessionhelper = msessionhelper.MewloSessionHelper()
+        self.appendcomp('sessionmanager', msessionmanager.MewloSessionManager())
 
-
+        # verification helper
+        self.appendcomp('verificationmanager', mverificationmanager.MewloVerificationManager())
 
         # update state
         self.set_state(MewloSettings.DEF_SITESTATE_INITIALIZE_END)
 
 
+
+
+    def comp(self, componentname):
+        return self.components.lookup(componentname)
+    def appendcomp(self, componentname, component):
+        self.components.append(componentname, component)
+        return component
 
 
     def get_isenabled(self):
@@ -161,17 +177,21 @@ class MewloSite(object):
         if (eventlist == None):
             eventlist = EventList()
 
+
+
         # first are main settings -- this startup usually does nothing since these settings are not persistent
         self.settings.startup(self, eventlist)
 
         # asset manager
-        self.assetmanager.startup(self, eventlist)
+        self.comp('assetmanager').startup(self, eventlist)
 
         # any settings caching or other pre-preparation we need to do
         self.preprocess_settings(eventlist)
 
+
+
         # site addons
-        self.siteaddonmanager.startup(self, eventlist)
+        self.comp('siteaddonmanager').startup(self, eventlist)
 
         # validate site and settings first to make sure all is good
         self.validate(eventlist)
@@ -180,50 +200,63 @@ class MewloSite(object):
         # startup our helpers
 
         # registry
-        self.registry.startup(self, eventlist)
+        self.comp('registrymanager').startup(self, eventlist)
 
 
         # database manager
-        self.dbmanager.startup(self, eventlist)
+        self.comp('dbmanager').startup(self, eventlist)
         # we need to create some classes very early so that plugins can access them
         self.create_early_database_classes(eventlist)
         # and to create the tables for them, etc.
-        self.dbmanager.create_tableandmapper_forallmodelclasses()
+        self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
+
 
         # rbac system
-        self.rbac.startup(self, eventlist)
+        self.comp('rbacmanager').startup(self, eventlist)
 
         # log system
-        self.logmanager.startup(self, eventlist)
+        self.comp('logmanager').startup(self, eventlist)
 
         # dispatcher
-        self.dispatcher.startup(self, eventlist)
+        self.comp('signalmanager').startup(self, eventlist)
 
         # routes
-        self.routemanager.startup(self, eventlist)
+        self.comp('routemanager').startup(self, eventlist)
 
         # nav nodes
-        self.navnodes.startup(self, eventlist)
+        self.comp('navnodemanager').startup(self, eventlist)
 
         # package settings -- these are persistent and let packages (extensions/plugins) store persistent settings
         self.packagesettings.startup(self, eventlist)
 
         # packages (will load and instantiate enabled packages)
-        self.packagemanager.startup(self, eventlist)
+        self.comp('packagemanager').startup(self, eventlist)
+
+
 
         # Now we are ready to create the rest of the core database classes
         self.create_core_database_classes(eventlist)
         # and to create the tables for them, etc.
-        self.dbmanager.create_tableandmapper_forallmodelclasses()
+        self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
+
+
 
         # templater
-        self.templates.startup(self, eventlist)
+        self.comp('templatemanager').startup(self, eventlist)
 
         # template helper
-        self.templatehelper.startup(self, eventlist)
+        self.comp('templatehelper').startup(self, eventlist)
 
         # session helper
-        self.sessionhelper.startup(self, eventlist)
+        self.comp('sessionmanager').startup(self, eventlist)
+
+        # verification helper
+        self.comp('verificationmanager').startup(self, eventlist)
+
+
+
+
+
 
         # log all startup events
         self.logevents(eventlist)
@@ -246,47 +279,7 @@ class MewloSite(object):
         # update state
         self.set_state(MewloSettings.DEF_SITESTATE_SHUTDOWN_START)
 
-        # asset manager
-        self.assetmanager.shutdown()
-
-        # templates
-        self.templates.shutdown()
-
-        # site addons
-        self.siteaddonmanager.shutdown()
-
-        # packages
-        self.packagemanager.shutdown()
-
-        # package settings
-        self.packagesettings.shutdown()
-
-        # routes
-        self.routemanager.shutdown()
-
-        # dispatcher
-        self.dispatcher.shutdown()
-
-        # navnode manager
-        self.navnodes.shutdown()
-
-        # registry
-        self.registry.shutdown()
-
-        # template helper
-        self.templatehelper.shutdown()
-
-        # session helper
-        self.sessionhelper.shutdown()
-
-        # rbac system
-        self.rbac.shutdown()
-
-        #  log system
-        self.logmanager.shutdown()
-
-        # database manager
-        self.dbmanager.shutdown()
+        self.shutdown_allcomponents()
 
         # update state (note this won't be logged since we will have shutdown log/db by now)
         self.set_state(MewloSettings.DEF_SITESTATE_SHUTDOWN_END)
@@ -296,10 +289,10 @@ class MewloSite(object):
 
 
 
-
-
-
-
+    def shutdown_allcomponents(self):
+        for key,obj in reversed(self.components.get_tuplelist()):
+            print " SHUTTING DOWN {0}..".format(key)
+            obj.shutdown()
 
 
 
@@ -339,12 +332,12 @@ class MewloSite(object):
         # cache some stuff?
         self.controllerroot = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_controllerroot)
         # package manager settings
-        self.packagemanager.set_directories( self.get_root_package_directory_list() + self.get_site_package_directory_list() )
-        self.packagemanager.set_packagesettings( self.settings.get_value(MewloSettings.DEF_SECTION_packages) )
-        self.packagemanager.set_default_packagesettings(MewloSettings.DEF_SETTINGVAL_default_package_settings)
-        self.packagemanager.set_flag_loadsetuptoolspackages(self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_flag_importsetuptoolspackages, MewloSettings.DEF_SETTINGVAL_flag_importsetuptoolspackages))
+        self.comp('packagemanager').set_directories( self.get_root_package_directory_list() + self.get_site_package_directory_list() )
+        self.comp('packagemanager').set_packagesettings( self.settings.get_value(MewloSettings.DEF_SECTION_packages) )
+        self.comp('packagemanager').set_default_packagesettings(MewloSettings.DEF_SETTINGVAL_default_package_settings)
+        self.comp('packagemanager').set_flag_loadsetuptoolspackages(self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_flag_importsetuptoolspackages, MewloSettings.DEF_SETTINGVAL_flag_importsetuptoolspackages))
         # database manager settings
-        self.dbmanager.set_databasesettings( self.settings.get_value(MewloSettings.DEF_SECTION_database) )
+        self.comp('dbmanager').set_databasesettings( self.settings.get_value(MewloSettings.DEF_SECTION_database) )
         # isenabled flag
         self.isenabled = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_isenabled, self.isenabled)
         self.siteurl_relative = self.settings.get_subvalue(MewloSettings.DEF_SECTION_config, MewloSettings.DEF_SETTINGNAME_siteurl_relative, self.siteurl_relative)
@@ -373,9 +366,9 @@ class MewloSite(object):
         if (not self.settings.value_exists(MewloSettings.DEF_SECTION_config, varname)):
             estr = "In site '{0}', site config variable '{1}' not specified; {2}".format(self.get_sitename(),varname,messagestr)
             if (iserror):
-                eventlist.add(EError(estr))
+                eventlist.append(EError(estr))
             else:
-                eventlist.add(EWarning(estr))
+                eventlist.append(EWarning(estr))
 
 
 
@@ -414,7 +407,7 @@ class MewloSite(object):
             missingfields = { 'request': request }
             event.mergemissings(missingfields)
         # log it
-        self.logmanager.process(event)
+        self.comp('logmanager').process(event)
 
 
     def logevents(self, events, request = None):
@@ -434,7 +427,7 @@ class MewloSite(object):
     def set_debugmode(self, val):
         """Set debugmode for the site, which may also have to pass on this value to components."""
         self.debugmode = val
-        self.logmanager.set_debugmode(val)
+        self.comp('logmanager').set_debugmode(val)
 
     def get_debugmode(self):
         """Return the debubmode."""
@@ -619,7 +612,7 @@ class MewloSite(object):
 
     def alias_settings_change(self):
         """Inform asset manager of new alias settings.  This *must* be called whenever alias settings may change."""
-        self.assetmanager.set_alias_settings(self.settings.get_value(MewloSettings.DEF_SECTION_aliases))
+        self.comp('assetmanager').set_alias_settings(self.settings.get_value(MewloSettings.DEF_SECTION_aliases))
 
 
 
@@ -630,7 +623,7 @@ class MewloSite(object):
 
     def add_logger(self, logger):
         """Just ask the logmanager to add the logger."""
-        self.logmanager.add_logger(logger)
+        self.comp('logmanager').add_logger(logger)
         return logger
 
 
@@ -654,10 +647,10 @@ class MewloSite(object):
         """
         # create some really early database model classes that must exist prior to other early stuff
         # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
-        dbmanager = self.dbmanager
+        dbmanager = self.comp('dbmanager')
         newclass = dbmanager.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
         dbmanager.register_modelclass(self, newclass)
-        newclass = self.dbmanager.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
+        newclass = dbmanager.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, MewloSettings.DEF_DBCLASSNAME_MainSettings, MewloSettings.DEF_DBTABLENAME_MainSettings)
         dbmanager.register_modelclass(self, newclass)
         #
         dbmanager.register_modelclass(self, mdbmodel_gob.MewloDbModel_Gob)
@@ -670,7 +663,7 @@ class MewloSite(object):
         ATTN: We may want to move this elsewhere eventually.
         """
         # create some core database model classes
-        dbmanager = self.dbmanager
+        dbmanager = self.comp('dbmanager')
         # ATTN: Again, we should do this elsewhere
         dbmanager.register_modelclass(self, muser.MewloUser)
         dbmanager.register_modelclass(self, mgroup.MewloGroup)
@@ -679,6 +672,8 @@ class MewloSite(object):
         dbmanager.register_modelclass(self, mrbac.MewloRoleAssignment)
         # session
         dbmanager.register_modelclass(self, msession.MewloSession)
+        # verification
+        dbmanager.register_modelclass(self, mverification.MewloVerification)
 
 
 
@@ -789,7 +784,7 @@ class MewloSite(object):
         self.logevent(EInfo("Request URL: {0} from {1}.".format(request.get_fullurlpath_original(), request.get_remote_addr())))
 
         # handle the request
-        ishandled = self.routemanager.process_request(self, request)
+        ishandled = self.comp('routemanager').process_request(self, request)
 
         # after we end a request we might have stuff to do (this might include, for example, flushing the database)
         self.process_request_ends(request, ishandled)
@@ -862,7 +857,7 @@ class MewloSite(object):
         Do stuff before processing a request
         """
         if (ishandled):
-            self.dbmanager.process_request_ends(request)
+            self.comp('dbmanager').process_request_ends(request)
 
 
 
@@ -873,16 +868,16 @@ class MewloSite(object):
 # these just shortcut to assetmanager
 
     def resolve(self, text):
-        return self.assetmanager.resolve(text)
+        return self.comp('assetmanager').resolve(text)
 
     def absolute_filepath(self, relpath):
-        return self.assetmanager.absolute_filepath(relpath)
+        return self.comp('assetmanager').absolute_filepath(relpath)
 
     def absolute_url(self, relpath):
-        return self.assetmanager.absolute_url(relpath)
+        return self.comp('assetmanager').absolute_url(relpath)
 
     def relative_url(self, relpath):
-        return self.assetmanager.relative_url(relpath)
+        return self.comp('assetmanager').relative_url(relpath)
 
 
 
@@ -926,33 +921,7 @@ class MewloSite(object):
         outstr += " "*indent + "Site validation:\n"
         outstr += (self.validate()).dumps(indent+1)
         outstr += "\n"
-        outstr += self.settings.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.logmanager.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.dbmanager.dumps(indent+1)
-        outstr += "\n"
-        outstr += "\n"
-        outstr += self.dispatcher.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.registry.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.templates.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.packagemanager.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.siteaddonmanager.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.routemanager.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.navnodes.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.packagesettings.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.templatehelper.dumps(indent+1)
-        outstr += "\n"
-        outstr += self.sessionhelper.dumps(indent+1)
-        outstr += "\n"
+        outstr += self.components.dumps(indent)
         return outstr
 
 
@@ -965,7 +934,7 @@ class MewloSite(object):
     def is_readytoserve(self):
         """Check if there were any site prep errors, OR if any packages report they are not ready to run (need update, etc.)."""
         isreadytoserve = True
-        if (not self.packagemanager.is_readytoserve()):
+        if (not self.comp('packagemanager').is_readytoserve()):
             isreadytoserve = False
         return isreadytoserve
 
@@ -990,7 +959,7 @@ class MewloSite(object):
         Check all packages for updates.  The packages themselves will store details about update check results.
         Note this covers not just web updates available, but database updates needed.
         """
-        self.packagemanager.updatecheck_allpackages()
+        self.comp('packagemanager').updatecheck_allpackages()
 
 
     def updaterun(self):
@@ -998,7 +967,7 @@ class MewloSite(object):
         Check all packages for updates.  The packages themselves will store details about update check results.
         Note this covers not just web updates available, but database updates needed.
         """
-        self.packagemanager.updaterun_allpackages()
+        self.comp('packagemanager').updaterun_allpackages()
 
 
 
@@ -1006,7 +975,7 @@ class MewloSite(object):
         """
         Get combined eventlist for all packages on sites
         """
-        return self.packagemanager.get_allpackage_events()
+        return self.comp('packagemanager').get_allpackage_events()
 
 
 

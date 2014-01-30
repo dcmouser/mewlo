@@ -26,3 +26,10 @@ class MThinDict(dict):
             if (subkey in self[key]):
                 return self[key][subkey]
         return defaultval
+
+
+    def appendtovalue(self, key, val, separator='\n'):
+        if (key in self):
+            self[key] += separator + val
+        else:
+            self[key] = val

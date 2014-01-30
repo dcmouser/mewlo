@@ -52,7 +52,7 @@ class MewloSettingsDb(MewloSettings):
         # parent constructor
         super(MewloSettingsDb, self).startup(mewlosite, eventlist)
         # get the partner modelclass to use to actually do the settings database storage
-        self.dbmodelclass = mewlosite.registry.get_class(self.dbmodelclassname);
+        self.dbmodelclass = mewlosite.comp('registrymanager').get_class(self.dbmodelclassname);
 
 
     def shutdown(self):

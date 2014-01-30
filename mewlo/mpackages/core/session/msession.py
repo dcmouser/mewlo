@@ -57,7 +57,7 @@ class MewloSession(mdbmodel.MewloDbModel):
 
     def set_randomhashkey(self):
         """Set a random hashkey for the session.
-        This is slightly awkward since we would really like to keep the session function generator in the SessionHelper class.
+        This is slightly awkward since we would really like to keep the session function generator in the MewloSessionManager class.
         But then we don't know how to invoke that here since a session doesn't get a reference to the helper (we could change that).
         ATTN: UNFINISHED.
         """
@@ -124,6 +124,7 @@ class MewloSession(mdbmodel.MewloDbModel):
         """Create a new unique session hashkey."""
         sessionid = uuid.uuid4()
         return sessionid
+
 
 
 

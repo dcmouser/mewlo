@@ -8,9 +8,11 @@ From here you can learn about the core Mewlo packages.
    auth
    file_uploads
    groups
+   login
    mailbox
    objects
    profile
    rbac
+   registration
    users
    verifications

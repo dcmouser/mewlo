@@ -20,7 +20,7 @@ from wtforms import Form, BooleanField, StringField, validators
 class MewloForm(Form):
 
     # class constants
-    DEF_GenericErrorKey = 'GENERIC'
+    DEF_GenericErrorKey = ''
 
     class Meta:
         # Enable CSRF?

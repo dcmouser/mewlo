@@ -236,7 +236,7 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
     def setup_logcatchers(self):
         """Catch sqlalchemy log statements and route to Mewlo."""
         # ATTN:TODO - find a way to not have to call a MEWLO thing here, since we are in helper directory and supposed to be independent of mewlo here
-        self.sqlalchemylogger = self.mewlosite.logmanager.hook_pythonlogger(MewloDatabaseManagerSqlA.DEF_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
+        self.sqlalchemylogger = self.mewlosite.comp('logmanager').hook_pythonlogger(MewloDatabaseManagerSqlA.DEF_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
 
 
 
@@ -294,19 +294,13 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-    def model_add(self, modelobj):
-        """Add the model object."""
+    def model_save(self, modelobj):
+        """Save the model object."""
         session = modelobj.dbsession()
         session.add(modelobj)
         # doing a commit after every operation is a HUGE slowdown
         #session.commit()
         return None
-
-
-    def model_update(self, modelobj):
-        """Update the model object -- for sqlalchemy this is same as add()?"""
-        # ATTN: Check into the session merge() function.
-        return self.model_add(modelobj)
 
 
     def model_delete(self, modelobj):

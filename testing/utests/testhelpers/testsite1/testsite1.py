@@ -21,7 +21,7 @@ from mewlo.mpackages.core.eventlog.mlogtarget_file import MewloLogTarget_File
 from mewlo.mpackages.core.eventlog.mlogtarget_python import MewloLogTarget_Python
 from mewlo.mpackages.core.eventlog.mevent import EWarning
 #
-from mewlo.mpackages.site_addons.login import msiteaddon_login
+from mewlo.mpackages.site_addons.account import msiteaddon_account
 
 
 # python imports
@@ -260,7 +260,7 @@ class MewloSite_Test1(MewloSite):
 
 
         # add routegroup we just created to the site
-        self.routemanager.append(routegroup)
+        self.comp('routemanager').append(routegroup)
 
 
 
@@ -298,7 +298,7 @@ class MewloSite_Test1(MewloSite):
             ]
 
         # add nodes to site
-        self.navnodes.add_nodes(nodes)
+        self.comp('navnodemanager').add_nodes(nodes)
 
 
 
@@ -310,8 +310,8 @@ class MewloSite_Test1(MewloSite):
     def add_addons(self):
         """Add any site addons."""
         # Add login site addon
-        siteaddon = msiteaddon_login.MewloSiteAddon_Login()
-        self.siteaddonmanager.append(siteaddon)
+        siteaddon = msiteaddon_account.MewloSiteAddon_Account()
+        self.comp('siteaddonmanager').append(siteaddon)
 
 
 
@@ -351,7 +351,7 @@ class MewloSite_Test1(MewloSite):
             message = {'route':route}
             source = None
             flag_collectresults = True
-            signalresults = self.dispatcher.broadcast(id, message, request, source, flag_collectresults)
+            signalresults = self.comp('signalmanager').broadcast(id, message, request, source, flag_collectresults)
         return None
 
 

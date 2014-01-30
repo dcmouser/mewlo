@@ -299,11 +299,7 @@ class EventList(object):
 
 
 
-    def append(self,event):
-        self.add(event)
-
-
-    def add(self, event):
+    def append(self, event):
         """Just append a new event."""
         # if its None just ignore
         if (event == None):
@@ -341,13 +337,13 @@ class EventList(object):
         # if its already an event, just merge in any new overiding fields and add it; this can be useful if we have an Event (like a return failure code) and we want to add it to an Event list with extra info
         if (isinstance(msg, Event)):
             msg.mergefields(fields)
-            self.add(msg)
+            self.append(msg)
             return msg
         else:
             # create the event
             event = Event(msg, fields)
             # append it
-            self.add(event)
+            self.append(event)
             return event
 
 

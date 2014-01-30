@@ -39,7 +39,7 @@ class MewloLogTarget_Database(MewloLogTarget):
         """Startup everything."""
         # create the logging class we will use for this table
         customclassname = self.baseclass.__name__ + '_' + self.tablename
-        self.dbmanager = mewlosite.dbmanager
+        self.dbmanager = mewlosite.comp('dbmanager')
         # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
         self.logclass = self.dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
         # now register it

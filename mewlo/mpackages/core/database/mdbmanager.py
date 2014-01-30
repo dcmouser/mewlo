@@ -142,7 +142,7 @@ class MewloDatabaseManager(manager.MewloManager):
             # store it
             self.modelclasses[modelclass.__name__] = modelclass
             # register it with the registry
-            self.mewlosite.registry.register_class(owner, modelclass)
+            self.mewlosite.comp('registrymanager').register_class(owner, modelclass)
 
         # success
         return None

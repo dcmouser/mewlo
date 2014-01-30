@@ -31,7 +31,7 @@ from ..helpers.misc import does_dict_filter_match
 from ..manager import manager
 
 # python imports
-
+import inspect
 
 
 
@@ -79,8 +79,13 @@ class MewloComponent(object):
         outstr += " "*indent + "features: "+str(self.get_features())+"\n"
         outstr += " "*indent + "owner: "+str(self.owner)+"\n"
         outstr += " "*indent + "obj: "+str(self.obj)+"\n"
-        if (hasattr(self.obj,'dumps')):
-            outstr += self.obj.dumps(indent+1)
+        # if it's a class, look for classdumps(), otherwise dumps()
+        if (inspect.isclass(self.obj)):
+            if (hasattr(self.obj,'classdumps')):
+                outstr += self.obj.classdumps(indent+1)
+        else:
+            if (hasattr(self.obj,'dumps')):
+                outstr += self.obj.dumps(indent+1)
         return outstr
 
 

@@ -79,6 +79,7 @@ class MewloSettings(object):
 
     def shutdown(self):
         """Shutdown"""
+        pass
 
 
     def remove_all(self):

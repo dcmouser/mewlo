@@ -1,6 +1,6 @@
 """
-loginhelper.py
-This file contains helper code for login stuff
+accounthelper.py
+This file contains helper code for account login and registration tyoe stuff
 """
 
 
@@ -17,13 +17,13 @@ from forms.form_register import MewloForm_Register
 
 
 
-class LoginHelper(object):
+class AccountHelper(object):
 
     def __init__(self, request, response):
         self.request = request
         self.response = response
         #
-        self.viewbasepath = '${addon_login_path}/views/'
+        self.viewbasepath = '${addon_account_path}/views/'
 
 
 

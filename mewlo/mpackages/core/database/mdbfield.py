@@ -244,6 +244,17 @@ class DbfTypeString(MewloDbField):
         return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))]
 
 
+class DbfVarname(MewloDbField):
+    """Limited length text field."""
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfVarname, self).__init__(id, properties)
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',32)))]
+
+
 
 class DbfSerialized(MewloDbField):
     """Unlimited length text field used to serialize/unserialized arbitrary primitive types (dictionaries, etc.)"""

@@ -154,7 +154,7 @@ class MewloRequest(object):
     def get_session(self, flag_makesessionifnone):
         """Lazy create or load session object."""
         if (self.session == None):
-            self.session = self.mewlosite.sessionhelper.get_session(self,flag_makesessionifnone)
+            self.session = self.mewlosite.comp('sessionmanager').get_session(self,flag_makesessionifnone)
         return self.session
 
     def save_session_ifdirty(self):
@@ -165,7 +165,7 @@ class MewloRequest(object):
             # session has changes to save, so save it
             self.session.save()
             # and make sure the user gets a cookie pointing to this session
-            self.response.set_cookieval(self.mewlosite.sessionhelper.get_sessionid_cookiename(), self.session.hashkey)
+            self.response.set_cookieval(self.mewlosite.comp('sessionmanager').get_sessionid_cookiename(), self.session.hashkey)
         # shall we autosave session user?
         # ATTN: i don't know how smart db is about avoiding resave if nothing changed
         # ATTN: TODO avoid trying to save if not diry

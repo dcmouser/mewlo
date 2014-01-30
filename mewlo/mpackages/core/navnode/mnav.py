@@ -638,7 +638,7 @@ class NavNode(object):
             # lookup by name
             if (routeid==None):
                 routeid = self.id
-            self.route = self.mewlosite.routemanager.lookup_route_byid(routeid)
+            self.route = self.mewlosite.comp('routemanager').lookup_route_byid(routeid)
 
 
 

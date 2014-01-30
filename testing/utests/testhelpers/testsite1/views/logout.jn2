@@ -1,5 +1,0 @@
-{% include "${siteviewpath}/header.jn2" %}
-
-Logout page.
-
-{% include "./footer.jn2" %}

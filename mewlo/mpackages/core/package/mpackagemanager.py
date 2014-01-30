@@ -95,7 +95,7 @@ class MewloPackageManager(manager.MewloManager):
             failure = self.startup_package_auto(self.mewlosite, package, eventlist)
             if (failure != None):
                 # if we get a hard failure here, we add it to our list of failures, and to the eventlist
-                eventlist.add(failure)
+                eventlist.append(failure)
 
 
 

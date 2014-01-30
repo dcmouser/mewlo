@@ -6,7 +6,7 @@ This file holds controller functions that will be invoked by route manager as ro
 
 
 # mewlo imports
-from ..loginhelper import LoginHelper
+from ..accounthelper import AccountHelper
 
 # python imports
 
@@ -18,7 +18,7 @@ from ..loginhelper import LoginHelper
 def request_login(request, response):
     """Controller function."""
     # login helper
-    lhelper = LoginHelper(request, response)
+    lhelper = AccountHelper(request, response)
     # then page contents
     return lhelper.renderpage_login()
 
@@ -29,7 +29,7 @@ def request_login(request, response):
 def request_logout(request, response):
     """Controller function."""
     # login helper
-    lhelper = LoginHelper(request, response)
+    lhelper = AccountHelper(request, response)
     # then page contents
     return lhelper.renderpage_logout()
 
@@ -40,7 +40,7 @@ def request_logout(request, response):
 def request_register(request, response):
     """Controller function."""
     # login helper
-    lhelper = LoginHelper(request, response)
+    lhelper = AccountHelper(request, response)
     # then page contents
     return lhelper.renderpage_register()
 

@@ -79,7 +79,7 @@ class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
             flag_returnsvalue = True
             signalreceiver = msignal.MewloSignalReceiver(self, callback, idfilter, sourcefilter, extra, flag_returnsvalue)
             # now register it with the site dispatcher
-            mewlosite.dispatcher.register_receiver(signalreceiver)
+            mewlosite.comp('signalmanager').register_receiver(signalreceiver)
 
 
         # ATTN: as a test let's add an object to the registry
@@ -91,7 +91,7 @@ class Test_MewloPackageObject(mpackageobject.MewloPackageObject):
             # now create the component wrapper around it
             component = mregistry.MewloComponent('test_plugin_service', self, features, obj)
             # now register it with the site registry
-            mewlosite.registry.register_component(component)
+            mewlosite.comp('registrymanager').register_component(component)
 
         # lastly, call the parent startup (important!)
         super(Test_MewloPackageObject, self).startup(mewlosite, eventlist)

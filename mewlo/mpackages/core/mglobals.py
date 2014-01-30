@@ -106,7 +106,7 @@ def set_debugmode(val):
 
 def UNUSED_db():
     """Return reference to site database manager."""
-    return mewlosite().dbmanager
+    return mewlosite().comp('dbmanager')
 
 
 def UNUSED_notfinished(msg):

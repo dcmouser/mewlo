@@ -36,9 +36,9 @@ class MewloTemplateHelper(manager.MewloManager):
         # get response context
         responsecontext = response.get_rendercontext()
         # build list of rows
-        activebars = self.mewlosite.navnodes.makenav_activerowlist(responsecontext)
+        activebars = self.mewlosite.comp('navnodemanager').makenav_activerowlist(responsecontext)
         # now convert to html
-        html = self.mewlosite.navnodes.makenav_rowlist_to_html(activebars,responsecontext)
+        html = self.mewlosite.comp('navnodemanager').makenav_rowlist_to_html(activebars,responsecontext)
         return html
 
 
@@ -47,9 +47,9 @@ class MewloTemplateHelper(manager.MewloManager):
         # get response context
         responsecontext = response.get_rendercontext()
         # build list of rows
-        nodelist = self.mewlosite.navnodes.makenav_breadcrumb_list(responsecontext)
+        nodelist = self.mewlosite.comp('navnodemanager').makenav_breadcrumb_list(responsecontext)
         # now convert to html
-        html = self.mewlosite.navnodes.makenav_node_to_breadcrumb_html(nodelist,responsecontext)
+        html = self.mewlosite.comp('navnodemanager').makenav_node_to_breadcrumb_html(nodelist,responsecontext)
         return html
 
 
@@ -57,7 +57,7 @@ class MewloTemplateHelper(manager.MewloManager):
         """Page title from navnodes."""
         # get response context
         responsecontext = response.get_rendercontext()
-        return self.mewlosite.navnodes.calcnav_currentpage_title(responsecontext)
+        return self.mewlosite.comp('navnodemanager').calcnav_currentpage_title(responsecontext)
 
 
 

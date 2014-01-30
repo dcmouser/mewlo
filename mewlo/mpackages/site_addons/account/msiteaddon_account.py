@@ -1,6 +1,6 @@
 """
-msiteaddon_login.py
-This file contains a siteaddon class for handling logins
+msiteaddon_account.py
+This file contains a siteaddon class for handling account creation/login
 """
 
 
@@ -23,16 +23,18 @@ import controllers as pkgdirimp_controllers
 
 
 
-class MewloSiteAddon_Login(msiteaddon.MewloSiteAddon):
+class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
     """
-    The MewloSiteAddon_Login class adds routes, controllers, and views related to logging in, registering, etc.
+    The MewloSiteAddon_Account class adds routes, controllers, and views related to logging in, registering, etc.
     """
 
 
 
     def __init__(self):
         # call parent constructor
-        super(MewloSiteAddon_Login, self).__init__()
+        super(MewloSiteAddon_Account, self).__init__()
+        # path prefix (used below in route setup)
+        self.pathprefix = '/account'
 
 
     def startup(self, mewlosite):
@@ -40,7 +42,7 @@ class MewloSiteAddon_Login(msiteaddon.MewloSiteAddon):
         Do preparatory stuff.
         """
         # call parent (this will call the add_* functions below).
-        super(MewloSiteAddon_Login, self).startup(mewlosite)
+        super(MewloSiteAddon_Account, self).startup(mewlosite)
 
 
     def shutdown(self):
@@ -82,7 +84,7 @@ class MewloSiteAddon_Login(msiteaddon.MewloSiteAddon):
         thisdir = os.path.abspath(os.path.dirname(__file__))
         aliases = {
             # add an alias so we can refer to our view path
-            'addon_login_path': thisdir,
+            'addon_account_path': thisdir,
             }
         self.mewlosite.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
 
@@ -96,28 +98,29 @@ class MewloSiteAddon_Login(msiteaddon.MewloSiteAddon):
         routegroup = MewloRouteGroup()
         # overide the parent import-package-directory for the urls in this group? if we don't it will use the controller root set in SITE config
         routegroup.set_controllerroot(pkgdirimp_controllers)
+        routegroup.set_pathprefix(self.pathprefix)
 
         routegroup.append(
             MewloRoute(
                 id = 'register',
-                path = '/user/register',
+                path = '/register',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_register'),
                 ))
         routegroup.append(
             MewloRoute(
                 id = 'login',
-                path = '/user/login',
+                path = '/login',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_login'),
                 ))
         routegroup.append(
             MewloRoute(
                 id = 'logout',
-                path = '/user/logout',
+                path = '/logout',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_logout'),
                 ))
 
         # add routegroup we just created to the site
-        self.mewlosite.routemanager.append(routegroup)
+        self.mewlosite.comp('routemanager').append(routegroup)
 
 
 
@@ -149,7 +152,7 @@ class MewloSiteAddon_Login(msiteaddon.MewloSiteAddon):
             ]
 
         # add nodes to site
-        self.mewlosite.navnodes.add_nodes(nodes)
+        self.mewlosite.comp('navnodemanager').add_nodes(nodes)
 
 
 

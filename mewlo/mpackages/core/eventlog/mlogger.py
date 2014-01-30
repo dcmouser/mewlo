@@ -345,6 +345,7 @@ class MewloLogTarget(object):
         self.logqueue = []
         self.logformatter = logformatter
         self.stopprocessing = False
+        self.is_shuttingdown = False
 
 
     def set_isenabled(self, flagval):
@@ -365,6 +366,7 @@ class MewloLogTarget(object):
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
+        self.is_shuttingdown = True
         self.flushqueue()
         # clear started up flag so people know we can't write to it anymore
         self.startedup = False
@@ -406,7 +408,7 @@ class MewloLogTarget(object):
             self.logqueue = []
         else:
             # we cannot flush queue -- should we error about this?
-            if (len(self.logqueue)>0):
+            if ((len(self.logqueue)>0) and (not self.is_shuttingdown)):
                 print "ATTN: ERROR: In flushqueue for log target {0} and there are {1} queued messages to write, but we are not ready to write, so nothing was done.".format(self,len(self.logqueue))
 
     def get_queuelen(self):

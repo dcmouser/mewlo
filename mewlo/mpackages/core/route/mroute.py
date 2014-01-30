@@ -180,6 +180,8 @@ class MewloRoute(object):
         return self.id
     def get_mewlosite(self):
         return self.mewlosite
+    def get_routegroup(self):
+        return self.parent
 
 
     def startup(self, parent, mewlosite, eventlist):
@@ -193,6 +195,10 @@ class MewloRoute(object):
         # startup controller
         if (self.controller != None):
             self.controller.startup(self, eventlist)
+        # modify path based on pathprefix
+        pathprefix = self.get_routegroup().get_pathprefix()
+        if (pathprefix!=None):
+            self.path = pathprefix + self.path
 
 
     def shutdown(self):
@@ -471,6 +477,8 @@ class MewloRouteGroup(object):
         self.mewlosite = None
         self.routehash = {}
         #
+        self.pathprefix = ''
+        #
         if (routes != None):
             self.append(routes)
 
@@ -498,6 +506,7 @@ class MewloRouteGroup(object):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloRouteGroup reporting in:\n"
         outstr += " "*indent + " Root for controllers: " + str(self.controllerroot) + "\n"
+        outstr += " "*indent + " Path prefix: " + self.pathprefix + "\n"
         outstr += " "*indent + " Route hash: " + str(self.routehash) + "\n"
         outstr += "\n"
         for route in self.routes:
@@ -514,6 +523,10 @@ class MewloRouteGroup(object):
         return self.controllerroot
     def set_controllerroot(self, controllerroot):
         self.controllerroot = controllerroot
+    def set_pathprefix(self, pathprefix):
+        self.pathprefix = pathprefix
+    def get_pathprefix(self):
+        return self.pathprefix
     def get_parent(self):
         return self.parent
 
