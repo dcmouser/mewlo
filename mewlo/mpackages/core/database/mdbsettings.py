@@ -3,6 +3,8 @@ mdbsettings.py
 This file contains classes to support hierarchical settings.
 We really don't do anything fancy here -- in fact some of it is a bit ugly and could use rewriting.
 Essentially we are just maintaining a hierarchical dictionary with some support functions to ease access.
+
+ATTN: this code has become a bit kludgey and could use some rewriting.
 """
 
 
@@ -25,23 +27,21 @@ class MewloSettingsDb(MewloSettings):
         * But the machinery should be there in case we can use database-functionality to be informed about when db has changed and needs to be reloaded.
         * We want to support hierarchical serialized data containing multiple types, transparently.
     Other details:
-        * Each MewloSettingsDb object is tied to a specific table (which it should be able to create dynamically).
+        * Each MewloSettingsDb object is tied to a specific table via a db model class (which it can construct dynamically).
     Strategy:
         * All requests will be handled by the normal code for using an in-memory dictionary to store and retrieve values.
         * We will keep the in-memory dictionary synchronized with a database table behind the scenes.
         * We must allow that other processes may be trying to modify the data at the same time as us, so we only trust our cached values IFF the database supports a way of telling when a row was last written
         * Furthermore, some operations require a read and then write of a row, and we would like to lock the table/row during such operations.
-    ToDo:
-        * Why are we starting up and initializing using a dbmodelclassNAME and then looking up the name in the registry? Why not pass in directly the modelclass used for settings
     """
 
-    def __init__(self, mewlosite, debugmode, dbmodelclassname, dbmodeltablename):
+    # class var
+    dbmodelclass = None
+
+
+    def __init__(self, mewlosite, debugmode):
         # parent constructor
         super(MewloSettingsDb, self).__init__(mewlosite, debugmode)
-        # init - record the class name we use and clear some values
-        self.dbmodelclassname = dbmodelclassname
-        self.dbmodeltablename = dbmodeltablename
-        self.dbmodelclass = None
         # keep track of date of last database sync
         self.sync_timestamps = {}
         self.sync_timestamp_all = None
@@ -50,14 +50,21 @@ class MewloSettingsDb(MewloSettings):
     def prestartup_register_dbclasses(self, mewlosite, eventlist):
         """
         Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup.
-        In this case we create a db model dynamically, on the fly based on parameters passed to us at time of initialization.
+        In this case we create a new db model class dynamically, right now, based on parameters passed to us at time of initialization.
+        This makes it particularly easy for us to create new database-settings tables.
+        ATTN: As neat as this is, I think it would be better to not do this, and to require a separate thin derived class for each settings table.
         """
         # call parent
         super(MewloSettingsDb,self).prestartup_register_dbclasses(mewlosite, eventlist)
-        # create dynamic class
-        dbmanager = mewlosite.comp('dbmanager')
-        self.dbmodelclass = dbmanager.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, self.dbmodelclassname, self.dbmodeltablename)
-        dbmanager.register_modelclass(self, self.dbmodelclass)
+        # build and set self.dbmodelclass
+        self.buildset_dbmodelclass()
+        # register model class
+        mewlosite.comp('dbmanager').register_modelclass(self, self.dbmodelclass)
+
+
+    def buildset_dbmodelclass(self):
+        """Can be overridden by derived classes, by default uses class var."""
+        self.dbmodelclass = self.__class__.dbmodelclass
 
 
     def startup(self, eventlist):
@@ -68,7 +75,8 @@ class MewloSettingsDb(MewloSettings):
 
     def shutdown(self):
         """Shutdown."""
-        # pass
+        # parent
+        super(MewloSettingsDb, self).shutdown()
 
 
 
@@ -364,9 +372,6 @@ class MewloSettingsDb(MewloSettings):
 
 
 
-
-
-
     def db_lock(self, keynames):
         """Lock the db, while we read it, run a function, and then write out new values."""
         # ATTN: TODO
@@ -451,4 +456,65 @@ class MewloSettingsDb(MewloSettings):
             #print "DEBUGGING All ONE modelobj = "+str(modelobj)
             keyname = modelobj.keyname
             self.settingdict[keyname] = modelobj.get_settingdict_unserialized()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class MewloSettingsDb_Dynamic(MewloSettingsDb):
+    """
+    Derived version of MewloSettingsDb which dynamically creates a database model class on the fly to use, or which can have one passed into it
+    An example of how you might use this, from old site construct:
+        # database classes
+        DEF_DBCLASSNAME_PackageSettings = 'DbModel_Settings_Package'
+        DEF_DBTABLENAME_PackageSettings = 'settings_package'
+        self.createappendcomp('packagesettings', mdbsettings.MewloSettingsDb_Dynamic, dbmodelclassname=MewloSettings.DEF_DBCLASSNAME_PackageSettings, dbmodeltablename=MewloSettings.DEF_DBTABLENAME_PackageSettings)
+        or
+        self.createappendcomp('packagesettings', mdbsettings.MewloSettingsDb_Dynamic, dbmodelclass=mdbsettings_package.MewloDbModel_Settings_Package)
+    """
+
+
+    def __init__(self, mewlosite, debugmode, dbmodelclassname = None, dbmodeltablename = None, dbmodelclass = None):
+        # parent constructor
+        super(MewloSettingsDb_Dynamic, self).__init__(mewlosite, debugmode)
+        # record the class name we use and clear some values
+        self.dbmodelclassname = dbmodelclassname
+        self.dbmodeltablename = dbmodeltablename
+        self.dbmodelclass = dbmodelclass
+
+    def buildset_dbmodelclass(self):
+        """Can be overridden by derived classes, by default uses class var."""
+        # create dynamic class
+        # if already set, then there is nothing to do
+        if (self.dbmodelclass != None):
+            return self.dbmodelclass
+        self.dbmodelclass = self.mewlosite.comp('dbmanager').create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, self.dbmodelclassname, self.dbmodeltablename)
+
 

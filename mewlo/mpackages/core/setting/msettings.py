@@ -58,11 +58,7 @@ class MewloSettings(manager.MewloManager):
     DEF_SITESTATE_SHUTDOWN_START = 'shuttingdown'
     DEF_SITESTATE_SHUTDOWN_END = 'shutdown'
     #
-    # database classes
-    DEF_DBCLASSNAME_PackageSettings = 'DbModel_Settings_Package'
-    DEF_DBTABLENAME_PackageSettings = 'settings_package'
-    #DEF_DBCLASSNAME_MainSettings = 'DbModel_Settings_Main'
-    #DEF_DBTABLENAME_MainSettings = 'settings_main'
+
 
 
 

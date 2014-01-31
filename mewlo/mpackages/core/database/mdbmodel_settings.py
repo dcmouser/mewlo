@@ -21,7 +21,7 @@ class MewloDbModel_Settings(mdbmodel.MewloDbModel):
     """Database model where each row is a serialized dictioary setting."""
 
     # class variables
-    dbtablename = 'settings'
+    dbtablename = 'settings_overide_this'
     dbschemaname = 'default'
 
 

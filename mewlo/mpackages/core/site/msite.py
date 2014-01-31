@@ -13,7 +13,8 @@ from ..route import mroute
 from ..signal import msignal
 from ..registry import mregistry
 from ..setting.msettings import MewloSettings
-from ..database import mdbsettings, mdbmanager_sqlalchemy, mdbmodel_settings, mdbmodel_gob
+from ..database import mdbsettings, mdbsettings_package
+from ..database import mdbmanager_sqlalchemy, mdbmodel_settings, mdbmodel_gob
 from ..rbac import mrbac
 from ..navnode import mnav
 from ..template import mtemplatehelper, mtemplate
@@ -98,7 +99,7 @@ class MewloSite(object):
         # we store all components in a list/hash which we iterate for startup/shutdown/dumps debugging, and which can be used to lookup components
         self.components = MDictList()
 
-        # setup log manager helper early so that log manager can receive messages
+        # setup log manager helper early so that log manager can receive messages (and queue them until startup)
         self.createappendcomp('logmanager', mlogger.MewloLogManager)
 
         # now update site state (log manager should catch this)
@@ -107,20 +108,20 @@ class MewloSite(object):
         # create (non-db-persistent) site settings -- these are set by configuration at runtime
         self.settings = self.createappendcomp('settings', MewloSettings)
 
+        # database manager
+        self.createappendcomp('dbmanager', mdbmanager_sqlalchemy.MewloDatabaseManagerSqlA)
+
         # component registry
         self.createappendcomp('registrymanager', mregistry.MewloRegistryManager)
 
         # signal dispatcher
         self.createappendcomp('signalmanager', msignal.MewloSignalManager)
 
-        # database manager
-        self.createappendcomp('dbmanager', mdbmanager_sqlalchemy.MewloDatabaseManagerSqlA)
-
         # rbac permission manager
         self.createappendcomp('rbacmanager', mrbac.MewloRbacManager)
 
         # create persistent(db) package settings
-        self.createappendcomp('packagesettings', mdbsettings.MewloSettingsDb, MewloSettings.DEF_DBCLASSNAME_PackageSettings, MewloSettings.DEF_DBTABLENAME_PackageSettings)
+        self.createappendcomp('packagesettings', mdbsettings_package.MewloSettingsDb_Package)
 
         # collection of mewlo addon packages
         self.createappendcomp('packagemanager', mpackagemanager.MewloPackageManager)
@@ -192,7 +193,7 @@ class MewloSite(object):
     def startup_allcomponents(self, eventlist):
         """Startup all created helper manager components; note the order is important and is preserved from when we added."""
 
-        # walk the component list
+        # walk the component list and ask each to register any db classes
         for key,obj in self.components.get_tuplelist():
             # pre startup - register database classes
             obj.prestartup_register_dbclasses(self, eventlist)
@@ -200,12 +201,12 @@ class MewloSite(object):
         # now that all database models have been registered with the system, finalize creation of models -- create all db tables, etc
         self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
 
-        # walk the component list
+        # walk the component list and let each startup
         for key,obj in self.components.get_tuplelist():
             # start up the component
             obj.startup(eventlist)
 
-        # walk the component list
+        # walk the component list and let each do any post-startup
         for key,obj in self.components.get_tuplelist():
             # post startup
             obj.poststartup(eventlist)

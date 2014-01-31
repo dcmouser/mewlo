@@ -184,32 +184,7 @@ pathprefix for route groups is not going to obey recursive relative paths
 
 
 //---------------------------------------------------------------------------
-1/30/14
-in mdbmanager.py we have two functions which do not belong here:
-create_early_database_classes()
-create_core_database_classes()
+1/31/14
 
-these functions are needed to inform sqlalchemy to create the models and tables, etc.
-
-find a way to get that code into the managers classes
-
-also see mdbsettings as well for some awkward use of registry to get the database object model for use with settings/ i think it may make more sense 
-//---------------------------------------------------------------------------
-
-
-
-//---------------------------------------------------------------------------
-1/30/14
-the use of 
-        self.dbmanager.register_modelclass(self, self.logclass)
-        #self.dbmanager.create_tableandmapper_foroneclass(self.logclass)
-				dbmanager.create_tableandmapper_forallmodelclasses()
-is really kludgey and messy; has to be a better way to ask all managers to register their database classes en masse before starting up.
-
-add a register_databaseclasses() function to managers
-
-make it
-prestartup_registerdbclasses()
-startup()
-poststartup()
+implement database table prefixes.
 //---------------------------------------------------------------------------
