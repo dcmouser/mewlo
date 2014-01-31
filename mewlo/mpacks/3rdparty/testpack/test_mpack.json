@@ -29,5 +29,5 @@
 		},
 
 	"codefile": "test_mpack.py",
-	"codeclass": "Test_MewloPackObject"
+	"codeclass": "Test_MewloPackPayload"
 }

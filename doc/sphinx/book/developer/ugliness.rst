@@ -19,15 +19,12 @@ Ugly Code
 
 
 8/15/13:
-    * Our debug function output is ugly -- especially the indentstr parts.  What about returning debug information as a hierarchical list of strings, for rendering in dif ways (including an accordian tree if online).
+    * Our debug function output is not ideal.  What about returning debug information as a hierarchical list of strings, for rendering in dif ways (including an accordian tree if online).
 
 
 9/24/13:
     * Routemanager (and log system) uses the startup function to walk a hierarchy of objects and set parenting hierarchy info; this is done so that we can track the hierarchy no matter what order the objects are created. Is there a better way to do this?
 
-
-9/27/13:
-    * We have objects called MewloPackages -- might be too confusing with python term of "packages"; can we rename it to something similar like "packs"?
 
 
 10/1/13:

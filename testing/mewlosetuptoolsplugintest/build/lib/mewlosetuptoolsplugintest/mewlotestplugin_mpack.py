@@ -5,26 +5,26 @@ This file manages a test pack, meant to be autodiscovered via setup tools entry 
 
 
 # mewlo imports
-from mewlo.mpacks.core.pack.mpackobject import MewloPackObject
+from mewlo.mpacks.core.pack.mpackpayload import MewloPackPayload
 
 
 
 
-class SetupToolsPlugin_MewloPackObject(MewloPackObject):
+class SetupToolsPlugin_MewloPackPayload(MewloPackPayload):
     """
-    The SetupToolsPlugin_MewloPackObject class defines a test mewlo "pack" aka extension/plugin/addon.
+    The SetupToolsPlugin_MewloPackPayload class defines a test mewlo "pack" aka extension/plugin/addon.
     """
 
 
     def __init__(self, pack):
         # parent constructor
-        super(SetupToolsPlugin_MewloPackObject, self).__init__(pack)
+        super(SetupToolsPlugin_MewloPackPayload, self).__init__(pack)
 
 
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        str = " "*indent + "Mewlo SetupToolsPlugin_MewloPackObject v2 reporting in.\n"
+        str = " "*indent + "Mewlo SetupToolsPlugin_MewloPackPayload v2 reporting in.\n"
         return str
 
 
