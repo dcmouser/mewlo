@@ -66,8 +66,6 @@ class MewloSettings(manager.MewloManager):
 
 
 
-
-
     def __init__(self, mewlosite, debugmode):
         # parent constructor
         super(MewloSettings, self).__init__(mewlosite, debugmode)

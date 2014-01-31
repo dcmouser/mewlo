@@ -30,6 +30,9 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
     def prestartup_register_dbclasses(self, mewlosite, eventlist):
+        """Register core database models."""
+        # call parent
+        super(MewloDatabaseManager,self).prestartup_register_dbclasses(mewlosite, eventlist)
         # register the gob (global object) model; all users/groups/etc have a unique gob id; it lets us set up foreign keys to dif kinds of objects via their gob id
         self.register_modelclass(self, mdbmodel_gob.MewloDbModel_Gob)
         # user group role stuff

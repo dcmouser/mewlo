@@ -48,7 +48,13 @@ class MewloSettingsDb(MewloSettings):
 
 
     def prestartup_register_dbclasses(self, mewlosite, eventlist):
-        """Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup."""
+        """
+        Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup.
+        In this case we create a db model dynamically, on the fly based on parameters passed to us at time of initialization.
+        """
+        # call parent
+        super(MewloSettingsDb,self).prestartup_register_dbclasses(mewlosite, eventlist)
+        # create dynamic class
         dbmanager = mewlosite.comp('dbmanager')
         self.dbmodelclass = dbmanager.create_derived_dbmodelclass(self, mdbmodel_settings.MewloDbModel_Settings, self.dbmodelclassname, self.dbmodeltablename)
         dbmanager.register_modelclass(self, self.dbmodelclass)

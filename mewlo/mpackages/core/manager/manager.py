@@ -13,19 +13,32 @@ class MewloManager(object):
     """Base class for high-level site-helping managers; base class does little."""
 
     def __init__(self, mewlosite, debugmode):
+        """
+        Initialization/construction of a manager
+        When this happens you should never do much -- because you may have no idea what other managers/components have been created yet.
+        """
         self.mewlosite = mewlosite
 
+
     def prestartup_register_dbclasses(self, mewlosite, eventlist):
-        """Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup."""
+        """
+        This is called for all managers, before any managers get startup() called.
+        By the time this gets called you can be sure that ALL managers/components have been added to the site.
+        The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
+        The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
+        """
         pass
+
 
     def startup(self, eventlist):
         """Startup everything."""
         self.mewlosite.logevent("Startup of manager ({0}).".format(self.__class__.__name__))
 
+
     def poststartup(self, eventlist):
-        """Called after startup."""
+        """Called after all managers finish with startup()."""
         pass
+
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""

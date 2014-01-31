@@ -70,7 +70,9 @@ class MewloLogManager(manager.MewloManager):
 
     def prestartup_register_dbclasses(self, mewlosite, eventlist):
         """Startup everything."""
+        # parent call
         super(MewloLogManager,self).prestartup_register_dbclasses(mewlosite, eventlist)
+        # now all loggers get their chance
         for logger in self.loggers:
             logger.prestartup_register_dbclasses(mewlosite, eventlist)
 
@@ -191,6 +193,7 @@ class MewloLogFilter(object):
         self.andfilters = []
 
     def prestartup_register_dbclasses(self, mewlosite, eventlist):
+        """Any database models to create?"""
         pass
 
     def startup(self, mewlosite, eventlist):
@@ -379,7 +382,7 @@ class MewloLogTarget(object):
 
 
     def prestartup_register_dbclasses(self, mewlosite, eventlist):
-        """Startup everything."""
+        """Any database models to create?"""
         pass
 
 
@@ -524,7 +527,7 @@ class MewloLogger(object):
 
 
     def prestartup_register_dbclasses(self, mewlosite, eventlist):
-        """Startup everything."""
+        """Let our children do the prestartup."""
         for filter in self.filters:
             filter.prestartup_register_dbclasses(mewlosite, eventlist)
         for target in self.targets:
