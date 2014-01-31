@@ -1,0 +1,31 @@
+{
+	"uniqueid": "mouser.mewlotestplug",
+
+	"nicename": "MewloTestPluginViaSetupTools",
+	"label": "Test Pack Number 2",
+	"description": "This is a test pack to aid in testing pack addons; autodiscovered via setuptools entry_points.",
+
+	"group": "test",
+  "genre": "addon",
+
+	"isrequired": false,
+
+	"author": "mouser@donationcoder.com",
+
+
+	"version": "1.0.0",
+	"versiondate": "sep 01, 2013",
+
+	"url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/testpack",
+	"url.version":  "http://www.donationcoder.com/Software/Mouser/mewlo/updates/testpack/mewlotestplug_mpack.json",
+	"url.download": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/testpack/mewlotestplug_mpack.zip",
+
+
+
+	"license": "BSD",
+
+	"requires": [],
+
+	"codefile": "mewlotestplugin_mpack.py",
+	"codeclass": "SetupToolsPlugin_MewloPackObject"
+}

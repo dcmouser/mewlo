@@ -1,7 +1,7 @@
 Mewlo Theme Override System
 ===========================
 
-Things get complicated when we have core or addon packages which want to provide view files that the user *might* want to replace, or which might be replaced by theme packs.
+Things get complicated when we have core or addon packs which want to provide view files that the user *might* want to replace, or which might be replaced by theme packs.
 
 As an example, consider all of the login/registration type view pages that are part of core mewlo code.
 

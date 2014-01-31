@@ -23,7 +23,7 @@ Create simple batch file to setup virtual environment in commandline:
 STEP 2 - Adding Mewlo directory to python path
 ----------------------------------------------
 
-You need to add the top mewlo directory to your python path so it can be found when you execute a command like "import mewlo.mpackages"
+You need to add the top mewlo directory to your python path so it can be found when you execute a command like "import mewlo.mpacks"
 One way is to add the path to it to site-packages\easy-install.pth
 
 

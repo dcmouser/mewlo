@@ -33,16 +33,16 @@ Naming:
 File organization:
 
     * Favor many files arranged hierarchically into subdirectories, as opposed to large files.
-    * All of Mewlo code (both core required code and optional 3rd party code) is organized into "packages"; every package should have it's own subdirectory under mewlo/mpackages.
-    * The mpackages/core directory is the root to all core Mewlo code.
-    * The mpackages/core/helpers directory holds classes and code that have a reasonable likelihood of being generic and usable in non-Mewlo projects.
+    * All of Mewlo code (both core required code and optional 3rd party code) is organized into "packs"; every pack should have it's own subdirectory under mewlo/mpacks.
+    * The mpacks/core directory is the root to all core Mewlo code.
+    * The mpacks/core/helpers directory holds classes and code that have a reasonable likelihood of being generic and usable in non-Mewlo projects.
     * To explain the use of a directory, create a file called "README.txt" and place information there.
 
 
 File formats:
 
     * When data files are desired, use .json format files, not xml
-    * The extensions of files should match their format -- do not use a custom file extension to indicate purpose; to indicate purpose use a suffix in filename (e.g. "mytest_mpackage.json" uses suffix "_mpackage" to denote it is a package file).
+    * The extensions of files should match their format -- do not use a custom file extension to indicate purpose; to indicate purpose use a suffix in filename (e.g. "mytest_mpack.json" uses suffix "_mpack" to denote it is a pack file).
 
 
 GUI interface:
@@ -106,4 +106,4 @@ Python files:
             # python imports
             built in python library imports
 
-    * __init__.py files should not have any content; they serve only to mark directories as python traversable packages.
+    * __init__.py files should not have any content; they serve only to mark directories as python traversable packs.

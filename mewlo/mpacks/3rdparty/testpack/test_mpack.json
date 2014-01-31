@@ -1,0 +1,33 @@
+{
+	"uniqueid": "mouser.testpack",
+
+	"nicename": "TestPack",
+	"label": "Test Pack Number 1",
+	"description": "This is a test pack to aid in testing pack addons.",
+
+	"group": "test",
+  "genre": "addon",
+
+	"isrequired": false,
+
+	"author": "mouser@donationcoder.com",
+
+
+	"version": "1.0.0",
+	"versiondate": "jul 18, 2013",
+
+	"url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/testpack",
+	"url.version":  "http://www.donationcoder.com/Software/Mouser/mewlo/updates/testpack/test_mpack.json",
+	"url.download": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/testpack/test_mpack.zip",
+
+
+
+	"license": "BSD",
+
+	"requires": {
+			"packs": ["mouser.mewlotestplug"]
+		},
+
+	"codefile": "test_mpack.py",
+	"codeclass": "Test_MewloPackObject"
+}

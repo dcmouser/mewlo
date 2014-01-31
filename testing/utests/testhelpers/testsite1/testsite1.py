@@ -6,22 +6,22 @@ This class defines a test site (and will run a debug test of it if started as ma
 
 
 # Mewlo imports
-from mewlo.mpackages.core.site.msitemanager import MewloSiteManager
-from mewlo.mpackages.core.site.msite import MewloSite
-from mewlo.mpackages.core.controller.mcontroller import MewloController
-from mewlo.mpackages.core.controller.mcontroller_staticfiles import MewloController_StaticFiles
-from mewlo.mpackages.core.route.mroute import *
-from mewlo.mpackages.core.route.mroute_staticfiles import MewloRoute_StaticFiles
-from mewlo.mpackages.core.navnode.mnav import NavNode, NavLink
-from mewlo.mpackages.core.database import mdbmodel_log
-from mewlo.mpackages.core.eventlog.mlogtarget_database import MewloLogTarget_Database
-from mewlo.mpackages.core.setting.msettings import MewloSettings
-from mewlo.mpackages.core.eventlog.mlogger import MewloLogger
-from mewlo.mpackages.core.eventlog.mlogtarget_file import MewloLogTarget_File
-from mewlo.mpackages.core.eventlog.mlogtarget_python import MewloLogTarget_Python
-from mewlo.mpackages.core.eventlog.mevent import EWarning
+from mewlo.mpacks.core.site.msitemanager import MewloSiteManager
+from mewlo.mpacks.core.site.msite import MewloSite
+from mewlo.mpacks.core.controller.mcontroller import MewloController
+from mewlo.mpacks.core.controller.mcontroller_staticfiles import MewloController_StaticFiles
+from mewlo.mpacks.core.route.mroute import *
+from mewlo.mpacks.core.route.mroute_staticfiles import MewloRoute_StaticFiles
+from mewlo.mpacks.core.navnode.mnav import NavNode, NavLink
+from mewlo.mpacks.core.database import mdbmodel_log
+from mewlo.mpacks.core.eventlog.mlogtarget_database import MewloLogTarget_Database
+from mewlo.mpacks.core.setting.msettings import MewloSettings
+from mewlo.mpacks.core.eventlog.mlogger import MewloLogger
+from mewlo.mpacks.core.eventlog.mlogtarget_file import MewloLogTarget_File
+from mewlo.mpacks.core.eventlog.mlogtarget_python import MewloLogTarget_Python
+from mewlo.mpacks.core.eventlog.mevent import EWarning
 #
-from mewlo.mpackages.site_addons.account import msiteaddon_account
+from mewlo.mpacks.site_addons.account import msiteaddon_account
 
 
 # python imports
@@ -31,9 +31,9 @@ import logging
 
 
 
-# Import the "mpackages" import which is just a subdirectory where the extensions specific to the site live;
+# Import the "mpacks" import which is just a subdirectory where the extensions specific to the site live;
 # this is just a way to get the relative directory easily, and we use this in config settings
-import mpackages as pkgdirimp_sitempackages
+import mpacks as pkgdirimp_sitempacks
 import controllers as pkgdirimp_controllers
 
 
@@ -57,11 +57,11 @@ class MewloSite_Test1(MewloSite):
         # config settings
         config = {
             # some generic settings for every site, to point to location of some stuff
-            MewloSettings.DEF_SETTINGNAME_pkgdirimps_sitempackages: [pkgdirimp_sitempackages],
+            MewloSettings.DEF_SETTINGNAME_pkgdirimps_sitempacks: [pkgdirimp_sitempacks],
             MewloSettings.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
             MewloSettings.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
             # should we also load mewlo site installed setuptools plugins
-            MewloSettings.DEF_SETTINGNAME_flag_importsetuptoolspackages: True,
+            MewloSettings.DEF_SETTINGNAME_flag_importsetuptoolspacks: True,
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
 
@@ -98,16 +98,16 @@ class MewloSite_Test1(MewloSite):
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
 
 
-        # extension package config -- we need to explicitly enable plugins
-        packageconfig = {
+        # extension pack config -- we need to explicitly enable plugins
+        packconfig = {
             'mouser.mewlotestplug' : {
                 'isenabled': True,
                 },
-            'mouser.testpackage' : {
+            'mouser.testpack' : {
                 'isenabled': True,
                 },
             }
-        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_packages, packageconfig)
+        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_packs, packconfig)
 
 
         # database config
@@ -172,7 +172,7 @@ class MewloSite_Test1(MewloSite):
 
         # create a routegroup
         routegroup = MewloRouteGroup()
-        # overide the parent import-package-directory for the urls in this group? if we don't it will use the controller root set in SITE config
+        # overide the parent import-pack-directory for the urls in this group? if we don't it will use the controller root set in SITE config
         # routegroup.set_controllerroot(pkgdirimp_controllers)
 
         routegroup.append(
@@ -236,14 +236,14 @@ class MewloSite_Test1(MewloSite):
             MewloRoute(
                 id = 'contact',
                 path = '/help/contact',
-                # we can pass the root package to the MewloController constructor, which has the benefit of doing the import immediately and raising exception if not found; otherwise the error will come up during preparation
+                # we can pass the root pack to the MewloController constructor, which has the benefit of doing the import immediately and raising exception if not found; otherwise the error will come up during preparation
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_contact'),
                 ))
         routegroup.append(
             MewloRoute(
                 id = 'about',
                 path = '/help/about',
-                # we can pass the root package to the MewloController constructor, which has the benefit of doing the import immediately and raising exception if not found; otherwise the error will come up during preparation
+                # we can pass the root pack to the MewloController constructor, which has the benefit of doing the import immediately and raising exception if not found; otherwise the error will come up during preparation
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_about'),
                 ))
 

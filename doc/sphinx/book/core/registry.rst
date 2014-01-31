@@ -16,7 +16,7 @@ We will need to keep a published list of such keys used.
 
 We can contrast this approach to the Zope Component Architecture approach which uses a much stricter system of type checking interfaces and class hierarchies.
 
-While such an approach does a better job of catching errors early, and is generally a more pure OOP strategy, we have chosen in the case of plugins/addons/packages to favor a simple generic communication/interfacing protocol.
+While such an approach does a better job of catching errors early, and is generally a more pure OOP strategy, we have chosen in the case of plugins/addons/packs to favor a simple generic communication/interfacing protocol.
 Our experience has been that while a strong typechecking approach is useful for internal code, the nature of addon development and constantly changing APIs, and the complexity in creating compliant small addons, make the looser generic approach a better solution.
 
 

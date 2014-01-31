@@ -10,7 +10,7 @@ There are a number of different kinds of "customization" that one might talk abo
     * Allowing people to write localization/translation text for any text output of the system and share such translations, and easily update them.
     * Allowing developers to easily and non-invasively OVERRIDE/REPLACE (core or addon) classes with interface-compatible classes,.
     * Allowing developers to easily and non-invasively OVERRIDE/REPLACE template views, static resources (css, images, etc).
-    * Allowing developers to easily group and package addons/customizations/site specific implementations to make maintenance easier.
+    * Allowing developers to easily group and pack addons/customizations/site specific implementations to make maintenance easier.
 
 
 Design features that would support these:

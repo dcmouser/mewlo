@@ -1,7 +1,7 @@
 Core Packages
 =============
 
-From here you can learn about the core Mewlo packages.
+From here you can learn about the core Mewlo packs.
 
 .. toctree::
 
@@ -13,7 +13,7 @@ From here you can learn about the core Mewlo packages.
    forms
    logging
    navigation
-   packages
+   packs
    registry
    settings
    templates

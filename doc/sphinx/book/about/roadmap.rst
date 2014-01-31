@@ -15,7 +15,7 @@ Implementation progress:
 What's next to work on?
 
 
-Figure out how a registration/login system could be added as a package-like thing,
+Figure out how a registration/login system could be added as a pack-like thing,
 but with user being able to customize the views for custom sites.
 
 

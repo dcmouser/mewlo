@@ -1,10 +1,11 @@
 Metadata-Version: 1.0
 Name: MewloTestPluginViaSetupTools
 Version: 1.0.0
-Summary: Test Package Number 2
-Home-page: http://www.donationcoder.com/Software/Mouser/mewlo/testpackage
+Summary: Test Pack Number 2
+Home-page: http://www.donationcoder.com/Software/Mouser/mewlo/updates/testpack
 Author: mouser@donationcoder.com
 Author-email: UNKNOWN
 License: UNKNOWN
-Description: This is a test package to aid in testing package addons; autodiscovered via setuptools entry_points.
+Download-URL: http://www.donationcoder.com/Software/Mouser/mewlo/updates/testpack/mewlotestplug_mpack.zip
+Description: This is a test pack to aid in testing pack addons; autodiscovered via setuptools entry_points.
 Platform: UNKNOWN

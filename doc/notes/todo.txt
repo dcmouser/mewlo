@@ -70,11 +70,6 @@ Make summary flowcharts/writeups of mewlo startup and url processing workflow st
 
 
 
-//---------------------------------------------------------------------------
-1/17/14
-the signal dispatcher startup() code is failing to call startup() for the registered receivers+senders because they are created AFTER startup
-//---------------------------------------------------------------------------
-
 
 //---------------------------------------------------------------------------
 1/17/14
@@ -82,10 +77,6 @@ Log requests and request errors in log
 //---------------------------------------------------------------------------
 
 
-//---------------------------------------------------------------------------
-1/17/14
-Implement the more efficient node counter id and property caching (see mnav.py)
-//---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 1/17/14
@@ -130,27 +121,6 @@ can we move all database model class-based data to a helper object? or will sqla
 1/30/14
 decide on a consistent approach to using model class method to do work vs using a helper class.
 for example session uses session helper/manager
-//---------------------------------------------------------------------------
-
-
-
-//---------------------------------------------------------------------------
-1/30/14
-we are not properly checking for errors on database saves
-//---------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------
-1/30/14
-wrap all non-core-python modules in wrappers
-(mail sending, etc.)
-//---------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------
-1/30/14
-Establish formalism for calling things helpers vs managers, and use a special name for MewloDbModel helper/manager classes.
-Establish guidelines for these.
 
 My suggestion:
 1. Don't use class functions, instead use database object managers.
@@ -173,6 +143,23 @@ See the managers.rst help document for more justification
 
 
 
+//---------------------------------------------------------------------------
+1/30/14
+we are not properly checking for errors on database saves
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+1/30/14
+wrap all non-core-python helper functions in wrapper classes
+(mail sending, etc.)
+//---------------------------------------------------------------------------
+
+
+
+
+
+
 
 
 
@@ -185,6 +172,13 @@ pathprefix for route groups is not going to obey recursive relative paths
 
 //---------------------------------------------------------------------------
 1/31/14
-
 implement database table prefixes.
 //---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+1/13/14
+when rendering a view/template we currently build all aliases in preparation; this seems very inefficient.  can we smartly resolve aliases, or keep them always updated?
+//---------------------------------------------------------------------------
+
+

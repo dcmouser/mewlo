@@ -5,7 +5,7 @@ This file defines helper functions for writing mewlo setuptools based plugins.
 
 
 Mewlo does not require the use of setuptools for handling plugins, it uses it's own system.
-But it does support the use of setuptools by plugin/package authors who wish to use it.
+But it does support the use of setuptools by plugin/pack authors who wish to use it.
 It does so by supporting setuptools functions for packaging, registering, and discovering plugins.
 Once discovered, Mewlo uses it's own system for interacting with plugins.
 
@@ -73,7 +73,7 @@ def dvalordef(adict, akey, adefault=None):
 
 
 
-def shelp_invoke_setuptools_setup(sourcepath, infofilepath_relative, entry_point_packages):
+def shelp_invoke_setuptools_setup(sourcepath, infofilepath_relative, entry_point_packs):
     """
     Call setuptools setup function.
     """
@@ -113,18 +113,18 @@ def shelp_invoke_setuptools_setup(sourcepath, infofilepath_relative, entry_point
 
 
         entry_points = {
-            # the data specified for the entry point 'mewlo.packages' is the data that the mewlo plugin host system will receive.
+            # the data specified for the entry point 'mewlo.packs' is the data that the mewlo plugin host system will receive.
             # it will parse this data in order to instantiate the addons/plugins/etc.
             # essentially what we provide here is simply information about the directory where this client plugin lives.
-            # given the directory, the plugin host will find the standard "mpackage" system we use for mewlo plugins.
-            # the mpackage approach basically uses a .json file for info about the plugin, and a matching _mpackage.py file
+            # given the directory, the plugin host will find the standard "mpack" system we use for mewlo plugins.
+            # the mpack approach basically uses a .json file for info about the plugin, and a matching _mpack.py file
             # which implements the plugin.
             # One could contrast this approach with other python plugin systems using setuptool entrypoints, where the entrypoint
             # provides richer details about the plugin details.  In our case we want to use a single clean class system for
             # plugins, so our setuptools entrypoint is just used to tell mewlo additional directories to scan for plugins that are
             # installed independently and outside of the mewlo directory.
             #
-            # entry_point_packages should be like this
+            # entry_point_packs should be like this
             #    [
             #    # we could pass a list of explicit info file paths using a helper function
             #    #'infofiles = mewlosetuptoolsplugintest.setuptools_discoveryhelper:get_infofiles',
@@ -133,12 +133,12 @@ def shelp_invoke_setuptools_setup(sourcepath, infofilepath_relative, entry_point
             #    # or the simplest way requires no helper functions, just specify a module,
             #    # and the directory where that module lives (and its subdirs) will be scanned for json info files.
             #    # note that it doesn't matter what specific module we path here, the only thing that will be extracted is its DIRECTORY
-            #    'moduleforpath = mewlosetuptoolsplugintest.mewlotestplugin_mpackage',
+            #    'moduleforpath = mewlosetuptoolsplugintest.mewlotestplugin_mpack',
             #    # note that we can specify multiple entries here by adding a dotted part to the key, which is otherwise ignored.
-            #    # e.g. 'modulesforpath.two = mewlosetuptoolsplugintest.mewlotestplugin_mpackage2',
+            #    # e.g. 'modulesforpath.two = mewlosetuptoolsplugintest.mewlotestplugin_mpack2',
             #    ]
 
-            'mewlo.packages': entry_point_packages
+            'mewlo.packs': entry_point_packs
             },
 
 

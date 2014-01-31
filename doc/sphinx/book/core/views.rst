@@ -13,6 +13,6 @@ In general, loading and displaying View files is a straightforward process.  Her
 
 The '${siteviewpath}' alias replacement points to a view directory in the custom site.
 
-Things get complicated when we have core or addon packages which want to provide view files that the user *might* want to replace, or which might be replaced by theme packs.
+Things get complicated when we have core or addon packs which want to provide view files that the user *might* want to replace, or which might be replaced by theme packs.
 
 See the [themes] document for information on handling theme overrides.

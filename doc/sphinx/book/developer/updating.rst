@@ -3,15 +3,15 @@ Updating 1
 
 This document discusses the mewlo api involved in updating stuff -- mostly database, when new versions of a mewlo app or mewlo itself is released.
 
-Let's think about different kinds of things a package might do related to update operations:
+Let's think about different kinds of things a pack might do related to update operations:
 
-    * Detect if the current package code needs to run a database update before it can run (ie after a code update but before database update).
-    * Detect if the pre-requisites are not met for a package.
+    * Detect if the current pack code needs to run a database update before it can run (ie after a code update but before database update).
+    * Detect if the pre-requisites are not met for a pack.
     * Detect if there is an incompatibility problem with the current code and the database.
     * Detect if there is a pending online update that is optional or security-essential.
     * Detect if there is a locally available code update that has been downloaded and is waiting to unpack.
-    * Allow user to block a package from online update checking
-    * Installing new packages from online repository
+    * Allow user to block a pack from online update checking
+    * Installing new packs from online repository
 
 Ok let's separate the easy form the hard:
 

@@ -19,7 +19,7 @@ Ugly Code
 
 
 8/15/13:
-    * Our debug functions are ugly -- especially the indentstr parts.
+    * Our debug function output is ugly -- especially the indentstr parts.  What about returning debug information as a hierarchical list of strings, for rendering in dif ways (including an accordian tree if online).
 
 
 9/24/13:
@@ -36,7 +36,7 @@ Ugly Code
 
 
 10/1/13:
-    * Take a look at a file like package.py; note that its impossible to distinguish between api functions meant to be called by someone, vs helper functions used by these.
+    * Take a look at a file like pack.py; note that its impossible to distinguish between api functions meant to be called by someone, vs helper functions used by these.
     * Move all "internal" functions to _ prefixes?
     * By internal i mean functions not meant to be called from outside the class
     * Method functions that are *ONLY* called by other functions within the class, and never called from outside the class should be _ prefixed.
@@ -63,31 +63,20 @@ Ugly Code
     * The sqlalchemy column creation stuff is still awkward.
     * We need a better workflow that will allow us to dynamically add relations and columns to models
     * Sql alchemy stuff is done in a way that makes it hard to refer to sql alchemy columns
-    * Creation order of tables and relationships is problematic.
     * Move all/most sqlalchemy to declarative style?
 
-
-11/10/13:
-    * Instead of manually calling every "manager" in site startup and shutdown, can we iterate through a list?
-
-
-11/11/13:
-
-    * We implement here some serialized support functions in mmdbmodel_log but they shouldn't be there, they should be more generically implemented in model or field class.  And we should use a special sqlalchemy column class that knows how to treat it specially.
-    * See all mdbmodel_settings
 
 
 1/16/14:
 
-    * There are currently some class-level variables in the MewloDbModel class hierarchy that keep track of things like sqlalchemy tables/relations, etc.; when running things like unit tests which build a site multiple times, this requires some kludgey ugly resetting of this data between creations.
+    * There are currently some class-level variables in the MewloDbModel class hierarchy that keep track of things like sqlalchemy tables/relations, etc.
+    * when running things like unit tests which build a site multiple times, this requires some kludgey ugly resetting of this data between creations.
     * Too many imports in testsite1.py
 
 1/17/14:
 
-    * The mglobals package is small but still ugly
     * The database backed settings class (mdbsettings) is a litle bit ugly
     * The msettings class is a big ugly (especially all the constant setting names)
-    * We need to standardize our startup() functions; many take a mewlosite,eventlist, some do not
 
 1/17/14:
     * Eventlist in mevent.py -- let's derive this from a true list
@@ -96,11 +85,17 @@ Ugly Code
     * I'd really like to remove all of this stuff where we are passing eventlists to functions for collecting warnings, etc.  There has to be a better way.
 
 1/21/14:
-    * We have a problem with the workflow for checking package updates and specifically critical web update checking, and package initialization.
-    * As it is, we discover packages, load their code, all at startup, and only then can we check for web/database updates.
-    * And we cannot check for database updates UNTIL we have loaded the package objects.
-    * What should? workflow look like? 1. discover packages, 2. do web update checks, 3. load code objects, 4. do database update check, 5. enable 
-    * Current workflow: 1. discover packages, 2. load code objects + do database update checks, and enable, 3. do web update checks and database update checks
+    * We have a problem with the workflow for checking pack updates and specifically critical web update checking, and pack initialization.
+    * As it is, we discover packs, load their code, all at startup, and only then can we check for web/database updates.
+    * And we cannot check for database updates UNTIL we have loaded the pack objects.
+    * What should? workflow look like? 1. discover packs, 2. do web update checks, 3. load code objects, 4. do database update check, 5. enable 
+    * Current workflow: 1. discover packs, 2. load code objects + do database update checks, and enable, 3. do web update checks and database update checks
 
 1/21/14
     * I dont think we can support multiple sites if we are using sqlalchemy. think about the fact that model classes are being instrumented, and thus cannot be shared across multiple different tables for different sites.
+    * See my help document on managers for a way we could (by using managers to create model objects, they could dynamically create site-specific-derived classes on the fly).
+    * However, i think the idea of multiple independent sites being run by a site manager was probably misplaced -- we dont really need to be able to do this do we?
+    * Might we instead consider the django idea of supporting multiple sites THAT SHARE THE SAME DATABASE objects.
+
+
+

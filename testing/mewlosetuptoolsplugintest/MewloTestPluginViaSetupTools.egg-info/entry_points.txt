@@ -1,3 +1,3 @@
-[mewlo.packages]
-moduleforpath = mewlosetuptoolsplugintest.mewlotestplugin_mpackage
+[mewlo.packs]
+moduleforpath = mewlosetuptoolsplugintest.mewlotestplugin_mpack
 

@@ -42,7 +42,7 @@ Easier Issues:
 
     * What's the best way to support replaceable components?
 
-        * This is a different issue from allowing the ADDITION of packages and plugins.
+        * This is a different issue from allowing the ADDITION of packs and plugins.
         * It deals with the ability to drop-in replacement components for core classes.
         * I believe the key way this needs to be solved is to avoid hardcoding imports and object instantiation classes.
         * Instead all importing of modules and object instantiation should route through the Mewlo system, which can be configured to use drop-in replacement classes for any component (including User component, etc.)
