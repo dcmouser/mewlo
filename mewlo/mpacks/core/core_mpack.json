@@ -33,7 +33,7 @@
 		},
 
 	"codefile": "core_mpack.py",
-	"codeclass": "Core_MewloPackPayload"
+	"codeclass": "Core_MewloPackWorker"
 
 
 }

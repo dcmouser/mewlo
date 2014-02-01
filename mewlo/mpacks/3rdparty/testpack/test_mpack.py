@@ -5,7 +5,7 @@ This file manages a test pack
 
 
 # mewlo imports
-from mewlo.mpacks.core.pack import mpackpayload
+from mewlo.mpacks.core.pack import mpackworker
 from mewlo.mpacks.core.signal import msignal
 from mewlo.mpacks.core.registry import mregistry
 
@@ -34,7 +34,7 @@ class Test_MewloPack_Service(object):
 
 
 
-class Test_MewloPackPayload(mpackpayload.MewloPackPayload):
+class Test_MewloPackWorker(mpackworker.MewloPackWorker):
     """
     The Test_MewloPack class defines a test mewlo "pack" aka extension/plugin/addon.
     """
@@ -42,7 +42,7 @@ class Test_MewloPackPayload(mpackpayload.MewloPackPayload):
 
     def __init__(self, pack):
         # parent constructor
-        super(Test_MewloPackPayload, self).__init__(pack)
+        super(Test_MewloPackWorker, self).__init__(pack)
 
 
     def startup(self, mewlosite, eventlist):
@@ -58,7 +58,7 @@ class Test_MewloPackPayload(mpackpayload.MewloPackPayload):
 
     def shutdown(self):
         # called by Mewlo system when it's ready for us to do any shutdown
-        super(Test_MewloPackPayload, self).shutdown()
+        super(Test_MewloPackWorker, self).shutdown()
         return None
 
 
@@ -93,7 +93,7 @@ class Test_MewloPackPayload(mpackpayload.MewloPackPayload):
             mewlosite.comp('registrymanager').register_component(component)
 
         # lastly, call the parent startup (important!)
-        super(Test_MewloPackPayload, self).startup(mewlosite, eventlist)
+        super(Test_MewloPackWorker, self).startup(mewlosite, eventlist)
 
         # success
         return None
@@ -109,7 +109,7 @@ class Test_MewloPackPayload(mpackpayload.MewloPackPayload):
     def signalcallback_test(self, receiverobject, id, message, request, source):
         # we receive a signal callback
         # ATTN: debug test
-        msg = "ATTN:DEBUG - From within Test_MewloPackPayload, received a signal callback."
+        msg = "ATTN:DEBUG - From within Test_MewloPackWorker, received a signal callback."
         # log it
         self.log_signalmessage(msg, receiverobject, id, message, request, source)
         # return (result, failure)
@@ -174,6 +174,6 @@ class Test_MewloPackPayload(mpackpayload.MewloPackPayload):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        str = " "*indent + "Mewlo Test_MewloPackPayload reporting in.\n"
+        str = " "*indent + "Mewlo Test_MewloPackWorker reporting in.\n"
         return str
 

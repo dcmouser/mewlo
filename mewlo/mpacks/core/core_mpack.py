@@ -8,7 +8,7 @@ All code in mewlo, both the core code, and any 3rd party addons/plugins/extensio
 The MewloPack provides information about the version of the code release and associated information suitable for doing online update checking,
  as well as author information, and dependency information between packs, etc.
 
-So this Core_MewloPackPayload is the "manager" or owner of all core mewlo code.
+So this Core_MewloPackWorker is the "manager" or owner of all core mewlo code.
 It doesn't actually *do* anything -- but does describe and version the core code.
 
 """
@@ -16,19 +16,19 @@ It doesn't actually *do* anything -- but does describe and version the core code
 
 
 # mewlo imports
-from pack import mpackpayload
+from pack import mpackworker
 
 
 
 
-class Core_MewloPackPayload(mpackpayload.MewloPackPayload):
+class Core_MewloPackWorker(mpackworker.MewloPackWorker):
     """
     The Core_MewloPack class manages the core mewlo code
     """
 
     def __init__(self, pack):
         # parent constructor
-        super(Core_MewloPackPayload, self).__init__(pack)
+        super(Core_MewloPackWorker, self).__init__(pack)
 
 
     def startup(self, mewlosite, eventlist):
@@ -43,7 +43,7 @@ class Core_MewloPackPayload(mpackpayload.MewloPackPayload):
 
     def shutdown(self):
         # called by Mewlo system when it's ready for us to do any shutdown
-        super(Core_MewloPackPayload, self).shutdown()
+        super(Core_MewloPackWorker, self).shutdown()
         return None
 
 
@@ -69,6 +69,6 @@ class Core_MewloPackPayload(mpackpayload.MewloPackPayload):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        str = " "*indent + "Core_MewloPackPayload reporting in.\n"
+        str = " "*indent + "Core_MewloPackWorker reporting in.\n"
         return str
 

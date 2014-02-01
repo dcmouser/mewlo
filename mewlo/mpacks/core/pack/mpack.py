@@ -27,15 +27,15 @@ class MewloPack(object):
     It is actually a fairly light-weight structure that:
         * loads a json info file with information about the "addon pack".
         * dynamically loads(imports) a python code module specified by the json info file.
-        * dynamically instantiates a PackPayload object from the above python code module.
-    It is actually the PackPayload object that, once instantiated, does the work of the addon.
-    So, the right way to think of a Pack is as the bridge middleman responsible for instantiating a PackPayload addon.
+        * dynamically instantiates a PackWorker object from the above python code module.
+    It is actually the PackWorker object that, once instantiated, does the work of the addon.
+    So, the right way to think of a Pack is as the bridge middleman responsible for instantiating a PackWorker addon.
     One reason we use this middleman object is so that we can instantiate (just) the middleman wrapper around the json info file, even when the addon is DISABLED.
-    In this way, we can have instantiated MewloPack objects even for missing/disabled MewloPackPayloads.
+    In this way, we can have instantiated MewloPack objects even for missing/disabled MewloPackWorkers.
     Additional features that the Pack class provides:
         * displaying addon info, version info, update checking, etc.
         * handles dependency checking, etc.
-    A MewloPack also keeps an eventlist of any warnings or errors encountered while trying to instantiate the PackPayload.
+    A MewloPack also keeps an eventlist of any warnings or errors encountered while trying to instantiate the PackWorker.
     If an addon cannot be located/loaded/etc., the error information will be stored in this eventlist, and the addon will be disabled.
     """
 
@@ -63,7 +63,7 @@ class MewloPack(object):
         # imported module of code
         self.codemodule_path = ''
         self.codemodule = None
-        self.packpayload = None
+        self.packworker = None
         #
         self.readytoloadcode = False
         self.readytorun = False
@@ -128,7 +128,7 @@ class MewloPack(object):
 
 
 
-    def create_packpayload(self, packpay_class):
+    def create_packworker(self, packpay_class):
         """Create an appropriate child pack; subclasses will reimplement this to use their preferred child class."""
         obj = packpay_class(self)
         return obj
@@ -165,7 +165,7 @@ class MewloPack(object):
         # init
         self.codemodule = None
         self.codemodule_path = ''
-        self.packpayload = None
+        self.packworker = None
         self.readytorun = False
 
         # get path to code module
@@ -176,7 +176,7 @@ class MewloPack(object):
 
         if (failure == None):
             # if the import worked, instantiate the pack object from it
-            failure = self.instantiate_packpayload()
+            failure = self.instantiate_packworker()
 
         if (failure == None):
             # success so mark it as ready to run
@@ -205,41 +205,41 @@ class MewloPack(object):
 
 
 
-    def instantiate_packpayload(self):
+    def instantiate_packworker(self):
         """Assuming we have imported the dynamic pack module, now create the pack object that we invoke to do work"""
 
         # init
-        self.packpayload = None
+        self.packworker = None
 
         # module loaded in memory?
         if (self.codemodule == None):
             return EFailure("No code module imported to instantiate pack object from.")
 
         # object class defined in info dictionary?
-        packpayload_classname = self.get_ourinfofile_property(MewloPack.DEF_INFOFIELD_codeclass, None)
-        if (packpayload_classname == None):
+        packworker_classname = self.get_ourinfofile_property(MewloPack.DEF_INFOFIELD_codeclass, None)
+        if (packworker_classname == None):
             return EFailure("Pack info file is missing the 'codeclass' property which defines the class of the MewloPack derived class in the pack module.")
 
         # does it exist
-        if (not packpayload_classname in dir(self.codemodule)):
-            return EFailure("Pack class '{0}' not found in pack module '{1}'.".format(packpayload_classname, self.codemodule.__name__))
+        if (not packworker_classname in dir(self.codemodule)):
+            return EFailure("Pack class '{0}' not found in pack module '{1}'.".format(packworker_classname, self.codemodule.__name__))
 
         # instantiate it
         try:
-            packpay_class = getattr(self.codemodule, packpayload_classname)
-            packpayload_obj = self.create_packpayload(packpay_class)
+            packpay_class = getattr(self.codemodule, packworker_classname)
+            packworker_obj = self.create_packworker(packpay_class)
         except:
-            return EFailure("Pack class object '{0}' was found in pack module, but could not be instantiated.".format(packpayload_classname))
+            return EFailure("Pack class object '{0}' was found in pack module, but could not be instantiated.".format(packworker_classname))
 
         # always prepare it first
-        failure = packpayload_obj.prepare(self.get_mewlosite().comp('packsettings'))
+        failure = packworker_obj.prepare(self.get_mewlosite().comp('packsettings'))
         if (failure != None):
             # failure to prepare, so we let it go and return the failure
-            packpayload_obj = None
+            packworker_obj = None
             return failure
 
         # save it for use
-        self.packpayload = packpayload_obj
+        self.packworker = packworker_obj
         # no failure returns None
         return None
 
@@ -278,22 +278,22 @@ class MewloPack(object):
             if (database_needupdate):
                 # cannot allow startup since it needs a database update
                 return EWarning("Cannot start pack because it reports that it needs to run a database update first.")
-            if (self.packpayload!=None):
+            if (self.packworker!=None):
                 # ok we loaded the code, now we need to ask the code itself if its ready to run
-                failure = self.packpayload.check_isusable()
+                failure = self.packworker.check_isusable()
                 if (failure!=None):
                     return failure
-                failure = self.packpayload.startup(mewlosite, eventlist)
+                failure = self.packworker.startup(mewlosite, eventlist)
                 return failure
         # ATTN: do we want to throw an error/failure in this case where the code module is not ready to run?
 
 
     def shutdown(self):
         """Do any shutdown stuff."""
-        if (self.packpayload!=None):
-            self.packpayload.shutdown()
-            # and now release the packpayload payload to garbage collection
-            self.packpayload = None
+        if (self.packworker!=None):
+            self.packworker.shutdown()
+            # and now release the packworker payload to garbage collection
+            self.packworker = None
 
     def get_mewlosite(self):
         return self.packmanager.get_mewlosite()
@@ -329,9 +329,9 @@ class MewloPack(object):
         outstr += str(self.codemodule) + "\n"
         #
         outstr += " "*indent + "Pack object: "
-        outstr += str(self.packpayload) + "\n"
-        if (self.packpayload):
-            outstr += self.packpayload.dumps(indent+1)
+        outstr += str(self.packworker) + "\n"
+        if (self.packworker):
+            outstr += self.packworker.dumps(indent+1)
         #
         outstr += " "*indent + "Update check results:\n"
         outstr += " "*indent + " Web has newer version available? {0}\n".format(strvalnone(self.update_webfiles_needupdate,'not checked'))
@@ -399,7 +399,7 @@ class MewloPack(object):
         Note this covers not just web updates available, but database updates needed.
         Division of labor:
             We (the MewloPack wrapper) can do a web check
-            but we have to ask the MewloPackPayload to do the database check.
+            but we have to ask the MewloPackWorker to do the database check.
         """
 
         # clear eventlist and needupdate flags
@@ -426,9 +426,9 @@ class MewloPack(object):
         """
         Check if there needs to be a database update for this module.
         """
-        if (self.packpayload!=None):
+        if (self.packworker!=None):
             # no file update available, so check for database update
-            self.update_database_needupdate, failure = self.packpayload.updatecheck_checkdatabase()
+            self.update_database_needupdate, failure = self.packworker.updatecheck_checkdatabase()
             self.appendevent(failure)
             return self.update_database_needupdate, failure
         # no pack object available -- so do nothing (it should error elsewhere)
@@ -441,7 +441,7 @@ class MewloPack(object):
         Note this covers not just web updates available, but database updates needed.
         Division of labor:
             We (the MewloPack wrapper) can do a web check
-            but we have to ask the MewloPackPayload to do the database check.
+            but we have to ask the MewloPackWorker to do the database check.
         :return: tuple (didupdate, failure)
         """
 
@@ -470,8 +470,8 @@ class MewloPack(object):
             return True, None
 
         # new version not available on web; check if a database update is needed
-        if (self.packpayload!=None):
-            didupdate, failure = self.packpayload.updaterun_database()
+        if (self.packworker!=None):
+            didupdate, failure = self.packworker.updaterun_database()
             if (failure != None):
                 self.appendevent(failure)
                 return False, failure

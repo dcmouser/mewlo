@@ -27,5 +27,5 @@
 	"requires": [],
 
 	"codefile": "mewlotestplugin_mpack.py",
-	"codeclass": "SetupToolsPlugin_MewloPackPayload"
+	"codeclass": "SetupToolsPlugin_MewloPackWorker"
 }

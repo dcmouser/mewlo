@@ -8,9 +8,9 @@ Works with mpackmanager.py and mpack.py to support our pack/extension/addon syst
 from ..eventlog.mevent import EFailure, EDebug
 
 
-class MewloPackPayload(object):
+class MewloPackWorker(object):
     """
-    The PackPayload class is the parent class for the actual 3rd party class that will be instantiated when a pack is LOADED+ENABLED.
+    The PackWorker class is the parent class for the actual 3rd party class that will be instantiated when a pack is LOADED+ENABLED.
     """
 
     def __init__(self, pack):
@@ -123,7 +123,7 @@ class MewloPackPayload(object):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "Base PackPayload reporting in.\n"
+        outstr = " "*indent + "Base PackWorker reporting in.\n"
         return outstr
 
 

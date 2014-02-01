@@ -8,14 +8,14 @@ The pack system here is made up of 3 classes:
 
     * MewloPackManager - holds a list of Packs.
     * MewloPack - a thin wrapper around a pack object.
-    * MewloPackPayload - the object that will be subclassed to do real work.
+    * MewloPackWorker - the object that will be subclassed to do real work.
 
 The MewloPack is the thing that is autocreated on discovery of a .json definition file.
 It will be instantiated even if this extension is disabled.
 
-The PackPayload is only instantiated when the extension is enabled.
+The PackWorker is only instantiated when the extension is enabled.
 
-When you code a new plugin/extension, you ONLY create a derived MewloPackPayload class.
+When you code a new plugin/extension, you ONLY create a derived MewloPackWorker class.
 The MewloPack is created by the manager.
 
 """
