@@ -183,3 +183,10 @@ when rendering a view/template we currently build all aliases in preparation; th
 //---------------------------------------------------------------------------
 
 
+
+
+//---------------------------------------------------------------------------
+2/3/14
+make a derivitive of MewloManager called MewloModelManager
+which is specifically tied to a model class via a variable called modelclass
+//---------------------------------------------------------------------------

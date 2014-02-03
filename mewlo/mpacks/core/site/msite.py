@@ -26,7 +26,7 @@ from ..eventlog.mevent import Event, EventList, EWarning, EError, EDebug, EInfo
 from ..eventlog.mlogger import MewloLogger
 from ..eventlog.mlogtarget_file import MewloLogTarget_File
 from ..helpers.misc import get_value_from_dict, resolve_expand_string
-from ..user import muser
+from ..user import muser, musermanager
 from ..group import mgroup
 from ..rbac import mrbac
 from ..siteaddon import msiteaddon
@@ -144,12 +144,14 @@ class MewloSite(object):
         # template helper (this is available inside template/views and provides helper functions like navigation menus, etc.)
         self.createappendcomp('templatehelper', mtemplatehelper.MewloTemplateHelper)
 
-        # session helper
+        # session manager
         self.createappendcomp('sessionmanager', msessionmanager.MewloSessionManager)
 
-        # verification helper
+        # verification manager
         self.createappendcomp('verificationmanager', mverificationmanager.MewloVerificationManager)
 
+        # user manager
+        self.createappendcomp('usermanager', musermanager.MewloUserManager)
 
 
 

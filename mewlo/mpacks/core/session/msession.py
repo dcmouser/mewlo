@@ -34,6 +34,8 @@ class MewloSession(mdbmodel.MewloDbModel):
 
 
 
+
+
     # serialized field accessor helpers
     def get_sessionvar(self, keyname, defaultval):
         return self.getfield_serialized('sessionvars_serialized', keyname, defaultval)
@@ -43,6 +45,15 @@ class MewloSession(mdbmodel.MewloDbModel):
 
 
     # helper accessors
+    def set_sessionmanager(self, sessionmanager):
+        """Store session manager."""
+        self.sessionmanager = sessionmanager
+
+    def sitecomp_usermanager(self):
+        """Get the user manager, from the session manager."""
+        return self.sessionmanager.sitecomp_usermanager()
+
+
     def init_values(self, ip):
         """Set values for a new session."""
         curtime = time.time()
@@ -64,7 +75,6 @@ class MewloSession(mdbmodel.MewloDbModel):
         sessionhashkey = str(self.create_unique_sessionhashkey())
         self.hashkey = sessionhashkey
         self.set_isdirty(True)
-
 
 
     def update_access(self):
@@ -103,6 +113,8 @@ class MewloSession(mdbmodel.MewloDbModel):
     # lazy user requester object creation
     def get_user(self, flag_makeuserifnone):
         """Lazy return the user OBJECT associated with this session."""
+        # ATTN: why are we setting self.user directly in first half of this function, but called set_user in second half which is a fully involved function call;
+        # is it because in later case its a new object just being created which needs its self.user_id set
         if (not hasattr(self,'user')):
             # it's not yet cached, so find user and cache
             if (self.user_id == None):
@@ -110,11 +122,12 @@ class MewloSession(mdbmodel.MewloDbModel):
                 self.user = None
             else:
                 # we need to load it
-                self.user = muser.MewloUser.find_one_byprimaryid(self.user_id,None)
+                self.user = self.sitecomp_usermanager().modelclass.find_one_byprimaryid(self.user_id, None)
         # no user object? should we make a GUEST one?
         if (self.user == None and flag_makeuserifnone):
             # ok we want to "make" a user object (which may just mean loading GUEST user object from db); and then remember to set self.user and self.user_id
-            self.set_user(muser.MewloUser.getmake_guestuserobject())
+            user = self.sitecomp_usermanager().getmake_guestuserobject()
+            self.set_user(user)
         # return it
         return self.user
 

@@ -42,6 +42,9 @@ class MewloRequest(object):
 
     # accessors
 
+    def get_sitecomp_usermanager(self):
+        return self.mewlosite.comp('usermanager')
+
     def get_urlpath(self):
         """Return the url path of the request.
         This value is cached, and represents the relative path within the 'site' configuration, excluding any site prefix path.
@@ -194,7 +197,7 @@ class MewloRequest(object):
             # quick temporary user, without causing session creation
             user = self.get_user(False)
             if (user == None):
-                user = muser.MewloUser.getmake_guestuserobject()
+                user = self.get_sitecomp_usermanager().getmake_guestuserobject()
             return user
         return self.user
 

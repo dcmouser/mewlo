@@ -5,8 +5,8 @@ Helper for database object for storing session data
 
 
 # mewlo imports
-from ..manager import manager
-from msession import MewloSession
+from ..manager import modelmanager
+import msession
 
 
 
@@ -14,12 +14,12 @@ from msession import MewloSession
 
 
 
-class MewloSessionManager(manager.MewloManager):
+class MewloSessionManager(modelmanager.MewloModelManager):
     """The MewloSessionManager class helps session management."""
 
 
     def __init__(self, mewlosite, debugmode):
-        super(MewloSessionManager,self).__init__(mewlosite, debugmode)
+        super(MewloSessionManager,self).__init__(mewlosite, debugmode, msession.MewloSession)
         # cookie name
         self.sessionid_cookiename = 'mewlosessionid'
 
@@ -35,6 +35,10 @@ class MewloSessionManager(manager.MewloManager):
         outstr = " "*indent + "MewloSessionManager (" + self.__class__.__name__ + ") reporting in.\n"
         return outstr
 
+
+
+    def sitecomp_usermanager(self):
+        return self.mewlosite.comp('usermanager')
 
 
     def get_sessionid_cookiename(self):
@@ -56,12 +60,14 @@ class MewloSessionManager(manager.MewloManager):
         if (sessionidinput != None):
             # look it up
             sessionhashkey = self.sanitize_input_sessionid(sessionidinput)
-            mewlosession = MewloSession.find_one_bykey({'hashkey':sessionhashkey})
+            mewlosession = self.modelclass.find_one_bykey({'hashkey':sessionhashkey})
             if (mewlosession == None):
                 # wasn't found, so drop down and make them a new one
                 sessionhashkey = None
             else:
                 # ok we found it (and loaded it), no need to create it
+                # we need to give it reference to us
+                mewlosession.set_sessionmanager(self)
                 # any fields to set on access?
                 mewlosession.update_access()
                 # test of serialized session var
@@ -76,7 +82,9 @@ class MewloSessionManager(manager.MewloManager):
                 # just return saying there is no session
                 return None
             # make new one
-            mewlosession = MewloSession()
+            mewlosession = self.modelclass()
+            # we need to give it reference to us
+            mewlosession.set_sessionmanager(self)
             mewlosession.init_values(request.get_remote_addr())
             # get hash key
             sessionhashkey = mewlosession.hashkey

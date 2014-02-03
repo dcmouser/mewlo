@@ -12,7 +12,7 @@ from mewlo.mpacks.core.pack.mpackworker import MewloPackWorker
 
 class SetupToolsPlugin_MewloPackWorker(MewloPackWorker):
     """
-    The SetupToolsPlugin_MewloPackWorker class defines a test mewlo "pack" aka extension/plugin/addon.
+    The SetupToolsPlugin_MewloPackWorker class does the actual work for the test mewlo "pack" aka extension/plugin/addon.
     """
 
 

@@ -6,7 +6,7 @@ This file contains helper code for account login and registration tyoe stuff
 
 # mewlo imports
 from mewlo.mpacks.core.form.mform import MewloForm
-from mewlo.mpacks.core.user import muser
+from mewlo.mpacks.core.user import muser, musermanager
 
 # python imports
 
@@ -27,6 +27,9 @@ class AccountHelper(object):
 
 
 
+
+    def sitecomp_usermanager(self):
+        return self.request.mewlosite.comp('usermanager')
 
 
     def renderpage_login(self):
@@ -174,7 +177,7 @@ class AccountHelper(object):
         """Try logging in, return a dictionary of errors or REDIRECT if no error."""
         errordict = {}
         #ATTN: test
-        user, errordict = muser.MewloUser.login_user(username=username, password_plaintext=password_plaintext)
+        user, errordict = self.sitecomp_usermanager().login_user(username=username, password_plaintext=password_plaintext)
         if (user != None):
             # ok it's a success, user was created.
             # tell the session about the user's identity
@@ -189,7 +192,7 @@ class AccountHelper(object):
     def try_register(self, username, password_plaintext, email):
         """Try registering user, return a dictionary of errors or REDIRECT if no error."""
         #ATTN: test
-        user, errordict = muser.MewloUser.create_user(username=username, password_plaintext=password_plaintext, email=email)
+        user, errordict = self.sitecomp_usermanager().create_user(username=username, password_plaintext=password_plaintext, email=email)
         if (user != None):
             # ok it's a success, user was created.
             # tell the session about the user's identity

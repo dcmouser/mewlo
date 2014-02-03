@@ -5,8 +5,8 @@ Helper for verifications data
 
 
 # mewlo imports
-from ..manager import manager
-from mverification import MewloVerification
+from ..manager import modelmanager
+import mverification
 
 
 
@@ -14,12 +14,12 @@ from mverification import MewloVerification
 
 
 
-class MewloVerificationManager(manager.MewloManager):
+class MewloVerificationManager(modelmanager.MewloModelManager):
     """The MewloVerificationManager class helps verification management."""
 
 
     def __init__(self, mewlosite, debugmode):
-        super(MewloVerificationManager,self).__init__(mewlosite, debugmode)
+        super(MewloVerificationManager,self).__init__(mewlosite, debugmode, mverification.MewloVerification)
 
     def startup(self, eventlist):
         super(MewloVerificationManager,self).startup(eventlist)
