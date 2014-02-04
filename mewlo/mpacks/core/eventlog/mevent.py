@@ -39,6 +39,8 @@ Official Fields (not all will be in every event):
 """
 
 
+# mewlo imports
+from ..helpers import debugging
 
 # python imports
 import sys
@@ -410,71 +412,96 @@ class EventList(object):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # These are shortcut helper functions
 # These are capitalized functions because they act like object constructors, and are designed to be concise highly visible ways to create error/events
-# ATTN: todo -- refactor these to use args,kargs to simplify them?
 
 
-def EFailure(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
+
+def EFailure(msg, *args, **kwargs):
     """Helper function to create failure type event"""
-    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_failure })
-
-def EError(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
+    return SimpleEventBuilder(Event.DEF_ETYPE_failure, msg, *args, **kwargs)
+def EError(msg, *args, **kwargs):
     """Helper function to create error type event"""
-    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_error })
-
-def EWarning(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
+    return SimpleEventBuilder(Event.DEF_ETYPE_error, msg, *args, **kwargs)
+def EWarning(msg, *args, **kwargs):
     """Helper function to create warning type event"""
-    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_warning })
-
-def EDebug(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
+    return SimpleEventBuilder(Event.DEF_ETYPE_warning, msg, *args, **kwargs)
+def EDebug(msg, *args, **kwargs):
     """Helper function to create debug type event"""
-    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_debug })
-
-def EInfo(msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
+    return SimpleEventBuilder(Event.DEF_ETYPE_debug, msg, *args, **kwargs)
+def EInfo(msg, *args, **kwargs):
     """Helper function to create debug type event"""
-    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_info })
+    return SimpleEventBuilder(Event.DEF_ETYPE_info, msg, *args, **kwargs)
 
 
 
-
-def EException(msg="", exp=None, fields=None, flag_traceback=True, obj=None, flag_loc = True, calldepth=0):
-    """Helper function to create exception type event with full exception traceback info."""
-    # default fields
-    defaultfields = { 'type': Event.DEF_ETYPE_exception, 'exp': exp }
-    # add traceback?
-    if (flag_traceback):
-        defaultfields['traceback'] = Event.calc_traceback_text()
-    # create event
-    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, defaultfields)
-
-
-
-def EFailureExtend(failure, msg="", fields=None, obj=None, flag_loc=False, calldepth=0):
-    """Helper function to create failure type event by extending another"""
+def EFailureExtend(failure, msg, *args, **kwargs):
+    """Helper function to create failure type event by (possibly) extending another, or using another stringifyable object."""
     if (isinstance(failure, Event)):
-        # add the simple message of the other failure event
+        # modify the existing event and return it
         addmsg = failure.getfield('msg', "")
-    else:
-        # assume previous failure is stringifyable and add that
-        addmsg = str(failure)
-    if (addmsg != ""):
-        msg += " " + addmsg
-    # build it
-    return SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth+1, {'type': Event.DEF_ETYPE_failure })
+        failure.setfield('msg', msg+" "+addmsg)
+        return failure
+    # failure is not an Event, so make a new event; assume previous failure is stringifyable and add that
+    addmsg = str(failure)
+    # build new event and return it
+    return SimpleEventBuilder(Event.DEF_ETYPE_failure, msg+" "+addmsg, *args, **kwargs)
+
+
+def EException(msg, *args, **kwargs):
+    """Helper function to create exception type event with full exception traceback info."""
+    # force in some overides to defaults
+    if (not 'flag_traceback' in kwargs):
+        kwargs['flag_traceback'] = True
+    if (not 'flag_loc' in kwargs):
+        kwargs['flag_loc'] = True
+    # create event
+    return SimpleEventBuilder(Event.DEF_ETYPE_exception, msg, *args, **kwargs)
 
 
 
-def SimpleEventBuilder(msg, fields, obj, flag_loc, calldepth, defaultfields):
+
+def SimpleEventBuilder(eventtype, msg, fields=None, obj=None, exp=None, flag_loc=False, flag_traceback=False, calldepth=0):
     """Internal func. Helper function to create failure type event"""
-    from ..helpers import debugging
-    # add obj info
+
+    # first add extra stuff to msg
     if (obj != None):
         msg += debugging.smart_dotted_idpath(obj)
-    # add message
-    defaultfields['msg'] = msg
-    # extra stuff?
+
+    # core fields
+    defaultfields = { 'type':eventtype, 'msg':msg }
+
+    # add extra fields
     if (flag_loc):
         defaultfields['loc'] = debugging.calc_caller_dict(calldepth+1)
+    if (flag_traceback):
+        defaultfields['traceback'] = Event.calc_traceback_text()
+    if (exp!=None):
+        defaultfields['exp'] = exp
+
     # create event
     return Event(fields, defaultfields)
+
+
+
+

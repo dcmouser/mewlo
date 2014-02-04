@@ -66,7 +66,8 @@ class MewloGroup(mdbmodel.MewloDbModel):
         else:
             # add a special sub table that will contain some fields, using a helper class object attached to us
             # create (AND REGISTER) the new helper object
-            mdbmodel_fieldset.MewloDbFieldset.make_fieldset_dbobjectclass(cls,'tracking','author tracking object',cls.dbtablename,dbmanager,subfields)
+            backrefname = cls.get_dbtablename_pure()
+            mdbmodel_fieldset.MewloDbFieldset.make_fieldset_dbobjectclass(cls,'tracking','author tracking object',backrefname,dbmanager,subfields)
 
 
 

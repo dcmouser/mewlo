@@ -172,7 +172,8 @@ class MewloDatabaseManager(manager.MewloManager):
     def register_modelclass(self, owner, modelclass):
         """Register a datbase model class.
         Note that in doing this, we do not yet create columns and fields for it, we are simply telling the database manager it exists.
-        The one tricky thing is we may be called
+        It is essential that EVERY model class used in any fashion register itself in this way, so that the tables get created and the manager get set for the modelclass
+        Which also lets model classes know about any tablename prefixes, etc.
         """
         # register it internally if its not already
         if (modelclass not in self.modelclasses):
@@ -181,6 +182,8 @@ class MewloDatabaseManager(manager.MewloManager):
             # register it with the registry
             #print "ATTN: IN register_modelclass with mewlosite = {0}.".format(str(self.mewlosite))
             self.mewlosite.comp('registrymanager').register_class(owner, modelclass)
+            # and now call into the modelclass to tell them about the manager that owns them (this is used by the model class when creating tables, etc.)
+            modelclass.set_dbm(self)
 
         # success
         return None
@@ -274,7 +277,7 @@ class MewloDatabaseManager(manager.MewloManager):
             modelclass = self.modelclasses[modelclass]
         if (not modelclass.did_create_table):
             # create the fields
-            modelclass.create_table(self)
+            modelclass.create_table()
             # set flag saying its been done
             modelclass.did_create_table = True
 
@@ -310,14 +313,32 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
 
+    def get_tablenameprefix(self, schemaname):
+        """
+        Return the prefix that should be used on a table in the specified schema.
+        In common use this will be an empty string.
+        """
+        return self.get_schemasettings_val(schemaname,'tablename_prefix','')
 
 
 
 
 
-
-
-
+    def get_schemasettings_val(self, schemaname, keyname, defaultval):
+        """Lookup a setting value for a schema, falling back to default schema; if still not found return default."""
+        # if already in our collection, just return it
+        if (schemaname in self.databasesettings):
+            schemasettings = self.databasesettings[schemaname]
+            if (keyname in schemasettings):
+                return schemasettings[keyname]
+        # not there, so look for a default schema
+        schemaname = 'default'
+        if (schemaname in self.databasesettings):
+            schemasettings = self.databasesettings[schemaname]
+            if (keyname in schemasettings):
+                return schemasettings[keyname]
+        # not found, use default
+        return defaultval
 
 
 

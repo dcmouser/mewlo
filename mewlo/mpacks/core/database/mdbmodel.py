@@ -54,31 +54,6 @@ class MewloDbModel(object):
 
 
 
-    @classmethod
-    def reset_classdata(cls):
-        """
-        Reset calculcated class variables.
-        This is kludgey and confusing.
-        We use these class variables to track some sqlalchemy stuff, but when performing unit tests we need this to reset before each test.
-        """
-        #
-        cls.dbsqlatable = None
-        cls.dbsqlahelper = None
-        cls.dbmanager = None
-        #
-        cls.did_create_table = False
-        cls.did_create_mapper = False
-        cls.did_create_prerequisites = False
-        cls.isreadytodb = False
-        #
-        cls.fieldlist = []
-        cls.fieldhash = {}
-
-
-
-
-
-
 
 
     def gobify(self):
@@ -90,7 +65,7 @@ class MewloDbModel(object):
         return self.gob
 
     def calc_gobtypename(self):
-        return self.get_dbtablename()
+        return self.get_dbtablename_pure()
 
 
 
@@ -289,9 +264,43 @@ class MewloDbModel(object):
 
 
     @classmethod
+    def reset_classdata(cls):
+        """
+        Reset calculcated class variables.
+        This is kludgey and confusing.
+        We use these class variables to track some sqlalchemy stuff, but when performing unit tests we need this to reset before each test.
+        """
+        #
+        cls.dbsqlatable = None
+        cls.dbsqlahelper = None
+        cls.dbmanager = None
+        #
+        cls.did_create_table = False
+        cls.did_create_mapper = False
+        cls.did_create_prerequisites = False
+        cls.isreadytodb = False
+        #
+        cls.fieldlist = []
+        cls.fieldhash = {}
+
+
+
+    @classmethod
+    def set_dbm(cls, dbmanager):
+        """Set the dbmanager, to be used when creating tables, etc."""
+        cls.dbmanager = dbmanager
+        cls.compute_tableprefix()
+
+    @classmethod
     def dbm(cls):
         """Shortcut to get info from class object."""
         return cls.dbmanager
+
+
+    @classmethod
+    def compute_tableprefix(cls):
+        """Compute the tablename prefix now that dbmanager and tablename is set"""
+        cls.dbtablename_prefix = cls.dbm().get_tablenameprefix(cls.dbschemaname)
 
 
     @classmethod
@@ -300,21 +309,28 @@ class MewloDbModel(object):
         sqlahelper = cls.dbsqlahelper
         return sqlahelper.getmake_session()
 
+
+    @classmethod
+    def get_dbtablename_pure(cls):
+        return cls.dbtablename
+
     @classmethod
     def get_dbtablename(cls):
-        return cls.dbtablename
+        return cls.dbtablename_prefix + cls.dbtablename
+
+
+
 
     @classmethod
     def get_dbschemaname(cls):
         return cls.dbschemaname
 
     @classmethod
-    def setclass_dbinfo(cls, sqlatable, sqlahelper, dbmanager):
+    def setclass_dbinfo(cls, sqlatable, sqlahelper):
         """Store data in class regarding datbase access for it."""
         # ATTN: TODO - some of this may not be needed, this may be automatically added to the class itself by sqlalchemy
         cls.dbsqlatable = sqlatable
         cls.dbsqlahelper = sqlahelper
-        cls.dbmanager = dbmanager
 
     @classmethod
     def get_dbsqlatable(cls):
@@ -473,8 +489,10 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def create_table(cls, dbmanager):
+    def create_table(cls):
         """Default way of creating sql alchemy columns for model."""
+
+        dbmanager = cls.dbm()
 
         # ask model to define its internal fields
         fields = cls.define_fields(dbmanager)
@@ -495,7 +513,7 @@ class MewloDbModel(object):
         modeltable = sqlalchemy.Table(dbtablename, metadata, *sqlalchemycolumns)
 
         # and store the table and other object references in the model class itself
-        cls.setclass_dbinfo(modeltable, sqlahelper, dbmanager)
+        cls.setclass_dbinfo(modeltable, sqlahelper)
 
 
 

@@ -118,13 +118,13 @@ class MewloSite_Test1(MewloSite):
                 },
             'default' : {
                 'url' : 'sqlite:///${dbfilepath}/mewlo_testsite1.sqlite',
-                'table_prefix': 'mewlo_',
+                'tablename_prefix': 'mewlo_',
                 'flag_echologging' : False,
                 },
             'mysql_unused' : {
                 # Sample configuration for mysql
                 'url' : 'mysql://mewlo_user:mewlo_pass@localhost:3306/mewlo_testsite1',
-                'table_prefix': 'mewlo_'
+                'tablename_prefix': 'mewlo_'
                 },
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_database, databaseconfig)
