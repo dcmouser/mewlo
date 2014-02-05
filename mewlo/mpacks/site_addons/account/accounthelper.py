@@ -12,7 +12,8 @@ from mewlo.mpacks.core.user import muser, musermanager
 
 # addon imports
 from forms.form_login import MewloForm_Login
-from forms.form_register import MewloForm_Register
+from forms.form_register_justemail import MewloForm_Register_JustEmail
+from forms.form_register_usernamepassemail import MewloForm_Register_UsernamePasswordEmail
 
 
 
@@ -24,7 +25,13 @@ class AccountHelper(object):
         self.response = response
         #
         self.viewbasepath = '${addon_account_path}/views/'
-
+        #
+        # we all of our non-form view files here, so that they are in one place
+        # the forms specify their own view files
+        self.viewfiles = {
+            'regcomplete': 'register_complete.jn2',
+            'logout': 'logout.jn2',
+            }
 
 
 
@@ -45,14 +52,14 @@ class AccountHelper(object):
             errordict = self.try_login(form.username.data, form.password.data)
             if ((errordict == None) or (len(errordict)==0)):
                 # all good
-                self.render_localview('loggedin.jn2')
+                self.render_localview(form.get_viewfilename())
                 # success
                 return None
             # drop down and re-present form with errors
             form.merge_errordict(errordict)
 
         # render form
-        self.render_localview('login.jn2',{'form':form})
+        self.render_localview(form.get_viewfilename(),{'form':form})
         # success
         return None
 
@@ -63,7 +70,10 @@ class AccountHelper(object):
         self.set_renderpageid('register')
         # init form+formdata
         formdata = self.request.get_postdata()
-        form = MewloForm_Register(formdata)
+        form = MewloForm_Register_UsernamePasswordEmail(formdata)
+
+        # If we want we can remove form fields here like so:
+        #delattr(form, 'accept_rules')
 
         # valid submission?
         if (formdata != None and form.validate()):
@@ -72,7 +82,7 @@ class AccountHelper(object):
             if ((errordict == None) or (len(errordict)==0)):
                 # success
                 # render form
-                self.render_localview('register_complete.jn2')
+                self.render_localview(self.viewfiles['regcomplete'])
                 # success
                 return None
             else:
@@ -80,7 +90,7 @@ class AccountHelper(object):
                 # drop down and re-present form with errors
 
         # render form
-        self.render_localview('register.jn2',{'form':form})
+        self.render_localview(form.get_viewfilename(),{'form':form})
         # success
         return None
 
@@ -103,7 +113,7 @@ class AccountHelper(object):
         self.try_logout()
 
         # then page contents
-        self.render_localview('logout.jn2')
+        self.render_localview(self.viewfiles['logout'])
         # success
         return None
 

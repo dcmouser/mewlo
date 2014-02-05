@@ -171,10 +171,6 @@ pathprefix for route groups is not going to obey recursive relative paths
 
 
 
-//---------------------------------------------------------------------------
-1/31/14
-implement database table prefixes.
-//---------------------------------------------------------------------------
 
 
 //---------------------------------------------------------------------------
@@ -185,8 +181,28 @@ when rendering a view/template we currently build all aliases in preparation; th
 
 
 
+
+
 //---------------------------------------------------------------------------
-2/3/14
-make a derivitive of MewloManager called MewloModelManager
-which is specifically tied to a model class via a variable called modelclass
+2/4/14
+we have sqlalchemy-specific code in model classes -- we should probably delegate such code to the manager so that the models stay clean and engine neutral.
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+2/5/14
+make (site+sitemanager) commandline functions all work with normal dictionaries, so we can simulate commandline calling programatically.
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+All of the manager components are built BEFORE we parse any settings;
+this means it will be impossible to change the component classes via settings.
+Think about this.
+//---------------------------------------------------------------------------
+
+
+
+

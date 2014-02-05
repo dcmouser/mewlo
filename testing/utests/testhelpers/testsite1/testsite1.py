@@ -35,6 +35,7 @@ import logging
 # this is just a way to get the relative directory easily, and we use this in config settings
 import mpacks as pkgdirimp_sitempacks
 import controllers as pkgdirimp_controllers
+import config as pkgdirimp_config
 
 
 
@@ -42,10 +43,14 @@ import controllers as pkgdirimp_controllers
 # the test1 demo site class
 class MewloSite_Test1(MewloSite):
 
-    def __init__(self, debugmode, commandlineargs):
-        # call parent constructor
-        super(MewloSite_Test1, self).__init__(__name__, debugmode, commandlineargs)
+    def __init__(self, debugmode, commandlineargs=None, defaultconfigname='mouser'):
+        # first call parent constructor
+        super(MewloSite_Test1, self).__init__(__name__, debugmode, commandlineargs, defaultconfigname)
 
+
+    def get_pkgdirimp_config(self):
+        # returns the package directory import where config settings files live
+        return pkgdirimp_config
 
 
     def add_settings_early(self):
@@ -90,6 +95,7 @@ class MewloSite_Test1(MewloSite):
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
 
 
+
         # config some aliases we can use (for example in our templates)
         aliases = {
             # let's add an alias to where we are going to serve static files from (note this is pointing not to a directory but to a ROUTE path)
@@ -118,7 +124,7 @@ class MewloSite_Test1(MewloSite):
                 },
             'default' : {
                 'url' : 'sqlite:///${dbfilepath}/mewlo_testsite1.sqlite',
-                'tablename_prefix': 'mewlo_',
+                #'tablename_prefix': 'mewlo_',
                 'flag_echologging' : False,
                 },
             'mysql_unused' : {
@@ -128,6 +134,23 @@ class MewloSite_Test1(MewloSite):
                 },
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_database, databaseconfig)
+
+
+        # email config settings
+        mailconfig = {
+            # online status information
+            'smtp_host': 'mail.dcwing.com',
+            'smtp_post': 465,
+            'smtp_mode': 'tls',
+            'smtp_login': 'mouser@dcmembers.com',
+            'smtp_password': 'PlekKvkj_slZd3.25Km',
+            'smtp_password': self.get_configval('mail_smtp_password'),
+            'mail_from' : 'mouser-mewlo@donationcoder.com',
+            }
+        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_mail, mailconfig)
+
+
+
 
 
 

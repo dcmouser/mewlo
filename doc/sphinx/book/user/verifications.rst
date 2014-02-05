@@ -75,3 +75,11 @@ The only really uncomfortable aspect of this is the tradeoffs when dealing with 
 
 
 
+
+Some verification types
+-----------------------
+
+UserCreationVerificationType - When verified, this allows a client to create a new user account.  The entry can contain contain a list of fields/properties for the new user account, that were set at the time the verification entry was creation.  One of these fields will be the actual field that we trust has been verified (usually email but could be mobile phone).  The other fields may simply be values we collected from the user at the time of signup for convenience.  For those fields, we MAY want some to be locked -- while others may be simply used as defaults.
+
+UserPropertyVerificationType - When verified, this entry specifies one or more user properties that have been confirmed.  The most common use of this might be when user requests a change of their email address, but it could also be used for verifying a mobile phone, etc.
+

@@ -388,6 +388,7 @@ class MewloSiteManager(object):
         parser.add_argument("-s", "--runserver", help="run the web server",action="store_true", default=False)
         parser.add_argument("-uc", "--updatecheck", help="check for updates",action="store_true", default=False)
         parser.add_argument("-ur", "--updaterun", help="perform updates",action="store_true", default=False)
+        parser.add_argument("-c", "--config", help="overide config set name",action="store")
         args = parser.parse_args()
 
         # Create a site manager and ask it to instantiate a site of the class we specify

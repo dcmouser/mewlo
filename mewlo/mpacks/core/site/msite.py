@@ -30,7 +30,8 @@ from ..user import muser, musermanager
 from ..group import mgroup
 from ..rbac import mrbac
 from ..siteaddon import msiteaddon
-
+from ..mail import mmailmanager
+from ..helpers import cfgmodule
 
 
 
@@ -56,12 +57,12 @@ class MewloSite(object):
 
 
 
-    def __init__(self, sitemodulename, debugmode, commandlineargs):
+    def __init__(self, sitemodulename, debugmode, commandlineargs=None, defaultconfigname=None):
         # Nothing that could fail should be done in this __init__ -- save that for later functions
 
         # save debugmode and commandline args
         self.debugmode = debugmode
-        self.commandlineargs= commandlineargs
+        self.commandlineargs = commandlineargs
 
         # set global variable (not currently used)
         mglobals.set_mewlosite(self)
@@ -79,11 +80,23 @@ class MewloSite(object):
         self.fallbacklogger = None
         self.isenabled = False
 
-        # create all components
-        self.create_allcomponents()
+        # config name and helper
+        self.configname = self.get_commandlinearg('config',defaultconfigname)
 
-        # now update site state
-        self.set_statelabel(MewloSettings.DEF_SITESTATE_INITIALIZE_END)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -153,7 +166,8 @@ class MewloSite(object):
         # user manager
         self.createappendcomp('usermanager', musermanager.MewloUserManager)
 
-
+        # mail manager
+        self.createappendcomp('mailmanager', mmailmanager.MewloMailManager)
 
 
 
@@ -600,15 +614,40 @@ class MewloSite(object):
         Do early setup stuff.  Most of the functions invoked here are empty and are intended for subclasses to override.
         This function is called by MewloSiteManager, right after site object is instantiated, before startup()
         """
+
+        # create all helper/manager components first
+        self.create_allcomponents()
+
+        # set up config stuff
+        self.setup_confighelper()
+
+        # settings
         self.add_earlydefault_settings()
         self.add_settings_early()
         self.add_latesettings_aliases()
+
+        # other stuff
         self.add_loggers()
         self.add_routes()
         self.add_navnodes()
+
+        # site addons
         self.add_addons()
+
         # we add fallback loggers at END, after user-site added loggers
         self.add_fallback_loggers()
+
+        # now update site state (log manager should catch this)
+        self.set_statelabel(MewloSettings.DEF_SITESTATE_INITIALIZE_END)
+
+
+
+
+
+    def setup_confighelper(self):
+        """The DEFAULT configname should have been set ."""
+        self.cfghelper = cfgmodule.MCfgModule()
+        self.cfghelper.load_configfiles(self.configname, self.get_pkgdirimp_config())
 
 
     def add_earlydefault_settings(self):
@@ -980,6 +1019,8 @@ class MewloSite(object):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloSite (" + self.__class__.__name__ + ") reporting in.\n"
         indent += 1
+        outstr += " "*indent + "Using commandline = {0}.\n".format(str(self.commandlineargs))
+        outstr += " "*indent + "Using siteconfigname = '{0}'.\n".format(self.configname)
         outstr += " "*indent + "Site settings validation:\n"
         outstr += (self.validatesettings()).dumps(indent+1)
         outstr += "\n"
@@ -1032,5 +1073,50 @@ class MewloSite(object):
         return self.comp('packmanager').get_allpack_events()
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def get_pkgdirimp_config(self):
+        # returns the package directory import where config settings files live
+        return None
+
+
+    def get_commandlinearg(self, keyname, defaultval=None):
+        """Get commandline arg or use default."""
+        if (hasattr(self.commandlineargs,keyname)):
+            val = getattr(self.commandlineargs,keyname)
+            if (val != None):
+                return val
+        try:
+            # try to access commandline args as dictionary
+            return self.commandlineargs[keyname]
+        except:
+            pass
+        # return default val
+        return defaultval
+
+
+    def get_configval(self, keyname, defaultval=None):
+        """Get a value from the appropriate config file."""
+        return self.cfghelper.get_value(keyname,defaultval)
 
 

@@ -11,7 +11,7 @@ from ..database import mdbsettings, mdbmodel_settings
 class MewloDbModel_Settings_Pack(mdbmodel_settings.MewloDbModel_Settings):
     """See parent class."""
     # class variables
-    dbtablename = 'settings_pack2'
+    dbtablename = 'settings_pack'
     dbschemaname = 'default'
 
 

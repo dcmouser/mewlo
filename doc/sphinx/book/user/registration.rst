@@ -45,7 +45,7 @@ Summary of workflow:
 
 Variation on Email first, using short typed code
 ------------------------------------------------
-Note: I have seen sites that email (or mobile phone) a SHORT verification code (say 4 characters) for creating new user accounts, that the user TYPES into a box like a captcha to CONTINUE the registration process; in this case, the code does not have to be unique or long/secure because it is only valid when combined with the current user's SESSION.
+Note: I have seen sites that email (or mobile phone) a SHORT verification code (say 4 characters, which expires after 4 tries) for creating new user accounts, that the user TYPES into a box like a captcha to CONTINUE the registration process; in this case, the code does not have to be unique or long/secure because it is only valid when combined with the current user's SESSION.
 
 
 

@@ -25,6 +25,7 @@ class MewloSettings(manager.MewloManager):
     DEF_SECTION_aliases = 'aliases'
     DEF_SECTION_packs = 'packs'
     DEF_SECTION_database = 'database'
+    DEF_SECTION_mail = 'mail'
     # settings
     DEF_SETTINGNAME_pkgdirimps_sitempacks = 'pkgdirimps_sitempacks'
     DEF_SETTINGNAME_controllerroot = 'controllerroot'

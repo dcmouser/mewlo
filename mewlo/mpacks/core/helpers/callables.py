@@ -149,7 +149,7 @@ def find_module_from_dottedpath_bystring(modulepath):
 
 def find_module_from_dottedpath_relativetopackage(parentmodule, modulepath):
     """
-    Internal helper funciton for finding a callable by string.
+    Helper funciton for finding a callable by string.
     Given a dotted path to a module relative to a parent, look up and return the module.
     """
 

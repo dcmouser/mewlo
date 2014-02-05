@@ -69,3 +69,7 @@ class MewloForm(Form):
 
 
 
+    def get_viewfilename(self, defaultval=None):
+        """A form can store the view file it normally uses."""
+        return self.__class__.viewfilename
+

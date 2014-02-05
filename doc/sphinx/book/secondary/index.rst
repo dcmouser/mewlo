@@ -15,6 +15,7 @@ From here you can learn about secondary packs for the Mewlo system.
    daemon
    digest
    feed
+   floods
    form
    forum
    gallery

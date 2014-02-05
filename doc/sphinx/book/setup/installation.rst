@@ -45,6 +45,7 @@ e:\websitehttp\mewlo
 
 
 
+
 STEP 3 - Install required helper packages
 -----------------------------------------
 
@@ -63,11 +64,15 @@ Install the Requests module used for web downloading
 Install the WTForms module used for form processing
   pip install wtforms
 
+Experimenting with pyzmail:
+  pip install pyzmail
 
 
 To build documentation:
 	pip install Sphinx
 	pip install rst2pdf <--- this fails in my (ms windows-based) virtualenv
+
+
 
 
 

@@ -19,6 +19,7 @@ From here you can learn about extending the Mewlo system.
    managers
    naming_style
    siteaddons
+   siteconfig
    testing
    to_resolve
    ugliness

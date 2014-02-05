@@ -20,7 +20,7 @@ class MewloVerification(mdbmodel.MewloDbModel):
     dbtablename = 'verification'
 
     # verification types
-    DEF_verificationtype_newaccount = 'NewAccount'
+    DEF_verificationtype_newuseraccount = 'NewUserAccount'
     DEF_verificationtype_uservarchange = 'UserVarChange'
 
 
@@ -96,6 +96,9 @@ class MewloVerification(mdbmodel.MewloDbModel):
                 }),
             mdbfield.DbfTimestamp('date_consumed', {
                 'label': "Date when verification entry was consumed"
+                }),
+            mdbfield.DbfTimestamp('failedattempt_count', {
+                'label': "How many failed attempts have they made to match this verification code?"
                 }),
             mdbfield.DbfServerIp('ip', {
                 'label': "IP of user when verification was created"
