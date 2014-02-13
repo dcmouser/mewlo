@@ -218,6 +218,7 @@ def split_dottedpath_modulepath_and_funcname(dottedname):
 def do_importmodule_bypath(filepath, flag_tryinitfiletoo=True):
     """
     Internal helper function. Load a python module import by explicit path.
+    return tuple (dynamicmodule, failure)
     """
 
     # init

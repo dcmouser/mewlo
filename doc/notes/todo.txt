@@ -206,3 +206,8 @@ Think about this.
 
 
 
+//---------------------------------------------------------------------------
+2/6/14
+We are using a configomd helper in the site class to load from config/ files.
+But if this is something purely up to the sure to use in their own configuration, maybe we should let it be a standalone utility class and not part of the mewlo stuff, just like using any other python library iff they want to or not.
+//---------------------------------------------------------------------------

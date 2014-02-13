@@ -1,8 +1,7 @@
-ATTN: TEST OF CONFIG
-
+ATTN:DEBUG Added cfg module: 'mouser_secret'.
+ATTN:DEBUG Added cfg module: 'mouser'.
+ATTN:DEBUG Added cfg module: 'default'.
 mail_smtp_password = PlekKvkj_slZd3.25Km.
-testval2 = normalval.
-testval1 = defaultnormalval.
 Debugging site manager.
 MewloSiteManager reporting in.
  Events: None.
@@ -34,7 +33,7 @@ MewloSiteManager reporting in.
          Registered Components: 13
           Component (MewloComponent) reporting in.
            features: {'type': 'classwrapper', 'id': '_classobj:MewloDbModel_Log_log'}
-           owner: <mewlo.mpacks.core.eventlog.mlogtarget_database.MewloLogTarget_Database object at 0x02DFB410>
+           owner: <mewlo.mpacks.core.eventlog.mlogtarget_database.MewloLogTarget_Database object at 0x02DFB3D0>
            obj: <class 'mewlo.mpacks.core.database.mdbmanager.MewloDbModel_Log_log'>
             Model fields:
             id: {'label': 'The primary key and id# for this row'}
@@ -168,8 +167,8 @@ MewloSiteManager reporting in.
             modification_timestamp: {'label': 'The modification_timestamp for this object'}
           Component (MewloComponent) reporting in.
            features: {'type': 'custom', 'ptype': 'object', 'id': 'test_plugin_service'}
-           owner: <mewlo.mpacks.3rdparty.testpack.test_mpack.Test_MewloPackWorker object at 0x02639210>
-           obj: <mewlo.mpacks.3rdparty.testpack.test_mpack.Test_MewloPack_Service object at 0x02F1E4D0>
+           owner: <mewlo.mpacks.3rdparty.testpack.test_mpack.Test_MewloPackWorker object at 0x026391B0>
+           obj: <mewlo.mpacks.3rdparty.testpack.test_mpack.Test_MewloPack_Service object at 0x02F366B0>
             Mewlo Test_MewloPack_Service reporting in.
        signalmanager:
          Signal Dispatcher (MewloSignalManager) reporting in.
@@ -181,12 +180,12 @@ MewloSiteManager reporting in.
             sourcefilter: None
             extra: None
             flag_returnsvalue: True
-            callback: <bound method Test_MewloPackWorker.signalcallback_test of <mewlo.mpacks.3rdparty.testpack.test_mpack.Test_MewloPackWorker object at 0x02639210>>
+            callback: <bound method Test_MewloPackWorker.signalcallback_test of <mewlo.mpacks.3rdparty.testpack.test_mpack.Test_MewloPackWorker object at 0x026391B0>>
         rbacmanager:
           MewloManager (MewloRbacManager) reporting in.
          packsettings:
            Settings (MewloSettingsDb_Pack):
-            {u'Test_MewloPackWorker': {'date_lastuse': datetime.datetime(2014, 2, 5, 10, 44, 14, 875000), 'toggleval': 1, 'database_version': 2, 'usecount': 23}}
+            {u'Test_MewloPackWorker': {'date_lastuse': datetime.datetime(2014, 2, 5, 11, 57, 28, 453000), 'usecount': 28, 'database_version': 2}}
           packmanager:
             PackManager reporting in (3 packs found).
              Directories scanned:
@@ -226,7 +225,7 @@ MewloSiteManager reporting in.
 }'
                 Code module file: e:\websitehttp\mewlo\mewlo\mpacks\3rdparty\testpack/test_mpack.py
                 Code module: <module 'mewlo.mpacks.3rdparty.testpack.test_mpack' from 'e:\websitehttp\mewlo\mewlo\mpacks\3rdparty\testpack\test_mpack.pyc'>
-                Pack object: <mewlo.mpacks.3rdparty.testpack.test_mpack.Test_MewloPackWorker object at 0x02639210>
+                Pack object: <mewlo.mpacks.3rdparty.testpack.test_mpack.Test_MewloPackWorker object at 0x026391B0>
                  Mewlo Test_MewloPackWorker reporting in.
                 Update check results:
                  Web has newer version available? not checked
@@ -263,7 +262,7 @@ MewloSiteManager reporting in.
 }'
                 Code module file: e:\websitehttp\mewlo\mewlo\mpacks\core/core_mpack.py
                 Code module: <module 'mewlo.mpacks.core.core_mpack' from 'e:\websitehttp\mewlo\mewlo\mpacks\core\core_mpack.pyc'>
-                Pack object: <mewlo.mpacks.core.core_mpack.Core_MewloPackWorker object at 0x02F1E4B0>
+                Pack object: <mewlo.mpacks.core.core_mpack.Core_MewloPackWorker object at 0x02EA3070>
                  Core_MewloPackWorker reporting in.
                 Update check results:
                  Web has newer version available? not checked
@@ -294,7 +293,7 @@ MewloSiteManager reporting in.
 }'
                 Code module file: C:\Langs\Python2\venv\mewlo\lib\site-packages\mewlotestpluginviasetuptools-1.0.0-py2.7.egg\mewlosetuptoolsplugintest/mewlotestplugin_mpack.py
                 Code module: <module 'mewlosetuptoolsplugintest.mewlotestplugin_mpack' from 'C:\Langs\Python2\venv\mewlo\lib\site-packages\mewlotestpluginviasetuptools-1.0.0-py2.7.egg\mewlosetuptoolsplugintest\mewlotestplugin_mpack.pyc'>
-                Pack object: <mewlosetuptoolsplugintest.mewlotestplugin_mpack.SetupToolsPlugin_MewloPackWorker object at 0x03037DF0>
+                Pack object: <mewlosetuptoolsplugintest.mewlotestplugin_mpack.SetupToolsPlugin_MewloPackWorker object at 0x03037DD0>
                  Mewlo SetupToolsPlugin_MewloPackWorker v2 reporting in.
                 Update check results:
                  Web has newer version available? not checked
@@ -309,23 +308,23 @@ MewloSiteManager reporting in.
                MewloRouteGroup reporting in:
                 Root for controllers: <module 'controllers' from 'E:\WebsiteHttp\mewlo\testing\utests\testhelpers\testsite1\controllers\__init__.pyc'>
                 Path prefix: 
-                Route hash: {'about': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB710>, 'contact': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB6D0>, 'logout': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x03065830>, 'help': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB690>, 'home': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB490>, 'article': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB650>, 'static_files': <mewlo.mpacks.core.route.mroute_staticfiles.MewloRoute_StaticFiles object at 0x02DFB750>, 'register': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x030378B0>, 'hello': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB510>, 'login': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x03065610>}
+                Route hash: {'about': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB6D0>, 'contact': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB690>, 'logout': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x03068790>, 'help': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB650>, 'home': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB450>, 'article': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB610>, 'static_files': <mewlo.mpacks.core.route.mroute_staticfiles.MewloRoute_StaticFiles object at 0x02DFB710>, 'register': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x030378D0>, 'hello': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB4D0>, 'login': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x03068570>}
 
                 MewloRouteGroup reporting in:
                  Root for controllers: <module 'controllers' from 'E:\WebsiteHttp\mewlo\testing\utests\testhelpers\testsite1\controllers\__init__.pyc'>
                  Path prefix: 
-                 Route hash: {'about': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB710>, 'help': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB690>, 'static_files': <mewlo.mpacks.core.route.mroute_staticfiles.MewloRoute_StaticFiles object at 0x02DFB750>, 'contact': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB6D0>, 'article': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB650>, 'home': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB490>, 'hello': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB510>}
+                 Route hash: {'about': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB6D0>, 'help': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB650>, 'static_files': <mewlo.mpacks.core.route.mroute_staticfiles.MewloRoute_StaticFiles object at 0x02DFB710>, 'contact': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB690>, 'article': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB610>, 'home': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB450>, 'hello': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x02DFB4D0>}
 
                  MewloRoute 'home':
                   path: /
                   MewloController (MewloController):
-                   callable: <function request_home at 0x02DB4EF0>
+                   callable: <function request_home at 0x02DC00F0>
                   Route Args: None.
 
                  MewloRoute 'hello':
                   path: /test/hello
                   MewloController (MewloController):
-                   callable: <function request_sayhello at 0x02DC14F0>
+                   callable: <function request_sayhello at 0x02DC0630>
                   Route Args: 
                    MewloRouteArg 'name':
                     argtype: String
@@ -341,7 +340,7 @@ MewloSiteManager reporting in.
                  MewloRoute 'article':
                   path: /article
                   MewloController (MewloController):
-                   callable: <function request_article at 0x02DC1570>
+                   callable: <function request_article at 0x02DF60F0>
                   Route Args: 
                    MewloRouteArg 'title':
                     argtype: String
@@ -352,49 +351,49 @@ MewloSiteManager reporting in.
                  MewloRoute 'help':
                   path: /user/help
                   MewloController (MewloController):
-                   callable: <function request_help at 0x02DC1030>
+                   callable: <function request_help at 0x02DC0130>
                   Route Args: None.
 
                  MewloRoute 'contact':
                   path: /help/contact
                   MewloController (MewloController):
-                   callable: <function request_contact at 0x02DC1070>
+                   callable: <function request_contact at 0x02DC0570>
                   Route Args: None.
 
                  MewloRoute 'about':
                   path: /help/about
                   MewloController (MewloController):
-                   callable: <function request_about at 0x02DC14B0>
+                   callable: <function request_about at 0x02DC05B0>
                   Route Args: None.
 
                  MewloRoute 'static_files':
                   path: /static
                   MewloController (MewloController_StaticFiles):
-                   callable: <bound method MewloController_StaticFiles.controller_call of <mewlo.mpacks.core.controller.mcontroller_staticfiles.MewloController_StaticFiles object at 0x02DFB730>>
+                   callable: <bound method MewloController_StaticFiles.controller_call of <mewlo.mpacks.core.controller.mcontroller_staticfiles.MewloController_StaticFiles object at 0x02DFB6F0>>
                   Route Args: None.
 
 
                 MewloRouteGroup reporting in:
                  Root for controllers: <module 'mewlo.mpacks.site_addons.account.controllers' from 'e:\websitehttp\mewlo\mewlo\mpacks\site_addons\account\controllers\__init__.pyc'>
                  Path prefix: /account
-                 Route hash: {'login': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x03065610>, 'register': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x030378B0>, 'logout': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x03065830>}
+                 Route hash: {'login': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x03068570>, 'register': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x030378D0>, 'logout': <mewlo.mpacks.core.route.mroute.MewloRoute object at 0x03068790>}
 
                  MewloRoute 'register':
                   path: /account/register
                   MewloController (MewloController):
-                   callable: <function request_register at 0x03068930>
+                   callable: <function request_register at 0x0306A9F0>
                   Route Args: None.
 
                  MewloRoute 'login':
                   path: /account/login
                   MewloController (MewloController):
-                   callable: <function request_login at 0x03038DF0>
+                   callable: <function request_login at 0x03038EB0>
                   Route Args: None.
 
                  MewloRoute 'logout':
                   path: /account/logout
                   MewloController (MewloController):
-                   callable: <function request_logout at 0x03068630>
+                   callable: <function request_logout at 0x0306A6F0>
                   Route Args: None.
 
 
@@ -422,17 +421,17 @@ MewloSiteManager reporting in.
                  children: none.
                  route: about.
                 Navnode 'register' reporting in:
-                 properties: {'visible': <function <lambda> at 0x03068970>, 'sortweight': 1.0, 'parent': 'site', 'id': 'register'}.
+                 properties: {'visible': <function <lambda> at 0x0306AA30>, 'sortweight': 1.0, 'parent': 'site', 'id': 'register'}.
                  parents: site.
                  children: none.
                  route: register.
                 Navnode 'login' reporting in:
-                 properties: {'visible': <function <lambda> at 0x030689B0>, 'sortweight': 8.0, 'parent': 'site', 'id': 'login'}.
+                 properties: {'visible': <function <lambda> at 0x0306AA70>, 'sortweight': 8.0, 'parent': 'site', 'id': 'login'}.
                  parents: site.
                  children: none.
                  route: login.
                 Navnode 'logout' reporting in:
-                 properties: {'parent': 'site', 'menulabel': <function <lambda> at 0x030689F0>, 'pagetitle': 'Logout Page', 'visible': <function <lambda> at 0x03068A30>, 'menulabel_short': 'logout', 'menuhint': 'logout of your account', 'id': 'logout', 'sortweight': 8.0}.
+                 properties: {'parent': 'site', 'menulabel': <function <lambda> at 0x0306AAB0>, 'pagetitle': 'Logout Page', 'visible': <function <lambda> at 0x0306AAF0>, 'menulabel_short': 'logout', 'menuhint': 'logout of your account', 'id': 'logout', 'sortweight': 8.0}.
                  parents: site.
                  children: none.
                  route: logout.
@@ -463,4 +462,4 @@ MewloSiteManager reporting in.
 MewloSiteManager finished report.
 
 Shutting down.
-The LogManager is shut down -- the following message was not formally logged: Event {'msg': "Site changes to state 'shutdown'.", 'timestamp': 1391618655.75, 'type': 'DEBUG'}
+The LogManager is shut down -- the following message was not formally logged: Event {'msg': "Site changes to state 'shutdown'.", 'timestamp': 1391623049.437, 'type': 'DEBUG'}

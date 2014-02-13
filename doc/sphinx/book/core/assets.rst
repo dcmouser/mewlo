@@ -42,3 +42,14 @@ Borrowing from pyramid, the asset system can be used to:
     * Generate urls for both internal and external links
     * Be smart about whether to use https or http when generating links.
     * Allow users/addons to override/intercept pre-existing assets with replacements
+
+
+
+Caching from modular directories to public area
+-----------------------------------------------
+
+Yii has a clever feature that automatically caches and copies static resources from local (plugin) directories into the publicly servable directories (where standard web browser can serve them).
+Seems like a good idea.
+
+
+

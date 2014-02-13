@@ -50,7 +50,11 @@ class MewloSite_Test1(MewloSite):
 
     def get_pkgdirimp_config(self):
         # returns the package directory import where config settings files live
-        return pkgdirimp_config
+        # either if these will work -- we can return file path OR package
+        if (True):
+            return pkgdirimp_config
+        else:
+            return os.path.dirname(os.path.realpath(__file__))+'/config'
 
 
     def add_settings_early(self):
@@ -58,6 +62,8 @@ class MewloSite_Test1(MewloSite):
         This is called by default by the base MewloSite as the first thing to do at startup;
         here we expect to set some site settings that might be used early during startup.
         """
+
+        print "mail_smtp_password = {0}.".format(self.get_configval('mail_smtp_password'))
 
         # config settings
         config = {

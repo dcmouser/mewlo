@@ -44,8 +44,6 @@ class MewloTemplate(object):
 
 
 
-
-
 class MewloTemplateManager(manager.MewloManager):
     """The MewloTemplateManager class is the helper object which implements or interfaces to all template processing functionality."""
 
@@ -75,7 +73,7 @@ class MewloTemplateManager(manager.MewloManager):
 
 
     def register_templateclass(self, templateclass):
-        """ Register a template type."""
+        """Register a template type."""
         self.templatetypes.append(templateclass)
 
 

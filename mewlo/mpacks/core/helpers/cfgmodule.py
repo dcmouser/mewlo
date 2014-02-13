@@ -22,13 +22,22 @@ class MCfgModule(dict):
     def load_configfiles(self, configname, pkgdirimp_config):
         """Load the config files (some may not be found), in order of precedence, with default last."""
         self.configname = configname
-        self.pkgdirimp_config = pkgdirimp_config
-        if (self.pkgdirimp_config==None):
+        # if its a path to config location, translate to mod
+        if (isinstance(pkgdirimp_config, basestring)):
+            pkgdirimp_config,failure = callables.importmodule_bypath(pkgdirimp_config)
+        if (pkgdirimp_config==None):
             return
+        self.pkgdirimp_config = pkgdirimp_config
         # load configname_secret, configname, default, in that order -- the order is key
         self.loadaddconfigfile(configname+'_secret')
         self.loadaddconfigfile(configname)
         self.loadaddconfigfile('default')
+
+
+    def loadpackagedirifstring(pathormod):
+        if (isinstance(pathormod, basestring)):
+            return callables.do_importmodule_bypath(pathormod)
+        return pathormod
 
     def loadaddconfigfile(self, fname):
         """Load and add a config file module.  It's ok if it's missing"""
