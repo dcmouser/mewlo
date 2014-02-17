@@ -63,8 +63,6 @@ class MewloSite_Test1(MewloSite):
         here we expect to set some site settings that might be used early during startup.
         """
 
-        print "mail_smtp_password = {0}.".format(self.get_configval('mail_smtp_password'))
-
         # config settings
         config = {
             # some generic settings for every site, to point to location of some stuff

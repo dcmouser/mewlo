@@ -30,6 +30,7 @@ class AccountHelper(object):
         # the forms specify their own view files
         self.viewfiles = {
             'regcomplete': 'register_complete.jn2',
+            'logincomplete': 'login_complete.jn2',
             'logout': 'logout.jn2',
             }
 
@@ -52,7 +53,7 @@ class AccountHelper(object):
             errordict = self.try_login(form.username.data, form.password.data)
             if ((errordict == None) or (len(errordict)==0)):
                 # all good
-                self.render_localview(form.get_viewfilename())
+                self.render_localview(self.viewfiles['logincomplete'])
                 # success
                 return None
             # drop down and re-present form with errors

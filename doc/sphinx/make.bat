@@ -3,7 +3,7 @@
 REM Command file for Sphinx documentation
 
 if "%SPHINXBUILD%" == "" (
-	set SPHINXBUILD=C:\Langs\Python2\venv\mewlo\Scripts\sphinx-build.exe
+	set SPHINXBUILD=C:\Langs\Python27\venv\mewlo\Scripts\sphinx-build.exe
 )
 set BUILDDIR=_build
 set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% .
@@ -238,5 +238,16 @@ if "%1" == "pseudoxml" (
 	echo.Build finished. The pseudo-XML files are in %BUILDDIR%/pseudoxml.
 	goto end
 )
+
+
+REM ATTN: jr
+if "%1" == "rst2pdf" (
+	%SPHINXBUILD% -b pdf %ALLSPHINXOPTS% %BUILDDIR%/pdf
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The PDF files are in %BUILDDIR%/pdf
+	goto end
+)
+
 
 :end
