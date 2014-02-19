@@ -42,10 +42,9 @@ class MewloVerification(mdbmodel.MewloDbModel):
 
 
 
-    def init_values(self, verification_type, request, expiration_days, verification_varname=None, verification_varval=None, extradict={}, is_shortcode=False):
+    def init_values(self, request, expiration_days, verification_varname=None, verification_varval=None, extradict={}, is_shortcode=False):
         """Set some values."""
         # set main values
-        self.verification_type = verification_type
         self.verification_code = self.make_randomverificationcode()
         # other calues
         self.is_shortcode = is_shortcode        
@@ -86,10 +85,17 @@ class MewloVerification(mdbmodel.MewloDbModel):
 
 
 
-    def consume(self):
+    def consume(self, request):
         """Mark verification entry as consumed/used successfully."""
         self.date_consumed = self.get_nowtime()
+        # add sessionip
+        session = request.get_session(False)
+        if (session != None):            
+            self.ip_consumed = session.ip
+        # save it
         self.save()
+
+
         
     def increment_failurecount(self):
         """Increase the failure counter, and fail it iff too many."""

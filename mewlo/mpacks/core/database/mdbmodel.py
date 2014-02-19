@@ -188,11 +188,7 @@ class MewloDbModel(object):
         return self.isdirty
 
 
-    def get_nowtime(self):
-        return time.time()
 
-    def nice_datestring(self, atime):
-        return misc.nice_datestring(atime)
 
 
     # These methods should not have to be re-implemented by dervived subclasses
@@ -444,6 +440,30 @@ class MewloDbModel(object):
 
 
     @classmethod
+    def find_one_bywhereclause(cls, whereclause):
+        """Find first item matching where clause."""
+        return cls.dbm().modelclass_find_one_bywhereclause(cls, whereclause)
+    
+    
+    @classmethod
+    def delete_all_bywhereclause(cls, whereclause):
+        """Delete all that match where clause."""
+        return cls.dbm().modelclass_delete_all_bywhereclause(cls, whereclause)
+    
+    @classmethod
+    def update_all_dict_bywhereclause(cls, updatedict, whereclause):
+        """Update all with dictionary using a where clause."""
+        return cls.dbm().modelclass_update_all_dict_bywhereclause(cls, updatedict, whereclause)
+
+
+
+
+
+
+
+
+
+    @classmethod
     def serialize_forstorage(cls, obj):
         """Helper function to serialize arbitrary object."""
         return misc.serialize_forstorage(obj)
@@ -652,3 +672,11 @@ class MewloDbModel(object):
             outstr += " "*indent + "{0}: {1}\n".format(field.id, str(field.properties))
         return outstr
 
+
+    @classmethod
+    def get_nowtime(cls):
+        return time.time()
+
+    @classmethod
+    def nice_datestring(self, atime):
+        return misc.nice_datestring(atime)

@@ -22,6 +22,11 @@ from forms.form_register_stage2 import MewloForm_Register_Stage2
 
 
 class AccountHelper(MewloRequestHandlerHelper):
+        
+    # class constants
+    DEF_VFTYPE_pre_user_verification = 'VFTYPE_pre_user_verification'
+
+
 
     def __init__(self, request, response):
         # call parent constructor
@@ -314,7 +319,7 @@ class AccountHelper(MewloRequestHandlerHelper):
         
         # verification properties
         # ATTN:TODO - move some of this stuff to options and constants
-        verification_type = 'VFTYPE_pre_user_verification'
+        verification_type = self.DEF_VFTYPE_pre_user_verification
         # set verification_varname for quick lookup
         verification_varname = 'email'
         verification_varval = userdict['email']
@@ -323,11 +328,13 @@ class AccountHelper(MewloRequestHandlerHelper):
         expiration_days = 14
         # the verification fields will contain the userdict so we can reinstate any values they provided at sign up time, when they confirm
         extradict = {'userdict':userdict}
-        
+
+        # before we create a new verification entry, we *may* sometimes want to delete previous verification requests of same type from same user
+        verificationmanager.invalidate_previousverifications(verification_type, request)
         # create it via verificationmanager
-        verification = verificationmanager.create_verification()
+        verification = verificationmanager.create_verification(verification_type)
         # set it's properties
-        verification.init_values(verification_type, request, expiration_days, verification_varname, verification_varval, extradict, is_shortcode)
+        verification.init_values(request, expiration_days, verification_varname, verification_varval, extradict, is_shortcode)
         # save it
         verification.save()
         
@@ -385,7 +392,7 @@ class AccountHelper(MewloRequestHandlerHelper):
         verification = verificationmanager.find_bylongcode(verification_code)
         
         # check it - verification entry found
-        verification_type_expected = 'VFTYPE_pre_user_verification'
+        verification_type_expected = self.DEF_VFTYPE_pre_user_verification
         is_shortcode_expected = False
         failure = verificationmanager.basic_validation(verification, verification_code, self.request, verification_type_expected, is_shortcode_expected)
         if (failure != None):
@@ -553,7 +560,7 @@ class AccountHelper(MewloRequestHandlerHelper):
 
 
         # success, so consume verification
-        verification.consume()
+        verification.consume(self.request)
 
         
         # let's log them in

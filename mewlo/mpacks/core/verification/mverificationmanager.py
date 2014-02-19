@@ -36,11 +36,12 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
 
 
 
-    def create_verification(self):
+    def create_verification(self, verification_type):
         """
         Generic creation of a new verification entry.
         """
         verification = self.modelclass()
+        verification.verification_type = verification_type      
         return verification
     
     
@@ -57,18 +58,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
 
 
 
-    def find_byshortcode(self, request, verification_type):
-        """
-        Find a verification entry by type and request session/user info.
-        We don't check for expiration or anything like that here, we just find the matching code.
-        IMPORTANT: Note that we don't look it up by code!! That's because there can only be one short code per type+user/session; that is how we ensure that they can't try all possible codes.
-        On basic validation we will check actual code.
-        """
-        # ATTN: unfinished
-        # what we want to do now is find by verification_code AND verification_type AND (EITHER the sessionid or userid)
-        verification = None
-        return verification    
-    
+
     
     
     def basic_validation(self, verification, verification_code, request, verification_type_expected, is_shortcode_expected):
@@ -134,3 +124,81 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
         
         # it's good, no error
         return None
+    
+    
+
+
+
+
+    def find_byshortcode(self, verification_type, request):
+        """
+        Find a verification entry by type and request session/user info.
+        We don't check for expiration or anything like that here, we just find the matching code.
+        IMPORTANT: Note that we don't look it up by code!! That's because there can only be one short code per type+user/session; that is how we ensure that they can't try all possible codes.
+        On basic validation we will check actual code.
+        """
+        # ATTN: unfinished
+        
+        # build the where clause
+        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request)
+        if (whereclause == None):
+            return
+
+        # ok find it
+        verification = self.modelclass.find_one_bywhereclause(whereclause)
+        return verification 
+    
+
+
+    def invalidate_previousverifications(self, verification_type, request):
+        """
+        We often want to invalidate previous verification entries from a user of a specific type, before creating a new one of the same type, so that there is only one pending verification usable at a time.
+        """
+
+        # build the where clause
+        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request)
+        if (whereclause == None):
+            return
+
+        # if we wanted we could outright DELETE these verifications
+        if (False):
+            self.modelclass.delete_all_bywhereclause(whereclause)
+        else:
+            # or we could mark them as invalidated but leave them in place in order to give user a better error if they try to use it
+            updatedict = {
+                'invalidreason': "A more recent verification request was submitted.",
+                'date_consumed': self.modelclass.get_nowtime()
+            }
+            # add sessionip
+            session = request.get_session(False)
+            if (session != None):            
+                updatedict['ip_consumed'] = session.ip
+            # ok update them
+            self.modelclass.update_all_dict_bywhereclause(updatedict, whereclause)
+
+
+
+    def build_whereclause_verifications_by_type_and_request(self, verification_type, request):
+        """Build whereclause to select the verifications.
+        We want to identify all verifications that match: verification_type AND (EITHER the sessionid or userid)
+        """
+
+        # get session information for user, if none, then we have no user or session so nothing to do
+        session = request.get_session(False)
+        if (session == None):
+            return None
+        user = session.get_user()
+        
+        # build the where clause
+        whereclause = 'verification_type = "{0}"'.format(verification_type)
+
+        if (user == None):            
+            whereclause += ' AND session_id = {0}'.format(session.id)
+        else:
+            whereclause += ' AND (session_id = {0} OR user_id = {1})'.format(session.id, user.id)
+            
+        #print "USING whereclause = "+whereclause
+            
+        # return it
+        return whereclause
+    

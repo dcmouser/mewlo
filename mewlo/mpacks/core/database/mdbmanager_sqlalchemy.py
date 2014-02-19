@@ -344,17 +344,19 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
     def modelclass_deleteall(self, modelclass):
         """Delete all items (rows) in the table."""
         # ATTN: Unfinished
-        pass
+        raise Exception("mdbmanager.modelclass_deleteall Not implemented yet.")
 
 
     def modelclass_delete_bykey(self, modelclass, keydict):
         """Delete all items (rows) matching key dictionary settings."""
-        # ATTN: Unfinished
-        pass
+        session = modelclass.dbsession()
+        query = session.query(modelclass).filter_by(**keydict)
+        result = query.delete()
+        return result
 
 
 
-    def modelclass_find_one_byprimaryid(self, modelclass, primaryid, defaultval):
+    def modelclass_find_one_byprimaryid(self, modelclass, primaryid, defaultval=None):
         """Find and return an instance object for the single row specified by keydict.
         :return: defaultval if not found
         """
@@ -365,7 +367,7 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         return defaultval
 
 
-    def modelclass_find_one_bykey(self, modelclass, keydict, defaultval):
+    def modelclass_find_one_bykey(self, modelclass, keydict, defaultval=None):
         """Find and return an instance object for the single row specified by keydict.
         :return: defaultval if not found
         """
@@ -386,6 +388,44 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
+
+
+    def modelclass_find_one_bywhereclause(self, modelclass, whereclause, defaultval=None):
+        """Find using a where clause."""
+        whereclause = self.convertwhereclause(whereclause)
+        session = modelclass.dbsession()
+        query = session.query(modelclass).filter(whereclause)
+        result = query.first()
+        if (result!=None):
+            return result
+        return defaultval
+
+
+    def modelclass_delete_all_bywhereclause(self, modelclass, whereclause):
+        """Delete all using using a where clause."""
+        whereclause = self.convertwhereclause(whereclause)        
+        session = modelclass.dbsession()
+        query = session.query(modelclass).filter(whereclause)
+        result = query.delete(synchronize_session=False)
+        return result
+
+
+    def modelclass_update_all_dict_bywhereclause(self, modelclass, updatedict, whereclause):
+        """Update all with dictionary using a where clause."""
+        whereclause = self.convertwhereclause(whereclause)        
+        session = modelclass.dbsession()
+        query = session.query(modelclass).filter(whereclause)
+        result = query.update(updatedict, synchronize_session=False)
+
+
+
+
+    def convertwhereclause(self, whereclause):
+        """Convert to a text clause if it's text."""
+        if (True or isinstance(whereclause,basestring)):
+            return sqlalchemy.text(whereclause)
+        # it's good already
+        return whereclause
 
 
 

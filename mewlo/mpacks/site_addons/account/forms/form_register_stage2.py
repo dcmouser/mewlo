@@ -21,7 +21,8 @@ class MewloForm_Register_Stage2(MewloForm):
     username = StringField('Username', [validators.Length(min=3, max=32)])
     password = PasswordField('Password', [validators.Length(min=3, max=64)])
     #email = BigStringField('Email Address', [validators.Length(min=6, max=64)])
-    email = DisabledStringField('Email Address', [validators.Length(min=6, max=64)])
+    #email = DisabledStringField('Email Address', [validators.Length(min=6, max=64)])
+    email = DisabledStringField('Email Address')
     accept_rules = BooleanField('I accept the site rules', [validators.InputRequired()])
     #
     code = HiddenField('', [])
