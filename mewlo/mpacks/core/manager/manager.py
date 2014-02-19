@@ -47,7 +47,19 @@ class MewloManager(object):
 
 
 
+
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloManager (" + self.__class__.__name__ + ") reporting in.\n"
         return outstr
+    
+    
+    
+    
+
+    def get_setting_value(self, sectionmame, defaultval=None):
+        return self.mewlosite.settings.get_value(sectionmame, defaultval)
+
+    
+    def get_setting_subvalue(self, sectionmame, varname, defaultval=None):
+        return self.mewlosite.settings.get_subvalue(sectionmame, varname, defaultval)

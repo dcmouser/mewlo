@@ -5,7 +5,7 @@ This file contains login form stuff
 
 
 # mewlo imports
-from mewlo.mpacks.core.form.mform import MewloForm
+from mewlo.mpacks.core.form.mform import MewloForm, BigStringField
 
 # library imports
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
@@ -18,7 +18,7 @@ from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
 class MewloForm_Register_JustEmail(MewloForm):
 
-    email = StringField('Email Address', [validators.Length(min=6, max=64)])
+    email = BigStringField('Email Address', [validators.Length(min=6, max=64)])
 
     #
     viewfilename = 'register.jn2'

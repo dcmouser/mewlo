@@ -73,3 +73,46 @@ class MewloForm(Form):
         """A form can store the view file it normally uses."""
         return self.__class__.viewfilename
 
+
+
+    def set_values_from_dict(self, form_dict):
+        """Set form values manually."""
+        for key,val in form_dict.iteritems():
+            if (hasattr(self,key)):
+                ffield = getattr(self,key)
+                ffield.data = val
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+# helper derived WTForm classes
+
+
+
+
+
+# from http://stackoverflow.com/questions/14874846/python-flask-wtforms-make-read-only-textfield
+# for a dif approach see also https://github.com/kvesteri/wtforms-components/blob/master/wtforms_components/widgets.py
+class DisabledStringField(StringField):
+    def __call__(self, *args, **kwargs):
+        kwargs.setdefault('disabled', True)
+        kwargs.setdefault('size', 60)        
+        return super(DisabledStringField, self).__call__(*args, **kwargs)
+    
+
+
+class BigStringField(StringField):
+    def __call__(self, *args, **kwargs):
+        kwargs.setdefault('size', 60)
+        return super(BigStringField, self).__call__(*args, **kwargs)
+    

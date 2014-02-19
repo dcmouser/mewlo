@@ -1120,3 +1120,33 @@ class MewloSite(object):
         return self.cfghelper.get_value(keyname,defaultval)
 
 
+
+
+
+
+
+
+
+
+
+
+
+    def renderstr_from_template_file(self, templatefilepath, args=None):
+        """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
+        template = self.comp('templatemanager').from_file(templatefilepath)
+        return self.renderstr_from_template(template, args)
+
+    def renderstr_from_template(self, template, args=None):
+        """Shortcut to return html for a template and set responsedata from it, passing response object to template as an extra arg."""
+        renderedtext = template.render_string(args)
+        return renderedtext
+    
+    
+    
+    
+    
+    
+    
+    def build_routeurl_byid(self, routeid, flag_relative, args):
+        """Build a url to a route with some optional args."""
+        return self.comp('routemanager').build_routeurl_byid(routeid, flag_relative, args)

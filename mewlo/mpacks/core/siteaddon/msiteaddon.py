@@ -127,3 +127,37 @@ class MewloSiteAddonManager(manager.MewloManager):
             outstr += siteaddon.dumps(indent+1)
         return outstr
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

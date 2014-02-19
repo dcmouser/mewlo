@@ -6,6 +6,7 @@ About Mewlo
    goals
    philosophy
    the_team
+   examples
    help_needed
    use_cases
    reinvention

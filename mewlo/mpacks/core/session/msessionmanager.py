@@ -69,10 +69,14 @@ class MewloSessionManager(modelmanager.MewloModelManager):
                 # we need to give it reference to us
                 mewlosession.set_sessionmanager(self)
                 # any fields to set on access?
-                mewlosession.update_access()
-                # test of serialized session var
-                access_count = mewlosession.get_sessionvar('access_count',0)
-                mewlosession.set_sessionvar('access_count',access_count+1)
+                if (False):
+                    # ATTN: this will cause a SAVE of session db model on EVERY access!!!
+                    mewlosession.update_access()
+                    # test of serialized session var
+                    access_count = mewlosession.get_sessionvar('access_count',0)
+                    mewlosession.set_sessionvar('access_count',access_count+1)
+                else:
+                    access_count = "{0} (but not updated)".format(mewlosession.get_sessionvar('access_count',0))
         else:
             sessionhashkey = None
 

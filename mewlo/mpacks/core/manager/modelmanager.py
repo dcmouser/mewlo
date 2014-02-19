@@ -26,6 +26,3 @@ class MewloModelManager(manager.MewloManager):
         return outstr
 
 
-
-
-

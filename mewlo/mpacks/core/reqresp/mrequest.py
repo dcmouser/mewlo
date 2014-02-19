@@ -156,7 +156,7 @@ class MewloRequest(object):
     def get_session(self, flag_makesessionifnone):
         """Lazy create or load session object."""
         if (self.session == None):
-            self.session = self.mewlosite.comp('sessionmanager').get_session(self,flag_makesessionifnone)
+            self.session = self.mewlosite.comp('sessionmanager').get_session(self, flag_makesessionifnone)
         return self.session
 
     def save_session_ifdirty(self):
@@ -165,23 +165,25 @@ class MewloRequest(object):
             return
         if (self.session.get_isdirty()):
             # session has changes to save, so save it
+            #print "ATTN: SAVING SESSION."
             self.session.save()
             # and make sure the user gets a cookie pointing to this session
             self.response.set_cookieval(self.mewlosite.comp('sessionmanager').get_sessionid_cookiename(), self.session.hashkey)
         # shall we autosave session user?
         # ATTN: i don't know how smart db is about avoiding resave if nothing changed
         # ATTN: TODO avoid trying to save if not diry
-        user = self.get_user(False)
+        user = self.get_user()
         if (user != None):
             user.save()
 
-    def get_user(self, flag_makeuserifnone):
+    def get_user(self):
         """Lazy get the user object of the requesting user.
         This will trigger session creation, then session lookup of user if need be."""
         if (self.user == None):
-            session = self.get_session(flag_makeuserifnone)
+            # ATTN: TODO - investigate and think about this; if we don't pass true here then sessions get forgetten; it's not clear if we need a fast way to check if user logged in without triggering full session creation
+            session = self.get_session(True)
             if (session != None):
-                self.user = session.get_user(flag_makeuserifnone)
+                self.user = session.get_user()
         return self.user
 
     def set_user(self, userobject):
@@ -195,14 +197,16 @@ class MewloRequest(object):
         This will trigger session creation, then session lookup of user if need be."""
         if (self.user == None):
             # quick temporary user, without causing session creation
-            user = self.get_user(False)
+            user = self.get_user()
             if (user == None):
                 user = self.get_sitecomp_usermanager().getmake_guestuserobject()
             return user
         return self.user
 
 
-
+    def clearloggedinuser(self):
+        """Clear the loggedin user (performed on a logout)."""
+        self.set_user(None)
 
 
 
@@ -289,6 +293,7 @@ class MewloRequest(object):
         request.make_werkzeugrequest(wsgiref_environ)
         # return it
         return request
+
 
 
 

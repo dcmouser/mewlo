@@ -192,6 +192,10 @@ class Event(object):
         ATTN: we probably don't want the EVENT to decide this -- rather the log target, etc.
         """
         return self.stringify()
+    
+    def msg(self):
+        """Simple accessor."""
+        return self.fields['msg']
 
 
     def calc_pythonlogginglevel(self):

@@ -211,3 +211,20 @@ Think about this.
 We are using a configomd helper in the site class to load from config/ files.
 But if this is something purely up to the sure to use in their own configuration, maybe we should let it be a standalone utility class and not part of the mewlo stuff, just like using any other python library iff they want to or not.
 //---------------------------------------------------------------------------
+
+
+
+
+//---------------------------------------------------------------------------
+2/17/14
+Put all constants/defines in one core file, instead of spread out in class files.
+//---------------------------------------------------------------------------
+
+
+
+
+//---------------------------------------------------------------------------
+2/18/14
+consume previous verification codes of same type when user submits a new one (mark as expired, etc.)
+//---------------------------------------------------------------------------
+

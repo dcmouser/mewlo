@@ -72,13 +72,14 @@ class MewloSession(mdbmodel.MewloDbModel):
         But then we don't know how to invoke that here since a session doesn't get a reference to the helper (we could change that).
         ATTN: UNFINISHED.
         """
-        sessionhashkey = str(self.create_unique_sessionhashkey())
+        sessionhashkey = self.create_unique_sessionhashkey()
         self.hashkey = sessionhashkey
         self.set_isdirty(True)
 
 
     def update_access(self):
         """Update access time."""
+        #print "ATTN: in msession.update_access()"
         curtime = time.time()
         self.date_access = curtime
         self.set_isdirty(True)
@@ -111,7 +112,7 @@ class MewloSession(mdbmodel.MewloDbModel):
 
 
     # lazy user requester object creation
-    def get_user(self, flag_makeuserifnone):
+    def get_user(self):
         """Lazy return the user OBJECT associated with this session."""
         # ATTN: why are we setting self.user directly in first half of this function, but called set_user in second half which is a fully involved function call;
         # is it because in later case its a new object just being created which needs its self.user_id set
@@ -124,6 +125,7 @@ class MewloSession(mdbmodel.MewloDbModel):
                 # we need to load it
                 self.user = self.sitecomp_usermanager().modelclass.find_one_byprimaryid(self.user_id, None)
         # no user object? should we make a GUEST one?
+        flag_makeuserifnone = False
         if (self.user == None and flag_makeuserifnone):
             # ok we want to "make" a user object (which may just mean loading GUEST user object from db); and then remember to set self.user and self.user_id
             user = self.sitecomp_usermanager().getmake_guestuserobject()
@@ -135,10 +137,8 @@ class MewloSession(mdbmodel.MewloDbModel):
 
     def create_unique_sessionhashkey(self):
         """Create a new unique session hashkey."""
-        sessionid = uuid.uuid4()
+        sessionid = str(uuid.uuid4())
         return sessionid
-
-
 
 
 

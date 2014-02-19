@@ -1,10 +1,5 @@
 {% include "${siteviewpath}/header.jn2" %}
 
-<h1>Thank you for registering</h1>
-
-<div>
-{{ successmessage }}
-</div>
-
+Your verification is complete.
 
 {% include "${siteviewpath}/footer.jn2" %}

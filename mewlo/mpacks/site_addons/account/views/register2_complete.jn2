@@ -1,6 +1,6 @@
 {% include "${siteviewpath}/header.jn2" %}
 
-<h1>Thank you for registering</h1>
+<h1>Thank you for completing your registration.</h1>
 
 <div>
 {{ successmessage }}

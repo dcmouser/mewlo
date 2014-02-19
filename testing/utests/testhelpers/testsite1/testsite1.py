@@ -143,13 +143,12 @@ class MewloSite_Test1(MewloSite):
         # email config settings
         mailconfig = {
             # online status information
-            'smtp_host': 'mail.dcwing.com',
-            'smtp_post': 465,
-            'smtp_mode': 'tls',
-            'smtp_login': 'mouser@dcmembers.com',
-            'smtp_password': 'PlekKvkj_slZd3.25Km',
+            'smtp_host': self.get_configval('mail_smtp_host'),
+            'smtp_login': self.get_configval('mail_smtp_login'),   
+            'smtp_port': self.get_configval('mail_smtp_port'),
+            'smtp_mode': self.get_configval('mail_smtp_mode'),
             'smtp_password': self.get_configval('mail_smtp_password'),
-            'mail_from' : 'mouser-mewlo@donationcoder.com',
+            'mail_from' : self.get_configval('mail_from'),
             }
         self.settings.merge_settings_key(MewloSettings.DEF_SECTION_mail, mailconfig)
 

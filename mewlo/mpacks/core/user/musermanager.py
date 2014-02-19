@@ -37,9 +37,6 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-
-
-
     def getmake_guestuserobject(self):
         """
         Make a guest user object and return it.
@@ -52,30 +49,24 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-    def create_user(self, username, password_plaintext, email):
+    def create_user(self, userdict):
         """
         Make a new user account.
+        We take a userdict instead of explicit variables for username, email, password, so that we can eventually accomodate whatever initial user properties we have specified at time of registration.
         return tuple (userobject, errordict); if there are errors return them and userobject as None
         """
         errordict = {}
 
-        # make sure username and email are unique; error if not
-        user = self.find_user_by_username_or_email(username,email)
-        if (user != None):
-            # error, user already exists, let's tell them
-            if ((user.username != None) and (user.username == username) and (user.email != None) and (user.email == email)):
-                errordict[''] = 'A user with this username and email already exists.'
-            if ((user.username != None) and (user.username == username) ):
-                errordict['username'] = 'Username already in use.'
-            if ((user.email != None) and (user.email == email) ):
-                errordict['email'] = 'Email already in use.'
-            return None, errordict
+        # make sure unique fields (username, email) are unique; error if not
+        errordict = self.error_if_user_exists(userdict)
+        if (len(errordict)>0): 
+            return None, errordict, ''
 
         # create user account.
         user = self.modelclass()
-        user.username = username
-        user.email = email
-        user.password_hashed = self.hash_and_salt_password(password_plaintext)
+        user.username = userdict['username']
+        user.email = userdict['email']
+        user.password_hashed = self.hash_and_salt_password(userdict['password'])
         # assuming no errors, save it
         if (len(errordict)==0):
             # no errors, save it
@@ -84,12 +75,14 @@ class MewloUserManager(modelmanager.MewloModelManager):
         if (len(errordict)>0):
             # errors, clear user object
             user = None
+        #
+        successmessage = 'User account has been successfully created.'
         # return it
-        return user, errordict
+        return user, errordict, successmessage
 
 
 
-    def login_user(self, username=None, password_plaintext=None, email=None):
+    def login_user(self, userdict):
         """
         Make a new user account.
         return tuple (userobject, errordict)
@@ -97,17 +90,14 @@ class MewloUserManager(modelmanager.MewloModelManager):
         """
         errordict = {}
         # first find user by username or email
-        user = self.find_user_by_username_or_email(username,email)
+        (user, matchingfield) = self.find_user_by_dict(userdict)
         if (user == None):
-            if ((username != None) and (email != None)):
-                errordict[''] = "No user exists with that username or email."
-            elif (email != None):
-                errordict['email'] = "No user exists with that email."
-            else:
-                errordict['username'] = "No user exists with that username."
+            # ATTN:TODO -- what would be nice is if we checked pending verifications -- if we find the user, instead of saying "user could not be found" we can tell them they need to verify first and give them a link to resend, etc.
+            errordict[''] = "User could not be found."
             return None, errordict
 
         # check password
+        password_plaintext = userdict['password']
         does_passwordmatch = user.does_plaintextpasswordmatch(password_plaintext)
         if (not does_passwordmatch):
             errordict['password'] = "Password does not match."
@@ -124,18 +114,23 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-    def find_user_by_username_or_email(self, username, email):
-        """Lookup user by username or email; both of which may be set to None to ignore."""
+
+    def find_user_by_dict(self, userdict):
+        """Lookup user by a uniquely identifiable field in userdict (typically username or email).
+        We use this general function so that we can expand to support looking up by phone numbers, etc.
+        We have a list of fields that we know uniquely identify users and we check EACH of these in turn (not the combo of them all); when we find a match we return the user and the fieldname that matched.
+        It is called during login (to identify the user logging in) and during registration (to check if the username or email, etc. is already in use).
+        Return tupe of (user, matchingfieldname)
+        """
         user = None
-        if ((username != None) and (username != '')):
-            # find by name
-            keydict = {'username':username}
-            user = self.modelclass.find_one_bykey(keydict)
-        if ((user == None) and (email != None) and (email!='')):
-            # find by email
-            keydict = {'email':email}
-            user = self.modelclass.find_one_bykey(keydict)
-        return user
+        identifiablefields = {'username', 'email'}
+        for fieldname in identifiablefields:
+            if ((fieldname in userdict) and (userdict[fieldname]!=None) and (userdict[fieldname]!='')):
+                keydict = {fieldname: userdict[fieldname]}
+                user = self.modelclass.find_one_bykey(keydict)
+                if (user!=None):
+                    return (user, fieldname)
+        return None, None
 
 
 
@@ -143,6 +138,33 @@ class MewloUserManager(modelmanager.MewloModelManager):
         """Return a hashed and salted version of the password, suitable for database storage."""
         password_hashed = misc.encode_hash_and_salt(password_plaintext)
         return password_hashed
+
+
+
+
+
+    def error_if_user_exists(self, user_dict):
+        """Return a dictionary of fieldname:error if the user exists,
+        Otherwise return {}."""
+        
+        # look up user
+        (user, matchingfieldname) = self.find_user_by_dict(user_dict)
+        if (user != None):
+            errordict = {matchingfieldname: "A user already exists with this {0}.".format(matchingfieldname)}
+            return errordict
+        # user not found, so that's good
+        return {}
+
+
+
+
+
+
+
+
+
+
+
 
 
 

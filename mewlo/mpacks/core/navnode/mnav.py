@@ -427,7 +427,7 @@ class NavNodeManager(manager.MewloManager):
         labelproplist = ['menulabel_short', 'menulabel']
         # build nodehtmls
         for node in nodelist:
-            nodehtml = self.makenav_node_to_html(node, labelproplist, responsecontext)
+            nodehtml = self.makenav_node_to_html(node, labelproplist, responsecontext, ['visible_breadcrumb','visible'])
             if (nodehtml != ''):
                 html += nodehtml + '\n'
         # wrap in div class
@@ -463,13 +463,13 @@ class NavNodeManager(manager.MewloManager):
 
 
 
-    def makenav_node_to_html(self, node, labelproplist, responsecontext):
+    def makenav_node_to_html(self, node, labelproplist, responsecontext, visiblefieldlist = ['visible']):
         """Return html for this node item."""
         import cgi
         html = ''
 
         # if its not visible, we can stop right now
-        isvisible = node.get_isvisible(responsecontext)
+        isvisible = node.get_isvisible(responsecontext, visiblefieldlist)
         if (not isvisible):
             return ''
 
@@ -477,9 +477,10 @@ class NavNodeManager(manager.MewloManager):
         label = cgi.escape(node.get_label(labelproplist, responsecontext))
         url = node.get_menu_url(responsecontext)
         hint = node.get_menu_hint(responsecontext)
+        flag_linkurl = node.get_flag_linkurl(responsecontext)
 
         # build main html
-        if (url!=None):
+        if (url!=None and flag_linkurl):
             url = cgi.escape(url)
             if (hint!=None):
                 linkextra = 'TITLE="{0}"'.format(cgi.escape(hint))
@@ -490,15 +491,13 @@ class NavNodeManager(manager.MewloManager):
             html = label
 
         # active highlighting
-        flag_isactive = node.get_property('flag_active', False, True, responsecontext)
+        flag_isactive = node.isactive(responsecontext)
         if (flag_isactive):
             html = '<span class="nav_active">' + html + '</span>'
 
         # wrap in div class
         html = '<li>' + html + '</li>'
         return html
-
-
 
 
 
@@ -725,7 +724,7 @@ class NavNode(object):
             # no url specified in navnode, but perhaps we can construct it from the route associated with this navnode
             if (self.route != None):
                 # ATTN: TODO - eventually we will need to pass context info to this function to account for url parameters, etc.
-                val = self.route.construct_url()
+                val = self.route.construct_url(flag_relative=True)
         else:
             # val is the url, but we need to add site prefix
             val = self.relative_url(val)
@@ -736,12 +735,19 @@ class NavNode(object):
         val = self.get_propertyl(['menuhint','menuhelp'], None, True, responsecontext)
         return val
 
-    def get_isvisible(self, responsecontext):
+    def get_isvisible(self, responsecontext, visiblefieldlist = ['visible']):
         """Return value for menu/navbar creation."""
-        val = self.get_property('visible', True, True, responsecontext)
+        val = self.get_propertyl(visiblefieldlist, True, True, responsecontext)
+        return val
+    
+    def get_flag_linkurl(self, responsecontext):
+        val = self.get_propertyl(['flag_linkurl'], True, True, responsecontext)
         return val
 
 
+    def isactive(self,responsecontext):
+        return self.get_property('flag_active', False, True, responsecontext)
+    
 
 
     def set_response_property(self, propertyname, value, responsecontext):

@@ -5,3 +5,5 @@ I modified sphinx apidoc.py to allow each module to go on it's own page.
 Note:
 I submitted this as an official pull request change here:
 https://bitbucket.org/birkenfeld/sphinx/pull-request/161/added-option-to-apidoc-to-write-each/diff
+
+It has been added to official sphinx, no more need to patch.

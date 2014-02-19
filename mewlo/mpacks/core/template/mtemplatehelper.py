@@ -37,8 +37,11 @@ class MewloTemplateHelper(manager.MewloManager):
         responsecontext = response.get_rendercontext()
         # build list of rows
         activebars = self.mewlosite.comp('navnodemanager').makenav_activerowlist(responsecontext)
-        # now convert to html
-        html = self.mewlosite.comp('navnodemanager').makenav_rowlist_to_html(activebars,responsecontext)
+        if (len(activebars) == 0):
+            html = 'ERROR: PAGENODEID {0} COULD NOT BE LOCATED; NO NAVIGATION BAR GENERATED.'.format(responsecontext.get_value('pagenodeid','PAGENODEID_NOT_SET'))
+        else:
+            # now convert to html
+            html = self.mewlosite.comp('navnodemanager').makenav_rowlist_to_html(activebars,responsecontext)
         return html
 
 
@@ -48,8 +51,11 @@ class MewloTemplateHelper(manager.MewloManager):
         responsecontext = response.get_rendercontext()
         # build list of rows
         nodelist = self.mewlosite.comp('navnodemanager').makenav_breadcrumb_list(responsecontext)
-        # now convert to html
-        html = self.mewlosite.comp('navnodemanager').makenav_node_to_breadcrumb_html(nodelist,responsecontext)
+        if (len(nodelist) == 0):
+            html = 'ERROR: PAGENODEID {0} COULD NOT BE LOCATED; NO BREADCRUMB BAR GENERATED.'.format(responsecontext.get_value('pagenodeid','PAGENODEID_NOT_SET'))
+        else:
+            # now convert to html
+            html = self.mewlosite.comp('navnodemanager').makenav_node_to_breadcrumb_html(nodelist,responsecontext)
         return html
 
 
@@ -94,9 +100,12 @@ class MewloTemplateHelper(manager.MewloManager):
     def html_formfield_witherror(self, field):
         """Return html for the form with inline errors."""
         #
+        reth = ''
+        # skip hidden fields
+        if (field.type=='HiddenField'):
+            return field()
         css_class = ''
         #
-        reth = ''
         reth += '<div class="form_field">\n'
         # label
         reth += str(field.label) + ': '
@@ -122,7 +131,7 @@ class MewloTemplateHelper(manager.MewloManager):
         """Some simple debug html at bottom of page."""
         session = request.get_session(False)
         if (session != None):
-            user = session.get_user(False)
+            user = session.get_user()
             if (user != None):
                 username = user.username
             else:

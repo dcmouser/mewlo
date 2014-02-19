@@ -13,6 +13,7 @@ import mdbfield
 
 # python imports
 import pickle
+import time
 
 # library imports
 import sqlalchemy
@@ -92,6 +93,13 @@ class MewloDbModel(object):
         sdict = self.getcreate_serializedbdict_forfield(serialized_dict_fieldname)
         sdict.set_keyval(keyname, val)
         self.set_isdirty(True)
+        
+    def setdict_serialized(self, serialized_dict_fieldname, newdict):
+        """Set the value of a SERIALIZED dictionary."""
+        # create on first use
+        sdict = self.getcreate_serializedbdict_forfield(serialized_dict_fieldname)
+        sdict.set_dict(newdict)
+        self.set_isdirty(True)        
 
     def deletefield_serialized(self, serialized_dict_fieldname, keyname):
         """Remove a SERIALIZED dictionary key value."""
@@ -180,9 +188,11 @@ class MewloDbModel(object):
         return self.isdirty
 
 
+    def get_nowtime(self):
+        return time.time()
 
-
-
+    def nice_datestring(self, atime):
+        return misc.nice_datestring(atime)
 
 
     # These methods should not have to be re-implemented by dervived subclasses
@@ -214,7 +224,12 @@ class MewloDbModel(object):
         self.dbm().model_sessionflush(self)
 
 
-
+    def getid_saveifneeded(self):
+        """Save the object if it's not saved yet, because we need it's id."""
+        #if (not hasattr(self,'id') or self.id == None):
+        if (self.id == None):            
+            self.save()
+        return self.id
 
 
 

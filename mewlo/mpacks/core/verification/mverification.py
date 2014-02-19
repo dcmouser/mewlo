@@ -42,23 +42,68 @@ class MewloVerification(mdbmodel.MewloDbModel):
 
 
 
+    def init_values(self, verification_type, request, expiration_days, verification_varname=None, verification_varval=None, extradict={}, is_shortcode=False):
+        """Set some values."""
+        # set main values
+        self.verification_type = verification_type
+        self.verification_code = self.make_randomverificationcode()
+        # other calues
+        self.is_shortcode = is_shortcode        
+        self.verification_varname = verification_varname
+        self.verification_varval = verification_varval
+        # set the entire contents of the serialized verification vars
+        self.setdict_serialized('verificationvars_serialized',extradict)
+        # set request-based values
+        self.setvals_fromequest(request)
+        # initial values
+        self.date_created = self.get_nowtime()        
+        self.date_expires = self.date_created + expiration_days
+        self.failurecount = 0
 
 
 
 
 
+    def setvals_fromequest(self, request):
+        """Set some verification values from a request"""
+        session = request.get_session(True)  
+        self.session_id = session.getid_saveifneeded()
+        self.ip_created = session.ip
+        self.user_id = session.user_id
+
+
+
+    def make_randomverificationcode(self):
+        """Make a random secure unique verification code and return it.
+        ATTN: at some point we will want to support long + short codes (see docs)."""
+        return str(uuid.uuid4())
+
+
+    def get_userdict(self):
+        return self.getfield_serialized('verificationvars_serialized','userdict',{})
 
 
 
 
 
-
-
-
-
-
-
-
+    def consume(self):
+        """Mark verification entry as consumed/used successfully."""
+        self.date_consumed = self.get_nowtime()
+        self.save()
+        
+    def increment_failurecount(self):
+        """Increase the failure counter, and fail it iff too many."""
+        self.failurecount += 1
+        max_failures_allowed = 10
+        if (self.failurecount > max_failures_allowed):
+            self.set_invalid("Too many failed attempts to enter code.")
+        else:
+            self.save()
+            
+    def set_invalid(self, invalidreason):
+        """Mark it as invalid."""
+        self.incalidreason = invalidreason
+        self.save()
 
 
 
@@ -82,7 +127,13 @@ class MewloVerification(mdbmodel.MewloDbModel):
             mdbfield.DbfPrimaryId('id', {
                 'label': "The primary key and id#"
                 }),
-            mdbfield.DbfCryptoHash('sessionhashkey', {
+            mdbfield.DbfString('invalidreason', {
+                'label': "Reason it's being marked as invalid?"
+                }),
+            mdbfield.DbfInteger('failurecount', {
+                'label': "Number of times the user has failed to match this code (used for short codes)"
+                }),
+            mdbfield.DbfInteger('session_id', {
                 'label': "Allow locking of the verification entry to a specific session id"
                 }),
             mdbfield.DbfForeignUserId('user_id', {
@@ -91,23 +142,23 @@ class MewloVerification(mdbmodel.MewloDbModel):
             mdbfield.DbfTimestamp('date_created', {
                 'label': "Date when verification entry was created"
                 }),
-            mdbfield.DbfTimestamp('date_expired', {
+            mdbfield.DbfTimestamp('date_expires', {
                 'label': "Date when verification entry will expire"
                 }),
             mdbfield.DbfTimestamp('date_consumed', {
                 'label': "Date when verification entry was consumed"
                 }),
-            mdbfield.DbfTimestamp('failedattempt_count', {
-                'label': "How many failed attempts have they made to match this verification code?"
-                }),
-            mdbfield.DbfServerIp('ip', {
+            mdbfield.DbfServerIp('ip_created', {
                 'label': "IP of user when verification was created"
+                }),
+            mdbfield.DbfServerIp('ip_consumed', {
+                'label': "IP of user when verification was consumed"
                 }),
             mdbfield.DbfTypeString('verification_type', {
                 'label': "Type of verification"
                 }),
-            mdbfield.DbfBoolean('does_requirelogin', {
-                'label': "Must user be logged in to trigger this verification (use with short codes)"
+            mdbfield.DbfBoolean('is_shortcode', {
+                'label': "Short codes cannot be matched without also matching against user session or userid"
                 }),
             mdbfield.DbfCryptoHash('verification_code', {
                 'label': "Verification code user must provide"

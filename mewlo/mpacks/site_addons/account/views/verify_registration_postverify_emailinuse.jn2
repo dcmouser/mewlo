@@ -1,0 +1,6 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+Sorry, but a user account with that email address has recently been created.<br/>
+You will have to re-register with a new email address.
+
+{% include "${siteviewpath}/footer.jn2" %}

@@ -1,10 +1,6 @@
 {% include "${siteviewpath}/header.jn2" %}
 
-<h1>Thank you for registering</h1>
-
-<div>
-{{ successmessage }}
-</div>
-
+ERROR: {{ failure.msg() }}<br/>
+Please try again.
 
 {% include "${siteviewpath}/footer.jn2" %}

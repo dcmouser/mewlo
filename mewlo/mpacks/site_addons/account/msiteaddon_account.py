@@ -105,19 +105,39 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 id = 'register',
                 path = '/register',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_register'),
-                ))
+            ))
         routegroup.append(
             MewloRoute(
                 id = 'login',
                 path = '/login',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_login'),
-                ))
+            ))
         routegroup.append(
             MewloRoute(
                 id = 'logout',
                 path = '/logout',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_logout'),
-                ))
+            ))
+        routegroup.append(
+            MewloRoute(
+                id = 'verify_registration',
+                path = '/verifyreg',
+                args = [
+                        MewloRouteArgString(
+                            id = 'code',
+                            required = True,
+                            help = "verification code",
+                            ),
+                        ],
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_verify_registration'),              
+            ))
+        routegroup.append(        
+            MewloRoute(
+                id = 'register2',
+                path = '/register2',
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_register2'),
+            ))
+
 
         # add routegroup we just created to the site
         self.mewlosite.comp('routemanager').append(routegroup)
@@ -149,6 +169,20 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 'sortweight': 8.0,
                 'pagetitle': 'Logout Page',
                 }),
+            NavNode('verify_registration', {
+                # this navigation node (menu) is not shown unless the user is actually on this page.  We use this for unusual pages.  Alternatively we could set visible false and visible_breadcrumb True to have nearly the same effect
+                'visible': lambda navnode,context: navnode.isactive(context),
+                # we also make the page menu a static text item, not a link
+                'flag_linkurl': False,
+                'parent': 'register',
+                'sortweight': 8.0,
+                }),
+            NavNode('register2', {
+                'visible': lambda navnode,context: navnode.isactive(context),
+                'flag_linkurl': False,                
+                'parent': 'register',
+                'sortweight': 1.0,
+                }),            
             ]
 
         # add nodes to site

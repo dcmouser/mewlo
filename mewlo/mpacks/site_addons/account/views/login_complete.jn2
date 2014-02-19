@@ -3,8 +3,8 @@
 <h1>You are now logged in.</h1>
 
 <ul>
-<li>Username: {{ request.get_user(False).username }}</li>
-<li>Email: {{ request.get_user(False).email }}</li>
+<li>Username: {{ request.get_user().username }}</li>
+<li>Email: {{ request.get_user().email }}</li>
 <li>Sessionid: {{ request.get_session(False).hashkey }}</li>
 </ul:
 

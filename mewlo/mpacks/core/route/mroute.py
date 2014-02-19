@@ -451,10 +451,18 @@ class MewloRoute(object):
 
 
 
-    def construct_url(self):
+    def construct_url(self, flag_relative=True, args={}):
         """Construct a url for this route.
         ATTN: TODO - this is preliminary version; eventually we will want to be able to accept info for context so we can fill parameters."""
-        return self.mewlosite.relative_url(self.path)
+        # base url
+        if (flag_relative):
+            url = self.mewlosite.relative_url(self.path)
+        else:
+            url = self.mewlosite.absolute_url(self.path)        
+        # now add args
+        for key,val in args.iteritems():
+            url += '/{0}/{1}'.format(key,val)
+        return url
 
 
 
@@ -632,4 +640,18 @@ class MewloRouteManager(manager.MewloManager):
     def lookup_route_byid(self, routeid):
         """Lookup routeid in our hash of all routes."""
         return self.routegroup.lookup_route_byid(routeid)
+
+
+
+    def build_routeurl_byid(self, routeid, flag_relative, args):
+        """Build a url to a route with some optional args."""
+        route = self.lookup_route_byid(routeid)
+        if (route == None):
+            url = 'COULD NOT FIND ROUTE BY ID {0}'.format(routeid)
+        else:
+            url = route.construct_url(flag_relative=flag_relative, args=args)
+        return url
+
+
+
 

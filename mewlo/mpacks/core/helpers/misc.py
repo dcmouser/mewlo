@@ -339,7 +339,12 @@ def parse_salthash_parameters(hashedtext):
 
 
 
-
-
+def nice_datestring(atime):
+    """Return a nice string describing the datetime atime."""
+    # ATTN: UNFINISHED -- we would like to say something like jan 1, 2010 at 5:4pm (3 weeks ago)
+    #nowtime = time.time()    
+    localtime = time.localtime(atime)
+    timestring = time.strftime('%A, %B %d, %Y at %I:%M %p',localtime)
+    return timestring
 
 
