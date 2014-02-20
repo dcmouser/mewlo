@@ -82,7 +82,13 @@ class MewloForm(Form):
                 ffield = getattr(self,key)
                 ffield.data = val
 
-
+    def set_onevalue(self, key, val):
+        """Set one value key."""
+        if (key==''):
+            return
+        if (hasattr(self,key)):
+            ffield = getattr(self,key)
+            ffield.data = val
 
 
 

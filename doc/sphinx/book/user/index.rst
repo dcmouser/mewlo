@@ -14,5 +14,6 @@ From here you can learn about the core Mewlo packages.
    profile
    rbac
    registration
+   registration_workflows
    users
    verifications

@@ -71,19 +71,23 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
 
         # does code match?
         if (verification.verification_code != verification_code):
+            # verification code failed -- this will only happen for short codes
+            failure = verification.increase_failurecount()
+            if (failure != None):
+                return failure
             return EFailure("This verification code does not match.")
         
         # sanity check
         if ((verification_code == None) or (verification_code == '')):
             return EFailure("This verification code is blank.")
 
+        # is it marked invalid? (note we must check this before date_consumed, since that will also be set when something is marked invalid).
+        if (verification.invalidreason != None):
+            return EFailure("This verification code is no longer valid: {0}".format(verification.invalidreason))
+
         # is it already consumed?
         if (verification.date_consumed != None):
             return EFailure("This verification code was already used on {0}.".format(verification.nice_datestring(verification.date_consumed)))
-
-        # is it marked invalid?
-        if (verification.invalidreason != None):
-            return EFailure("This verification code is no longer valid ({0}).".format(verification.invalidreason))
         
         # is it the right type?
         if ((verification_type_expected != None) and (verification.verification_type != verification_type_expected)):

@@ -7,6 +7,7 @@ Database object for storing verification entries
 # mewlo imports
 from ..database import mdbmodel
 from ..database import mdbfield
+from ..eventlog.mevent import EFailure, EException
 
 # python imports
 import time
@@ -97,19 +98,36 @@ class MewloVerification(mdbmodel.MewloDbModel):
 
 
         
-    def increment_failurecount(self):
-        """Increase the failure counter, and fail it iff too many."""
+    def increase_failurecount(self):
+        """Increase the failure counter, and fail it iff too many.
+        Return EFailure reason if too many failures; otherwise None
+        """
+        # increase failure count
         self.failurecount += 1
-        max_failures_allowed = 10
+        self.save()
+        # check if too many
+        max_failures_allowed = 5
         if (self.failurecount > max_failures_allowed):
-            self.set_invalid("Too many failed attempts to enter code.")
-        else:
-            self.save()
-            
+            invalidreason = "Incorrect code attempted too many times."
+            self.set_invalid(invalidreason)
+            return EFailure(invalidreason)
+        self.save()
+        return None
+
+
     def set_invalid(self, invalidreason):
         """Mark it as invalid."""
         self.incalidreason = invalidreason
         self.save()
+
+
+    def update_dict_defaults_with_userdict(self, overidedict, forcelist = []):
+        """Return a dictionary where userdict values are treated as defaults with overidedict merged after."""
+        verifcation_userdict = self.get_userdict()
+        for key,val in verifcation_userdict.iteritems():
+            if ((key not in overidedict) or (key in forcelist)):
+                overidedict[key]=val
+        return overidedict
 
 
 

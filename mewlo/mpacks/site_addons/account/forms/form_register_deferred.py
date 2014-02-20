@@ -1,5 +1,5 @@
 """
-form_register.py
+form_register_deferred.py
 This file contains login form stuff
 """
 
@@ -16,14 +16,13 @@ from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
 
 
-class MewloForm_Register_JustEmail(MewloForm):
+class MewloForm_Register_Deferred(MewloForm):
 
     email = BigStringField('Email Address', [validators.Length(min=6, max=64)])
 
-    #
-    viewfilename = 'register.jn2'
+    viewfilename = 'register_deferred.jn2'
 
     def __init__(self, *args, **kwargs):
         # parent constructor
-        super(MewloForm_Register_JustEmail, self).__init__(*args, **kwargs)
+        super(MewloForm_Register_Deferred, self).__init__(*args, **kwargs)
 

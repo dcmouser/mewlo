@@ -120,7 +120,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             ))
         routegroup.append(
             MewloRoute(
-                id = 'verify_registration',
+                id = 'register_deferred_verify',
                 path = '/verifyreg',
                 args = [
                         MewloRouteArgString(
@@ -133,7 +133,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             ))
         routegroup.append(        
             MewloRoute(
-                id = 'register2',
+                id = 'register_deferred_finalize',
                 path = '/register2',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_register2'),
             ))
@@ -169,7 +169,8 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 'sortweight': 8.0,
                 'pagetitle': 'Logout Page',
                 }),
-            NavNode('verify_registration', {
+            NavNode('register_deferred_verify', {
+                'menulabel': 'verify registration',
                 # this navigation node (menu) is not shown unless the user is actually on this page.  We use this for unusual pages.  Alternatively we could set visible false and visible_breadcrumb True to have nearly the same effect
                 'visible': lambda navnode,context: navnode.isactive(context),
                 # we also make the page menu a static text item, not a link
@@ -177,7 +178,8 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 'parent': 'register',
                 'sortweight': 8.0,
                 }),
-            NavNode('register2', {
+            NavNode('register_deferred_finalize', {
+                'menulabel': 'complete registration',
                 'visible': lambda navnode,context: navnode.isactive(context),
                 'flag_linkurl': False,                
                 'parent': 'register',

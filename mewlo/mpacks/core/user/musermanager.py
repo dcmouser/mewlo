@@ -49,7 +49,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-    def create_user(self, userdict):
+    def create_user(self, userdict, verifiedfields):
         """
         Make a new user account.
         We take a userdict instead of explicit variables for username, email, password, so that we can eventually accomodate whatever initial user properties we have specified at time of registration.
@@ -67,6 +67,12 @@ class MewloUserManager(modelmanager.MewloModelManager):
         user.username = userdict['username']
         user.email = userdict['email']
         user.password_hashed = self.hash_and_salt_password(userdict['password'])
+        
+
+        # ATTN:TODO handle verifiedfields -- if email not verified we should send them an email to verify it
+        # ATTN:TODO track whether email (etc.) is verified
+
+        
         # assuming no errors, save it
         if (len(errordict)==0):
             # no errors, save it
@@ -143,12 +149,12 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-    def error_if_user_exists(self, user_dict):
+    def error_if_user_exists(self, userdict):
         """Return a dictionary of fieldname:error if the user exists,
         Otherwise return {}."""
         
         # look up user
-        (user, matchingfieldname) = self.find_user_by_dict(user_dict)
+        (user, matchingfieldname) = self.find_user_by_dict(userdict)
         if (user != None):
             errordict = {matchingfieldname: "A user already exists with this {0}.".format(matchingfieldname)}
             return errordict

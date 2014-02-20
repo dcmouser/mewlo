@@ -20,7 +20,7 @@ def request_login(request, response):
     # account helper
     lhelper = AccountHelper(request, response)
     # then page contents
-    return lhelper.renderpage_login()
+    return lhelper.handlepage_login()
 
 
 
@@ -31,7 +31,7 @@ def request_logout(request, response):
     # account helper
     lhelper = AccountHelper(request, response)
     # then page contents
-    return lhelper.renderpage_logout()
+    return lhelper.handlepage_logout()
 
 
 
@@ -42,15 +42,15 @@ def request_register(request, response):
     # account helper
     lhelper = AccountHelper(request, response)
     # then page contents
-    return lhelper.renderpage_register()
+    return lhelper.handlepage_register_deferred()
 
 
-def request_register2(request, response):
-    """Controller function."""
-    # account helper
-    lhelper = AccountHelper(request, response)
-    # then page contents
-    return lhelper.renderpage_state2register()
+
+
+
+
+
+
 
 
 
@@ -62,9 +62,15 @@ def request_verify_registration(request, response):
     # account helper
     lhelper = AccountHelper(request, response)
     # then page contents
-    return lhelper.renderpage_verify_registration()
+    return lhelper.handlepage_verify_registration_deferred()
 
 
+def request_register2(request, response):
+    """Controller function."""
+    # account helper
+    lhelper = AccountHelper(request, response)
+    # then page contents
+    return lhelper.handlepage_state2register()
 
 
 

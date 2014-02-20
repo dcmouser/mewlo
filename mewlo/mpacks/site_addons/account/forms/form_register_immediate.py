@@ -1,5 +1,5 @@
 """
-form_register.py
+form_register_immediate.py
 This file contains login form stuff
 """
 
@@ -16,7 +16,7 @@ from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
 
 
-class MewloForm_Register_UsernamePasswordEmail(MewloForm):
+class MewloForm_Register_Immediate(MewloForm):
 
     username = StringField('Username', [validators.Length(min=3, max=32)])
     password = PasswordField('Password', [validators.Length(min=3, max=64)])
@@ -24,9 +24,9 @@ class MewloForm_Register_UsernamePasswordEmail(MewloForm):
     #accept_rules = BooleanField('I accept the site rules', [validators.InputRequired()])
 
     #
-    viewfilename = 'register.jn2'
+    viewfilename = 'register_immediate.jn2'
 
     def __init__(self, *args, **kwargs):
         # parent constructor
-        super(MewloForm_Register_UsernamePasswordEmail, self).__init__(*args, **kwargs)
+        super(MewloForm_Register_Immediate, self).__init__(*args, **kwargs)
 

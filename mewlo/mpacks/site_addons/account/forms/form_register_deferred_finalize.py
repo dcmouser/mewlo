@@ -1,5 +1,5 @@
 """
-form_register.py
+form_register_deferred_finalize.py
 This file contains login form stuff
 """
 
@@ -16,21 +16,18 @@ from wtforms import Form, BooleanField, StringField, PasswordField, HiddenField,
 
 
 
-class MewloForm_Register_Stage2(MewloForm):
+class MewloForm_Register_Deferred_Finalize(MewloForm):
 
     username = StringField('Username', [validators.Length(min=3, max=32)])
     password = PasswordField('Password', [validators.Length(min=3, max=64)])
-    #email = BigStringField('Email Address', [validators.Length(min=6, max=64)])
-    #email = DisabledStringField('Email Address', [validators.Length(min=6, max=64)])
     email = DisabledStringField('Email Address')
     accept_rules = BooleanField('I accept the site rules', [validators.InputRequired()])
     #
-    code = HiddenField('', [])
-
+    code = HiddenField('Verification code', [])
     #
-    viewfilename = 'register_stage2.jn2'
+    viewfilename = 'register_deferred_finalize.jn2'
 
     def __init__(self, *args, **kwargs):
         # parent constructor
-        super(MewloForm_Register_Stage2, self).__init__(*args, **kwargs)
+        super(MewloForm_Register_Deferred_Finalize, self).__init__(*args, **kwargs)
 
