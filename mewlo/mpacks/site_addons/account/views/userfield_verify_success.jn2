@@ -1,0 +1,5 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+Succeeded in verifying field '{{fieldname}}'.
+
+{% include "${siteviewpath}/footer.jn2" %}

@@ -43,7 +43,7 @@ class MewloVerification(mdbmodel.MewloDbModel):
 
 
 
-    def init_values(self, request, expiration_days, verification_varname=None, verification_varval=None, extradict={}, is_shortcode=False):
+    def init_values(self, request, expiration_days, verification_varname, verification_varval, extradict, is_shortcode, user):
         """Set some values."""
         # set main values
         self.verification_code = self.make_randomverificationcode()
@@ -52,9 +52,10 @@ class MewloVerification(mdbmodel.MewloDbModel):
         self.verification_varname = verification_varname
         self.verification_varval = verification_varval
         # set the entire contents of the serialized verification vars
-        self.setdict_serialized('verificationvars_serialized',extradict)
+        if (extradict != None):
+            self.setdict_serialized('verificationvars_serialized',extradict)
         # set request-based values
-        self.setvals_fromequest(request)
+        self.setvals_fromequest(request, user)
         # initial values
         self.date_created = self.get_nowtime()        
         self.date_expires = self.date_created + expiration_days
@@ -64,12 +65,17 @@ class MewloVerification(mdbmodel.MewloDbModel):
 
 
 
-    def setvals_fromequest(self, request):
+    def setvals_fromequest(self, request, user):
         """Set some verification values from a request"""
         session = request.get_session(True)  
         self.session_id = session.getid_saveifneeded()
         self.ip_created = session.ip
-        self.user_id = session.user_id
+        if (user != None):
+            self.user_id = user.id
+        else:
+            # should we grab it from session?
+            #self.user_id = session.user_id
+            pass
 
 
 

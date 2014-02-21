@@ -19,7 +19,9 @@ from wtforms import Form, BooleanField, StringField, PasswordField, validators
 class MewloForm_Register_Deferred(MewloForm):
 
     email = BigStringField('Email Address', [validators.Length(min=6, max=64)])
-
+    #username = StringField('Username', [validators.Length(min=3, max=32)])
+    #password = PasswordField('Password', [validators.Length(min=3, max=64)])
+    
     viewfilename = 'register_deferred.jn2'
 
     def __init__(self, *args, **kwargs):

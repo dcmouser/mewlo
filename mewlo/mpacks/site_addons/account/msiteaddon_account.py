@@ -102,12 +102,6 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
         routegroup.append(
             MewloRoute(
-                id = 'register',
-                path = '/register',
-                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_register'),
-            ))
-        routegroup.append(
-            MewloRoute(
                 id = 'login',
                 path = '/login',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_login'),
@@ -117,6 +111,13 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 id = 'logout',
                 path = '/logout',
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_logout'),
+            ))
+        #
+        routegroup.append(
+            MewloRoute(
+                id = 'register',
+                path = '/register',
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_register'),
             ))
         routegroup.append(
             MewloRoute(
@@ -129,16 +130,42 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                             help = "verification code",
                             ),
                         ],
-                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_verify_registration'),              
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_deferred_verify'),              
             ))
+        #
         routegroup.append(        
             MewloRoute(
-                id = 'register_deferred_finalize',
-                path = '/register2',
-                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_register2'),
+                id = 'profile',
+                path = '/profile',
+                args = [
+                        MewloRouteArgString(
+                            id = 'userid',
+                            required = False,
+                            help = "id of user whose profile is being viewed",
+                            ),
+                        ],                
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_profile'),
+            ))        
+        #
+        routegroup.append(
+            MewloRoute(
+                id = 'userfield_verify',
+                path = '/fieldverify',
+                args = [
+                    MewloRouteArgString(
+                        id = 'field',
+                        required = True,
+                        help = "field name being verified",
+                        ),                    
+                    MewloRouteArgString(
+                        id = 'code',
+                        required = True,
+                        help = "verification code",
+                        ),
+                    ],
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_userfield_verify'),              
             ))
-
-
+        
         # add routegroup we just created to the site
         self.mewlosite.comp('routemanager').append(routegroup)
 
@@ -150,11 +177,6 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
         # these are related to Routes above, except that NavNodes are like a hierarchical menu structure / site map, wheras Routes are flat patterns that map to controllers
         nodes = [
-            NavNode('register', {
-                'visible': lambda navnode,context: not (context.get_value('user').get_isloggedin()),
-                'parent': 'site',
-                'sortweight': 1.0,
-                }),
             NavNode('login', {
                 'visible': lambda navnode,context: not (context.get_value('user').get_isloggedin()),
                 'parent': 'site',
@@ -169,6 +191,12 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 'sortweight': 8.0,
                 'pagetitle': 'Logout Page',
                 }),
+            #
+            NavNode('register', {
+                'visible': lambda navnode,context: not (context.get_value('user').get_isloggedin()),
+                'parent': 'site',
+                'sortweight': 1.0,
+                }),            
             NavNode('register_deferred_verify', {
                 'menulabel': 'verify registration',
                 # this navigation node (menu) is not shown unless the user is actually on this page.  We use this for unusual pages.  Alternatively we could set visible false and visible_breadcrumb True to have nearly the same effect
@@ -185,6 +213,25 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 'parent': 'register',
                 'sortweight': 1.0,
                 }),            
+            #
+            NavNode('profile', {
+                'menulabel': "profile",
+                'menulabel_short': 'profile',
+                'menuhint' : 'your profile',
+                'visible': lambda navnode,context: context.get_value('user').get_isloggedin(),
+                'parent': 'site',
+                'sortweight': 7.0,
+                'pagetitle': 'User Profile',
+                }),
+            #
+            NavNode('userfield_verify', {
+                'menulabel': "Verify user field",
+                'visible': lambda navnode,context: navnode.isactive(context),
+                'flag_linkurl': False,                              
+                'parent': 'profile',
+                'sortweight': 7.0,
+                'pagetitle': 'Verify User Field',
+                }),             
             ]
 
         # add nodes to site

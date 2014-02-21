@@ -61,7 +61,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
 
     
     
-    def basic_validation(self, verification, verification_code, request, verification_type_expected, is_shortcode_expected):
+    def basic_validation(self, verification, verification_code, request, verification_type_expected, is_shortcode_expected, verification_varname):
         """Perform basic validation (check for expiration, etc.).
         Return failure if it fails."""
 
@@ -93,9 +93,13 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
         if ((verification_type_expected != None) and (verification.verification_type != verification_type_expected)):
             return EFailure("This verification code is not of the expected type.")
 
+        # is it the right fieldname(varname)?
+        if ((verification_type_expected != None) and (verification.verification_type != verification_type_expected)):
+            return EFailure("This verification code is not of the expected type.")
+
         # is it the right type?
-        if ((is_shortcode_expected != None) and (verification.is_shortcode != is_shortcode_expected)):
-            return EFailure("This verification code is not of the expected size.")
+        if ((verification_varname != None) and (verification.verification_varname != verification_varname)):
+            return EFailure("This field specified does not match expectations.")
         
         # short codes must match client session or use
         if (verification.is_shortcode):
@@ -134,17 +138,15 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
 
 
 
-    def find_byshortcode(self, verification_type, request):
+    def find_byshortcode(self, verification_type, request, fieldname):
         """
         Find a verification entry by type and request session/user info.
         We don't check for expiration or anything like that here, we just find the matching code.
         IMPORTANT: Note that we don't look it up by code!! That's because there can only be one short code per type+user/session; that is how we ensure that they can't try all possible codes.
         On basic validation we will check actual code.
         """
-        # ATTN: unfinished
-        
         # build the where clause
-        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request)
+        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request, fieldname)
         if (whereclause == None):
             return
 
@@ -154,13 +156,13 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
     
 
 
-    def invalidate_previousverifications(self, verification_type, request):
+    def invalidate_previousverifications(self, verification_type, request, fieldname):
         """
         We often want to invalidate previous verification entries from a user of a specific type, before creating a new one of the same type, so that there is only one pending verification usable at a time.
         """
 
         # build the where clause
-        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request)
+        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request, fieldname)
         if (whereclause == None):
             return
 
@@ -182,7 +184,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
 
 
 
-    def build_whereclause_verifications_by_type_and_request(self, verification_type, request):
+    def build_whereclause_verifications_by_type_and_request(self, verification_type, request, fieldname):
         """Build whereclause to select the verifications.
         We want to identify all verifications that match: verification_type AND (EITHER the sessionid or userid)
         """
@@ -195,13 +197,14 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
         
         # build the where clause
         whereclause = 'verification_type = "{0}"'.format(verification_type)
-
         if (user == None):            
             whereclause += ' AND session_id = {0}'.format(session.id)
         else:
             whereclause += ' AND (session_id = {0} OR user_id = {1})'.format(session.id, user.id)
-            
-        #print "USING whereclause = "+whereclause
+
+        # add fieldname match
+        if (fieldname != None):
+            whereclause += ' AND verification_varname = "{0}"'.format(fieldname)
             
         # return it
         return whereclause

@@ -97,6 +97,68 @@ class MewloUser(mdbmodel.MewloDbModel):
 
 
 
+    def get_email_htmlinfo(self):
+        """
+        Return an html string that describes their email and email status.
+        For example:  mouser@donationcoder.com (verified).
+        or: mouser@donationcoder.com (not yet verified; <a href="">resend verification email</a>).
+        or mouser@donationcoder.com, pending change to mouser2@dcmembers.org (<a href="">resend confirmation email</a> or <a href="">cancel change</a>).
+        or no email address provided (provide one now).
+        """
+        if ((self.email == None) or (self.email == '')):
+            rethtml = "No email address provided (" + "provide one now" +")."
+        else:
+            rethtml = self.email
+            if (self.isverified_email):
+                rethtml += " (verified)"
+            else:
+                rethtml += " (not yet verified)"
+        # return it
+        return rethtml
+
+
+
+
+
+
+
+
+
+    def set_fieldvalue_with_verificationstate(self, varname, varval, verificationstate):
+        """Set value of a field and makring it as verified."""
+        # special cases
+        if (varname == 'email'):
+            self.email = varval
+            self.isverified_email = verificationstate
+        else:
+            # other cases
+            raise Exception("We don't know how to set fieldvalue for {0}.".format(varname))
+
+
+
+
+
+
+
+
+    def get_fieldvalue_and_verificationstatus(self, fieldname):
+        """Return tuple (fieldvalue, isverified) for this field."""
+        # ATTN: unfinished
+        if (fieldname == 'email'):
+            return (self.email, self.isverified_email)
+        # unknown
+        raise Exception("Do not know how to get value for field {0}.".format(fieldname))
+
+
+
+
+
+
+
+
+
+
+
     @classmethod
     def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
@@ -113,6 +175,9 @@ class MewloUser(mdbmodel.MewloDbModel):
             mdbfield.DbfEmail('email', {
                 'label': "The user's email"
                 }),
+            mdbfield.DbfBoolean('isverified_email', {
+                'label': "Is the user's email verified?"
+                }),            
             mdbfield.DbfHashedPassword('password_hashed', {
                 'label': "The hashed and salted password for the user"
                 }),

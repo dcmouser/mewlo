@@ -1,0 +1,5 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+Failed to verify field '{{fieldname}}': {{failure}}
+
+{% include "${siteviewpath}/footer.jn2" %}

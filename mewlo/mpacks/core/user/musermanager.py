@@ -21,11 +21,27 @@ import muser
 class MewloUserManager(modelmanager.MewloModelManager):
     """User model manager."""
 
+
+    # class constants
+    # ATTN:TODO move this
+    DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'
+
+
+
+
     def __init__(self, mewlosite, debugmode):
         # parent constructor -- pass in the main modelclass we manager
         super(MewloUserManager,self).__init__(mewlosite, debugmode, muser.MewloUser)
         # also keep track of temp user
         self.modelclass_tempuser = muser.MewloUserTemp
+        #      
+        # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
+        self.viewfiles = {
+            'user_verify_field_email': 'user_verify_field_email.jn2',
+        }
+
+
+
 
     def startup(self, eventlist):
         super(MewloUserManager,self).startup(eventlist)
@@ -49,7 +65,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-    def create_user(self, userdict, verifiedfields):
+    def create_user(self, request, userdict, verifiedfields):
         """
         Make a new user account.
         We take a userdict instead of explicit variables for username, email, password, so that we can eventually accomodate whatever initial user properties we have specified at time of registration.
@@ -59,32 +75,253 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
         # make sure unique fields (username, email) are unique; error if not
         errordict = self.error_if_user_exists(userdict)
-        if (len(errordict)>0): 
+        if (errordict):
+            # errors
             return None, errordict, ''
 
         # create user account.
         user = self.modelclass()
         user.username = userdict['username']
         user.email = userdict['email']
-        user.password_hashed = self.hash_and_salt_password(userdict['password'])
         
+        # password -- hash it if its plaintext, or use pre-hashed version (if both provided we will ignored the pre-hashed one)
+        if ('password' in userdict):
+            user.password_hashed = self.hash_and_salt_password(userdict['password'])
+        elif ('password_hashed' in userdict):   
+            user.password_hashed = userdict['password_hashed']
 
-        # ATTN:TODO handle verifiedfields -- if email not verified we should send them an email to verify it
-        # ATTN:TODO track whether email (etc.) is verified
+        # verified email is special
+        if ('email' in verifiedfields):
+            user.isverified_email = True
+        else:
+            user.isverified_email = False
 
+        # ATTN:TODO handle other verifiedfields
+
+        # no errors, save it
+        # ATTN: to do check for save errors
+        user.save()
         
-        # assuming no errors, save it
-        if (len(errordict)==0):
-            # no errors, save it
-            user.save()
-        # check again for errors (this allows us to handle save errors eventually)
-        if (len(errordict)>0):
-            # errors, clear user object
-            user = None
-        #
+        # any field verifications needed?
+        self.send_field_verifications(user, request, verifiedfields)
+
+        # success
         successmessage = 'User account has been successfully created.'
-        # return it
+            
+        # return success or error
         return user, errordict, successmessage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def send_field_verifications(self, user, request, verifiedfields):
+        """This is generally called right after saving a new user who needs to be sent an email verification."""
+        # what fields need verifications?
+        required_verifiedfields = ['email']
+        # now see which ones they need
+        for fieldname in required_verifiedfields:
+            if (fieldname in verifiedfields):
+                # fieldname is explicitly marked as verified, so nothing to check
+                continue
+            else:
+                # ok this is a field that needs verification
+                # email is special; but we might add a check for property isverified_FIELDNAME to allow other hardcoded explicit verified columns
+                (fieldval,isverified) = user.get_fieldvalue_and_verificationstatus(fieldname)
+                if (isverified):
+                    # it's already verified, so nothing to do
+                    continue
+                if (fieldval == None):
+                    # it's blank, so nothing to do
+                    continue                
+            # ok we have a non-blank field requiring verification
+            failure = self.send_onefield_verification(user, request, fieldname, fieldval)
+
+
+    
+
+
+
+
+    def send_onefield_verification(self, user, request, fieldname, fieldval):
+        """Send user a field verification message.
+        Typically this is for email.
+        Return failure."""
+        if (fieldname == 'email'):
+            # email verification
+            return self.send_field_verification_email(user, request, fieldval)
+
+        # ATTN: we don't know how to handle other types of fields yet
+        return None
+        
+
+
+    def send_field_verification_email(self, user, request, emailaddress):
+        """Send an email verification."""
+        # generate the verification code they need
+        fieldname = 'email'
+        (verification, failure) = self.build_userfield_verification(user, request, fieldname, emailaddress, is_shortcode = False)
+        if (not failure):
+            # now build the email
+            # ATTN: THESE VIEWFILES NEED FIXING
+            emailtemplatefile = self.calc_account_templatepath(self.viewfiles['user_verify_field_email'])
+            verificationurl = self.calc_verificationurl_field(verification, fieldname)
+            maildict = {
+                'to': [ emailaddress ],
+                'subject': 'E-mail address verification',
+                'body': self.get_mewlosite().renderstr_from_template_file(emailtemplatefile, {'verificationurl':verificationurl})
+            }
+            # now send it
+            failure = self.sitecomp_mailmanager().send_email(maildict)
+        return failure
+
+
+
+
+    def calc_account_templatepath(self, viewfilepath):
+        """Template path inside user account site addon."""
+        viewbasepath = '${addon_account_path}/views/'
+        return viewbasepath+viewfilepath
+
+
+
+
+
+    def build_userfield_verification(self, user, request, fieldname, fieldval, is_shortcode):
+        """Build a verification entry for a user field.
+        return tuple (verification, failure)"""
+        
+        # get reference to the verification manager from the site
+        verificationmanager = self.sitecomp_verificationmanager()
+
+        # verification properties
+        # ATTN:TODO - move some of this stuff to options and constants
+        verification_type = self.DEF_VFTYPE_userfield_verification
+        # set verification_varname for quick lookup
+        verification_varname = fieldname
+        verification_varval = fieldval
+        # other values
+        expiration_days = 14
+        # the verification fields will contain the userdict so we can reinstate any values they provided at sign up time, when they confirm
+        extradict = None
+
+        # before we create a new verification entry, we *may* sometimes want to delete/invalidate previous verification requests of same type from same user/session
+        # and matching the same fieldname
+        verificationmanager.invalidate_previousverifications(verification_type, request, fieldname)
+
+        # create it via verificationmanager
+        verification = verificationmanager.create_verification(verification_type)
+        # set it's properties
+        verification.init_values(request, expiration_days, verification_varname, verification_varval, extradict, is_shortcode, user)
+        # save it
+        verification.save()
+        # return it
+        return verification, None
+
+
+
+
+
+    def calc_verificationurl_field(self, verification, fieldname):
+        """The url user must visit to verify field change/initialization."""
+        url = self.get_mewlosite().build_routeurl_byid('userfield_verify', flag_relative=False, args={'field':fieldname, 'code':verification.verification_code} )
+        return url
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -174,5 +411,22 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
+
+
+    def set_userfield_from_verification(self, verification):
+        """The user specified in the verification gets the new value, which is marked as verified."""
+        # get userid, varname, varval
+        userid = verification.user_id
+        varname = verification.verification_varname
+        varval = verification.verification_varval
+        # lookup user
+        user = self.modelclass.find_one_byprimaryid(userid)
+        if (user == None):
+            # user not found
+            return EFailure("User id#{0} not found.".format(userid))
+        # set it
+        user.set_fieldvalue_with_verificationstate(varname, varval, verificationstate=True)
+        # success
+        return None
 
 

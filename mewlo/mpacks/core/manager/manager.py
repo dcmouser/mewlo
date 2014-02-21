@@ -55,7 +55,22 @@ class MewloManager(object):
     
     
     
+
+
+    def get_mewlosite(self):
+        return self.mewlosite
+
+    def sitecomp_usermanager(self):
+        return self.mewlosite.comp('usermanager')
+
+    def sitecomp_verificationmanager(self):
+        return self.mewlosite.comp('verificationmanager')
     
+    def sitecomp_mailmanager(self):
+        return self.mewlosite.comp('mailmanager')    
+    
+    
+
 
     def get_setting_value(self, sectionmame, defaultval=None):
         return self.mewlosite.settings.get_value(sectionmame, defaultval)

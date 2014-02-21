@@ -23,10 +23,14 @@ from forms.form_register_deferred_finalize import MewloForm_Register_Deferred_Fi
 
 
 class AccountHelper(MewloRequestHandlerHelper):
-        
+    """This class is used to help processing requests.
+    IMPORTANT NOTE: This class is instantiated on each request.  Thats important because we set request+response at init and then use it in calls.
+    ATTN:TODO Change this to be like a manager and have a single instance shared.
+    """    
+    
     # class constants
     DEF_VFTYPE_pre_user_verification = 'VFTYPE_pre_user_verification'
-
+    DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'
 
 
     def __init__(self, request, response):
@@ -39,12 +43,18 @@ class AccountHelper(MewloRequestHandlerHelper):
         self.viewfiles = {
             'login_complete': 'login_complete.jn2',
             'logout_complete': 'logout_complete.jn2',
-            'register_done_immediate': 'register_complete_immediate.jn2',
+            #
+            'register_done_immediate': 'register_done_immediate.jn2',
             'register_done_deferred_verification': 'register_done_deferred_verification.jn2',
             'register_done_deferred_usercreated': 'register_done_deferred_usercreated.jn2',            
             'verify_registration_deferred_error_codenotfound': 'verify_registration_deferred_error_codenotfound.jn2',
             'verify_registration_deferred_error_emailinuse': 'verify_registration_deferred_error_emailinuse.jn2',         
             'register_deferred_email_verificationsent': 'register_deferred_email_verificationsent.jn2',
+            #
+            'profile': 'profile.jn2',
+            #
+            'userfield_verify_success' : 'userfield_verify_success.jn2',
+            'userfield_verify_failure' : 'userfield_verify_failure.jn2',
             }
 
 
@@ -303,9 +313,9 @@ class AccountHelper(MewloRequestHandlerHelper):
         if (errordict):
             return errordict, ''
 
-        # create the user instantly or defer via verification
+        # create the user immediate or defer via verification
         if (flag_immediate):
-            # create user instantly
+            # create user immediate
             (user, errordict, successmessage) = self.create_newuser(userdict)
             if (user != None):
                 # a user was created; tell the session about the user's identity (i.e. the client browser BECOMES this new user and is logged in immediately)
@@ -340,7 +350,7 @@ class AccountHelper(MewloRequestHandlerHelper):
 
     def create_newuser(self, userdict, verifiedfields=[]):
         """Create a new user right away.  Send them an email verification link after."""
-        (user, errordict, successmessage) = self.sitecomp_usermanager().create_user(userdict, verifiedfields=verifiedfields)
+        (user, errordict, successmessage) = self.sitecomp_usermanager().create_user(self.request, userdict, verifiedfields=verifiedfields)
         return (user, errordict, successmessage)
 
 
@@ -377,16 +387,23 @@ class AccountHelper(MewloRequestHandlerHelper):
         # other values
         is_shortcode = False
         expiration_days = 14
+
+        # if there is a plaintext password specified we won't cache that in the verification, but instead cache the hashed version
+        if ('password' in userdict):
+            password_plain = userdict['password']
+            del userdict['password']
+            userdict['password_hashed'] = self.sitecomp_usermanager().hash_and_salt_password(password_plain)
+        
         # the verification fields will contain the userdict so we can reinstate any values they provided at sign up time, when they confirm
         extradict = {'userdict':userdict}
 
         # before we create a new verification entry, we *may* sometimes want to delete/invalidate previous verification requests of same type from same user/session
         # note that we do NOT want to delete previous verifications just because they were sent to this same email address if the sessions were different
-        verificationmanager.invalidate_previousverifications(verification_type, request)
+        verificationmanager.invalidate_previousverifications(verification_type, request, None)
         # create it via verificationmanager
         verification = verificationmanager.create_verification(verification_type)
         # set it's properties
-        verification.init_values(request, expiration_days, verification_varname, verification_varval, extradict, is_shortcode)
+        verification.init_values(request, expiration_days, verification_varname, verification_varval, extradict, is_shortcode, None)
         # save it
         verification.save()
         
@@ -583,7 +600,8 @@ class AccountHelper(MewloRequestHandlerHelper):
         # then check it
         verification_type_expected = self.DEF_VFTYPE_pre_user_verification
         is_shortcode_expected = False
-        failure = verificationmanager.basic_validation(verification, verification_code, self.request, verification_type_expected, is_shortcode_expected)
+        verification_varname = None
+        failure = verificationmanager.basic_validation(verification, verification_code, self.request, verification_type_expected, is_shortcode_expected, verification_varname)
         # return success or failure
         return verification, failure
     
@@ -759,3 +777,88 @@ class AccountHelper(MewloRequestHandlerHelper):
         return user, errordict, successmessage        
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def handlepage_profile(self):
+        """View user profile."""
+        self.set_renderpageid('profile')
+        # then page contents
+        self.render_localview(self.viewfiles['profile'])
+        # success
+        return None
+
+
+
+
+
+
+
+
+
+    def handlepage_verify_userfield(self):
+        """handle user field verification."""
+        self.set_renderpageid('userfield_verify')
+        # get code from args
+        args = self.request.get_route_parsedargs()
+        verification_code = args['code']
+        fieldname = args['field']        
+
+        # first get verification and re-check that it's still valid
+        verification, failure = self.verify_userfield_validatecode(verification_code, fieldname)
+
+        if (failure == None):
+            # code matches, set the field and mark it verified
+            failure = self.sitecomp_usermanager().set_userfield_from_verification(verification)
+            if (failure == None):
+                # success, so consume verification
+                verification.consume(self.request)            
+        
+        # render a page now
+        if (failure == None):
+            self.render_localview(self.viewfiles['userfield_verify_success'], {'fieldname': fieldname} )
+        else:
+            self.render_localview(self.viewfiles['userfield_verify_failure'], {'fieldname': fieldname, 'failure': failure.msg()})
+        # success
+        return None
+        
+        
+        
+        
+    def verify_userfield_validatecode(self, verification_code, verification_varname):
+        """Locate verification, check it for different kinds of errors.
+        return tuple (verification, failure).
+        """
+        # get reference to the verification manager from the site
+        verificationmanager = self.sitecomp_verificationmanager()        
+        
+        # find verification entry
+        verification = verificationmanager.find_bylongcode(verification_code)
+        
+        # then check it
+        verification_type_expected = self.DEF_VFTYPE_userfield_verification
+        is_shortcode_expected = False
+        failure = verificationmanager.basic_validation(verification, verification_code, self.request, verification_type_expected, is_shortcode_expected, verification_varname)
+        # return success or failure
+        return verification, failure
+
+            
