@@ -160,6 +160,14 @@ class MewloUser(mdbmodel.MewloDbModel):
 
 
 
+    def is_safe_stranger_claim_thisaccount(self):
+        """This is called if someone claims to have entered the wrong email after just creating an account; return True if we want to let them change the email address of this account.
+        We should only allow this on accounts which have never been logged into or had anything done with.
+        Allowing this makes it much easier for someone who provides a bad email at signup to fix it.
+        """
+        return not self.isverified_email
+
+
 
 
 

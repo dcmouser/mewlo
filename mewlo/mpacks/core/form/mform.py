@@ -114,7 +114,9 @@ class MewloForm(Form):
         if ((ffield.data == None) or (ffield.data == '')):
             ffield.data = val
 
-
+    def hasfield(self, key):
+        """Return True if the form has a field of this name."""
+        return hasattr(self, key)
 
 
 

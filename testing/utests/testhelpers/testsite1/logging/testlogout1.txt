@@ -1,31 +1,27 @@
-{'msg': 'Startup of manager (MewloLogManager).', 'timestamp': 'Sun Feb 23 18:14:01 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloSettings).', 'timestamp': 'Sun Feb 23 18:14:01 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloDatabaseManagerSqlA).', 'timestamp': 'Sun Feb 23 18:14:01 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloRegistryManager).', 'timestamp': 'Sun Feb 23 18:14:01 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloSignalManager).', 'timestamp': 'Sun Feb 23 18:14:01 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloRbacManager).', 'timestamp': 'Sun Feb 23 18:14:01 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloSettingsDb_Pack).', 'timestamp': 'Sun Feb 23 18:14:01 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloPackManager).', 'timestamp': 'Sun Feb 23 18:14:01 2014', 'type': 'DEBUG'}
-{'msg': "Pack 'test_mpack' reporting that it's installed database version is: 2.", 'timestamp': 'Sun Feb 23 18:14:01 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloSiteAddonManager).', 'timestamp': 'Sun Feb 23 18:14:02 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloRouteManager).', 'timestamp': 'Sun Feb 23 18:14:02 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (NavNodeManager).', 'timestamp': 'Sun Feb 23 18:14:02 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloTemplateManager).', 'timestamp': 'Sun Feb 23 18:14:02 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloAssetManager).', 'timestamp': 'Sun Feb 23 18:14:02 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloTemplateHelper).', 'timestamp': 'Sun Feb 23 18:14:02 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloSessionManager).', 'timestamp': 'Sun Feb 23 18:14:02 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloVerificationManager).', 'timestamp': 'Sun Feb 23 18:14:02 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloUserManager).', 'timestamp': 'Sun Feb 23 18:14:02 2014', 'type': 'DEBUG'}
-{'msg': 'Startup of manager (MewloMailManager).', 'timestamp': 'Sun Feb 23 18:14:02 2014', 'type': 'DEBUG'}
-{'msg': 'Request URL: /account/resendverify? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 18:14:05 2014', 'type': 'INFO'}
-{'msg': 'Session hashkey = a7ff9b23-d902-412c-ac66-afafd3fb2553 and access count = 0 (but not updated).', 'timestamp': 'Sun Feb 23 18:14:05 2014', 'type': 'DEBUG', 'accessocount': '0 (but not updated)'}
-{'msg': 'Request URL: /static/navbar.css? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 18:14:07 2014', 'type': 'INFO'}
-{'msg': 'Request URL: /static/Cody.png? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 18:14:07 2014', 'type': 'INFO'}
-{'msg': 'Request URL: /account/fieldverify/field/email/code/a1e1f855-560a-493c-88f1-7ce8a8086882? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 18:17:01 2014', 'type': 'INFO'}
-{'msg': 'Session hashkey = 0212d34f-0485-4b51-b6ef-97b860b29b4c and access count = 0 (but not updated).', 'timestamp': 'Sun Feb 23 18:17:01 2014', 'type': 'DEBUG', 'accessocount': '0 (but not updated)'}
-{'msg': 'Request URL: /static/navbar.css? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 18:17:01 2014', 'type': 'INFO'}
-{'msg': 'Request URL: /static/Cody.png? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 18:17:01 2014', 'type': 'INFO'}
-{'msg': 'Request URL: /account/profile? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 18:17:03 2014', 'type': 'INFO'}
-{'msg': 'Session hashkey = 0212d34f-0485-4b51-b6ef-97b860b29b4c and access count = 0 (but not updated).', 'timestamp': 'Sun Feb 23 18:17:04 2014', 'type': 'DEBUG', 'accessocount': '0 (but not updated)'}
-{'msg': 'Request URL: /static/navbar.css? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 18:17:04 2014', 'type': 'INFO'}
-{'msg': 'Request URL: /static/Cody.png? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 18:17:04 2014', 'type': 'INFO'}
+{'msg': 'Startup of manager (MewloLogManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloSettings).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloDatabaseManagerSqlA).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloRegistryManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloSignalManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloRbacManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloSettingsDb_Pack).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloPackManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': "Pack 'test_mpack' reporting that it's installed database version is: 2.", 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloSiteAddonManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloRouteManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (NavNodeManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloTemplateManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloAssetManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloTemplateHelper).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloSessionManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloVerificationManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloUserManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Startup of manager (MewloMailManager).', 'timestamp': 'Sun Feb 23 19:01:34 2014', 'type': 'DEBUG'}
+{'msg': 'Request URL: /account/resendverify? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 19:01:37 2014', 'type': 'INFO'}
+{'msg': 'Session hashkey = fd021a5b-53eb-40bf-ba05-12b18f1599d0 and access count = 0 (but not updated).', 'timestamp': 'Sun Feb 23 19:01:37 2014', 'type': 'DEBUG', 'accessocount': '0 (but not updated)'}
+{'msg': 'Request URL: /static/navbar.css? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 19:01:39 2014', 'type': 'INFO'}
+{'msg': 'Request URL: /static/Cody.png? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 19:01:40 2014', 'type': 'INFO'}
+{'msg': 'Request URL: /account/resendverify? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 19:01:45 2014', 'type': 'INFO'}
+{'msg': 'Session hashkey = fd021a5b-53eb-40bf-ba05-12b18f1599d0 and access count = 0 (but not updated).', 'timestamp': 'Sun Feb 23 19:01:45 2014', 'type': 'DEBUG', 'accessocount': '0 (but not updated)'}
+{'msg': 'Request URL: /static/navbar.css? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 19:01:46 2014', 'type': 'INFO'}
+{'msg': 'Request URL: /static/Cody.png? from 127.0.0.1.', 'timestamp': 'Sun Feb 23 19:01:46 2014', 'type': 'INFO'}

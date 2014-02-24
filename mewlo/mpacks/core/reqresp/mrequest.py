@@ -45,6 +45,9 @@ class MewloRequest(object):
     def get_sitecomp_usermanager(self):
         return self.mewlosite.comp('usermanager')
 
+    def sitecomp_sessionmanager(self):
+        return self.mewlosite.comp('sessionmanager')
+
     def get_urlpath(self):
         """Return the url path of the request.
         This value is cached, and represents the relative path within the 'site' configuration, excluding any site prefix path.
@@ -123,6 +126,10 @@ class MewloRequest(object):
         """Return cookie from client browser request."""
         return self.wreq.cookies.get(cookiename)
 
+    def delete_cookie_byname(self,cookiename):
+        """Return cookie from client browser request."""
+        return self.wreq.delete_cookie(cookiename)
+
     def get_ispostmethod(self):
         """Return True if request was submitting data with POST method."""
         return (self.wreq.method == 'POST')
@@ -161,7 +168,7 @@ class MewloRequest(object):
     def get_session(self, flag_makesessionifnone):
         """Lazy create or load session object."""
         if (self.session == None):
-            self.session = self.mewlosite.comp('sessionmanager').get_session(self, flag_makesessionifnone)
+            self.session = self.sitecomp_sessionmanager().get_session(self, flag_makesessionifnone)
         return self.session
 
     def save_session_ifdirty(self):
@@ -173,7 +180,7 @@ class MewloRequest(object):
             #print "ATTN: SAVING SESSION."
             self.session.save()
             # and make sure the user gets a cookie pointing to this session
-            self.response.set_cookieval(self.mewlosite.comp('sessionmanager').get_sessionid_cookiename(), self.session.hashkey)
+            self.response.set_cookieval(self.sitecomp_sessionmanager().get_sessionid_cookiename(), self.session.hashkey)
         # shall we autosave session user?
         # ATTN: i don't know how smart db is about avoiding resave if nothing changed
         # ATTN: TODO avoid trying to save if not diry
@@ -215,10 +222,14 @@ class MewloRequest(object):
 
 
 
-
-
-
-
+    def clearusersession(self):
+        """Remove any session id for the user, so they will be a stranger on next request."""
+        session = self.get_session(False)
+        #return
+        if (session != None):
+            #session.flush_toupdate()
+            session.delete()
+        self.session = None
 
 
 

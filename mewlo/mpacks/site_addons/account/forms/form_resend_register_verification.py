@@ -37,7 +37,8 @@ class MewloForm_Resend_Register_Verification_Unknown(MewloForm):
 
     username = StringField('Signup username', [validators.Length(max=32)])
     email = BigStringField('Original or new email address', [validators.Length( max=35)])
-    password = PasswordField('Signup password (only needed if making changes)', [validators.Length(max=64)])
+    # if we disable password, client will be able to change email address for not-yet-verified usernames; this is ok as long as we dont ever let people login and do things while their email address is pending
+    #password = PasswordField('Signup password (only needed if making changes)', [validators.Length(max=64)])
     #
     viewfilename = 'resend_register_verification_unknown.jn2'
     #

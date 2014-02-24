@@ -77,6 +77,7 @@ class MewloSession(mdbmodel.MewloDbModel):
         self.set_isdirty(True)
 
 
+
     def update_access(self):
         """Update access time."""
         #print "ATTN: in msession.update_access()"

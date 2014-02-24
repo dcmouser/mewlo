@@ -169,7 +169,8 @@ class AccountHelper(MewloRequestHandlerHelper):
         # set page info first (as it may be used in page contents)
         self.set_renderpageid('logout')
         # logout
-        self.try_logout()
+        flag_clearsession = True
+        self.try_logout(flag_clearsession)
         # then page contents
         self.render_localview(self.viewfiles['logout_complete'])
         # success
@@ -177,11 +178,14 @@ class AccountHelper(MewloRequestHandlerHelper):
 
 
 
-    def try_logout(self):
+    def try_logout(self, flag_clearsession):
         """Just log the user out, and redirect them somewhere.
         Return failure"""
         # set session user to None (note they still keep their session, but it no longer has a user associated with it)
         self.request.clearloggedinuser()
+        # should we also clear their session variable, which is good for testing?
+        if (flag_clearsession):
+            self.request.clearusersession()
         # success
         return None
 
@@ -941,7 +945,7 @@ class AccountHelper(MewloRequestHandlerHelper):
             form = MewloForm_Resend_Register_Verification_Known(formdata)
             # default viewfilename
             viewfilename = form.get_viewfilename()
-            viewargs = {'form':form}
+            viewargs = {'form':form, 'verifyuser': user}
             if (formdata != None and form.validate()):
                 # they are submitting form -- so we want to resend the verification now (and possibly change the email on it)
                 fieldval = form.get_val_nonblank(fieldname, user.getfield_byname(fieldname))
@@ -954,13 +958,13 @@ class AccountHelper(MewloRequestHandlerHelper):
                 # there was an error resending the verification, so add error and drop down
                 form.add_genericerror(failure.msg())
             else:
-                # initialize email field on blank form since we know who they are
+                # initialize email form field on blank form since we know who they are
                 # should we use verification email or user email (they will be the same unless user requests new verifications and we always use user one)
                 #form.setfield_ifblank(fieldname, user.getfield_byname(fieldname))
                 form.setfield_ifblank(fieldname, verification.verification_varval)
                 # then drop down to present form
         else:
-            # we could not identify the prior unverified new registration, so we must be present them with form and ask them to tell us which account, etc.
+            # we could not identify the prior unverified new registration by the client session, so we must be present them with form and ask them to tell us which account, etc.
             # init form+formdata
             formdata = self.request.get_postdata()
             # form to be used
@@ -976,14 +980,20 @@ class AccountHelper(MewloRequestHandlerHelper):
                 if (user != None):
                     # we found them and they are indeed waiting for verification, so resend it
                     fieldval = form.get_val_nonblank(fieldname, user.getfield_byname(fieldname))
-                    # BUT if they are trying to change the email address, they need to have provided their password -- that's the only way we can know it was them requesting it)
+                    # BUT if they are trying to change the email address, should we require them to provide their password? that's the only way we can know it was really the same person who signed up who is changing the email)
                     # ATTN: Though note, its possible they could have forgotten it, and if they havent confirmed registration yet, perhaps we shouldnt worry about them "PROVING" their identity, and we should treat it like anyone registering the username
+                    # we will see if their is a password value on form, if not, then we wont care about it; so it's up to us at time of form creation
                     failure = None
                     if (fieldval != user.getfield_byname(fieldname)):
-                        password_plaintext = form.get_val('password')
-                        does_passwordmatch = user.does_plaintextpasswordmatch(password_plaintext)
-                        if (not does_passwordmatch):
-                            failure = EFailure("You have specified a new email address, but your password did not match; your must provide the valid username and password in order to change your registration email address.")
+                        if (form.hasfield('password')):
+                            password_plaintext = form.get_val('password')
+                            does_passwordmatch = user.does_plaintextpasswordmatch(password_plaintext)
+                            if (not does_passwordmatch):
+                                failure = EFailure("You have specified a new email address, but your password did not match; your must provide the valid username and password in order to change your registration email address.")
+                        else:
+                            # no password to check -- before we let them change this without a password, we make damn sure this is a NEW user account
+                            if (not user.is_safe_stranger_claim_thisaccount()):
+                                failure = EFailure("Email cannot be changed from this form on an existing active user account; login first to change email address.")
                     if (not failure):
                         failure = self.resend_field_verification(user, verification, fieldname, fieldval)
                     if (not failure):
