@@ -34,7 +34,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         super(MewloUserManager,self).__init__(mewlosite, debugmode, muser.MewloUser)
         # also keep track of temp user
         self.modelclass_tempuser = muser.MewloUserTemp
-        #      
+        #
         # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
         self.viewfiles = {
             'user_verify_field_email': 'user_verify_field_email.jn2',
@@ -83,11 +83,11 @@ class MewloUserManager(modelmanager.MewloModelManager):
         user = self.modelclass()
         user.username = userdict['username']
         user.email = userdict['email']
-        
+
         # password -- hash it if its plaintext, or use pre-hashed version (if both provided we will ignored the pre-hashed one)
         if ('password' in userdict):
             user.password_hashed = self.hash_and_salt_password(userdict['password'])
-        elif ('password_hashed' in userdict):   
+        elif ('password_hashed' in userdict):
             user.password_hashed = userdict['password_hashed']
 
         # verified email is special
@@ -101,13 +101,13 @@ class MewloUserManager(modelmanager.MewloModelManager):
         # no errors, save it
         # ATTN: to do check for save errors
         user.save()
-        
+
         # any field verifications needed?
         self.send_field_verifications(user, request, verifiedfields)
 
         # success
         successmessage = 'User account has been successfully created.'
-            
+
         # return success or error
         return user, errordict, successmessage
 
@@ -182,12 +182,12 @@ class MewloUserManager(modelmanager.MewloModelManager):
                     continue
                 if (fieldval == None):
                     # it's blank, so nothing to do
-                    continue                
+                    continue
             # ok we have a non-blank field requiring verification
             failure = self.send_onefield_verification(user, request, fieldname, fieldval)
 
 
-    
+
 
 
 
@@ -202,7 +202,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
         # ATTN: we don't know how to handle other types of fields yet
         return None
-        
+
 
 
     def send_field_verification_email(self, user, request, emailaddress):
@@ -213,15 +213,22 @@ class MewloUserManager(modelmanager.MewloModelManager):
         if (not failure):
             # now build the email
             # ATTN: THESE VIEWFILES NEED FIXING
-            emailtemplatefile = self.calc_account_templatepath(self.viewfiles['user_verify_field_email'])
-            verificationurl = self.calc_verificationurl_field(verification, fieldname)
-            maildict = {
-                'to': [ emailaddress ],
-                'subject': 'E-mail address verification',
-                'body': self.get_mewlosite().renderstr_from_template_file(emailtemplatefile, {'verificationurl':verificationurl})
-            }
-            # now send it
-            failure = self.sitecomp_mailmanager().send_email(maildict)
+            failure = self.send_field_verification_email_given_verification(verification, fieldname, emailaddress)
+        return failure
+
+
+
+    def send_field_verification_email_given_verification(self, verification, fieldname, emailaddress):
+        """Send a verification email."""
+        emailtemplatefile = self.calc_account_templatepath(self.viewfiles['user_verify_field_email'])
+        verificationurl = self.calc_verificationurl_field(verification, fieldname)
+        maildict = {
+            'to': [ emailaddress ],
+            'subject': 'E-mail address verification',
+            'body': self.get_mewlosite().renderstr_from_template_file(emailtemplatefile, {'verificationurl':verificationurl})
+        }
+        # now send it
+        failure = self.sitecomp_mailmanager().send_email(maildict)
         return failure
 
 
@@ -239,7 +246,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
     def build_userfield_verification(self, user, request, fieldname, fieldval, is_shortcode):
         """Build a verification entry for a user field.
         return tuple (verification, failure)"""
-        
+
         # get reference to the verification manager from the site
         verificationmanager = self.sitecomp_verificationmanager()
 
@@ -333,7 +340,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         """
         errordict = {}
         # first find user by username or email
-        (user, matchingfield) = self.find_user_by_dict(userdict)
+        user = self.find_user_by_dict(userdict)
         if (user == None):
             # ATTN:TODO -- what would be nice is if we checked pending verifications -- if we find the user, instead of saying "user could not be found" we can tell them they need to verify first and give them a link to resend, etc.
             errordict[''] = "User could not be found."
@@ -358,7 +365,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-    def find_user_by_dict(self, userdict):
+    def find_user_by_dict_with_field(self, userdict):
         """Lookup user by a uniquely identifiable field in userdict (typically username or email).
         We use this general function so that we can expand to support looking up by phone numbers, etc.
         We have a list of fields that we know uniquely identify users and we check EACH of these in turn (not the combo of them all); when we find a match we return the user and the fieldname that matched.
@@ -368,12 +375,18 @@ class MewloUserManager(modelmanager.MewloModelManager):
         user = None
         identifiablefields = {'username', 'email'}
         for fieldname in identifiablefields:
-            if ((fieldname in userdict) and (userdict[fieldname]!=None) and (userdict[fieldname]!='')):
+            if ( (fieldname in userdict) and (userdict[fieldname]!=None) and (userdict[fieldname]!='') ):
                 keydict = {fieldname: userdict[fieldname]}
                 user = self.modelclass.find_one_bykey(keydict)
-                if (user!=None):
+                if (user != None):
                     return (user, fieldname)
         return None, None
+
+
+    def find_user_by_dict(self, userdict):
+        """Simple shortcut."""
+        (user, matchingfield) = self.find_user_by_dict_with_field(userdict)
+        return user
 
 
 
@@ -389,9 +402,9 @@ class MewloUserManager(modelmanager.MewloModelManager):
     def error_if_user_exists(self, userdict):
         """Return a dictionary of fieldname:error if the user exists,
         Otherwise return {}."""
-        
+
         # look up user
-        (user, matchingfieldname) = self.find_user_by_dict(userdict)
+        (user, matchingfieldname) = self.find_user_by_dict_with_field(userdict)
         if (user != None):
             errordict = {matchingfieldname: "A user already exists with this {0}.".format(matchingfieldname)}
             return errordict
@@ -420,7 +433,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         varname = verification.verification_varname
         varval = verification.verification_varval
         # lookup user
-        user = self.modelclass.find_one_byprimaryid(userid)
+        user = self.finduser_byid(userid)
         if (user == None):
             # user not found
             return EFailure("User id#{0} not found.".format(userid))
@@ -430,3 +443,9 @@ class MewloUserManager(modelmanager.MewloModelManager):
         return None
 
 
+
+
+    def finduser_byid(self, userid):
+        """Just look up a user by their id."""
+        user = self.modelclass.find_one_byprimaryid(userid)
+        return user

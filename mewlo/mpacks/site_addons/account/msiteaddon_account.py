@@ -130,10 +130,10 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                             help = "verification code",
                             ),
                         ],
-                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_deferred_verify'),              
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_deferred_verify'),
             ))
         #
-        routegroup.append(        
+        routegroup.append(
             MewloRoute(
                 id = 'profile',
                 path = '/profile',
@@ -143,9 +143,9 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                             required = False,
                             help = "id of user whose profile is being viewed",
                             ),
-                        ],                
+                        ],
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.request_profile'),
-            ))        
+            ))
         #
         routegroup.append(
             MewloRoute(
@@ -156,18 +156,81 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                         id = 'field',
                         required = True,
                         help = "field name being verified",
-                        ),                    
+                        ),
                     MewloRouteArgString(
                         id = 'code',
                         required = True,
                         help = "verification code",
                         ),
                     ],
-                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_userfield_verify'),              
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.request_userfield_verify'),
             ))
-        
+        #
+        routegroup.append(
+            MewloRoute(
+                id = 'resend_register_verification',
+                path = '/resendverify',
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.resend_register_verification'),
+            ))
+        #
+        routegroup.append(
+            MewloRoute(
+                id = 'reset_password',
+                path = '/resetpassword',
+                args = [
+                    MewloRouteArgString(
+                        id = 'code',
+                        required = False,
+                        help = "verification code",
+                        ),
+                    ],
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.reset_password'),
+            ))
+        routegroup.append(
+            MewloRoute(
+                id = 'modify_field',
+                path = '/modify',
+                args = [
+                    MewloRouteArgString(
+                        id = 'field',
+                        required = True,
+                        help = "field name being verified",
+                        ),
+                    ],
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.modify_field'),
+            ))
+        routegroup.append(
+            MewloRoute(
+                id = 'modify_field_confirmation',
+                path = '/confirmmodify',
+                args = [
+                    MewloRouteArgString(
+                        id = 'code',
+                        required = True,
+                        help = "code for verifying a field change",
+                        ),
+                    ],
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.modify_field_confirmation'),
+            ))
+        routegroup.append(
+            MewloRoute(
+                id = 'login_bycode',
+                path = '/loginby',
+                args = [
+                    MewloRouteArgString(
+                        id = 'code',
+                        required = False,
+                        help = "verification code",
+                        ),
+                    ],
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.login_bycode'),
+            ))
+
+
         # add routegroup we just created to the site
         self.mewlosite.comp('routemanager').append(routegroup)
+
+
 
 
 
@@ -196,7 +259,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 'visible': lambda navnode,context: not (context.get_value('user').get_isloggedin()),
                 'parent': 'site',
                 'sortweight': 1.0,
-                }),            
+                }),
             NavNode('register_deferred_verify', {
                 'menulabel': 'verify registration',
                 # this navigation node (menu) is not shown unless the user is actually on this page.  We use this for unusual pages.  Alternatively we could set visible false and visible_breadcrumb True to have nearly the same effect
@@ -209,10 +272,10 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             NavNode('register_deferred_finalize', {
                 'menulabel': 'complete registration',
                 'visible': lambda navnode,context: navnode.isactive(context),
-                'flag_linkurl': False,                
+                'flag_linkurl': False,
                 'parent': 'register',
                 'sortweight': 1.0,
-                }),            
+                }),
             #
             NavNode('profile', {
                 'menulabel': "profile",
@@ -227,11 +290,35 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             NavNode('userfield_verify', {
                 'menulabel': "Verify user field",
                 'visible': lambda navnode,context: navnode.isactive(context),
-                'flag_linkurl': False,                              
+                'flag_linkurl': False,
                 'parent': 'profile',
-                'sortweight': 7.0,
                 'pagetitle': 'Verify User Field',
-                }),             
+                }),
+            #
+            NavNode('resend_register_verification', {
+                'menulabel': "Resend registration verification",
+                'visible': lambda navnode,context: navnode.isactive(context),
+                'flag_linkurl': False,
+                'parent': 'register',
+                }),
+            NavNode('reset_password', {
+                'menulabel': "Request password reset",
+                'visible': lambda navnode,context: navnode.isactive(context),
+                'flag_linkurl': False,
+                'parent': 'profile',
+                }),
+            NavNode('modify_field', {
+                'menulabel': "Change account profile field",
+                'visible': lambda navnode,context: navnode.isactive(context),
+                'flag_linkurl': False,
+                'parent': 'profile',
+                }),
+            NavNode('login_bycode', {
+                'menulabel': "Login by code",
+                'visible': lambda navnode,context: navnode.isactive(context),
+                'flag_linkurl': False,
+                'parent': 'profile',
+                }),
             ]
 
         # add nodes to site

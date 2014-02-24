@@ -152,7 +152,11 @@ class MewloUser(mdbmodel.MewloDbModel):
 
 
 
-
+    def getfield_byname(self, fieldname, defaultval = None):
+        """Accessor."""
+        if (hasattr(self, fieldname)):
+            return getattr(self, fieldname)
+        return defaultval
 
 
 
@@ -177,7 +181,7 @@ class MewloUser(mdbmodel.MewloDbModel):
                 }),
             mdbfield.DbfBoolean('isverified_email', {
                 'label': "Is the user's email verified?"
-                }),            
+                }),
             mdbfield.DbfHashedPassword('password_hashed', {
                 'label': "The hashed and salted password for the user"
                 }),

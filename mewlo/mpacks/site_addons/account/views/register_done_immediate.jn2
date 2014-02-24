@@ -6,5 +6,7 @@
 {{ successmessage }}
 </div>
 
+An email is being sent to you to verify your email address is correct.
+
 
 {% include "${siteviewpath}/footer.jn2" %}

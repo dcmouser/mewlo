@@ -41,11 +41,11 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
         Generic creation of a new verification entry.
         """
         verification = self.modelclass()
-        verification.verification_type = verification_type      
+        verification.verification_type = verification_type
         return verification
-    
-    
-    
+
+
+
 
     def find_bylongcode(self, verification_code):
         """
@@ -59,8 +59,8 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
 
 
 
-    
-    
+
+
     def basic_validation(self, verification, verification_code, request, verification_type_expected, is_shortcode_expected, verification_varname):
         """Perform basic validation (check for expiration, etc.).
         Return failure if it fails."""
@@ -76,7 +76,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
             if (failure != None):
                 return failure
             return EFailure("This verification code does not match.")
-        
+
         # sanity check
         if ((verification_code == None) or (verification_code == '')):
             return EFailure("This verification code is blank.")
@@ -88,19 +88,20 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
         # is it already consumed?
         if (verification.date_consumed != None):
             return EFailure("This verification code was already used on {0}.".format(verification.nice_datestring(verification.date_consumed)))
-        
+
+        # is it expired?
+        nowtime = verification.get_nowtime()
+        if ((verification.date_expires != None) and (verification.date_expires < nowtime)):
+            return EFailure("This verification code has expired.")
+
         # is it the right type?
         if ((verification_type_expected != None) and (verification.verification_type != verification_type_expected)):
             return EFailure("This verification code is not of the expected type.")
 
         # is it the right fieldname(varname)?
-        if ((verification_type_expected != None) and (verification.verification_type != verification_type_expected)):
-            return EFailure("This verification code is not of the expected type.")
-
-        # is it the right type?
         if ((verification_varname != None) and (verification.verification_varname != verification_varname)):
             return EFailure("This field specified does not match expectations.")
-        
+
         # short codes must match client session or use
         if (verification.is_shortcode):
             session = request.get_session(False)
@@ -123,17 +124,11 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
             else:
                 # ok they do not match the session id or user id
                 return EFailure("This short verification code cannot be used because you were not recognized as the same person who generated it.  Please request a new code.")
-            
 
-        # is it expired?
-        nowtime = verification.get_nowtime()        
-        if ((verification.date_expires != None) and (verification.date_expires > nowtime)):
-            return EFailure("This verification code has expired.")
-        
         # it's good, no error
         return None
-    
-    
+
+
 
 
 
@@ -146,14 +141,14 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
         On basic validation we will check actual code.
         """
         # build the where clause
-        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request, fieldname)
+        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request, fieldname, None, False)
         if (whereclause == None):
-            return
+            return None
 
         # ok find it
         verification = self.modelclass.find_one_bywhereclause(whereclause)
-        return verification 
-    
+        return verification
+
 
 
     def invalidate_previousverifications(self, verification_type, request, fieldname):
@@ -162,7 +157,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
         """
 
         # build the where clause
-        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request, fieldname)
+        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request, fieldname, None, False)
         if (whereclause == None):
             return
 
@@ -177,35 +172,72 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
             }
             # add sessionip
             session = request.get_session(False)
-            if (session != None):            
+            if (session != None):
                 updatedict['ip_consumed'] = session.ip
             # ok update them
             self.modelclass.update_all_dict_bywhereclause(updatedict, whereclause)
 
 
 
-    def build_whereclause_verifications_by_type_and_request(self, verification_type, request, fieldname):
+    def build_whereclause_verifications_by_type_and_request(self, verification_type, request, fieldname, user_id, flag_onlyvalid):
         """Build whereclause to select the verifications.
         We want to identify all verifications that match: verification_type AND (EITHER the sessionid or userid)
         """
 
-        # get session information for user, if none, then we have no user or session so nothing to do
-        session = request.get_session(False)
-        if (session == None):
-            return None
-        user = session.get_user()
-        
         # build the where clause
         whereclause = 'verification_type = "{0}"'.format(verification_type)
-        if (user == None):            
-            whereclause += ' AND session_id = {0}'.format(session.id)
-        else:
-            whereclause += ' AND (session_id = {0} OR user_id = {1})'.format(session.id, user.id)
+
+        # get session information for user, if none, then we have no user or session so nothing to do
+        if (request != None):
+            session = request.get_session(False)
+            if (request != None):
+                if (session == None):
+                    return None
+                user = session.get_user()
+                if (user == None):
+                    whereclause += ' AND session_id = {0}'.format(session.id)
+                else:
+                    whereclause += ' AND (session_id = {0} OR user_id = {1})'.format(session.id, user.id)
 
         # add fieldname match
         if (fieldname != None):
             whereclause += ' AND verification_varname = "{0}"'.format(fieldname)
-            
+
+        # add user_id match
+        if (user_id != None):
+            whereclause += ' AND user_id = {0}'.format(user_id)
+
+        # only valid?
+        if (flag_onlyvalid):
+            nowtime = self.modelclass.get_nowtime()
+            whereclause += ' AND invalidreason is NULL AND date_consumed is NULL and date_expires > {0}'.format(nowtime)
+
+        #print "WHERE CLAUSE = {0}.".format(whereclause)
+
         # return it
         return whereclause
-    
+
+
+
+    def find_valid_by_type_and_request(self, verification_type, request, fieldname):
+        """Find verification and return it, but only if it's also valid!"""
+        # build the where clause
+        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, request, fieldname, None, True)
+        if (whereclause == None):
+            return None
+        # ok find it (a user could create multiple accounts during the same session in which case there might be multiple of these valid verifications pending, and we are only returning first, but there is no harm in that that i can think of; we might want to offer them a way to explicitly CANCEL a registration attempt).
+        verification = self.modelclass.find_one_bywhereclause(whereclause)
+        return verification
+
+
+    def find_valid_by_type_and_userid(self, verification_type, user_id, fieldname):
+        """Find verification and return it, but only if it's also valid!"""
+        # build the where clause
+        whereclause = self.build_whereclause_verifications_by_type_and_request(verification_type, None, fieldname, user_id, True)
+        if (whereclause == None):
+            return None
+        # ok find it (a user could create multiple accounts during the same session in which case there might be multiple of these valid verifications pending, and we are only returning first, but there is no harm in that that i can think of; we might want to offer them a way to explicitly CANCEL a registration attempt).
+        verification = self.modelclass.find_one_bywhereclause(whereclause)
+        return verification
+
+

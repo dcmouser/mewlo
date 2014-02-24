@@ -48,7 +48,7 @@ class MewloVerification(mdbmodel.MewloDbModel):
         # set main values
         self.verification_code = self.make_randomverificationcode()
         # other calues
-        self.is_shortcode = is_shortcode        
+        self.is_shortcode = is_shortcode
         self.verification_varname = verification_varname
         self.verification_varval = verification_varval
         # set the entire contents of the serialized verification vars
@@ -57,8 +57,8 @@ class MewloVerification(mdbmodel.MewloDbModel):
         # set request-based values
         self.setvals_fromequest(request, user)
         # initial values
-        self.date_created = self.get_nowtime()        
-        self.date_expires = self.date_created + expiration_days
+        self.date_created = self.get_nowtime()
+        self.date_expires = self.date_created + (expiration_days*60*60*24)
         self.failurecount = 0
 
 
@@ -67,7 +67,7 @@ class MewloVerification(mdbmodel.MewloDbModel):
 
     def setvals_fromequest(self, request, user):
         """Set some verification values from a request"""
-        session = request.get_session(True)  
+        session = request.get_session(True)
         self.session_id = session.getid_saveifneeded()
         self.ip_created = session.ip
         if (user != None):
@@ -97,13 +97,13 @@ class MewloVerification(mdbmodel.MewloDbModel):
         self.date_consumed = self.get_nowtime()
         # add sessionip
         session = request.get_session(False)
-        if (session != None):            
+        if (session != None):
             self.ip_consumed = session.ip
         # save it
         self.save()
 
 
-        
+
     def increase_failurecount(self):
         """Increase the failure counter, and fail it iff too many.
         Return EFailure reason if too many failures; otherwise None

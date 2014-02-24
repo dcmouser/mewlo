@@ -1,0 +1,12 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+<h1>Resend verification email</h1>
+
+You have been recognized as signing up with the following information, which has not yet been verified:<br/>
+Registration username: {{ user.username }}<br/>
+
+<hr/>
+
+{{ thelper.html_autoform(form) }}
+
+{% include "${siteviewpath}/footer.jn2" %}

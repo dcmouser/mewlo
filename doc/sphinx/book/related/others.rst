@@ -18,4 +18,5 @@ Login / Registration Methods
     * https://developers.google.com/+/web/signin/
     * https://dev.twitter.com/docs/auth/sign-twitter
     * https://developers.facebook.com/docs/facebook-login/
-    * http://www2.safenet-inc.com/sas/keyfob-tokens.html												    
+    * http://www2.safenet-inc.com/sas/keyfob-tokens.html
+    * http://www.google.com/landing/2step/														    

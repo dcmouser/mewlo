@@ -38,6 +38,8 @@ class MewloForm(Form):
 
 
 
+    def add_fielderror(self, fieldname, errorstr):
+        self.merge_errordict({fieldname: errorstr})
 
 
     def add_genericerror(self, errorstr, separator = '\n'):
@@ -79,7 +81,7 @@ class MewloForm(Form):
         """Set form values manually."""
         for key,val in form_dict.iteritems():
             if (hasattr(self,key)):
-                ffield = getattr(self,key)
+                ffield = getattr(self, key)
                 ffield.data = val
 
     def set_onevalue(self, key, val):
@@ -87,7 +89,29 @@ class MewloForm(Form):
         if (key==''):
             return
         if (hasattr(self,key)):
-            ffield = getattr(self,key)
+            ffield = getattr(self, key)
+            ffield.data = val
+
+    def get_val(self, key, defaultval=None):
+        """Get one value."""
+        if (hasattr(self,key)):
+            ffield = getattr(self, key)
+            return ffield.data
+        return defaultval
+
+    def get_val_nonblank(self, key, defaultval=None):
+        """Get one value."""
+        if (hasattr(self,key)):
+            ffield = getattr(self, key)
+            if ( (ffield.data != '') and (ffield.data != None) ):
+                return ffield.data
+        return defaultval
+
+
+    def setfield_ifblank(self, key, val):
+        """ Set value if empty."""
+        ffield = getattr(self, key)
+        if ((ffield.data == None) or (ffield.data == '')):
             ffield.data = val
 
 
@@ -98,9 +122,6 @@ class MewloForm(Form):
 
 
 
-
-
-        
 # helper derived WTForm classes
 
 
@@ -112,13 +133,12 @@ class MewloForm(Form):
 class DisabledStringField(StringField):
     def __call__(self, *args, **kwargs):
         kwargs.setdefault('disabled', True)
-        kwargs.setdefault('size', 60)        
+        kwargs.setdefault('size', 60)
         return super(DisabledStringField, self).__call__(*args, **kwargs)
-    
+
 
 
 class BigStringField(StringField):
     def __call__(self, *args, **kwargs):
         kwargs.setdefault('size', 60)
         return super(BigStringField, self).__call__(*args, **kwargs)
-    

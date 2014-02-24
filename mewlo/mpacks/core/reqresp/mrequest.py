@@ -73,6 +73,11 @@ class MewloRequest(object):
         """Get the route that this request was matched against and processed by."""
         return self.route
 
+    def get_route_parsedarg(self, argname, defaultval):
+        """Accessor."""
+        if (argname in self.parsedargs):
+            return self.parsedargs[argname]
+        return defaultval
 
 
 
