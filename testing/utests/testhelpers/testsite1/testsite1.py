@@ -20,8 +20,9 @@ from mewlo.mpacks.core.eventlog.mlogger import MewloLogger
 from mewlo.mpacks.core.eventlog.mlogtarget_file import MewloLogTarget_File
 from mewlo.mpacks.core.eventlog.mlogtarget_python import MewloLogTarget_Python
 from mewlo.mpacks.core.eventlog.mevent import EWarning
-#
-from mewlo.mpacks.site_addons.account import msiteaddon_account
+
+# account addon
+from mewlo.mpacks.site_addons.account import msiteaddon_account, accountmanager
 
 
 # python imports
@@ -36,6 +37,7 @@ import logging
 import mpacks as pkgdirimp_sitempacks
 import controllers as pkgdirimp_controllers
 import config as pkgdirimp_config
+
 
 
 
@@ -144,7 +146,7 @@ class MewloSite_Test1(MewloSite):
         mailconfig = {
             # online status information
             'smtp_host': self.get_configval('mail_smtp_host'),
-            'smtp_login': self.get_configval('mail_smtp_login'),   
+            'smtp_login': self.get_configval('mail_smtp_login'),
             'smtp_port': self.get_configval('mail_smtp_port'),
             'smtp_mode': self.get_configval('mail_smtp_mode'),
             'smtp_password': self.get_configval('mail_smtp_password'),
@@ -335,9 +337,12 @@ class MewloSite_Test1(MewloSite):
 
     def add_addons(self):
         """Add any site addons."""
+        # register accountmanager component
+        self.createappendcomp('accountmanager', accountmanager.AccountManager)
         # Add login site addon
         siteaddon = msiteaddon_account.MewloSiteAddon_Account()
         self.comp('siteaddonmanager').append(siteaddon)
+
 
 
 

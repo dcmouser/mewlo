@@ -14,9 +14,9 @@ mrequesthelper.py
 
 
 class MewloRequestHandlerHelper(object):
-    """Base class for different request handling helpers. For example see accounthelper"""
+    """Base class for different request handling helpers. For example see accountmanager"""
 
-    def __init__(self, request, response):   
+    def __init__(self, request, response):
         self.request = request
         self.response = response
 
@@ -32,12 +32,12 @@ class MewloRequestHandlerHelper(object):
 
     def sitecomp_verificationmanager(self):
         return self.request.mewlosite.comp('verificationmanager')
-    
+
     def sitecomp_mailmanager(self):
-        return self.request.mewlosite.comp('mailmanager')    
-    
-    
-    
+        return self.request.mewlosite.comp('mailmanager')
+
+
+
 
 
 

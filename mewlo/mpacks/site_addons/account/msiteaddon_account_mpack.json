@@ -1,0 +1,34 @@
+{
+	"uniqueid": "mewlo.siteaddon.account",
+
+	"nicename": "Mewlo Account SiteAddon",
+	"label": "Mewlo Account SiteAddon",
+	"description": "Site addon that prepovides account features.",
+
+	"group": "core",
+	"genre": "core",
+
+	"isrequired": true,
+
+	"author": "mouser@donationcoder.com",
+
+
+
+
+	"version": "1.1.0",
+	"versiondate": "jan 1, 2014",
+
+	"versionlog": {
+		"1.0.0": "first private release"
+		},
+
+	"url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/siteaddon/account",
+	"url.version":  "http://www.donationcoder.com/Software/Mouser/mewlo/updates/core/siteaddon/msiteaddon_account_mpack.json",
+	"url.download": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/core/siteaddon/msiteaddon_account_mpack.zip",
+
+
+	"codefile": "msiteaddon_account_mpack.py",
+	"codeclass": "MewloPackWorker_SiteAddon_Account"
+
+
+}

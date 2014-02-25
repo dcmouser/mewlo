@@ -52,9 +52,9 @@ class MewloManager(object):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloManager (" + self.__class__.__name__ + ") reporting in.\n"
         return outstr
-    
-    
-    
+
+
+
 
 
     def get_mewlosite(self):
@@ -65,16 +65,40 @@ class MewloManager(object):
 
     def sitecomp_verificationmanager(self):
         return self.mewlosite.comp('verificationmanager')
-    
+
     def sitecomp_mailmanager(self):
-        return self.mewlosite.comp('mailmanager')    
-    
-    
+        return self.mewlosite.comp('mailmanager')
+
+
+
 
 
     def get_setting_value(self, sectionmame, defaultval=None):
         return self.mewlosite.settings.get_value(sectionmame, defaultval)
 
-    
+
     def get_setting_subvalue(self, sectionmame, varname, defaultval=None):
         return self.mewlosite.settings.get_subvalue(sectionmame, varname, defaultval)
+
+
+
+
+
+
+
+
+
+
+
+    # originally in request helper (some of these require self.viewbasepath to be set)
+
+    def set_renderpageid(self, request, pageid):
+        """Helper function to set page id."""
+        request.response.set_renderpageid(pageid)
+
+    def calc_localtemplatepath(self, viewfilepath):
+        return self.viewbasepath+viewfilepath
+
+    def render_localview(self, request, viewfilepath, args=None):
+        """Helper function to render relative view file."""
+        request.response.render_from_template_file(self.calc_localtemplatepath(viewfilepath), args=args)

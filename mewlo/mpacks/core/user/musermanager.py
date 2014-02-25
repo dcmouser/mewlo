@@ -11,6 +11,7 @@ The helper manager for user model.
 from ..manager import modelmanager
 from ..helpers import misc
 import muser
+from ..eventlog.mevent import EFailure, EException
 
 # python imports
 
@@ -438,9 +439,22 @@ class MewloUserManager(modelmanager.MewloModelManager):
         if (user == None):
             # user not found
             return EFailure("User id#{0} not found.".format(userid))
+        failure = self.check_uniquefield_notinuse(user, varname, varval)
+        if (failure !=None):
+            return failure
         # set it
         user.set_fieldvalue_with_verificationstate(varname, varval, verificationstate=True)
         # success
+        return None
+
+
+
+    def check_uniquefield_notinuse(self, user, fieldname, fieldval):
+        """If fieldname is a field that must be unique to a user, make sure no other user has this field value."""
+        if ((fieldname == 'email') or (fieldname == 'username')):
+            duplicateuser = self.sitecomp_usermanager().find_user_by_dict({fieldname:fieldval})
+            if ( (duplicateuser != None) and (duplicateuser!=user) ):
+                return EFailure("Error: There is another user with that {0}.".format(fieldname))
         return None
 
 

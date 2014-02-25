@@ -249,3 +249,10 @@ Return and collect all tuples from functions using () around them
 2/24/14/
 all pages that expect codes in urls should also allow them to be manually provided in form on that page (for security and convenience).
 //---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+2/25/14
+all controller actions shoiuld just take request (not request+response)
+make it easier for controller actions to specify object functions
+//---------------------------------------------------------------------------

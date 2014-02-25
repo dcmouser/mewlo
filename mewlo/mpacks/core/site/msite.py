@@ -440,7 +440,10 @@ class MewloSite(object):
 
     def comp(self, componentname):
         """Shortcut to look up a component."""
-        return self.components.lookup(componentname)
+        retv = self.components.lookup(componentname)
+        if (retv == None):
+            raise Exception("Component not found: '{0}'.".format(componentname))
+        return retv
 
     def appendcomp(self, componentname, component):
         """Shortcut to append an already created component."""
@@ -1140,13 +1143,13 @@ class MewloSite(object):
         """Shortcut to return html for a template and set responsedata from it, passing response object to template as an extra arg."""
         renderedtext = template.render_string(args)
         return renderedtext
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
     def build_routeurl_byid(self, routeid, flag_relative, args):
         """Build a url to a route with some optional args."""
         return self.comp('routemanager').build_routeurl_byid(routeid, flag_relative, args)
