@@ -1,0 +1,7 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+<div>
+{{ successmessage }}
+</div>
+
+{% include "${siteviewpath}/footer.jn2" %}

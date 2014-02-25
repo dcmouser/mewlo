@@ -48,6 +48,9 @@ class MewloRequest(object):
     def sitecomp_sessionmanager(self):
         return self.mewlosite.comp('sessionmanager')
 
+    def sitecomp_verificationmanager(self):
+        return self.mewlosite.comp('verificationmanager')
+
     def get_urlpath(self):
         """Return the url path of the request.
         This value is cached, and represents the relative path within the 'site' configuration, excluding any site prefix path.
@@ -76,7 +79,7 @@ class MewloRequest(object):
         """Get the route that this request was matched against and processed by."""
         return self.route
 
-    def get_route_parsedarg(self, argname, defaultval):
+    def get_route_parsedarg(self, argname, defaultval=None):
         """Accessor."""
         if (argname in self.parsedargs):
             return self.parsedargs[argname]

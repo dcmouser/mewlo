@@ -19,6 +19,8 @@ from forms.form_register_deferred import MewloForm_Register_Deferred
 from forms.form_register_deferred_finalize import MewloForm_Register_Deferred_Finalize
 from forms.form_login_bycode import MewloForm_Login_ByCode
 from forms.form_resend_register_verification import MewloForm_Resend_Register_Verification_Known, MewloForm_Resend_Register_Verification_Unknown
+from forms.form_reset_password import MewloForm_Send_Reset_Password, MewloForm_Submit_Reset_Password
+from forms.form_modifyfield_email import MewloForm_ModifyField_Email
 
 
 
@@ -32,6 +34,7 @@ class AccountHelper(MewloRequestHandlerHelper):
     # class constants (see also musermanager for duplication -- we need to centralize)
     DEF_VFTYPE_pre_user_verification = 'VFTYPE_pre_user_verification'
     DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'
+    DEF_VFTYPE_user_passwordreset = 'VFTYPE_user_passwordreset'
 
 
     def __init__(self, request, response):
@@ -60,6 +63,14 @@ class AccountHelper(MewloRequestHandlerHelper):
             'login_bycode': 'login_bycode.jn2',
             #
             'verify_resent': 'verify_resent.jn2',
+            #
+            'reset_password_sent': 'reset_password_sent.jn2',
+            'reset_password_verify_email': 'reset_password_verify_email.jn2',
+            #
+            'generic_verification_code_error' : 'generic_verification_code_error.jn2',
+            'generic_success' : 'generic_success.jn2',
+            'generic_error' : 'generic_error.jn2',
+            'error_requires_login': 'error_requires_login.jn2',
             }
 
 
@@ -81,6 +92,10 @@ class AccountHelper(MewloRequestHandlerHelper):
 
 
 
+    def calc_account_templatepath(self, viewfilepath):
+        """Template path inside user account site addon."""
+        viewbasepath = '${addon_account_path}/views/'
+        return viewbasepath+viewfilepath
 
 
 
@@ -531,15 +546,6 @@ class AccountHelper(MewloRequestHandlerHelper):
         """Client visits deferred registration verification page."""
         # set page info first (as it may be used in page contents)
         self.set_renderpageid('register_deferred_verify')
-        self.try_verify_registration_deferred()
-        # success
-        return None
-
-
-
-
-    def try_verify_registration_deferred(self):
-        """Try to complete their verification."""
         # get code from args
         args = self.request.get_route_parsedargs()
         verification_code = args['code']
@@ -1020,7 +1026,6 @@ class AccountHelper(MewloRequestHandlerHelper):
 
 
 
-
     def try_find_pending_fieldverification_from_current_session(self, fieldname):
         """Try to find a pending new registration.
         Return tupe (User, Verification)."""
@@ -1126,14 +1131,137 @@ class AccountHelper(MewloRequestHandlerHelper):
 
 
 
-    def handlepage_reset_password(self):
+    def handlepage_send_reset_password(self):
         """
         User needs to reset their password because they can't remember it (this is different from a password-change once logged in.
-        We just need to ask them for their username and/or email (both if we want to be more secure), and then we can send them a long verification code to reset (change) their password.
+        We just need to ask them for their username and/or email (both if we want to be prevent nuisance filings), and then we can send them a long verification code to reset (change) their password.
         They will return to this function with a code emailed to them to prove they are the owner of the account, at which point we can accept a new password from them.
+        If we are nice we might recognize them if they are logged in via session, and pre-fill their username+email address.
         """
+        # set page info first (as it may be used in page contents)
+        self.set_renderpageid('send_reset_password')
+
+        # form
+        formdata = self.request.get_postdata()
+        form = MewloForm_Send_Reset_Password(formdata)
+        viewfilename = form.get_viewfilename()
+        viewargs = {'form':form }
+        if (formdata == None):
+            # initialize form; can we get user from session?
+            user = self.request.get_user()
+            if (user != None):
+                # let's be nice and pre-fill in the form for them
+                form.set_values_from_dict( {'username':user.username, 'email':user.email} )
+        elif (form.validate()):
+            # they are submitting (valid) form
+            # locate user using the info they've given us
+            userdict = form.data
+            user = self.sitecomp_usermanager().find_user_by_dict(userdict)
+
+            if (user != None):
+                # found user, send them a password reset
+                failure = self.try_send_passwordreset(user)
+            else:
+                failure = EFailure("Could not locate a user account using the information you've provided.")
+
+            if (not failure):
+                # success
+                viewfilename = self.viewfiles['reset_password_sent']
+                self.render_localview(viewfilename, viewargs)
+                return None
+
+            # there was an error resending the verification, so add error and drop down
+            form.add_genericerror(failure.msg())
+
+        # render form
+        self.render_localview(viewfilename, viewargs)
+        return None
+
+
+
+
+    def try_send_passwordreset(self, user):
+        """Send the user a password reset verification code."""
+
+        # create the verification
+        verification_type = self.DEF_VFTYPE_user_passwordreset
+        fieldname = 'password'
+        fieldval = ''
+        extradict = {}
+        is_shortcode = False
+        flag_invalidateprevious = True
+        #
+        (verification, failure) = self.sitecomp_usermanager().build_generic_user_verification(verification_type, user, self.request, fieldname, fieldval, extradict, is_shortcode, flag_invalidateprevious)
+        if (failure):
+            return failure
+        # email it to the user
+        emailaddress = user.email
+        emailtemplatefile = self.calc_account_templatepath(self.viewfiles['reset_password_verify_email'])
+        verificationurl = self.calc_verificationurl_passwordreset(verification)
+        maildict = {
+            'to': [ emailaddress ],
+            'subject': "Password reset verification",
+            'body': self.get_mewlosite().renderstr_from_template_file(emailtemplatefile, {'verificationurl':verificationurl})
+        }
+        # now send it
+        failure = self.sitecomp_mailmanager().send_email(maildict)
+
+        # success
+        return failure
+
+
+
+    def calc_verificationurl_passwordreset(self, verification):
+        """Build url user should visit to verify."""
+        url = self.get_mewlosite().build_routeurl_byid('reset_password', flag_relative=False, args={'code':verification.verification_code} )
+        return url
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def handlepage_reset_password(self):
+        """
+        User is ready to provide their new (reset) password, and a verification code to prove they are the owner of the account.
+        This is very much like deferred account finalization, where the verification code is put as a hidden field on a form that they will resubmit with their changes.
+        """
+        # set page info first (as it may be used in page contents)
+        self.set_renderpageid('reset_password')
+
         # get args
-        code = self.request.get_route_parsedarg('code','')
+        verification_code = self.request.get_route_parsedarg('code','')
+        # try to register -- caller will handle rendering the result
+        return self.try_reset_password_withcode(verification_code)
+
+
+
+
+    def try_reset_password_withcode(self, verification_code):
+        """Try to complete password reset given a code."""
+
+        # look up the code, make sure its valid, unused and unexpired, of the right type, etc.
+        (verification, failure) = self.validatecode_passwordreset(verification_code)
+        if (failure != None):
+            # ATTN: TODO - make this a form where they can provide the verification code manually
+            self.render_localview(self.viewfiles['generic_verification_code_error'], {'failure':failure})
+            return
+
+        # code is good
+        return self.try_reset_password_withverification(verification)
 
 
 
@@ -1141,16 +1269,81 @@ class AccountHelper(MewloRequestHandlerHelper):
 
 
 
+    def validatecode_passwordreset(self, verification_code):
+        """
+        Locate verification, make sure it's good
+        Return tuple (verification, failure).
+        """
+        # get reference to the verification manager from the site
+        verificationmanager = self.sitecomp_verificationmanager()
+
+        # find verification entry
+        verification = verificationmanager.find_bylongcode(verification_code)
+
+        # then check it
+        verification_type_expected = self.DEF_VFTYPE_user_passwordreset
+        is_shortcode_expected = False
+        verification_varname = 'password'
+        failure = verificationmanager.basic_validation(verification, verification_code, self.request, verification_type_expected, is_shortcode_expected, verification_varname)
+        # return success or failure
+        return (verification, failure)
 
 
 
 
 
+    def try_reset_password_withverification(self, verification):
+        """Present them with a form to reset their password."""
+
+        # get user from verification
+        verificationmanager = self.sitecomp_verificationmanager()
+        user = verificationmanager.get_user_from_verification(verification)
+
+        # init form+formdata
+        formdata = self.request.get_postdata()
+        # form to be used
+        form = MewloForm_Submit_Reset_Password(formdata)
+
+        # default viewfilename
+        viewfilename = form.get_viewfilename()
+        viewargs = {'form':form, 'viewuser':user}
+
+        # valid submission?
+        if (formdata != None and form.validate()):
+            # form data is valid
+            password_plaintext = form.get_val('password')
+            # now try to set update user's password
+            failure = self.do_reset_password(user, password_plaintext)
+            if (not failure):
+                # success; now we want to consume this verification
+                verification.consume(self.request)
+                # and drop down to view sucess
+                viewfilename = self.viewfiles['generic_success']
+                viewargs['successmessage'] = "Your password has been successfully changed."
+            else:
+                # add error to form
+                form.add_genericerror(failure.msg())
+                # drop down and re-present form with errors
+        else:
+            # init form values from verification
+            if (verification != None):
+                # get any initial values for the form from the verification entry stored at the time they initially registered
+                # initialize form with these values
+                form.set_values_from_dict( {'code':verification.verification_code} )
+
+        # render form
+        self.render_localview(viewfilename, viewargs)
+        # success
+        return None
 
 
 
 
-
+    def do_reset_password(self, user, password_plaintext):
+        """Change a user's password."""
+        self.sitecomp_usermanager().set_userpassword_from_plaintext(user, password_plaintext)
+        user.save()
+        return None
 
 
 
@@ -1186,19 +1379,78 @@ class AccountHelper(MewloRequestHandlerHelper):
         For some of these we may need to send them a verification before we can actually change it.
         NOTE: Eventually we will have nicer profile pages where they can change fields, this is more of an example to show the process involved when changing a field that needs a verification code sent.
         """
-        # get code from args
+        # set page info first (as it may be used in page contents)
+        self.set_renderpageid('modify_field')
+
+        # get logged in user from session (required)
+        user = self.request.get_user()
+        if (user == None):
+            self.render_localview(self.viewfiles['error_requires_login'], {} )
+            return None
+
+        # get fieldname to be modified from args
         fieldname = self.request.get_route_parsedarg('field')
 
+        # now try to modify it -- we only know how to handle certain fields
+        if (fieldname == 'email'):
+            self.try_modify_field_form(user, fieldname, MewloForm_ModifyField_Email)
+        else:
+            # unsupported field, error
+            self.render_localview(self.viewfiles['generic_error'], {'failuremessage':'Error: Unsupported fieldname specified.'} )
+            # success
+            return None
+
+        return
 
 
 
+    def try_modify_field_form(self, user, fieldname, formclass):
+        """Present form where user can modify field."""
 
-    def handlepage_modify_field_confirmation(self):
+        # init form+formdata
+        formdata = self.request.get_postdata()
+        # form to be used
+        form = formclass(formdata)
+
+        # default viewfilename
+        viewfilename = form.get_viewfilename()
+        viewargs = {'form':form, 'viewuser':user}
+
+        # valid submission?
+        if (formdata != None and form.validate()):
+            # form data is valid
+            fieldval = form.get_val(fieldname)
+            # now try to set update user's password
+            (successmessage, failure) = self.try_modify_field_with_verification(user, fieldname, fieldval)
+            if (not failure):
+                # success, we've modified the field (or created a verification to do so); and drop down to view sucess
+                viewfilename = self.viewfiles['generic_success']
+                viewargs['successmessage'] = successmessage
+            else:
+                # add error to form
+                form.add_genericerror(failure.msg())
+                # drop down and re-present form with errors
+
+        # render form
+        self.render_localview(viewfilename, viewargs)
+        # success
+        return None
+
+
+
+    def try_modify_field_with_verification(self, user, fieldname, fieldval):
+        """Modify the field or create a deferred field modification if it needs verification.
+        return tuple (successmessage,failure).
         """
-        User is verifying a field modification by providing a code
-        """
-        # get code from args
-        fieldname = self.request.get_route_parsedarg('code')
+
+        if (fieldname == 'email'):
+            # modify email
+            failure = self.sitecomp_usermanager().send_onefield_verification(user, self.request, fieldname, fieldval)
+            successmessage = "A verification email has been sent to the new address you have provided.  Your new e-mail address will go into effect when you verify the code in that email."
+            return (successmessage, failure)
+
+        # unsupported
+        return EFailure('Unsupported fieldname in try_modify_field_with_verification().')
 
 
 
@@ -1218,16 +1470,7 @@ class AccountHelper(MewloRequestHandlerHelper):
 
 
 
-
-
-
-
-
-
-
-
-
-
+# THE BELOW CODE IS NOT USED YET
 
 
 

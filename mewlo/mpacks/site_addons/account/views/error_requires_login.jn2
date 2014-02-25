@@ -1,0 +1,7 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+<div>
+Error: you must be logged in before you can perform this action.
+</div>
+
+{% include "${siteviewpath}/footer.jn2" %}

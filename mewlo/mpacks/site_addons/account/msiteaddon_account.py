@@ -175,6 +175,12 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         #
         routegroup.append(
             MewloRoute(
+                id = 'send_reset_password',
+                path = '/reqresetpassword',
+                controller = MewloController(root=pkgdirimp_controllers, function='requests.send_reset_password'),
+            ))
+        routegroup.append(
+            MewloRoute(
                 id = 'reset_password',
                 path = '/resetpassword',
                 args = [
@@ -186,6 +192,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                     ],
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.reset_password'),
             ))
+        #
         routegroup.append(
             MewloRoute(
                 id = 'modify_field',
@@ -198,19 +205,6 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                         ),
                     ],
                 controller = MewloController(root=pkgdirimp_controllers, function='requests.modify_field'),
-            ))
-        routegroup.append(
-            MewloRoute(
-                id = 'modify_field_confirmation',
-                path = '/confirmmodify',
-                args = [
-                    MewloRouteArgString(
-                        id = 'code',
-                        required = True,
-                        help = "code for verifying a field change",
-                        ),
-                    ],
-                controller = MewloController(root=pkgdirimp_controllers, function='requests.modify_field_confirmation'),
             ))
         routegroup.append(
             MewloRoute(
@@ -301,8 +295,14 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 'flag_linkurl': False,
                 'parent': 'register',
                 }),
-            NavNode('reset_password', {
+            NavNode('send_reset_password', {
                 'menulabel': "Request password reset",
+                'visible': lambda navnode,context: navnode.isactive(context),
+                'flag_linkurl': False,
+                'parent': 'profile',
+                }),
+            NavNode('reset_password', {
+                'menulabel': "Perform password reset",
                 'visible': lambda navnode,context: navnode.isactive(context),
                 'flag_linkurl': False,
                 'parent': 'profile',

@@ -1,12 +1,14 @@
 {% include "${siteviewpath}/header.jn2" %}
 
-<h1>Your profile:</h1>
+<h1>Modify field</h1>
 
+Your current profile information:
 <ul>
 <li>Username: {{ request.get_user().username }}</li>
 <li>Email: {{ request.get_user().get_email_htmlinfo(request) }}</li>
-<li>Sessionid: {{ request.get_session(False).hashkey }}</li>
 </ul:
-
+<br/>
+<hr/>
+{{ thelper.html_autoform(form) }}
 
 {% include "${siteviewpath}/footer.jn2" %}

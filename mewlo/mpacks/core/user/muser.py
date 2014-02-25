@@ -27,6 +27,10 @@ class MewloUser(mdbmodel.MewloDbModel):
     #
     flag_mixin_atroot = False
 
+    # class constants
+    # ATTN:TODO move this
+    DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'
+
 
     def __init__(self):
         self.init()
@@ -97,7 +101,7 @@ class MewloUser(mdbmodel.MewloDbModel):
 
 
 
-    def get_email_htmlinfo(self):
+    def get_email_htmlinfo(self, request):
         """
         Return an html string that describes their email and email status.
         For example:  mouser@donationcoder.com (verified).
@@ -105,16 +109,25 @@ class MewloUser(mdbmodel.MewloDbModel):
         or mouser@donationcoder.com, pending change to mouser2@dcmembers.org (<a href="">resend confirmation email</a> or <a href="">cancel change</a>).
         or no email address provided (provide one now).
         """
+
         if ((self.email == None) or (self.email == '')):
+            # there is no email address on file at all
             rethtml = "No email address provided (" + "provide one now" +")."
         else:
             rethtml = self.email
+            # we have one, now is it verified?
             if (self.isverified_email):
                 rethtml += " (verified)"
             else:
                 rethtml += " (not yet verified)"
+            # now let's check for pending change to their email
+            verification = request.sitecomp_verificationmanager().find_valid_by_type_and_userid(self.DEF_VFTYPE_userfield_verification, self.id, 'email')
+            if (verification != None):
+                rethtml += " [pending change to {0}]".format(verification.verification_varval)
+
         # return it
         return rethtml
+
 
 
 

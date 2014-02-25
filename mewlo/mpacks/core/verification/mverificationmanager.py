@@ -167,7 +167,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
         else:
             # or we could mark them as invalidated but leave them in place in order to give user a better error if they try to use it
             updatedict = {
-                'invalidreason': "A more recent verification request was submitted.",
+                'invalidreason': "It was canceled due to a more recent request.",
                 'date_consumed': self.modelclass.get_nowtime()
             }
             # add sessionip
@@ -241,3 +241,8 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
         return verification
 
 
+
+    def get_user_from_verification(self, verification):
+        """Return user object from user_id."""
+        user = self.sitecomp_usermanager().finduser_byid(verification.user_id)
+        return user

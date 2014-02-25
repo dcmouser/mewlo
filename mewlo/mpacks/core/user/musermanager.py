@@ -86,7 +86,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
         # password -- hash it if its plaintext, or use pre-hashed version (if both provided we will ignored the pre-hashed one)
         if ('password' in userdict):
-            user.password_hashed = self.hash_and_salt_password(userdict['password'])
+            self.set_userpassword_from_plaintext(user, userdict['password'])
         elif ('password_hashed' in userdict):
             user.password_hashed = userdict['password_hashed']
 
@@ -112,8 +112,9 @@ class MewloUserManager(modelmanager.MewloModelManager):
         return user, errordict, successmessage
 
 
-
-
+    def set_userpassword_from_plaintext(self, user, password_plaintext):
+        """set hashed password."""
+        user.password_hashed = self.hash_and_salt_password(password_plaintext)
 
 
 
@@ -201,7 +202,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
             return self.send_field_verification_email(user, request, fieldval)
 
         # ATTN: we don't know how to handle other types of fields yet
-        return None
+        return EFailure('Unsupported fieldname in send_onefield_verification.')
 
 
 
@@ -224,7 +225,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         verificationurl = self.calc_verificationurl_field(verification, fieldname)
         maildict = {
             'to': [ emailaddress ],
-            'subject': 'E-mail address verification',
+            'subject': "E-mail address verification",
             'body': self.get_mewlosite().renderstr_from_template_file(emailtemplatefile, {'verificationurl':verificationurl})
         }
         # now send it
@@ -449,3 +450,41 @@ class MewloUserManager(modelmanager.MewloModelManager):
         """Just look up a user by their id."""
         user = self.modelclass.find_one_byprimaryid(userid)
         return user
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def build_generic_user_verification(self, verification_type, user, request, fieldname, fieldval, extradict, is_shortcode, flag_invalidateprevious):
+        """Build a verification entry for a user field.
+        return tuple (verification, failure)"""
+
+        # get reference to the verification manager from the site
+        verificationmanager = self.sitecomp_verificationmanager()
+
+        # verification properties
+        verification_varname = fieldname
+        verification_varval = fieldval
+        # other values
+        expiration_days = 14
+
+        # before we create a new verification entry, we *may* sometimes want to delete/invalidate previous verification requests of same type from same user/session
+        if (flag_invalidateprevious):
+            verificationmanager.invalidate_previousverifications(verification_type, request, fieldname)
+
+        # create it via verificationmanager
+        verification = verificationmanager.create_verification(verification_type)
+        # set it's properties
+        verification.init_values(request, expiration_days, verification_varname, verification_varval, extradict, is_shortcode, user)
+        # save it
+        verification.save()
+        # return it
+        return verification, None

@@ -242,3 +242,10 @@ option to not allow login until email verified
 2/23/14
 Return and collect all tuples from functions using () around them
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+2/24/14/
+all pages that expect codes in urls should also allow them to be manually provided in form on that page (for security and convenience).
+//---------------------------------------------------------------------------

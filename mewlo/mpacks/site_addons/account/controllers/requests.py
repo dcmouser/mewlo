@@ -98,6 +98,13 @@ def resend_register_verification(request, response):
     return lhelper.handlepage_resend_register_verification()
 
 
+def send_reset_password(request, response):
+    """Controller function."""
+    # account helper
+    lhelper = AccountHelper(request, response)
+    # then page contents
+    return lhelper.handlepage_send_reset_password()
+
 def reset_password(request, response):
     """Controller function."""
     # account helper
@@ -112,13 +119,6 @@ def modify_field(request, response):
     lhelper = AccountHelper(request, response)
     # then page contents
     return lhelper.handlepage_modify_field()
-
-def modify_field_confirmation(request, response):
-    """Controller function."""
-    # account helper
-    lhelper = AccountHelper(request, response)
-    # then page contents
-    return lhelper.handlepage_modify_field_confirmation()
 
 
 def login_bycode(request, response):

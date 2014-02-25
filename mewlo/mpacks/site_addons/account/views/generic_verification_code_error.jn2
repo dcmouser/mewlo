@@ -1,0 +1,10 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+There was an error with the verification code you provided:
+<div>
+{{ failure.msg() }}
+</div>
+<br/>
+Please try again.
+
+{% include "${siteviewpath}/footer.jn2" %}
