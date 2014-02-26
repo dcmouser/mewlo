@@ -23,6 +23,11 @@ from ..setting.msettings import MewloSettings
 class MewloDatabaseManager(manager.MewloManager):
     """The MewloDatabaseManager supervises database support."""
 
+    # class constants
+    description = "Databae manager provides the API interface for database operations"
+    typestr = "core"
+
+
     def __init__(self, mewlosite, debugmode):
         super(MewloDatabaseManager,self).__init__(mewlosite, debugmode)
         self.databasesettings = {}
@@ -351,6 +356,7 @@ class MewloDatabaseManager(manager.MewloManager):
     def dumps(self, indent=0):
         """Debug information."""
         outstr = " "*indent + "DatabaseManager (" + self.__class__.__name__  + ") reporting in.\n"
-        outstr += " "*indent + " Settings: "+str(self.databasesettings)
+        outstr += self.dumps_description(indent+1)
+        outstr += " "*indent + " Settings: "+str(self.databasesettings)+"\n"
         return outstr
 

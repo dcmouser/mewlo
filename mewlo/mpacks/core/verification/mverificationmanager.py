@@ -32,6 +32,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloVerificationManager (" + self.__class__.__name__ + ") reporting in.\n"
+        outstr += self.dumps_description(indent+1)
         return outstr
 
 

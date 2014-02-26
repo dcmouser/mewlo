@@ -47,6 +47,11 @@ class MewloTemplate(object):
 class MewloTemplateManager(manager.MewloManager):
     """The MewloTemplateManager class is the helper object which implements or interfaces to all template processing functionality."""
 
+    # class constants
+    description = "The template manager is used to help lookup view template files and serve them"
+    typestr = "core"
+
+
     def __init__(self, mewlosite, debugmode):
         super(MewloTemplateManager,self).__init__(mewlosite, debugmode)
         self.templatetypes = []
@@ -106,6 +111,7 @@ class MewloTemplateManager(manager.MewloManager):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloTemplateManager (" + self.__class__.__name__ + ") reporting in:\n"
+        outstr += self.dumps_description(indent+1)
         for templatetype in self.templatetypes:
             outstr += templatetype.dumps(indent+1)
         return outstr

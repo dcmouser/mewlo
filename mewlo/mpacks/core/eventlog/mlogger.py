@@ -60,6 +60,11 @@ class MewloLogManager(manager.MewloManager):
     MewloLogManager - the main supervisor class that manages a collection of Loggers
     """
 
+    # class constants
+    description = "Log manager supervises all logging operations"
+    typestr = "core"
+
+
     def __init__(self, mewlosite, debugmode):
         super(MewloLogManager,self).__init__(mewlosite, debugmode)
         self.loggers = []
@@ -160,6 +165,7 @@ class MewloLogManager(manager.MewloManager):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "LogManager reporting in.\n"
+        outstr += self.dumps_description(indent+1)
         indent += 1
         #
         outstr += " "*indent + str(len(self.loggers)) + " loggers attached:\n"

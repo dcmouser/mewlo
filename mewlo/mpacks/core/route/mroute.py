@@ -589,6 +589,11 @@ class MewloRouteManager(manager.MewloManager):
     The MewloRouteManager class manages the routes in a site; it is a thin class that owns a single route group
     """
 
+    # class constants
+    description = "Manages all url routes that are used to parse urls and route them to the proper controllers"
+    typestr = "core"
+
+
     def __init__(self, mewlosite, debugmode):
         super(MewloRouteManager,self).__init__(mewlosite, debugmode)
         self.routegroup = MewloRouteGroup('', None, None)
@@ -630,6 +635,7 @@ class MewloRouteManager(manager.MewloManager):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloRouteManager reporting in:\n"
+        outstr += self.dumps_description(indent+1)
         #outstr += " "*indent + " Routegroup: ers: " + str(self.controllerroot) + "\n"
         outstr += self.routegroup.dumps(indent+1) + "\n"
         return outstr

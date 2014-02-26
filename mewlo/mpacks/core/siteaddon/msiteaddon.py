@@ -19,6 +19,10 @@ class MewloSiteAddon(manager.MewloManager):
     The MewloSiteAddon class adds routes, controllers, and views
     """
 
+    # class constants
+    description = "A site addon is derived from MewloManager and represents an object that provides routes, controllers, navnonodes, etc."
+    typestr = "siteaddon"
+
 
     def __init__(self, mewlosite, debugmode):
         """
@@ -64,6 +68,7 @@ class MewloSiteAddon(manager.MewloManager):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloSiteAddon ({0}) reporting in.\n".format(self.__class__.__name__)
+        outstr += self.dumps_description(indent+1)
         return outstr
 
 

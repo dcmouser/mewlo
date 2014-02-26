@@ -42,13 +42,15 @@ class MDictList(object):
 
 
 
-    def dumps(self, indent=0):
+    def dumps(self, prefixstr, indent, flag_newlineseparates):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = ""
         for tupe in self.itemlist:
             key = tupe[0]
             obj = tupe[1]
-            outstr += " "*indent + "{0}:\n".format(key)
+            if (flag_newlineseparates):
+                outstr += '\n'
+            outstr += " "*indent + "{0}{1}:\n".format(prefixstr, key)
             # if it's a class, look for classdumps(), otherwise dumps()
             if (inspect.isclass(obj)):
                 if (hasattr(obj,'classdumps')):

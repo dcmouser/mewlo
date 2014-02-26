@@ -162,6 +162,11 @@ class SignalSender(object):
 class MewloSignalManager(manager.MewloManager):
     """The signal dispatcher."""
 
+    # class constants
+    description = "The Signal Manager is a central place where signals can be sent and objects can register to receive notices about them"
+    typestr = "core"
+
+
 
     def __init__(self, mewlosite, debugmode):
         """Constructor."""
@@ -270,6 +275,7 @@ class MewloSignalManager(manager.MewloManager):
     def dumps(self, indent=0):
         """Debug information."""
         outstr = " "*indent + "Signal Dispatcher (" + self.__class__.__name__ + ") reporting in.\n"
+        outstr += self.dumps_description(indent+1)
         indent += 1
         outstr += " "*indent + "Registered Signals: "+str(len(self.signals))+"\n"
         for signal in self.signals:

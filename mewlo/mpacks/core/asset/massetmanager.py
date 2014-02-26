@@ -21,6 +21,11 @@ from ..manager import manager
 class MewloAssetManager(manager.MewloManager):
     """The derived signal dispatcher."""
 
+    # class constants
+    description = "The asset manager handles static files that are served to user"
+    typestr = "core"
+
+
     def __init__(self, mewlosite, debugmode):
         """Constructor."""
         super(MewloAssetManager,self).__init__(mewlosite, debugmode)

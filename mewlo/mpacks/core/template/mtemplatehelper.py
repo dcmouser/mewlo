@@ -19,6 +19,11 @@ import os.path
 class MewloTemplateHelper(manager.MewloManager):
     """The MewloTemplateHelper class helps templates render output."""
 
+    # class constants
+    description = "The template helper is accessed within view files to provide shortcut helper functions and text"
+    typestr = "core"
+
+
     def __init__(self, mewlosite, debugmode):
         super(MewloTemplateHelper,self).__init__(mewlosite, debugmode)
 
@@ -151,4 +156,5 @@ class MewloTemplateHelper(manager.MewloManager):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "MewloTemplateHelper (" + self.__class__.__name__ + ") reporting in.\n"
+        outstr += self.dumps_description(indent+1)
         return outstr

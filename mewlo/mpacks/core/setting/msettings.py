@@ -20,6 +20,11 @@ class MewloSettings(manager.MewloManager):
     """
 
     # class constants
+    description = "A collection of settings that can be read/written"
+    typestr = "core"
+
+
+    # class constants
     # setting sections
     DEF_SECTION_config = 'config'
     DEF_SECTION_aliases = 'aliases'
@@ -186,6 +191,7 @@ class MewloSettings(manager.MewloManager):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "Settings ({0}):\n".format(self.__class__.__name__)
+        outstr += self.dumps_description(indent+1)
         indent += 1
         outstr += " "*indent + str(self.settingdict)+"\n"
         return outstr

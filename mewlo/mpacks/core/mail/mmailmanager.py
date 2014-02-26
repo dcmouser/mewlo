@@ -24,6 +24,12 @@ import smtplib
 class MewloMailManager(manager.MewloManager):
     """A helper object that handles all mail sending."""
 
+    # class constants
+    description = "Provides an API for sending and checking mail."
+    typestr = "core"
+
+
+
     def __init__(self, mewlosite, debugmode):
         """Constructor."""
         super(MewloMailManager,self).__init__(mewlosite, debugmode)
@@ -43,16 +49,16 @@ class MewloMailManager(manager.MewloManager):
     def send_email(self, maildict):
         """Just a wrapper around our mail sender function of choice."""
         return self.send_email_smtplib(maildict)
-    
-    
+
+
 
 
     def send_email_smtplib(self, maildict):
         """Send a mail message."""
-        
+
         # mail settings
         mailsettings = self.get_setting_value(MewloSettings.DEF_SECTION_mail)
-        
+
         # parameters
         efrom = mailsettings['mail_from']
         eto = maildict['to']
@@ -73,11 +79,11 @@ class MewloMailManager(manager.MewloManager):
 
         #print "MAIL SETTINGS: "+str(mailsettings)
         #print "SENDING TO: "+etos
-        
+
         try:
             #print "ATTN: send_email 1"
             #server = smtplib.SMTP(host=smtp_host, port=smtp_port, local_hostname=None, timeout=smtp_timeout)
-            server = smtplib.SMTP_SSL(host=smtp_host, port=smtp_port, local_hostname=None, timeout=smtp_timeout)        
+            server = smtplib.SMTP_SSL(host=smtp_host, port=smtp_port, local_hostname=None, timeout=smtp_timeout)
             #server.set_debuglevel(1)
             #print "ATTN: send_email 2"
             server.login(smtp_login, smtp_password)
@@ -88,12 +94,12 @@ class MewloMailManager(manager.MewloManager):
             #print "ATTN: send_email 5"
         except Exception as exp:
             return EException("Failed to send email ({0})".format(str(exp)), exp=exp)
-        
-        return None
-    
-    
 
-    
+        return None
+
+
+
+
 
 
     def send_email_pyzmail(self, maildict):
@@ -101,10 +107,10 @@ class MewloMailManager(manager.MewloManager):
         pyzmail is supposed to be good but my experience with it has been terrible.  It fails mysteriously and takes minutes to time out.
         and the compose_mail function seems to return broken value from mail_from return argument.
         """
-        
+
         # mail settings
         mailsettings = self.get_setting_value(MewloSettings.DEF_SECTION_mail)
-        
+
         # parameters
         efrom = mailsettings['mail_from']
         eto = maildict['to']
@@ -120,7 +126,7 @@ class MewloMailManager(manager.MewloManager):
         #print payload
         #msg = pyzmail.PyzMessage.factory(payload)
         #print msg.get_subject()
-        
+
         #print "MAIL SETTINGS: "+str(mailsettings)
         #print "MAIL FROM: "+mail_from
         #print "MAIL TO: "+str(rcpt_to)
@@ -134,7 +140,7 @@ class MewloMailManager(manager.MewloManager):
 
         # actually send the mail
         ret=pyzmail.send_mail(payload, efrom, eto, smtp_host=smtp_host, smtp_port=smtp_port, smtp_mode=smtp_mode, smtp_login=smtp_login, smtp_password=smtp_password)
-        
+
         # check return value
         if isinstance(ret, dict):
             if ret:

@@ -12,6 +12,11 @@ A base class for high-level site-helping managers.
 class MewloManager(object):
     """Base class for high-level site-helping managers; base class does little."""
 
+    # class constants
+    description = "Base MewloManager class"
+    typestr = "No type information"
+
+
     def __init__(self, mewlosite, debugmode):
         """
         Initialization/construction of a manager
@@ -45,12 +50,23 @@ class MewloManager(object):
         self.mewlosite.logevent("Shutdown of manager ({0}).".format(self.__class__.__name__))
         pass
 
+    def get_description(self):
+        return self.description
+    def get_typestr(self):
+        return self.typestr
 
 
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloManager (" + self.__class__.__name__ + ") reporting in.\n"
+        outstr =  " "*indent + "MewloManager ({0}) reporting in:\n".format(self.__class__.__name__)
+        outstr += self.dumps_description(indent+1)
+        return outstr
+
+
+    def dumps_description(self, indent=0):
+        outstr = " "*indent + "Type: {0}.\n".format(self.get_typestr())
+        outstr += " "*indent + "Description: {0}.\n".format(self.get_description())
         return outstr
 
 

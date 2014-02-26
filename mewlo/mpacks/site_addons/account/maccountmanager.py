@@ -30,6 +30,10 @@ class AccountManager(manager.MewloManager):
     """This class is used to help processing requests.
     """
 
+    # class constants
+    description = "Account management addon provides user login/registration functions"
+    typestr = "siteaddon"
+
     # class constants (see also musermanager for duplication -- we need to centralize)
     DEF_VFTYPE_pre_user_verification = 'VFTYPE_pre_user_verification'
     DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'

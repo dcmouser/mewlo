@@ -163,6 +163,11 @@ class MewloRoleAssignment(mdbmodel.MewloDbModel):
 class MewloRbacManager(manager.MewloManager):
     """The Rbac system manager."""
 
+    # class constants
+    description = "Handles the authorization and permission API"
+    typestr = "core"
+
+
     def __init__(self, mewlosite, debugmode):
         """Constructor."""
         super(MewloRbacManager,self).__init__(mewlosite, debugmode)

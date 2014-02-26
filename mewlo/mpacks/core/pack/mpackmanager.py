@@ -53,6 +53,11 @@ class MewloPackManager(manager.MewloManager):
     """
 
     # class constants
+    description = "Manages all 'MewloPacks' which are collections of files that can be updated"
+    typestr = "core"
+
+
+    # class constants
     DefMewlo_Pack_filepatternsuffix = 'mpack'
 
     # class-wide dictionary of module imports, to avoid multiple dynamic-code-importing
@@ -427,6 +432,7 @@ class MewloPackManager(manager.MewloManager):
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
         outstr = " "*indent + "PackManager reporting in ({0} packs found).\n".format(len(self.packs))
+        outstr += self.dumps_description(indent+1)
         indent += 1
         outstr += " "*indent + "Directories scanned:\n"
         for dirpath in self.dirlist:

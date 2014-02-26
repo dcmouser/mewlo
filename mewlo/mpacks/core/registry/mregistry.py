@@ -99,6 +99,11 @@ class MewloComponent(object):
 class MewloRegistryManager(manager.MewloManager):
     """The component registry."""
 
+    # class constants
+    description = "Manages a global registry of objects so that other components can find each other and registered objects/classes/etc."
+    typestr = "core"
+
+
     def __init__(self, mewlosite, debugmode):
         """Constructor."""
         super(MewloRegistryManager,self).__init__(mewlosite, debugmode)
@@ -214,6 +219,7 @@ class MewloRegistryManager(manager.MewloManager):
     def dumps(self, indent=0):
         """Debug information."""
         outstr = " "*indent + "Component Registry (" + self.__class__.__name__ + ") reporting in.\n"
+        outstr += self.dumps_description(indent+1)
         indent += 1
         outstr += " "*indent + "Registered Components: "+str(len(self.components))+"\n"
         for component in self.components:

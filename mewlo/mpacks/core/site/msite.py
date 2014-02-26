@@ -1028,7 +1028,7 @@ class MewloSite(object):
         outstr += (self.validatesettings()).dumps(indent+1)
         outstr += "\n"
         # dumps all components
-        outstr += self.components.dumps(indent)
+        outstr += self.components.dumps('SITE COMPONENT ', indent, True)
         return outstr
 
 

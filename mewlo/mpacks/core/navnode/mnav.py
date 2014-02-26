@@ -83,6 +83,11 @@ class NavNodeManager(manager.MewloManager):
     """
 
     # class constants
+    description = "Manages the navnode structures that build site maps and menus and breadcrumbs"
+    typestr = "core"
+
+
+    # class constants
     DEF_navnodecache_keyname = 'navnodecache'
 
 
@@ -122,6 +127,7 @@ class NavNodeManager(manager.MewloManager):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
 
         outstr = " "*indent + "NavNodeManager reporting in with {0} nodes:\n".format(len(self.nodes))
+        outstr += self.dumps_description(indent+1)
         indent += 1
         for node in self.nodes:
             outstr += node.dumps(indent)
