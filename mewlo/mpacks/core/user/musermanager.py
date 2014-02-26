@@ -23,11 +23,6 @@ class MewloUserManager(modelmanager.MewloModelManager):
     """User model manager."""
 
 
-    # class constants
-    # ATTN:TODO move this
-    DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'
-
-
 
 
     def __init__(self, mewlosite, debugmode):
@@ -254,7 +249,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
         # verification properties
         # ATTN:TODO - move some of this stuff to options and constants
-        verification_type = self.DEF_VFTYPE_userfield_verification
+        verification_type = siteconst.DEF_VFTYPE_userfield_verification
         # set verification_varname for quick lookup
         verification_varname = fieldname
         verification_varval = fieldval

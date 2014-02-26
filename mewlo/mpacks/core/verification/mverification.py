@@ -20,9 +20,6 @@ class MewloVerification(mdbmodel.MewloDbModel):
     # class variables
     dbtablename = 'verification'
 
-    # verification types
-    DEF_verificationtype_newuseraccount = 'NewUserAccount'
-    DEF_verificationtype_uservarchange = 'UserVarChange'
 
 
 

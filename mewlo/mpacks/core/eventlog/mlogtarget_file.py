@@ -6,9 +6,11 @@ This module defines a derived logging hey class that implements file logging.
 # future imports
 from __future__ import print_function
 
-# helper imports
+# mewlo imports
 from mlogger import MewloLogTarget
 import mlogformat_pretty
+# mewlo imports
+from ..const.mconst import MewloConst as siteconst
 
 # python imports
 import sys
@@ -20,12 +22,11 @@ import sys
 class MewloLogTarget_File(MewloLogTarget):
     """MewloLogTarget_File - target that can write log lines to a file."""
 
-    # class constants
-    DEF_FILEMODE_default = 'a'
 
 
 
-    def __init__(self, filename=None, filemode = DEF_FILEMODE_default, logformatter=None):
+
+    def __init__(self, filename=None, filemode = siteconst.DEF_LOG_TARGET_filemode_default, logformatter=None):
         # default logformatter is pretty
         if (logformatter==None):
             logformatter = mlogformat_pretty.MewloLogFormatter_Pretty()

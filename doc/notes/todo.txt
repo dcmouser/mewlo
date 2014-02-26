@@ -222,17 +222,12 @@ Put all constants/defines in one core file, instead of spread out in class files
 
 
 
-//---------------------------------------------------------------------------
-2/18/14
-consume previous verification codes of same type when user submits a new one (mark as expired, etc.)
-//---------------------------------------------------------------------------
 
 
 
 
 //---------------------------------------------------------------------------
 2/22/14
-
 option to not allow login until email verified
 //---------------------------------------------------------------------------
 
@@ -253,6 +248,5 @@ all pages that expect codes in urls should also allow them to be manually provid
 
 //---------------------------------------------------------------------------
 2/25/14
-all controller actions shoiuld just take request (not request+response)
 make it easier for controller actions to specify object functions
 //---------------------------------------------------------------------------

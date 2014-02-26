@@ -9,6 +9,7 @@ from ..helpers.misc import readfile_asjson, compare_versionstrings_isremotenewer
 from ..eventlog.mevent import EventList, EFailure, EWarning, EInfo
 from ..eventlog.mexceptionplus import ExceptionPlus
 from ..helpers.webhelp import download_file_as_jsondict, download_file_to_file
+from ..const.mconst import MewloConst as siteconst
 
 # python imports
 import json
@@ -39,18 +40,6 @@ class MewloPack(object):
     If an addon cannot be located/loaded/etc., the error information will be stored in this eventlist, and the addon will be disabled.
     """
 
-    # class constants
-    DEF_INFOFIELD_isrequired = 'isrequired'
-    DEF_INFOFIELD_requires = 'requires'
-    DEF_INFOFIELD_uniqueid = 'uniqueid'
-    DEF_INFOFIELD_requiredpacks = 'packs'
-    DEF_INFOFIELD_codefile = 'codefile'
-    DEF_INFOFIELD_codeclass = 'codeclass'
-    DEF_INFOFIELD_url_version = 'url.version'
-    DEF_INFOFIELD_url_download = 'url.download'
-    DEF_INFOFIELD_version = 'version'
-    DEF_INFOFIELD_versiondate = 'versiondate'
-    DEF_INFOFIELD_versioncritical = 'versioncritical'
 
 
     def __init__(self, packmanager, filepath):
@@ -93,7 +82,7 @@ class MewloPack(object):
 
 
     def get_uniqueid(self):
-        return self.get_ourinfofile_property(MewloPack.DEF_INFOFIELD_uniqueid,'[uniqueid_not_specified]')
+        return self.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_uniqueid,'[uniqueid_not_specified]')
 
     def get_infofilepath(self):
         return self.infofilepath
@@ -199,7 +188,7 @@ class MewloPack(object):
         name, ext = os.path.splitext(fullname)
         pathtocodemodule_default = name + '.py'
         # override with explicit
-        pathtocodemodule = dir + '/' + self.get_ourinfofile_property(MewloPack.DEF_INFOFIELD_codefile, pathtocodemodule_default)
+        pathtocodemodule = dir + '/' + self.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_codefile, pathtocodemodule_default)
         # return it
         return pathtocodemodule, None
 
@@ -216,7 +205,7 @@ class MewloPack(object):
             return EFailure("No code module imported to instantiate pack object from.")
 
         # object class defined in info dictionary?
-        packworker_classname = self.get_ourinfofile_property(MewloPack.DEF_INFOFIELD_codeclass, None)
+        packworker_classname = self.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_codeclass, None)
         if (packworker_classname == None):
             return EFailure("Pack info file is missing the 'codeclass' property which defines the class of the MewloPack derived class in the pack module.")
 
@@ -460,7 +449,7 @@ class MewloPack(object):
             mergedinfodict = self.infodict.copy()
             mergedinfodict.update(webinfodict)
             # now get download url
-            remotedownloadurl = self.get_aninfofile_property(mergedinfodict, MewloPack.DEF_INFOFIELD_url_download, None)
+            remotedownloadurl = self.get_aninfofile_property(mergedinfodict, siteconst.DEF_PACK_INFOFIELD_url_download, None)
             # download it and install it
             failure = self.update_download_and_install(mergedinfodict, remotedownloadurl)
             if (failure != None):
@@ -515,13 +504,13 @@ class MewloPack(object):
             return False, False, webinfodict, failure
 
         # ok let's get the remote version string (and local one)
-        localversion = self.get_ourinfofile_property(MewloPack.DEF_INFOFIELD_version, None)
-        remoteversion = self.get_aninfofile_property(webinfodict, MewloPack.DEF_INFOFIELD_version, None)
-        remotedate  = self.get_aninfofile_property(webinfodict, MewloPack.DEF_INFOFIELD_versiondate, 'undated')
-        isremoteversioncritical = self.get_aninfofile_property(webinfodict, MewloPack.DEF_INFOFIELD_versioncritical, False)
+        localversion = self.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_version, None)
+        remoteversion = self.get_aninfofile_property(webinfodict, siteconst.DEF_PACK_INFOFIELD_version, None)
+        remotedate  = self.get_aninfofile_property(webinfodict, siteconst.DEF_PACK_INFOFIELD_versiondate, 'undated')
+        isremoteversioncritical = self.get_aninfofile_property(webinfodict, siteconst.DEF_PACK_INFOFIELD_versioncritical, False)
         if (remoteversion==None):
             # error, no remote version info
-            versionfile_url = self.get_ourinfofile_property(MewloPack.DEF_INFOFIELD_url_version, None)
+            versionfile_url = self.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_url_version, None)
             failure = EFailure("No remote version specified in remote info file ({0}).".format(versionfile_url))
             return False, False, webinfodict, failure
 
@@ -560,7 +549,7 @@ class MewloPack(object):
         Download and parse web info file
         :return: tuple (webdictionary, failure)
         """
-        versionfile_url = self.get_ourinfofile_property(MewloPack.DEF_INFOFIELD_url_version, None)
+        versionfile_url = self.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_url_version, None)
         if (versionfile_url == None):
             failure = EFailure("No url to check online for updates specified ('url.version').")
             return None, failure

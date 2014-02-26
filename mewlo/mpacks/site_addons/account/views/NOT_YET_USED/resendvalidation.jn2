@@ -1,5 +1,0 @@
-{% include "${siteviewpath}/header.jn2" %}
-
-Resend validation.
-
-{% include "./footer.jn2" %}

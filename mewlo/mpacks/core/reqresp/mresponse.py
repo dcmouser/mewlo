@@ -10,6 +10,7 @@ from ..eventlog.mevent import EventList, EError, EWarning
 from ..setting import msettings
 from ..helpers import thindict
 from ..navnode import mnav
+from ..const.mconst import MewloConst as siteconst
 
 # werkzeug imports
 import werkzeug
@@ -145,7 +146,7 @@ class MewloResponse(object):
         mewlosite = self.get_mewlosite()
         #
         # navnode cache lets us avoid repeated computations of navnode stuff
-        self.rendercontext[mnav.NavNodeManager.DEF_navnodecache_keyname] = thindict.MThinDict()
+        self.rendercontext[siteconst.DEF_NAV_cache_keyname] = thindict.MThinDict()
         #
         self.rendercontext['request'] = self.request
         self.rendercontext['response'] = self

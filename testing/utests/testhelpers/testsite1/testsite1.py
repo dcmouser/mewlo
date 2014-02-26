@@ -20,6 +20,7 @@ from mewlo.mpacks.core.eventlog.mlogger import MewloLogger
 from mewlo.mpacks.core.eventlog.mlogtarget_file import MewloLogTarget_File
 from mewlo.mpacks.core.eventlog.mlogtarget_python import MewloLogTarget_Python
 from mewlo.mpacks.core.eventlog.mevent import EWarning
+from mewlo.mpacks.core.const.mconst import MewloConst as siteconst
 
 # account addon
 from mewlo.mpacks.site_addons.account import msiteaddon_account
@@ -69,37 +70,37 @@ class MewloSite_Test1(MewloSite):
         # config settings
         config = {
             # some generic settings for every site, to point to location of some stuff
-            MewloSettings.DEF_SETTINGNAME_pkgdirimps_sitempacks: [pkgdirimp_sitempacks],
-            MewloSettings.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
-            MewloSettings.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
+            siteconst.DEF_SETTINGNAME_pkgdirimps_sitempacks: [pkgdirimp_sitempacks],
+            siteconst.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
+            siteconst.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
             # should we also load mewlo site installed setuptools plugins
-            MewloSettings.DEF_SETTINGNAME_flag_importsetuptoolspacks: True,
+            siteconst.DEF_SETTINGNAME_flag_importsetuptoolspacks: True,
             }
-        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
+        self.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_config, config)
 
         # config settings
         config = {
             # Name of site
-            MewloSettings.DEF_SETTINGNAME_sitename: 'Mewlo',
+            siteconst.DEF_SETTINGNAME_sitename: 'Mewlo',
             # Specify where this site serves from
             # these siteurls should not end in / so if you are serving a site at root just use relative of '' and absolute of 'http://sitename.com'
-            MewloSettings.DEF_SETTINGNAME_siteurl_relative: '',
-            MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080',
-            #MewloSettings.DEF_SETTINGNAME_siteurl_relative: '/public/publicity',
-            #MewloSettings.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public/publicity',
+            siteconst.DEF_SETTINGNAME_siteurl_relative: '',
+            siteconst.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080',
+            #siteconst.DEF_SETTINGNAME_siteurl_relative: '/public/publicity',
+            #siteconst.DEF_SETTINGNAME_siteurl_absolute: 'http://127.0.0.1:8080/public/publicity',
             }
-        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
+        self.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_config, config)
 
         # config settings
         config = {
             # online status information
-            MewloSettings.DEF_SETTINGNAME_isenabled: True,
-            MewloSettings.DEF_SETTINGNAME_isonline: True,
-            MewloSettings.DEF_SETTINGNAME_offline_mode: 'maintenance',
-            MewloSettings.DEF_SETTINGNAME_offline_message: 'We are down for leap-year maintenance; we will be back soon.',
-            MewloSettings.DEF_SETTINGNAME_offline_allowadmin: False,
+            siteconst.DEF_SETTINGNAME_isenabled: True,
+            siteconst.DEF_SETTINGNAME_isonline: True,
+            siteconst.DEF_SETTINGNAME_offline_mode: 'maintenance',
+            siteconst.DEF_SETTINGNAME_offline_message: 'We are down for leap-year maintenance; we will be back soon.',
+            siteconst.DEF_SETTINGNAME_offline_allowadmin: False,
             }
-        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_config, config)
+        self.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_config, config)
 
 
 
@@ -108,7 +109,7 @@ class MewloSite_Test1(MewloSite):
             # let's add an alias to where we are going to serve static files from (note this is pointing not to a directory but to a ROUTE path)
             'staticurl': '${siteurl_relative}/static',
             }
-        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_aliases, aliases)
+        self.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_aliases, aliases)
 
 
         # extension pack config -- we need to explicitly enable plugins
@@ -120,7 +121,7 @@ class MewloSite_Test1(MewloSite):
                 'isenabled': True,
                 },
             }
-        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_packs, packconfig)
+        self.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_packs, packconfig)
 
 
         # database config
@@ -140,7 +141,7 @@ class MewloSite_Test1(MewloSite):
                 'tablename_prefix': 'mewlo_'
                 },
             }
-        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_database, databaseconfig)
+        self.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_database, databaseconfig)
 
 
         # email config settings
@@ -153,7 +154,7 @@ class MewloSite_Test1(MewloSite):
             'smtp_password': self.get_configval('mail_smtp_password'),
             'mail_from' : self.get_configval('mail_from'),
             }
-        self.settings.merge_settings_key(MewloSettings.DEF_SECTION_mail, mailconfig)
+        self.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_mail, mailconfig)
 
 
 

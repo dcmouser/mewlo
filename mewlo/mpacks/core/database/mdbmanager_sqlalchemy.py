@@ -6,10 +6,11 @@ This is our database helper module
 """
 
 
-# helper imports
+# mewlo imports
 import mdbmanager
 from ..eventlog.mevent import EFailure
 from ..helpers.misc import get_value_from_dict
+from ..const.mconst import MewloConst as siteconst
 
 # python imports
 import logging
@@ -151,8 +152,6 @@ class DbmSqlAlchemyHelper(object):
 class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
     """Derived DatabaseManager class built for sqlalchemy."""
 
-    # class vars
-    DEF_SqlAlchemyLoggerName = 'sqlalchemy'
 
 
     def __init__(self, mewlosite, debugmode):
@@ -259,7 +258,7 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
     def setup_logcatchers(self):
         """Catch sqlalchemy log statements and route to Mewlo."""
         # ATTN:TODO - find a way to not have to call a MEWLO thing here, since we are in helper directory and supposed to be independent of mewlo here
-        self.sqlalchemylogger = self.mewlosite.comp('logmanager').hook_pythonlogger(MewloDatabaseManagerSqlA.DEF_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
+        self.sqlalchemylogger = self.mewlosite.comp('logmanager').hook_pythonlogger(siteconst.DEF_LOG_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
 
 
 

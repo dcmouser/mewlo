@@ -24,46 +24,6 @@ class MewloSettings(manager.MewloManager):
     typestr = "core"
 
 
-    # class constants
-    # setting sections
-    DEF_SECTION_config = 'config'
-    DEF_SECTION_aliases = 'aliases'
-    DEF_SECTION_packs = 'packs'
-    DEF_SECTION_database = 'database'
-    DEF_SECTION_mail = 'mail'
-    # settings
-    DEF_SETTINGNAME_pkgdirimps_sitempacks = 'pkgdirimps_sitempacks'
-    DEF_SETTINGNAME_controllerroot = 'controllerroot'
-    DEF_SETTINGNAME_siteurl_relative = 'siteurl_relative'
-    DEF_SETTINGNAME_siteurl_absolute = 'siteurl_absolute'
-    DEF_SETTINGNAME_sitefilepath = 'sitefilepath'
-    DEF_SETTINGNAME_default_logfilename = 'logfilename'
-    DEF_SETTINGNAME_logfilepath = 'logfilepath'
-    DEF_SETTINGNAME_dbfilepath = 'dbfilepath'
-    DEF_SETTINGNAME_siteview_filepath = 'siteviewpath'
-    DEF_SETTINGNAME_sitename = 'sitename'
-    DEF_SETTINGNAME_flag_importsetuptoolspacks = 'flag_importsetuptoolspacks'
-    #
-    DEF_SETTINGNAME_isenabled = 'isenabled'
-    DEF_SETTINGNAME_isonline = 'isonline'
-    DEF_SETTINGNAME_offline_mode = 'offline_mode'
-    DEF_SETTINGNAME_offline_message = 'offline_message'
-    DEF_SETTINGNAME_offline_allowadmin = 'offline_allowadmin'
-
-    # default values
-    DEF_SETTINGVAL_default_logfilename_defaultvalue = '${logfilepath}/mewlo.log'
-    DEF_SETTINGVAL_default_pack_settings = { 'enabled': False }
-    DEF_SETTINGVAL_flag_importsetuptoolspacks = True
-    #
-    DEF_Mewlo_BasePack_subdirlist = ['mpacks']
-    # so others can interogate state of site and tell when it is shutting down, etc
-    DEF_SITESTATE_INITIALIZE_START = 'initializing'
-    DEF_SITESTATE_INITIALIZE_END = 'initialized'
-    DEF_SITESTATE_STARTUP_START = 'starting'
-    DEF_SITESTATE_STARTUP_END = 'started'
-    DEF_SITESTATE_SHUTDOWN_START = 'shuttingdown'
-    DEF_SITESTATE_SHUTDOWN_END = 'shutdown'
-    #
 
 
 

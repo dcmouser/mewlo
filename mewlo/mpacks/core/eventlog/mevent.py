@@ -41,6 +41,7 @@ Official Fields (not all will be in every event):
 
 # mewlo imports
 from ..helpers import debugging
+from ..const.mconst import MewloConst as siteconst
 
 # python imports
 import sys
@@ -55,34 +56,6 @@ class Event(object):
     """Base class for event/error class."""
 
     # class constants
-    #
-    DEF_SAFE_FIELDNAME_LIST = ['type', 'msg', 'exp', 'request', 'traceback', 'statuscode', 'loc', 'source', 'timestamp']
-    #
-    DEF_ETYPE_debug = 'DEBUG'
-    DEF_ETYPE_info = 'INFO'
-    DEF_ETYPE_warning = 'WARNING'
-    DEF_ETYPE_error = 'ERROR'
-    DEF_ETYPE_critical = 'CRITICAL'
-    #
-    DEF_ETYPE_failure = 'FAILURE'
-    DEF_ETYPE_exception = 'EXCEPTION'
-    #
-    DEF_ETYPE_PYTHONLOGGING_MAP = {
-        'DEBUG' : logging.DEBUG,
-        'INFO' : logging.INFO,
-        'WARNING' : logging.WARNING,
-        'ERROR' : logging.ERROR,
-        'CRITICAL' : logging.ERROR,
-        'FAILURE' : logging.ERROR,
-        'EXCEPTION' : logging.ERROR,
-        }
-    DEF_ETYPE_PYTHONLOGGING_REVERSEMAP = {
-        logging.DEBUG : 'DEBUG',
-        logging.INFO : 'INFO',
-        logging.WARNING : 'WARNING',
-        logging.ERROR : 'ERROR'
-        }
-    #
     flag_safetycheckfields = True
 
 
@@ -165,9 +138,9 @@ class Event(object):
         """
         if (not self.flag_safetycheckfields):
             return
-        if (not fieldname in Event.DEF_SAFE_FIELDNAME_LIST):
+        if (not fieldname in siteconst.DEF_EVENT_fieldname_safelist):
             if (not fieldname.startswith('custom_')):
-                raise Exception("Fieldname '{0}' specified for an Event that is not in our list of safe fieldnames [{1}] and does not begin with 'custom_'.".format(fieldname , ",".join(Event.DEF_SAFE_FIELDNAME_LIST)))
+                raise Exception("Fieldname '{0}' specified for an Event that is not in our list of safe fieldnames [{1}] and does not begin with 'custom_'.".format(fieldname , ",".join(siteconst.DEF_EVENT_fieldname_safelist)))
 
     def safetycheck_fields(self, fields):
         """
@@ -192,7 +165,7 @@ class Event(object):
         ATTN: we probably don't want the EVENT to decide this -- rather the log target, etc.
         """
         return self.stringify()
-    
+
     def msg(self):
         """Simple accessor."""
         return self.fields['msg']
@@ -209,8 +182,8 @@ class Event(object):
             CRITICAL 	A serious error, indicating that the program itself may be unable to continue running.
         """
         etype = self.getfield('type')
-        if (etype in Event.DEF_ETYPE_PYTHONLOGGING_MAP):
-            pythonlevel = Event.DEF_ETYPE_PYTHONLOGGING_MAP[etype]
+        if (etype in siteconst.DEF_EVENT_TYPE_PYTHONLOGGING_MAP):
+            pythonlevel = siteconst.DEF_EVENT_TYPE_PYTHONLOGGING_MAP[etype]
         else:
             pythonlevel = logging.ERROR
         return pythonlevel
@@ -218,10 +191,10 @@ class Event(object):
     @classmethod
     def pythonlogginglevel_to_eventlevel(cls, pythonlevel):
         """Convert from a python logging level to our internal mewlo level."""
-        if (pythonlevel in Event.DEF_ETYPE_PYTHONLOGGING_REVERSEMAP):
-            eventlevel = Event.DEF_ETYPE_PYTHONLOGGING_REVERSEMAP[pythonlevel]
+        if (pythonlevel in siteconst.DEF_EVENT_TYPE_PYTHONLOGGING_REVERSEMAP):
+            eventlevel = siteconst.DEF_EVENT_TYPE_PYTHONLOGGING_REVERSEMAP[pythonlevel]
         else:
-            eventlevel = Event.DEF_ETYPE_info
+            eventlevel = siteconst.DEF_EVENT_TYPE_info
         return eventlevel
 
 
@@ -366,7 +339,7 @@ class EventList(object):
 
     def count_errors(self):
         """Shorthand to count the number of events of error type."""
-        return self.countfieldmatches('type', [Event.DEF_ETYPE_error, Event.DEF_ETYPE_failure])
+        return self.countfieldmatches('type', [siteconst.DEF_EVENT_TYPE_error, siteconst.DEF_EVENT_TYPE_failure])
 
 
 
@@ -443,19 +416,19 @@ class EventList(object):
 
 def EFailure(msg, *args, **kwargs):
     """Helper function to create failure type event"""
-    return SimpleEventBuilder(Event.DEF_ETYPE_failure, msg, *args, **kwargs)
+    return SimpleEventBuilder(siteconst.DEF_EVENT_TYPE_failure, msg, *args, **kwargs)
 def EError(msg, *args, **kwargs):
     """Helper function to create error type event"""
-    return SimpleEventBuilder(Event.DEF_ETYPE_error, msg, *args, **kwargs)
+    return SimpleEventBuilder(siteconst.DEF_EVENT_TYPE_error, msg, *args, **kwargs)
 def EWarning(msg, *args, **kwargs):
     """Helper function to create warning type event"""
-    return SimpleEventBuilder(Event.DEF_ETYPE_warning, msg, *args, **kwargs)
+    return SimpleEventBuilder(siteconst.DEF_EVENT_TYPE_warning, msg, *args, **kwargs)
 def EDebug(msg, *args, **kwargs):
     """Helper function to create debug type event"""
-    return SimpleEventBuilder(Event.DEF_ETYPE_debug, msg, *args, **kwargs)
+    return SimpleEventBuilder(siteconst.DEF_EVENT_TYPE_debug, msg, *args, **kwargs)
 def EInfo(msg, *args, **kwargs):
     """Helper function to create debug type event"""
-    return SimpleEventBuilder(Event.DEF_ETYPE_info, msg, *args, **kwargs)
+    return SimpleEventBuilder(siteconst.DEF_EVENT_TYPE_info, msg, *args, **kwargs)
 
 
 
@@ -469,7 +442,7 @@ def EFailureExtend(failure, msg, *args, **kwargs):
     # failure is not an Event, so make a new event; assume previous failure is stringifyable and add that
     addmsg = str(failure)
     # build new event and return it
-    return SimpleEventBuilder(Event.DEF_ETYPE_failure, msg+" "+addmsg, *args, **kwargs)
+    return SimpleEventBuilder(siteconst.DEF_EVENT_TYPE_failure, msg+" "+addmsg, *args, **kwargs)
 
 
 def EException(msg, *args, **kwargs):
@@ -480,7 +453,7 @@ def EException(msg, *args, **kwargs):
     if (not 'flag_loc' in kwargs):
         kwargs['flag_loc'] = True
     # create event
-    return SimpleEventBuilder(Event.DEF_ETYPE_exception, msg, *args, **kwargs)
+    return SimpleEventBuilder(siteconst.DEF_EVENT_TYPE_exception, msg, *args, **kwargs)
 
 
 

@@ -1,5 +1,0 @@
-{% include "${siteviewpath}/header.jn2" %}
-
-Your verification is complete.
-
-{% include "${siteviewpath}/footer.jn2" %}

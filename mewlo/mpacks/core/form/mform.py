@@ -5,7 +5,7 @@ This file contains base form class
 
 
 # mewlo imports
-
+from ..const.mconst import MewloConst as siteconst
 
 # python imports
 
@@ -19,8 +19,7 @@ from wtforms import Form, BooleanField, StringField, validators
 
 class MewloForm(Form):
 
-    # class constants
-    DEF_GenericErrorKey = ''
+
 
     class Meta:
         # Enable CSRF?
@@ -44,15 +43,15 @@ class MewloForm(Form):
 
     def add_genericerror(self, errorstr, separator = '\n'):
         """Add a generic error to form not tied to a field; this is our own kludge."""
-        if (MewloForm.DEF_GenericErrorKey in self.errors):
-            self.errors[MewloForm.DEF_GenericErrorKey] += separator + errorstr
+        if (siteconst.DEF_FORM_GenericErrorKey in self.errors):
+            self.errors[siteconst.DEF_FORM_GenericErrorKey] += separator + errorstr
         else:
-            self.errors[MewloForm.DEF_GenericErrorKey] = errorstr
+            self.errors[siteconst.DEF_FORM_GenericErrorKey] = errorstr
 
     def get_genericerrorstr(self, defaultval=None):
         """Return generic form error."""
-        if (MewloForm.DEF_GenericErrorKey in self.errors):
-            return self.errors[MewloForm.DEF_GenericErrorKey]
+        if (siteconst.DEF_FORM_GenericErrorKey in self.errors):
+            return self.errors[siteconst.DEF_FORM_GenericErrorKey]
         return defaultval
 
 
@@ -66,7 +65,7 @@ class MewloForm(Form):
             if (self.__contains__(key)):
                 self.__getitem__(key).errors.append(val)
             else:
-                if (key==MewloForm.DEF_GenericErrorKey):
+                if (key==siteconst.DEF_FORM_GenericErrorKey):
                     self.add_genericerror(val)
 
 

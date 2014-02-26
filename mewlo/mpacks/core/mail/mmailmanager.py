@@ -9,6 +9,7 @@ ATTN:TODO Add logging, better error reporting, fix pyzmail or switch to another 
 from ..manager import manager
 from ..setting.msettings import MewloSettings
 from ..eventlog.mevent import EFailure, EException
+from ..const.mconst import MewloConst as siteconst
 
 # python library imports
 import pyzmail
@@ -57,7 +58,7 @@ class MewloMailManager(manager.MewloManager):
         """Send a mail message."""
 
         # mail settings
-        mailsettings = self.get_setting_value(MewloSettings.DEF_SECTION_mail)
+        mailsettings = self.get_setting_value(siteconst.DEF_SETTINGSEC_mail)
 
         # parameters
         efrom = mailsettings['mail_from']
@@ -109,7 +110,7 @@ class MewloMailManager(manager.MewloManager):
         """
 
         # mail settings
-        mailsettings = self.get_setting_value(MewloSettings.DEF_SECTION_mail)
+        mailsettings = self.get_setting_value(siteconst.DEF_SETTINGSEC_mail)
 
         # parameters
         efrom = mailsettings['mail_from']

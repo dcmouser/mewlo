@@ -13,6 +13,8 @@ from ..database import mdbfield
 from ..database import mdbmixins
 from ..database import mdbmodel_fieldset
 from ..helpers import misc
+from ..const.mconst import MewloConst as siteconst
+
 
 # python imports
 import time
@@ -27,9 +29,7 @@ class MewloUser(mdbmodel.MewloDbModel):
     #
     flag_mixin_atroot = False
 
-    # class constants
-    # ATTN:TODO move this
-    DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'
+
 
 
     def __init__(self):
@@ -121,7 +121,7 @@ class MewloUser(mdbmodel.MewloDbModel):
             else:
                 rethtml += " (not yet verified)"
             # now let's check for pending change to their email
-            verification = request.sitecomp_verificationmanager().find_valid_by_type_and_userid(self.DEF_VFTYPE_userfield_verification, self.id, 'email')
+            verification = request.sitecomp_verificationmanager().find_valid_by_type_and_userid(siteconst.DEF_VFTYPE_userfield_verification, self.id, 'email')
             if (verification != None):
                 rethtml += " [pending change to {0}]".format(verification.verification_varval)
 
