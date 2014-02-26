@@ -339,17 +339,8 @@ class MewloSite_Test1(MewloSite):
 
     def add_addons(self):
         """Add any site addons."""
-        # register accountmanager component
-        # ATTN: trying to move this to MewloSiteAddon_Account constructor
-        #self.createappendcomp('accountmanager', accountmanager.AccountManager)
-        # Add login site addon
-        #siteaddon = msiteaddon_account.MewloSiteAddon_Account(self, self.debugmode)
-        # add to special addonmanager or as normal site component?
-        if (False):
-            self.comp('siteaddonmanager').append(siteaddon)
-        else:
-            #self.appendcomp('accountaddon',siteaddon)
-            self.createappendcomp('accountaddon', msiteaddon_account.MewloSiteAddon_Account)
+        # register accountmanager addon component
+        self.createappendcomp('accountaddon', msiteaddon_account.MewloSiteAddon_Account)
 
 
 

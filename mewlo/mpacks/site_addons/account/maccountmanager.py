@@ -75,7 +75,6 @@ class AccountManager(manager.MewloManager):
 
     def startup(self, eventlist):
         super(AccountManager,self).startup(eventlist)
-        # use site settings to configure mail settings
 
     def shutdown(self):
         super(AccountManager,self).shutdown()
@@ -155,7 +154,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def handlepage_login(self, request):
+    def request_login(self, request):
         """Present and consume the login form.
         Return failure"""
         # set page info first (as it may be used in page contents)
@@ -174,7 +173,7 @@ class AccountManager(manager.MewloManager):
             errordict = self.try_login(request, userdict)
             if (not errordict):
                 # all good
-                return self.handlepage_profile(request)
+                return self.request_profile(request)
                 #self.render_localview(request, self.viewfiles['login_complete'])
                 # success
                 return None
@@ -222,7 +221,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def handlepage_logout(self, request):
+    def request_logout(self, request):
         """Present and consume the logour form.
         Return failure."""
         # set page info first (as it may be used in page contents)
@@ -302,24 +301,19 @@ class AccountManager(manager.MewloManager):
 
 
 
+    def request_register(self, request):
+        """Controller function."""
+#        return self.request_register_immediate(request)
+        return self.request_register_deferred(request)
 
 
-
-
-
-
-
-
-
-
-
-    def handlepage_register_immediate(self, request):
+    def request_register_immediate(self, request):
         """Handle immediate registration case."""
         formclass = MewloForm_Register_Immediate
         return self.do_handlepage_register(request, formclass, flag_immediate = True)
 
 
-    def handlepage_register_deferred(self, request):
+    def request_register_deferred(self, request):
         """Handle deferred registration case."""
         formclass = MewloForm_Register_Deferred
         return self.do_handlepage_register(request, formclass, flag_immediate = False)
@@ -586,7 +580,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def handlepage_verify_registration_deferred(self, request):
+    def request_register_deferred_verify(self, request):
         """Client visits deferred registration verification page."""
         # set page info first (as it may be used in page contents)
         self.set_renderpageid(request, 'register_deferred_verify')
@@ -858,7 +852,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def handlepage_profile(self, request):
+    def request_profile(self, request):
         """View user profile."""
         self.set_renderpageid(request, 'profile')
 
@@ -880,7 +874,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def handlepage_verify_userfield(self, request):
+    def request_userfield_verify(self, request):
         """handle user field verification."""
         self.set_renderpageid(request, 'userfield_verify')
         # get code from args
@@ -978,7 +972,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def handlepage_resend_register_verification(self, request):
+    def request_resend_register_verification(self, request):
         """
         User has asked to be resent their initial registration verification email (for immediate registration method).
         If we can recognize their session and tie it to a new user verification, we will also offer to let them change their signup email at this point.
@@ -1181,7 +1175,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def handlepage_send_reset_password(self, request):
+    def request_send_reset_password(self, request):
         """
         User needs to reset their password because they can't remember it (this is different from a password-change once logged in.
         We just need to ask them for their username and/or email (both if we want to be prevent nuisance filings), and then we can send them a long verification code to reset (change) their password.
@@ -1284,7 +1278,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def handlepage_reset_password(self, request):
+    def request_reset_password(self, request):
         """
         User is ready to provide their new (reset) password, and a verification code to prove they are the owner of the account.
         This is very much like deferred account finalization, where the verification code is put as a hidden field on a form that they will resubmit with their changes.
@@ -1423,7 +1417,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def handlepage_modify_field(self, request):
+    def request_modify_field(self, request):
         """
         User wants to change a field (email, password, etc.).
         For some of these we may need to send them a verification before we can actually change it.
@@ -1530,7 +1524,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def handlepage_login_bycode(self, request):
+    def request_login_bycode(self, request):
         """
         This function lets a user login by verifying a code sent to them (via email).
         """

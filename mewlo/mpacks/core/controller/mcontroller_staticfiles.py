@@ -25,7 +25,7 @@ class MewloController_StaticFiles(mcontroller.MewloController):
         self.sourcepath = sourcepath
 
 
-    def controller_call(self, request, response):
+    def controller_call(self, request):
         """The staticfiles controller callable function -- serve a static file."""
 
         # ok let's build the filepath being requests
@@ -45,7 +45,7 @@ class MewloController_StaticFiles(mcontroller.MewloController):
             return None
 
         # file exists, serve it
-        response.serve_file_bypath(filepath)
+        request.response.serve_file_bypath(filepath)
         return None
 
 

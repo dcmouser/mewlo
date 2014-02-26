@@ -98,7 +98,7 @@ class MewloController(object):
         :return: failure or None on success
         """
 
-        return self.callable(request, request.response)
+        return self.callable(request)
 
 
 

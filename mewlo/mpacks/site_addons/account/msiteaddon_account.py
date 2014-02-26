@@ -37,7 +37,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         # call parent constructor
         super(MewloSiteAddon_Account, self).__init__(mewlosite, debugmode)
         # path prefix (used below in route setup)
-        self.pathprefix = '/account'
+        self.routepathprefix = '/account'
         # create the helper manager
         self.accountmanager = self.mewlosite.createappendcomp('accountmanager', maccountmanager.AccountManager)
 
@@ -112,26 +112,26 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         routegroup = MewloRouteGroup()
         # overide the parent import-pack-directory for the urls in this group? if we don't it will use the controller root set in SITE config
         routegroup.set_controllerroot(pkgdirimp_controllers)
-        routegroup.set_pathprefix(self.pathprefix)
+        routegroup.set_pathprefix(self.routepathprefix)
 
         routegroup.append(
             MewloRoute(
                 id = 'login',
                 path = '/login',
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_login),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_login),
             ))
         routegroup.append(
             MewloRoute(
                 id = 'logout',
                 path = '/logout',
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_logout),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_logout),
             ))
         #
         routegroup.append(
             MewloRoute(
                 id = 'register',
                 path = '/register',
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_register),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_register),
             ))
         routegroup.append(
             MewloRoute(
@@ -144,7 +144,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                             help = "verification code",
                             ),
                         ],
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_deferred_verify),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_register_deferred_verify),
             ))
         #
         routegroup.append(
@@ -158,7 +158,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                             help = "id of user whose profile is being viewed",
                             ),
                         ],
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_profile),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_profile),
             ))
         #
         routegroup.append(
@@ -177,21 +177,21 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                         help = "verification code",
                         ),
                     ],
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_userfield_verify),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_userfield_verify),
             ))
         #
         routegroup.append(
             MewloRoute(
                 id = 'resend_register_verification',
                 path = '/resendverify',
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_resend_register_verification),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_resend_register_verification),
             ))
         #
         routegroup.append(
             MewloRoute(
                 id = 'send_reset_password',
                 path = '/reqresetpassword',
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_send_reset_password),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_send_reset_password),
             ))
         routegroup.append(
             MewloRoute(
@@ -204,7 +204,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                         help = "verification code",
                         ),
                     ],
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_reset_password),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_reset_password),
             ))
         #
         routegroup.append(
@@ -218,7 +218,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                         help = "field name being verified",
                         ),
                     ],
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_modify_field),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_modify_field),
             ))
         routegroup.append(
             MewloRoute(
@@ -231,7 +231,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                         help = "verification code",
                         ),
                     ],
-                controller = MewloController(root=pkgdirimp_controllers, function=self.request_login_bycode),
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_login_bycode),
             ))
 
 
@@ -355,84 +355,4 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # controller functions
-
-    def request_login(self, request, respnse):
-        """Controller function."""
-        return self.accountmanager.handlepage_login(request)
-
-    def request_logout(self, request, response):
-        """Controller function."""
-        return self.accountmanager.handlepage_logout(request)
-
-    def request_register(self, request, response):
-        """Controller function."""
-        #return self.sitecomp_accountmanager().handlepage_register_immediate(request)
-        return self.accountmanager.handlepage_register_deferred(request)
-
-    def request_deferred_verify(self, request, response):
-        """Controller function."""
-        return self.accountmanager.handlepage_verify_registration_deferred(request)
-
-    def request_profile(self, request, response):
-        """Controller function."""
-        return self.accountmanager.handlepage_profile(request)
-
-    def request_userfield_verify(self, request, response):
-        """Controller function."""
-        return self.accountmanager.handlepage_verify_userfield(request)
-
-    def request_resend_register_verification(self, request, response):
-        """Controller function."""
-        return self.accountmanager.handlepage_resend_register_verification(request)
-
-    def request_send_reset_password(self, request, response):
-        """Controller function."""
-        return self.accountmanager.handlepage_send_reset_password(request)
-
-    def request_reset_password(self, request, response):
-        """Controller function."""
-        return self.accountmanager.handlepage_reset_password(request)
-
-    def request_modify_field(self, request, response):
-        """Controller function."""
-        return self.accountmanager.handlepage_modify_field(request)
-
-    def request_login_bycode(self, request, response):
-        """Controller function."""
-        return self.accountmanager.handlepage_login_bycode(request)
 
