@@ -20,3 +20,6 @@ Design features that would support these:
     * Use of centralized class repository as indirect factory/manager for ALL important class use -- this could be a bit of a pain, and a way for extensions/plugins/addons/site-developers to drop in interface-compatible derived replacement classes and register them non-invasively (or via configuration file).
     * Use of a centralized repository managing all retrieval of static resources / templates, where any addin can overide any resource with a local resource.
     * The previous two items suggest that all classes, resources, etc. should be referred to by ALIAS name rather than by assumed location or class name.
+
+
+

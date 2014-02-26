@@ -22,7 +22,8 @@ from mewlo.mpacks.core.eventlog.mlogtarget_python import MewloLogTarget_Python
 from mewlo.mpacks.core.eventlog.mevent import EWarning
 
 # account addon
-from mewlo.mpacks.site_addons.account import msiteaddon_account, accountmanager
+from mewlo.mpacks.site_addons.account import msiteaddon_account
+#from mewlo.mpacks.site_addons.account import accountmanager
 
 
 # python imports
@@ -298,6 +299,7 @@ class MewloSite_Test1(MewloSite):
 
 
 
+
     def add_navnodes(self):
         """Create navigational structure for site pages."""
 
@@ -338,10 +340,16 @@ class MewloSite_Test1(MewloSite):
     def add_addons(self):
         """Add any site addons."""
         # register accountmanager component
-        self.createappendcomp('accountmanager', accountmanager.AccountManager)
+        # ATTN: trying to move this to MewloSiteAddon_Account constructor
+        #self.createappendcomp('accountmanager', accountmanager.AccountManager)
         # Add login site addon
-        siteaddon = msiteaddon_account.MewloSiteAddon_Account()
-        self.comp('siteaddonmanager').append(siteaddon)
+        #siteaddon = msiteaddon_account.MewloSiteAddon_Account(self, self.debugmode)
+        # add to special addonmanager or as normal site component?
+        if (False):
+            self.comp('siteaddonmanager').append(siteaddon)
+        else:
+            #self.appendcomp('accountaddon',siteaddon)
+            self.createappendcomp('accountaddon', msiteaddon_account.MewloSiteAddon_Account)
 
 
 

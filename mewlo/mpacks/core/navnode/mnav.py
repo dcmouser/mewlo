@@ -95,15 +95,20 @@ class NavNodeManager(manager.MewloManager):
 
     def startup(self, eventlist):
         """Called at start of application."""
-
         super(NavNodeManager,self).startup(eventlist)
         # initial nodes
         self.sitenode = NavNode('site')
         self.orphannode = NavNode('__orphans__')
         startnodes = [self.sitenode, self.orphannode]
         self.add_nodes(startnodes)
+
+
+    def poststartup(self, eventlist):
+        """Called after all managers finish with startup()."""
+        super(NavNodeManager,self).poststartup(eventlist)
         #
         self.buildstructure()
+
 
 
     def shutdown(self):
@@ -739,7 +744,7 @@ class NavNode(object):
         """Return value for menu/navbar creation."""
         val = self.get_propertyl(visiblefieldlist, True, True, responsecontext)
         return val
-    
+
     def get_flag_linkurl(self, responsecontext):
         val = self.get_propertyl(['flag_linkurl'], True, True, responsecontext)
         return val
@@ -747,7 +752,7 @@ class NavNode(object):
 
     def isactive(self,responsecontext):
         return self.get_property('flag_active', False, True, responsecontext)
-    
+
 
 
     def set_response_property(self, propertyname, value, responsecontext):

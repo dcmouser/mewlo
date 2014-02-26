@@ -47,7 +47,7 @@ class MewloSettingsDb(MewloSettings):
         self.sync_timestamp_all = None
 
 
-    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+    def prestartup_register(self, eventlist):
         """
         Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup.
         In this case we create a new db model class dynamically, right now, based on parameters passed to us at time of initialization.
@@ -55,11 +55,11 @@ class MewloSettingsDb(MewloSettings):
         ATTN: As neat as this is, I think it would be better to not do this, and to require a separate thin derived class for each settings table.
         """
         # call parent
-        super(MewloSettingsDb,self).prestartup_register_dbclasses(mewlosite, eventlist)
+        super(MewloSettingsDb,self).prestartup_register(eventlist)
         # build and set self.dbmodelclass
         self.buildset_dbmodelclass()
         # register model class
-        mewlosite.comp('dbmanager').register_modelclass(self, self.dbmodelclass)
+        self.mewlosite.comp('dbmanager').register_modelclass(self, self.dbmodelclass)
 
 
     def buildset_dbmodelclass(self):

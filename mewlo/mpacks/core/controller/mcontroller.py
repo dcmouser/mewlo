@@ -45,7 +45,7 @@ class MewloController(object):
         return self.isenabled
 
 
-    def startup(self, parent, eventlist):
+    def build_structure(self, parent, eventlist):
         """Do initial preparatory stuff on system startup."""
         # ATTN: todo - use eventlist to catch errors
 
@@ -60,9 +60,6 @@ class MewloController(object):
         self.isenabled = (self.callable != None)
 
 
-    def shutdown(self):
-        """Shutdown of controller."""
-        pass
 
 
 

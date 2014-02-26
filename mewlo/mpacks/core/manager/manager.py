@@ -20,7 +20,7 @@ class MewloManager(object):
         self.mewlosite = mewlosite
 
 
-    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+    def prestartup_register(self, eventlist):
         """
         This is called for all managers, before any managers get startup() called.
         By the time this gets called you can be sure that ALL managers/components have been added to the site.

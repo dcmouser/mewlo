@@ -49,18 +49,17 @@ class MDictList(object):
             key = tupe[0]
             obj = tupe[1]
             outstr += " "*indent + "{0}:\n".format(key)
-            indent += 1
             # if it's a class, look for classdumps(), otherwise dumps()
             if (inspect.isclass(obj)):
                 if (hasattr(obj,'classdumps')):
                     outstr += obj.classdumps(indent+1)
                 else:
-                    outstr += " "*indent + str(obj)
+                    outstr += " "*(indent+1) + str(obj)
             else:
                 if (hasattr(obj,'dumps')):
                     outstr += obj.dumps(indent+1)
                 else:
-                    outstr += " "*indent + str(obj)
+                    outstr += " "*(indent+1) + str(obj)
         return outstr
 
 

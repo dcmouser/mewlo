@@ -167,9 +167,9 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+    def prestartup_register(self, eventlist):
         """Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup."""
-        super(MewloDatabaseManagerSqlA,self).prestartup_register_dbclasses(mewlosite, eventlist)
+        super(MewloDatabaseManagerSqlA,self).prestartup_register(eventlist)
         # this needs to be done at this state so it's ready for database table creation, etc.
         self.setup_sqlahelpers(eventlist)
 
@@ -403,7 +403,7 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
     def modelclass_delete_all_bywhereclause(self, modelclass, whereclause):
         """Delete all using using a where clause."""
-        whereclause = self.convertwhereclause(whereclause)        
+        whereclause = self.convertwhereclause(whereclause)
         session = modelclass.dbsession()
         query = session.query(modelclass).filter(whereclause)
         result = query.delete(synchronize_session=False)
@@ -412,7 +412,7 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
     def modelclass_update_all_dict_bywhereclause(self, modelclass, updatedict, whereclause):
         """Update all with dictionary using a where clause."""
-        whereclause = self.convertwhereclause(whereclause)        
+        whereclause = self.convertwhereclause(whereclause)
         session = modelclass.dbsession()
         query = session.query(modelclass).filter(whereclause)
         result = query.update(updatedict, synchronize_session=False)

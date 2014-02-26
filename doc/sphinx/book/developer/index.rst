@@ -8,6 +8,7 @@ From here you can learn about extending the Mewlo system.
 
    building_docs
    code_organization
+   components
    coding_style
    coding_todo
    controller_style

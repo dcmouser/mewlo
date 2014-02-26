@@ -183,7 +183,7 @@ class MewloRoute(object):
         return self.parent
 
 
-    def startup(self, parent, mewlosite, eventlist):
+    def build_structure(self, parent, mewlosite, eventlist):
         """Startup any info/caching; this is called before system startup by our parent site."""
 
         self.parent = parent
@@ -193,17 +193,13 @@ class MewloRoute(object):
             self.controllerroot = parent.get_controllerroot()
         # startup controller
         if (self.controller != None):
-            self.controller.startup(self, eventlist)
+            self.controller.build_structure(self, eventlist)
         # modify path based on pathprefix
         pathprefix = self.get_routegroup().get_pathprefix()
         if (pathprefix!=None):
             self.path = pathprefix + self.path
 
 
-    def shutdown(self):
-        """Any shutdown procedures to perform?"""
-        if (self.controller != None):
-            self.controller.shutdown()
 
 
     def dumps(self, indent=0):
@@ -458,7 +454,7 @@ class MewloRoute(object):
         if (flag_relative):
             url = self.mewlosite.relative_url(self.path)
         else:
-            url = self.mewlosite.absolute_url(self.path)        
+            url = self.mewlosite.absolute_url(self.path)
         # now add args
         for key,val in args.iteritems():
             url += '/{0}/{1}'.format(key,val)
@@ -490,7 +486,7 @@ class MewloRouteGroup(object):
             self.append(routes)
 
 
-    def startup(self, parent, mewlosite, eventlist):
+    def build_structure(self, parent, mewlosite, eventlist):
         """Initial preparation, invoked by parent."""
 
         self.parent = parent
@@ -499,14 +495,9 @@ class MewloRouteGroup(object):
             self.controllerroot = parent.get_controllerroot()
         # recursive startup
         for route in self.routes:
-            route.startup(self, mewlosite, eventlist)
+            route.build_structure(self, mewlosite, eventlist)
 
 
-
-    def shutdown(self):
-        """Shutdown, invoked by parent."""
-        for route in self.routes:
-            route.shutdown()
 
 
     def dumps(self, indent=0):
@@ -605,13 +596,21 @@ class MewloRouteManager(manager.MewloManager):
 
     def startup(self, eventlist):
         super(MewloRouteManager,self).startup(eventlist)
-        self.routegroup.startup(self.mewlosite, self.mewlosite, eventlist)
+
+
+
+
+    def poststartup(self, eventlist):
+        """Called after all managers finish with startup()."""
+        super(MewloRouteManager,self).poststartup(eventlist)
+        #
+        self.routegroup.build_structure(self.mewlosite, self.mewlosite, eventlist)
         self.routegroup.build_routehash()
+
 
 
     def shutdown(self):
         super(MewloRouteManager,self).shutdown()
-        self.routegroup.shutdown()
 
 
 

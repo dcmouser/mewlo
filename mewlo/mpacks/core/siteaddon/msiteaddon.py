@@ -14,34 +14,51 @@ from ..manager import manager
 
 
 
-class MewloSiteAddon(object):
+class MewloSiteAddon(manager.MewloManager):
     """
     The MewloSiteAddon class adds routes, controllers, and views
     """
 
 
-
-    def __init__(self):
-        # Nothing that could fail should be done in this __init__ -- save that for later functions
-        pass
-
-
-    def startup(self, mewlosite):
+    def __init__(self, mewlosite, debugmode):
         """
-        Do preparatory stuff.
+        Initialization/construction of a manager
+        When this happens you should never do much -- because you may have no idea what other managers/components have been created yet.
         """
-        self.mewlosite = mewlosite
+        super(MewloSiteAddon, self).__init__(mewlosite, debugmode)
+
+
+    def prestartup_register(self, eventlist):
+        """
+        This is called for all managers, before any managers get startup() called.
+        By the time this gets called you can be sure that ALL managers/components have been added to the site.
+        The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
+        The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
+        """
+        super(MewloSiteAddon, self).prestartup_register(eventlist)
+
+
+    def startup(self, eventlist):
+        """Startup everything."""
+        super(MewloSiteAddon, self).startup(eventlist)
+        #
+        self.mewlosite.logevent("Startup of siteaddon ({0}).".format(self.__class__.__name__))
         #
         self.add_aliases()
         self.add_routes()
         self.add_navnodes()
 
 
+    def poststartup(self, eventlist):
+        """Called after all managers finish with startup()."""
+        super(MewloSiteAddon, self).poststartup(eventlist)
+
+
+
     def shutdown(self):
-        """Shutdown everything."""
+        """Shutdown everything, we are about to exit."""
+        self.mewlosite.logevent("Shutdown of MewloSiteAddon ({0}).".format(self.__class__.__name__))
         pass
-
-
 
 
     def dumps(self, indent=0):
@@ -51,11 +68,9 @@ class MewloSiteAddon(object):
 
 
 
-
     def add_aliases(self):
         """create aliases."""
         pass
-
 
     def add_routes(self):
         """Add routes used by the site addon."""
@@ -90,42 +105,34 @@ class MewloSiteAddon(object):
 
 
 
-class MewloSiteAddonManager(manager.MewloManager):
-    """
-    The MewloSiteAddonManager class manages a set of site addons
-    """
-
-    def __init__(self, mewlosite, debugmode):
-        super(MewloSiteAddonManager,self).__init__(mewlosite, debugmode)
-        self.siteaddons = []
-
-    def startup(self, eventlist):
-        super(MewloSiteAddonManager,self).startup(eventlist)
-        for siteaddon in self.siteaddons:
-            siteaddon.startup(self.mewlosite)
-
-
-    def shutdown(self):
-        super(MewloSiteAddonManager,self).shutdown()
-
-
-
-
-    def append(self, siteaddon):
-        """Append a new siteaddon (or list of routes) (or hierarchical routegroups) to our routes list."""
-        self.siteaddons.append(siteaddon)
-
-
-
-
-
-    def dumps(self, indent=0):
-        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloSiteAddonManager reporting in with {0} site addons registered:\n".format(len(self.siteaddons))
-        #outstr += " "*indent + " Routegroup: ers: " + str(self.controllerroot) + "\n"
-        for siteaddon in self.siteaddons:
-            outstr += siteaddon.dumps(indent+1)
-        return outstr
+#class MewloSiteAddonManager(manager.MewloManager):
+#    """
+#    The MewloSiteAddonManager class manages a set of site addons
+#    """
+#
+#    def __init__(self, mewlosite, debugmode):
+#        super(MewloSiteAddonManager,self).__init__(mewlosite, debugmode)
+#        self.siteaddons = []
+#
+#    def startup(self, eventlist):
+#        super(MewloSiteAddonManager,self).startup(eventlist)
+#        for siteaddon in self.siteaddons:
+#            siteaddon.startup(self.mewlosite)
+#
+#    def shutdown(self):
+#        super(MewloSiteAddonManager,self).shutdown()
+#
+#    def append(self, siteaddon):
+#        """Append a new siteaddon (or list of routes) (or hierarchical routegroups) to our routes list."""
+#        self.siteaddons.append(siteaddon)
+#
+#    def dumps(self, indent=0):
+#        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
+#        outstr = " "*indent + "MewloSiteAddonManager reporting in with {0} site addons registered:\n".format(len(self.siteaddons))
+#        #outstr += " "*indent + " Routegroup: ers: " + str(self.controllerroot) + "\n"
+#        for siteaddon in self.siteaddons:
+#            outstr += siteaddon.dumps(indent+1)
+#        return outstr
 
 
 

@@ -14,6 +14,9 @@ from mewlo.mpacks.core.setting.msettings import MewloSettings
 # python imports
 import os, sys
 
+# our imports
+import maccountmanager
+
 # this is just a way to get the relative directory easily, and we use this in config settings
 import controllers as pkgdirimp_controllers
 
@@ -30,19 +33,31 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
 
 
-    def __init__(self):
+    def __init__(self, mewlosite, debugmode):
         # call parent constructor
-        super(MewloSiteAddon_Account, self).__init__()
+        super(MewloSiteAddon_Account, self).__init__(mewlosite, debugmode)
         # path prefix (used below in route setup)
         self.pathprefix = '/account'
+        # create the helper manager
+        self.accountmanager = self.mewlosite.createappendcomp('accountmanager', maccountmanager.AccountManager)
 
 
-    def startup(self, mewlosite):
+    def prestartup_register(self, eventlist):
+        """
+        This is called for all managers, before any managers get startup() called.
+        By the time this gets called you can be sure that ALL managers/components have been added to the site.
+        The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
+        The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
+        """
+        super(MewloSiteAddon_Account, self).prestartup_register(eventlist)
+
+
+    def startup(self, eventlist):
         """
         Do preparatory stuff.
         """
-        # call parent (this will call the add_* functions below).
-        super(MewloSiteAddon_Account, self).startup(mewlosite)
+        super(MewloSiteAddon_Account, self).startup(eventlist)
+
 
     def shutdown(self):
         """Shutdown everything."""
@@ -374,63 +389,50 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
 
 
-
-
-        # controller functions
-
-
-
-
-
-
-    def sitecomp_accountmanager(self):
-        return self.mewlosite.comp('accountmanager')
-
-
-
+    # controller functions
 
     def request_login(self, request, respnse):
         """Controller function."""
-        return self.sitecomp_accountmanager().handlepage_login(request)
+        return self.accountmanager.handlepage_login(request)
 
     def request_logout(self, request, response):
         """Controller function."""
-        return self.sitecomp_accountmanager().handlepage_logout(request)
+        return self.accountmanager.handlepage_logout(request)
 
     def request_register(self, request, response):
         """Controller function."""
         #return self.sitecomp_accountmanager().handlepage_register_immediate(request)
-        return self.sitecomp_accountmanager().handlepage_register_deferred(request)
+        return self.accountmanager.handlepage_register_deferred(request)
 
     def request_deferred_verify(self, request, response):
         """Controller function."""
-        return self.sitecomp_accountmanager().handlepage_verify_registration_deferred(request)
+        return self.accountmanager.handlepage_verify_registration_deferred(request)
 
     def request_profile(self, request, response):
         """Controller function."""
-        return self.sitecomp_accountmanager().handlepage_profile(request)
+        return self.accountmanager.handlepage_profile(request)
 
     def request_userfield_verify(self, request, response):
         """Controller function."""
-        return self.sitecomp_accountmanager().handlepage_verify_userfield(request)
+        return self.accountmanager.handlepage_verify_userfield(request)
 
     def request_resend_register_verification(self, request, response):
         """Controller function."""
-        return self.sitecomp_accountmanager().handlepage_resend_register_verification(request)
+        return self.accountmanager.handlepage_resend_register_verification(request)
 
     def request_send_reset_password(self, request, response):
         """Controller function."""
-        return self.sitecomp_accountmanager().handlepage_send_reset_password(request)
+        return self.accountmanager.handlepage_send_reset_password(request)
 
     def request_reset_password(self, request, response):
         """Controller function."""
-        return self.sitecomp_accountmanager().handlepage_reset_password(request)
+        return self.accountmanager.handlepage_reset_password(request)
 
     def request_modify_field(self, request, response):
         """Controller function."""
-        return self.sitecomp_accountmanager().handlepage_modify_field(request)
+        return self.accountmanager.handlepage_modify_field(request)
 
     def request_login_bycode(self, request, response):
         """Controller function."""
-        return self.sitecomp_accountmanager().handlepage_login_bycode(request)
+        return self.accountmanager.handlepage_login_bycode(request)
 

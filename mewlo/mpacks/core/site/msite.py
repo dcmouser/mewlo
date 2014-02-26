@@ -140,7 +140,7 @@ class MewloSite(object):
         self.createappendcomp('packmanager', mpackmanager.MewloPackManager)
 
         # site addon manager
-        self.createappendcomp('siteaddonmanager', msiteaddon.MewloSiteAddonManager)
+        #self.createappendcomp('siteaddonmanager', msiteaddon.MewloSiteAddonManager)
 
         # route manager
         self.createappendcomp('routemanager', mroute.MewloRouteManager)
@@ -212,7 +212,7 @@ class MewloSite(object):
         # walk the component list and ask each to register any db classes
         for key,obj in self.components.get_tuplelist():
             # pre startup - register database classes
-            obj.prestartup_register_dbclasses(self, eventlist)
+            obj.prestartup_register(eventlist)
 
         # now that all database models have been registered with the system, finalize creation of models -- create all db tables, etc
         self.comp('dbmanager').create_tableandmapper_forallmodelclasses()

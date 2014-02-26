@@ -31,10 +31,10 @@ class MewloLogTarget_Database(MewloLogTarget):
         self.dbmanager = None
 
 
-    def prestartup_register_dbclasses(self, mewlosite, eventlist):
+    def prestartup_register(self, mewlosite, eventlist):
         """Create db models."""
         # call parent
-        super(MewloLogTarget_Database,self).prestartup_register_dbclasses(mewlosite, eventlist)
+        super(MewloLogTarget_Database,self).prestartup_register(mewlosite, eventlist)
         # create the logging class we will use for this table
         customclassname = self.baseclass.__name__ + '_' + self.tablename
         self.dbmanager = mewlosite.comp('dbmanager')
