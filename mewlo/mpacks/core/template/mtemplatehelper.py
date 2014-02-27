@@ -186,7 +186,9 @@ class MewloTemplateHelper(manager.MewloManager):
         reth = ''
         #
         sessionmessages = request.get_sessionmessages(flag_consume=True)
-        reth += "<B>SESSION MESSAGES: {0}.</B>".format(str(sessionmessages))
+        if (sessionmessages):
+            reth += "<B>SESSION MESSAGES: {0}.</B>".format(str(sessionmessages))
+        #
         return reth
 
 

@@ -46,8 +46,11 @@ class MewloSessionManager(modelmanager.MewloModelManager):
         return self.sessionid_cookiename
 
 
-    def get_session(self, request, flag_makesessionifnone):
-        """Get or create a session data for a request."""
+    def get_session_for_request_storage(self, request, flag_makesessionifnone):
+        """Get or create a session data for a request.
+        IMPORTANT: Only the Request object should ever call this because it needs to be stored in request if we are to associate it with client and save it, etc.
+        """
+
         sessionidinput = request.get_cookieval(self.sessionid_cookiename)
         # now lookup or make new session object (note that sessionid will be None if user does not have cookie set)
         sessionobject = self.lookup_or_make_sessionobject(request, sessionidinput, flag_makesessionifnone)

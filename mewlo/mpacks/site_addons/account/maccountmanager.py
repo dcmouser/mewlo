@@ -244,6 +244,7 @@ class AccountManager(manager.MewloManager):
         if (flag_clearsession):
             request.clearusersession()
         # and now a message to show the user on the next page they load
+        # ATTN: This actually will actually cause a new session object to be created at this time if we just cleared the user session with flag_clearusersession -- which is a bit silly to combine them
         request.add_session_message('success',"You are now logged out.")
         # success
         return None
