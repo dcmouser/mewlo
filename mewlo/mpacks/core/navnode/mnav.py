@@ -70,7 +70,7 @@ Note that this cache starts off blank on each request.
 # mewlo imports
 from ..helpers import misc
 from ..manager import manager
-from ..const.mconst import MewloConst as siteconst
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 
@@ -763,14 +763,14 @@ class NavNode(object):
     def set_response_property(self, propertyname, value, responsecontext):
         """Set a 'cached' value in response context for this node."""
         keyname = self.id + '_' + propertyname
-        responsecontext[siteconst.DEF_NAV_cache_keyname][keyname] = value
+        responsecontext[mconst.DEF_NAV_cache_keyname][keyname] = value
 
     def get_response_property(self, propertyname, responsecontext, defaultval):
         """Get a 'cached' value in response context for this node."""
         if (responsecontext == None):
             return defaultval
         keyname = self.id + '_' + propertyname
-        return responsecontext.get_subvalue(siteconst.DEF_NAV_cache_keyname,keyname, defaultval)
+        return responsecontext.get_subvalue(mconst.DEF_NAV_cache_keyname,keyname, defaultval)
 
 
 

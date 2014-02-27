@@ -249,7 +249,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
         # verification properties
         # ATTN:TODO - move some of this stuff to options and constants
-        verification_type = siteconst.DEF_VFTYPE_userfield_verification
+        verification_type = mconst.DEF_VFTYPE_userfield_verification
         # set verification_varname for quick lookup
         verification_varname = fieldname
         verification_varval = fieldval

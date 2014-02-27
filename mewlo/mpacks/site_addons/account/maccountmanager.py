@@ -9,7 +9,7 @@ from mewlo.mpacks.core.manager import manager
 from mewlo.mpacks.core.form.mform import MewloForm
 from mewlo.mpacks.core.user import muser, musermanager
 from mewlo.mpacks.core.eventlog.mevent import EFailure, EException
-from mewlo.mpacks.core.const.mconst import MewloConst as siteconst
+from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
 
 # python imports
 
@@ -442,7 +442,7 @@ class AccountManager(manager.MewloManager):
 
         # verification properties
         # ATTN:TODO - move some of this stuff to options and constants
-        verification_type = siteconst.DEF_VFTYPE_pre_user_verification
+        verification_type = mconst.DEF_VFTYPE_pre_user_verification
         # set verification_varname for quick lookup
         verification_varname = 'email'
         verification_varval = userdict['email']
@@ -651,7 +651,7 @@ class AccountManager(manager.MewloManager):
         verification = verificationmanager.find_bylongcode(verification_code)
 
         # then check it
-        verification_type_expected = siteconst.DEF_VFTYPE_pre_user_verification
+        verification_type_expected = mconst.DEF_VFTYPE_pre_user_verification
         is_shortcode_expected = False
         verification_varname = None
         failure = verificationmanager.basic_validation(verification, verification_code, request, verification_type_expected, is_shortcode_expected, verification_varname)
@@ -914,7 +914,7 @@ class AccountManager(manager.MewloManager):
         verification = verificationmanager.find_bylongcode(verification_code)
 
         # then check it
-        verification_type_expected = siteconst.DEF_VFTYPE_userfield_verification
+        verification_type_expected = mconst.DEF_VFTYPE_userfield_verification
         is_shortcode_expected = False
         failure = verificationmanager.basic_validation(verification, verification_code, request, verification_type_expected, is_shortcode_expected, verification_varname)
         # return success or failure
@@ -1076,7 +1076,7 @@ class AccountManager(manager.MewloManager):
 
         # find pending registration verification based on request session
         verificationmanager = self.sitecomp_verificationmanager()
-        verification_type = siteconst.DEF_VFTYPE_userfield_verification
+        verification_type = mconst.DEF_VFTYPE_userfield_verification
         verification = verificationmanager.find_valid_by_type_and_request(verification_type, request, fieldname)
         if (verification != None):
             # ok we got the verification, now get the user it corresponds to
@@ -1099,7 +1099,7 @@ class AccountManager(manager.MewloManager):
         if (user != None):
             # now find pending registration verification based on request session
             verificationmanager = self.sitecomp_verificationmanager()
-            verification_type = siteconst.DEF_VFTYPE_userfield_verification
+            verification_type = mconst.DEF_VFTYPE_userfield_verification
             verification = verificationmanager.find_valid_by_type_and_userid(verification_type, user.id, fieldname)
             if (verification != None):
                 return (user, verification)
@@ -1228,7 +1228,7 @@ class AccountManager(manager.MewloManager):
         """Send the user a password reset verification code."""
 
         # create the verification
-        verification_type = siteconst.DEF_VFTYPE_user_passwordreset
+        verification_type = mconst.DEF_VFTYPE_user_passwordreset
         fieldname = 'password'
         fieldval = ''
         extradict = {}
@@ -1325,7 +1325,7 @@ class AccountManager(manager.MewloManager):
         verification = verificationmanager.find_bylongcode(verification_code)
 
         # then check it
-        verification_type_expected = siteconst.DEF_VFTYPE_user_passwordreset
+        verification_type_expected = mconst.DEF_VFTYPE_user_passwordreset
         is_shortcode_expected = False
         verification_varname = 'password'
         failure = verificationmanager.basic_validation(verification, verification_code, request, verification_type_expected, is_shortcode_expected, verification_varname)

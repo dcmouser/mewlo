@@ -10,7 +10,7 @@ This is our database helper module
 import mdbmanager
 from ..eventlog.mevent import EFailure
 from ..helpers.misc import get_value_from_dict
-from ..const.mconst import MewloConst as siteconst
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 import logging
@@ -258,7 +258,7 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
     def setup_logcatchers(self):
         """Catch sqlalchemy log statements and route to Mewlo."""
         # ATTN:TODO - find a way to not have to call a MEWLO thing here, since we are in helper directory and supposed to be independent of mewlo here
-        self.sqlalchemylogger = self.mewlosite.comp('logmanager').hook_pythonlogger(siteconst.DEF_LOG_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
+        self.sqlalchemylogger = self.mewlosite.comp('logmanager').hook_pythonlogger(mconst.DEF_LOG_SqlAlchemyLoggerName, self.sqlalchemy_loglevel)
 
 
 

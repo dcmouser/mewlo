@@ -32,10 +32,10 @@ from ..rbac import mrbac
 from ..siteaddon import msiteaddon
 from ..mail import mmailmanager
 from ..helpers import cfgmodule
-from ..const import mconst
+from ..constants import mconstants
 
 # mewlo imports
-from ..const.mconst import MewloConst as siteconst
+from ..constants.mconstants import MewloConstants as mconst
 
 
 # python imports
@@ -66,9 +66,6 @@ class MewloSite(object):
         # save debugmode and commandline args
         self.debugmode = debugmode
         self.commandlineargs = commandlineargs
-
-        # constant helper
-        self.const = mconst.MewloConst
 
         # set global variable (not currently used)
         mglobals.set_mewlosite(self)
@@ -122,7 +119,7 @@ class MewloSite(object):
         self.createappendcomp('logmanager', mlogger.MewloLogManager)
 
         # now update site state (log manager should catch this)
-        self.set_statelabel(siteconst.DEF_SITESTATE_INITIALIZE_START)
+        self.set_statelabel(mconst.DEF_SITESTATE_INITIALIZE_START)
 
         # create (non-db-persistent) site settings -- these are set by configuration at runtime
         self.settings = self.createappendcomp('settings', MewloSettings)
@@ -184,7 +181,7 @@ class MewloSite(object):
         """
 
         # update state
-        self.set_statelabel(siteconst.DEF_SITESTATE_STARTUP_START)
+        self.set_statelabel(mconst.DEF_SITESTATE_STARTUP_START)
 
         # we log errors/warnings to an eventlist and return it; either one we are passed or we create a new one if needed
         if (eventlist == None):
@@ -202,7 +199,7 @@ class MewloSite(object):
         self.logevents(eventlist)
 
         # update state
-        self.set_statelabel(siteconst.DEF_SITESTATE_STARTUP_END)
+        self.set_statelabel(mconst.DEF_SITESTATE_STARTUP_END)
 
         # commit any pending db stuff (normally we commit after each request)
         self.comp('dbmanager').commit_all_dbs()
@@ -241,13 +238,13 @@ class MewloSite(object):
         """Shutdown everything."""
 
         # update state
-        self.set_statelabel(siteconst.DEF_SITESTATE_SHUTDOWN_START)
+        self.set_statelabel(mconst.DEF_SITESTATE_SHUTDOWN_START)
 
         # now shut down all site components
         self.shutdown_allcomponents()
 
         # update state (note this won't be logged since we will have shutdown log/db by now)
-        self.set_statelabel(siteconst.DEF_SITESTATE_SHUTDOWN_END)
+        self.set_statelabel(mconst.DEF_SITESTATE_SHUTDOWN_END)
 
         # done
         return eventlist
@@ -334,17 +331,17 @@ class MewloSite(object):
         """
 
         # cache some stuff?
-        self.controllerroot = self.settings.get_subvalue(siteconst.DEF_SETTINGSEC_config, siteconst.DEF_SETTINGNAME_controllerroot)
+        self.controllerroot = self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_controllerroot)
         # pack manager settings
         self.comp('packmanager').set_directories( self.get_root_pack_directory_list() + self.get_site_pack_directory_list() )
-        self.comp('packmanager').set_packsettings( self.settings.get_value(siteconst.DEF_SETTINGSEC_packs) )
-        self.comp('packmanager').set_default_packsettings(siteconst.DEF_SETTINGVAL_default_pack_settings)
-        self.comp('packmanager').set_flag_loadsetuptoolspacks(self.settings.get_subvalue(siteconst.DEF_SETTINGSEC_config, siteconst.DEF_SETTINGNAME_flag_importsetuptoolspacks, siteconst.DEF_SETTINGVAL_flag_importsetuptoolspacks))
+        self.comp('packmanager').set_packsettings( self.settings.get_value(mconst.DEF_SETTINGSEC_packs) )
+        self.comp('packmanager').set_default_packsettings(mconst.DEF_SETTINGVAL_default_pack_settings)
+        self.comp('packmanager').set_flag_loadsetuptoolspacks(self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_flag_importsetuptoolspacks, mconst.DEF_SETTINGVAL_flag_importsetuptoolspacks))
         # database manager settings
-        self.comp('dbmanager').set_databasesettings( self.settings.get_value(siteconst.DEF_SETTINGSEC_database) )
+        self.comp('dbmanager').set_databasesettings( self.settings.get_value(mconst.DEF_SETTINGSEC_database) )
         # isenabled flag
-        self.isenabled = self.settings.get_subvalue(siteconst.DEF_SETTINGSEC_config, siteconst.DEF_SETTINGNAME_isenabled, self.isenabled)
-        self.siteurl_relative = self.settings.get_subvalue(siteconst.DEF_SETTINGSEC_config, siteconst.DEF_SETTINGNAME_siteurl_relative, self.siteurl_relative)
+        self.isenabled = self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_isenabled, self.isenabled)
+        self.siteurl_relative = self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_siteurl_relative, self.siteurl_relative)
 
 
 
@@ -357,12 +354,12 @@ class MewloSite(object):
         if (eventlist == None):
             eventlist = EventList()
         #
-        self.validate_setting_config(eventlist, siteconst.DEF_SETTINGNAME_pkgdirimps_sitempacks, False, "no directory will be scanned for site-specific extensions.")
-        self.validate_setting_config(eventlist, siteconst.DEF_SETTINGNAME_controllerroot, False, "no site-default specified for controller root.")
+        self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_pkgdirimps_sitempacks, False, "no directory will be scanned for site-specific extensions.")
+        self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_controllerroot, False, "no site-default specified for controller root.")
         # required stuff
-        self.validate_setting_config(eventlist, siteconst.DEF_SETTINGNAME_siteurl_relative, True, "site has no relative url specified; assumed to start at root (/).")
-        self.validate_setting_config(eventlist, siteconst.DEF_SETTINGNAME_siteurl_absolute, True, "site has no absolute url address.")
-        self.validate_setting_config(eventlist, siteconst.DEF_SETTINGNAME_sitefilepath, True, "site has no filepath specified for it's home directory.")
+        self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_siteurl_relative, True, "site has no relative url specified; assumed to start at root (/).")
+        self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_siteurl_absolute, True, "site has no absolute url address.")
+        self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_sitefilepath, True, "site has no filepath specified for it's home directory.")
 
         # return events encountered
         return eventlist
@@ -370,7 +367,7 @@ class MewloSite(object):
 
     def validate_setting_config(self, eventlist, varname, iserror, messagestr):
         """Helper function for the validate() method."""
-        if (not self.settings.value_exists(siteconst.DEF_SETTINGSEC_config, varname)):
+        if (not self.settings.value_exists(mconst.DEF_SETTINGSEC_config, varname)):
             estr = "In site '{0}', site config variable '{1}' not specified; {2}".format(self.get_sitename(),varname,messagestr)
             if (iserror):
                 eventlist.append(EError(estr))
@@ -525,14 +522,14 @@ class MewloSite(object):
     def get_root_pack_directory_list(self):
         """Return a list of directories in the base/install path of Mewlo, where addon packs should be scanned"""
         basedir = self.get_installdir()
-        packdirectories = [basedir + '/' + dir for dir in siteconst.DEF_PACK_subdirlist]
+        packdirectories = [basedir + '/' + dir for dir in mconst.DEF_PACK_subdirlist]
         return packdirectories
 
 
     def get_site_pack_directory_list(self):
         """Return a list of absolute directory paths where (addon) packs should be scanned"""
         packdirectories = []
-        sitepacks = self.settings.get_subvalue(siteconst.DEF_SETTINGSEC_config, siteconst.DEF_SETTINGNAME_pkgdirimps_sitempacks)
+        sitepacks = self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_pkgdirimps_sitempacks)
         if (sitepacks == None):
             pass
         else:
@@ -647,7 +644,7 @@ class MewloSite(object):
         self.add_fallback_loggers()
 
         # now update site state (log manager should catch this)
-        self.set_statelabel(siteconst.DEF_SITESTATE_INITIALIZE_END)
+        self.set_statelabel(mconst.DEF_SITESTATE_INITIALIZE_END)
 
 
 
@@ -673,12 +670,12 @@ class MewloSite(object):
     def add_latesettings_aliases(self):
         """Add some late aliases."""
         aliases = {
-            siteconst.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_subvalue(siteconst.DEF_SETTINGSEC_config, siteconst.DEF_SETTINGNAME_siteurl_absolute),
-            siteconst.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(siteconst.DEF_SETTINGSEC_config, siteconst.DEF_SETTINGNAME_siteurl_relative,''),
-            siteconst.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(siteconst.DEF_SETTINGSEC_config, siteconst.DEF_SETTINGNAME_sitefilepath),
-            siteconst.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(siteconst.DEF_SETTINGSEC_config, siteconst.DEF_SETTINGNAME_sitename),
+            mconst.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_siteurl_absolute),
+            mconst.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_siteurl_relative,''),
+            mconst.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_sitefilepath),
+            mconst.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_sitename),
             }
-        self.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_aliases, aliases)
+        self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_aliases, aliases)
         self.alias_settings_change()
 
 
@@ -708,7 +705,7 @@ class MewloSite(object):
         self.fallbacklogger = self.add_logger(MewloLogger('FallbackLogger'))
 
         # now add some targets (handlers) to it
-        fpath = self.settings.get_subvalue(siteconst.DEF_SETTINGSEC_config, siteconst.DEF_SETTINGNAME_default_logfilename)
+        fpath = self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_default_logfilename)
         self.fallbacklogger.add_target(MewloLogTarget_File(filename=self.resolve(fpath), filemode='w'))
 
 
@@ -730,19 +727,19 @@ class MewloSite(object):
     def add_default_settings_config(self):
         """Set default config settings."""
         config = {
-            siteconst.DEF_SETTINGNAME_default_logfilename: siteconst.DEF_SETTINGVAL_default_logfilename_defaultvalue,
+            mconst.DEF_SETTINGNAME_default_logfilename: mconst.DEF_SETTINGVAL_default_logfilename_defaultvalue,
             }
-        self.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_config, config)
+        self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_config, config)
 
 
     def add_default_settings_aliases(self):
         """Set default alias settings."""
         aliases = {
-            siteconst.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
-            siteconst.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
-            siteconst.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
+            mconst.DEF_SETTINGNAME_logfilepath: '${sitefilepath}/logging',
+            mconst.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
+            mconst.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
             }
-        self.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_aliases, aliases)
+        self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_aliases, aliases)
 
 
 
@@ -769,7 +766,7 @@ class MewloSite(object):
 
     def alias_settings_change(self):
         """Inform asset manager of new alias settings.  This *must* be called whenever alias settings may change."""
-        self.comp('assetmanager').set_alias_settings(self.settings.get_value(siteconst.DEF_SETTINGSEC_aliases))
+        self.comp('assetmanager').set_alias_settings(self.settings.get_value(mconst.DEF_SETTINGSEC_aliases))
 
 
     def add_logger(self, logger):

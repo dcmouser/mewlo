@@ -214,13 +214,6 @@ But if this is something purely up to the sure to use in their own configuration
 
 
 
-//---------------------------------------------------------------------------
-2/17/14
-Put all constants/defines in one core file, instead of spread out in class files.
-//---------------------------------------------------------------------------
-
-
-
 
 
 

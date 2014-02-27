@@ -495,7 +495,7 @@ class MewloSettingsDb_Dynamic(MewloSettingsDb):
         # database classes
         DEF_DBCLASSNAME_PackSettings = 'DbModel_Settings_Pack'
         DEF_DBTABLENAME_PackSettings = 'settings_pack'
-        self.createappendcomp('packsettings', mdbsettings.MewloSettingsDb_Dynamic, dbmodelclassname=siteconst.DEF_DBCLASSNAME_PackSettings, dbmodeltablename=siteconst.DEF_DBTABLENAME_PackSettings)
+        self.createappendcomp('packsettings', mdbsettings.MewloSettingsDb_Dynamic, dbmodelclassname=mconst.DEF_DBCLASSNAME_PackSettings, dbmodeltablename=mconst.DEF_DBTABLENAME_PackSettings)
         or
         self.createappendcomp('packsettings', mdbsettings.MewloSettingsDb_Dynamic, dbmodelclass=mdbsettings_pack.MewloDbModel_Settings_Pack)
     """

@@ -10,7 +10,7 @@ from __future__ import print_function
 from mlogger import MewloLogTarget
 import mlogformat_pretty
 # mewlo imports
-from ..const.mconst import MewloConst as siteconst
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 import sys
@@ -26,7 +26,7 @@ class MewloLogTarget_File(MewloLogTarget):
 
 
 
-    def __init__(self, filename=None, filemode = siteconst.DEF_LOG_TARGET_filemode_default, logformatter=None):
+    def __init__(self, filename=None, filemode = mconst.DEF_LOG_TARGET_filemode_default, logformatter=None):
         # default logformatter is pretty
         if (logformatter==None):
             logformatter = mlogformat_pretty.MewloLogFormatter_Pretty()

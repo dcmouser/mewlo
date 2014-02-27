@@ -5,7 +5,7 @@ This file contains base form class
 
 
 # mewlo imports
-from ..const.mconst import MewloConst as siteconst
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 
@@ -43,15 +43,15 @@ class MewloForm(Form):
 
     def add_genericerror(self, errorstr, separator = '\n'):
         """Add a generic error to form not tied to a field; this is our own kludge."""
-        if (siteconst.DEF_FORM_GenericErrorKey in self.errors):
-            self.errors[siteconst.DEF_FORM_GenericErrorKey] += separator + errorstr
+        if (mconst.DEF_FORM_GenericErrorKey in self.errors):
+            self.errors[mconst.DEF_FORM_GenericErrorKey] += separator + errorstr
         else:
-            self.errors[siteconst.DEF_FORM_GenericErrorKey] = errorstr
+            self.errors[mconst.DEF_FORM_GenericErrorKey] = errorstr
 
     def get_genericerrorstr(self, defaultval=None):
         """Return generic form error."""
-        if (siteconst.DEF_FORM_GenericErrorKey in self.errors):
-            return self.errors[siteconst.DEF_FORM_GenericErrorKey]
+        if (mconst.DEF_FORM_GenericErrorKey in self.errors):
+            return self.errors[mconst.DEF_FORM_GenericErrorKey]
         return defaultval
 
 
@@ -65,7 +65,7 @@ class MewloForm(Form):
             if (self.__contains__(key)):
                 self.__getitem__(key).errors.append(val)
             else:
-                if (key==siteconst.DEF_FORM_GenericErrorKey):
+                if (key==mconst.DEF_FORM_GenericErrorKey):
                     self.add_genericerror(val)
 
 

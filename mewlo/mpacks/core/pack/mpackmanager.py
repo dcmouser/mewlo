@@ -28,7 +28,7 @@ from ..helpers.misc import get_value_from_dict, append_text
 from mpack import MewloPack
 from ..manager import manager
 from ..setting.msettings import MewloSettings
-from ..const.mconst import MewloConst as siteconst
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 import imp
@@ -77,7 +77,7 @@ class MewloPackManager(manager.MewloManager):
         self.packs = []
         self.packhash = {}
         # set file pattern of mewlo pack files
-        self.set_filepatternsuffix(siteconst.DEF_PACK_filepatternsuffix)
+        self.set_filepatternsuffix(mconst.DEF_PACK_filepatternsuffix)
         # set setuptools entrypoint groupname
         self.set_setuptools_entrypoint_groupname('mewlo.packs')
 
@@ -147,7 +147,7 @@ class MewloPackManager(manager.MewloManager):
             # load the info file related to it
             pkg.load_infofile()
             # now add it to hash
-            apackid = pkg.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_uniqueid)
+            apackid = pkg.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_uniqueid)
             if (apackid in self.packhash):
                 # duplicate pack id
                 failure = EFailure("Two packs found with same .json uniqueid ('{0}' vs '{1}').".format(self.packhash[apackid].get_infofilepath(),pkg.get_infofilepath()))
@@ -314,7 +314,7 @@ class MewloPackManager(manager.MewloManager):
 
     def startup_pack_auto(self, mewlosite, pack, eventlist):
         """Before we instantiate a pack, we preprocess it using our settings, which may disable/enabe them."""
-        packid = pack.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_uniqueid)
+        packid = pack.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_uniqueid)
         # let's see if user WANTS this pack enabled or disabled based on settings
         (flag_enable, reason) = self.want_enable_pack(pack, eventlist)
         # if they want it enabled, lets see if it meets initial dependency check if not, its a failure
@@ -325,7 +325,7 @@ class MewloPackManager(manager.MewloManager):
                 flag_enable = False
                 pack.do_enabledisable(mewlosite, flag_enable, reason, eventlist)
                 return EFailure(failurereason)
-        elif (pack.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_isrequired)):
+        elif (pack.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_isrequired)):
             # required packd is disabled, that's an error
             failurereason = "required pack '{0}' is {1}; mewlo cannot run".format(packid,reason)
             return EFailure(failurereason)
@@ -336,19 +336,19 @@ class MewloPackManager(manager.MewloManager):
 
     def want_enable_pack(self, pack, eventlist):
         """Do settings say to disable this pack? Return tuple of (flag_enable, reasonstring)."""
-        packid = pack.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_uniqueid)
+        packid = pack.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_uniqueid)
         #
         reason = "n/a"
         # get any settings for the pack
         packsettings = self.get_settings_forpack(packid)
-        flag_enable = get_value_from_dict(packsettings,siteconst.DEF_SETTINGNAME_isenabled)
+        flag_enable = get_value_from_dict(packsettings,mconst.DEF_SETTINGNAME_isenabled)
         # is the pack REQUIRED?
-        if (pack.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_isrequired) and flag_enable != False):
+        if (pack.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_isrequired) and flag_enable != False):
             # set to enable if enabled explicitly or nothing specified
             reason = "required pack"
             flag_enable = True
         elif (flag_enable==None):
-            flag_enable = get_value_from_dict(self.default_packsettings, siteconst.DEF_SETTINGNAME_isenabled)
+            flag_enable = get_value_from_dict(self.default_packsettings, mconst.DEF_SETTINGNAME_isenabled)
             reason = "default enable/disable state for packs"
         else:
            if (flag_enable):
@@ -383,7 +383,7 @@ class MewloPackManager(manager.MewloManager):
         """
         reason = ""
         result = True
-        packid = pack.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_uniqueid)
+        packid = pack.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_uniqueid)
         if (requirer==None):
             requirer = "Pack '{0}'".format(packid)
         # is this pack already on our assumed good list? if so just return and and say good (this avoids circular dependencies)
@@ -392,10 +392,10 @@ class MewloPackManager(manager.MewloManager):
         # add this packid to our list of assumed good
         assumegoodlist.append(packid)
         # first get the list of what this pack requires
-        requiredict = pack.get_ourinfofile_property(siteconst.DEF_PACK_INFOFIELD_requires)
+        requiredict = pack.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_requires)
         if (requiredict != None):
             # ok let's check for required PACKAGES (not python packs but our packs)
-            requiredpacks = get_value_from_dict(requiredict, siteconst.DEF_PACK_INFOFIELD_requiredpacks)
+            requiredpacks = get_value_from_dict(requiredict, mconst.DEF_PACK_INFOFIELD_requiredpacks)
             if (requiredpacks != None):
                 # ok we need to check required packs
                 # ATTN: TODO - we may want to check version infor here later

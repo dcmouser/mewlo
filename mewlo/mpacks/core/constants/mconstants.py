@@ -16,8 +16,7 @@ import logging
 
 
 
-class MewloConst(object):
-
+class MewloConstants(object):
 
     # settings
     DEF_SETTINGSEC_config = 'config'

@@ -10,7 +10,7 @@ from mewlo.mpacks.core.navnode.mnav import NavNode, NavLink
 from mewlo.mpacks.core.route.mroute import *
 from mewlo.mpacks.core.controller.mcontroller import MewloController
 from mewlo.mpacks.core.setting.msettings import MewloSettings
-from mewlo.mpacks.core.const.mconst import MewloConst as siteconst
+from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
 
 # python imports
 import os, sys
@@ -101,7 +101,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             # add an alias so we can refer to our view path
             'addon_account_path': thisdir,
             }
-        self.mewlosite.settings.merge_settings_key(siteconst.DEF_SETTINGSEC_aliases, aliases)
+        self.mewlosite.settings.merge_settings_key(mconst.DEF_SETTINGSEC_aliases, aliases)
 
 
 
