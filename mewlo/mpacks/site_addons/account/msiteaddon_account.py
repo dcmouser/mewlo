@@ -223,6 +223,19 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             ))
         routegroup.append(
             MewloRoute(
+                id = 'modify_field',
+                path = '/cancelmodify',
+                args = [
+                    MewloRouteArgString(
+                        id = 'field',
+                        required = True,
+                        help = "field name whose verification to cancel",
+                        ),
+                    ],
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_cancel_modify_field),
+            ))
+        routegroup.append(
+            MewloRoute(
                 id = 'login_bycode',
                 path = '/loginby',
                 args = [

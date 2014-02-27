@@ -152,7 +152,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
 
 
 
-    def invalidate_previousverifications(self, verification_type, request, fieldname):
+    def invalidate_previousverifications(self, verification_type, request, fieldname, invalidreason):
         """
         We often want to invalidate previous verification entries from a user of a specific type, before creating a new one of the same type, so that there is only one pending verification usable at a time.
         """
@@ -168,7 +168,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
         else:
             # or we could mark them as invalidated but leave them in place in order to give user a better error if they try to use it
             updatedict = {
-                'invalidreason': "It was canceled due to a more recent request.",
+                'invalidreason': invalidreason,
                 'date_consumed': self.modelclass.get_nowtime()
             }
             # add sessionip

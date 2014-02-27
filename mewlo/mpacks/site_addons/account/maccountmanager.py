@@ -22,6 +22,7 @@ from forms.form_login_bycode import MewloForm_Login_ByCode
 from forms.form_resend_register_verification import MewloForm_Resend_Register_Verification_Known, MewloForm_Resend_Register_Verification_Unknown
 from forms.form_reset_password import MewloForm_Send_Reset_Password, MewloForm_Submit_Reset_Password
 from forms.form_modifyfield_email import MewloForm_ModifyField_Email
+from forms.form_generic_confirm import MewloForm_Generic_Confirm
 
 
 
@@ -244,7 +245,7 @@ class AccountManager(manager.MewloManager):
         if (flag_clearsession):
             request.clearusersession()
         # and now a message to show the user on the next page they load
-        # ATTN: This actually will actually cause a new session object to be created at this time if we just cleared the user session with flag_clearusersession -- which is a bit silly to combine them
+        # ATTN: This actually will actually cause a new session object to be created at this time if we just cleared the user session with flag_clearusersession -- which is a bit silly to combine them; but it does help test
         request.add_session_message('success',"You are now logged out.")
         # success
         return None
@@ -463,7 +464,7 @@ class AccountManager(manager.MewloManager):
 
         # before we create a new verification entry, we *may* sometimes want to delete/invalidate previous verification requests of same type from same user/session
         # note that we do NOT want to delete previous verifications just because they were sent to this same email address if the sessions were different
-        verificationmanager.invalidate_previousverifications(verification_type, request, None)
+        verificationmanager.invalidate_previousverifications(verification_type, request, None, "It was canceled due to a more recent request.")
         # create it via verificationmanager
         verification = verificationmanager.create_verification(verification_type)
         # set it's properties
@@ -1509,6 +1510,72 @@ class AccountManager(manager.MewloManager):
 
 
 
+
+    def request_cancel_modify_field(self, request):
+        """
+        User wants to cancel a pending verification of a changed field request (email, password, etc.).
+        NOTE: Eventually we will have nicer profile pages where they can change fields, this is more of an example to show the process involved when changing a field that needs a verification code sent.
+        """
+        # set page info first (as it may be used in page contents)
+        self.set_renderpageid(request, 'modify_field')
+
+        # get fieldname to be modified from args
+        fieldname = request.get_route_parsedarg('field')
+
+        # try it
+        failure = self.try_cancel_modify_field_form(request, fieldname)
+        return None
+
+
+
+    def try_cancel_modify_field_form(self, request, fieldname):
+        """Cancel a pending verification for field change request."""
+
+        # get logged in user from session (required)
+        user = request.get_user()
+        if (user == None):
+            self.render_localview(request, self.viewfiles['error_requires_login'], {} )
+            return None
+
+        # init form+formdata
+        formdata = request.get_postdata()
+        # form to be used
+        form = MewloForm_Generic_Confirm()
+
+        # default viewfilename
+        viewfilename = form.get_viewfilename()
+        viewargs = {'form':form, 'viewuser':user, 'message':"Are you sure you wish to cancel pending field change?"}
+
+        # cancel/delete
+        invalidreason = "Canceled by user request."
+
+        # valid submission?
+        if (formdata != None and form.validate()):
+            # form data is valid
+            failure = self.try_cancel_modify_field(request, user, fieldname, invalidreason)
+            if (failure):
+                self.render_localview(request, self.viewfiles['generic_error'], {'failuremessage':"Failed to cancel pending field change: {1}.".format(fieldname,failure.msg())} )
+            else:
+                self.render_localview(request, self.viewfiles['generic_success'], {'successmessage':"Previous pending modification of field {0} has been canceled.".format(fieldname)} )
+            return None
+
+        # render form
+        self.render_localview(request, viewfilename, viewargs)
+        # success
+        return None
+
+
+
+
+    def try_cancel_modify_field(self, request, user, fieldname, invalidreason):
+        """Cancel a pending verification for field change request."""
+        # now try to modify it -- we only know how to handle certain fields
+        if (fieldname == 'email'):
+            failure = self.sitecomp_usermanager().cancel_userfield_verifications(user, request, fieldname, invalidreason)
+        else:
+            # unsupported field, error
+            failure = EFailure("Error: Unsupported fieldname specified.")
+        return failure
 
 
 

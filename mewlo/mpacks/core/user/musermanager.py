@@ -239,8 +239,6 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-
-
     def build_userfield_verification(self, user, request, fieldname, fieldval, is_shortcode):
         """Build a verification entry for a user field.
         return tuple (verification, failure)"""
@@ -261,7 +259,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
         # before we create a new verification entry, we *may* sometimes want to delete/invalidate previous verification requests of same type from same user/session
         # and matching the same fieldname
-        verificationmanager.invalidate_previousverifications(verification_type, request, fieldname)
+        verificationmanager.invalidate_previousverifications(verification_type, request, fieldname, "It was canceled due to a more recent request.")
 
         # create it via verificationmanager
         verification = verificationmanager.create_verification(verification_type)
@@ -272,6 +270,15 @@ class MewloUserManager(modelmanager.MewloModelManager):
         # return it
         return verification, None
 
+
+
+    def cancel_userfield_verifications(self, user, request, fieldname, invalidreason):
+        """Delete any previous field verification."""
+        # get reference to the verification manager from the site
+        verificationmanager = self.sitecomp_verificationmanager()
+        verification_type = mconst.DEF_VFTYPE_userfield_verification
+        verificationmanager.invalidate_previousverifications(verification_type, request, fieldname, invalidreason)
+        return None
 
 
 
@@ -488,7 +495,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
         # before we create a new verification entry, we *may* sometimes want to delete/invalidate previous verification requests of same type from same user/session
         if (flag_invalidateprevious):
-            verificationmanager.invalidate_previousverifications(verification_type, request, fieldname)
+            verificationmanager.invalidate_previousverifications(verification_type, request, fieldname, "It was canceled due to a more recent request.")
 
         # create it via verificationmanager
         verification = verificationmanager.create_verification(verification_type)

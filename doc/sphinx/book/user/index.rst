@@ -16,6 +16,7 @@ From here you can learn about the core Mewlo packages.
    registration
    registration_workflows
    users
+   accountdeletion
    verifications
    verifiedfields
    

@@ -1,0 +1,10 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+<h1>Confirmation Required</h1>
+
+{{ message }}
+
+{{ thelper.html_autoform(form) }}
+
+
+{% include "${siteviewpath}/footer.jn2" %}
