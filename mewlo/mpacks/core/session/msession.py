@@ -41,6 +41,11 @@ class MewloSession(mdbmodel.MewloDbModel):
         return self.getfield_serialized('sessionvars_serialized', keyname, defaultval)
     def set_sessionvar(self, keyname, val):
         return self.setfield_serialized('sessionvars_serialized', keyname, val)
+        return retv
+    def clear_sessionvar(self, keyname):
+        return self.deletefield_serialized('sessionvars_serialized', keyname)
+        return retv
+
 
 
 
@@ -140,6 +145,44 @@ class MewloSession(mdbmodel.MewloDbModel):
         """Create a new unique session hashkey."""
         sessionid = str(uuid.uuid4())
         return sessionid
+
+
+
+
+
+
+    def add_session_message(self, messagetypestr, message):
+        """Add a quick message to show (possibly anonymouse) visitor on their next page."""
+        # get current message list
+        messagelist = self.get_sessionvar('messages', [])
+        # add new message as tuple
+        messagelist.append( (messagetypestr, message) )
+        # save it
+        self.set_sessionvar('messages', messagelist)
+        # mark session dirty (needing save)
+        self.set_isdirty(True)
+
+
+    def get_sessionmessages(self, flag_consume=True):
+        """Return the list of session messages, consuming them from session by default."""
+        messagelist = self.get_sessionvar('messages',[])
+        if ( (flag_consume) and (len(messagelist)>0) ):
+            # consume messages
+            self.clear_sessionvar('messages')
+        return messagelist
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

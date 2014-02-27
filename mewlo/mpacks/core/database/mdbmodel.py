@@ -93,13 +93,20 @@ class MewloDbModel(object):
         sdict = self.getcreate_serializedbdict_forfield(serialized_dict_fieldname)
         sdict.set_keyval(keyname, val)
         self.set_isdirty(True)
-        
+
+    def deletefield_serialized(self, serialized_dict_fieldname, keyname):
+        """Set the value of a SERIALIZED dictionary by key."""
+        # create on first use
+        sdict = self.getcreate_serializedbdict_forfield(serialized_dict_fieldname)
+        sdict.delete_keyval(keyname)
+        self.set_isdirty(True)
+
     def setdict_serialized(self, serialized_dict_fieldname, newdict):
         """Set the value of a SERIALIZED dictionary."""
         # create on first use
         sdict = self.getcreate_serializedbdict_forfield(serialized_dict_fieldname)
         sdict.set_dict(newdict)
-        self.set_isdirty(True)        
+        self.set_isdirty(True)
 
     def deletefield_serialized(self, serialized_dict_fieldname, keyname):
         """Remove a SERIALIZED dictionary key value."""
@@ -223,7 +230,7 @@ class MewloDbModel(object):
     def getid_saveifneeded(self):
         """Save the object if it's not saved yet, because we need it's id."""
         #if (not hasattr(self,'id') or self.id == None):
-        if (self.id == None):            
+        if (self.id == None):
             self.save()
         return self.id
 
@@ -443,13 +450,13 @@ class MewloDbModel(object):
     def find_one_bywhereclause(cls, whereclause):
         """Find first item matching where clause."""
         return cls.dbm().modelclass_find_one_bywhereclause(cls, whereclause)
-    
-    
+
+
     @classmethod
     def delete_all_bywhereclause(cls, whereclause):
         """Delete all that match where clause."""
         return cls.dbm().modelclass_delete_all_bywhereclause(cls, whereclause)
-    
+
     @classmethod
     def update_all_dict_bywhereclause(cls, updatedict, whereclause):
         """Update all with dictionary using a where clause."""

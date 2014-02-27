@@ -158,3 +158,35 @@ class MewloTemplateHelper(manager.MewloManager):
         outstr = " "*indent + "MewloTemplateHelper (" + self.__class__.__name__ + ") reporting in.\n"
         outstr += self.dumps_description(indent+1)
         return outstr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def session_messages_html(self, request):
+        """Show any pending session messages for client."""
+        #
+        reth = ''
+        #
+        sessionmessages = request.get_sessionmessages(flag_consume=True)
+        reth += "<B>SESSION MESSAGES: {0}.</B>".format(str(sessionmessages))
+        return reth
+
+

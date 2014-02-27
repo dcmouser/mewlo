@@ -33,16 +33,16 @@ class SerializeableDbDict(object):
         if ((not keyname in self.valuedict) or (self.valuedict[keyname]!=val)):
             self.valuedict[keyname] = val
             self.aftermodify()
-            
+
     def set_dict(self, newdict):
         """Set entire dictionary."""
         #self.unserialize_ifpending()
         self.isunserialized = True
         # shallow copy
         self.valuedict = newdict.copy()
-        self.aftermodify()            
+        self.aftermodify()
 
-    def delete_keyval(self, keyname, val):
+    def delete_keyval(self, keyname):
         """Remove a dictionary value -- no effect if value doesn't exist."""
         self.unserialize_ifpending()
         if (keyname in self.valuedict):

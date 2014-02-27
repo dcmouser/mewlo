@@ -7,4 +7,5 @@
 
 {{ thelper.nav_bar_html(response) }}
 {{ thelper.nav_breadcrumb_html(response) }}
+{{ thelper.session_messages_html(request) }}
 <br/>&nbsp;<br/>

@@ -243,3 +243,9 @@ all pages that expect codes in urls should also allow them to be manually provid
 2/25/14
 make it easier for controller actions to specify object functions
 //---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+2/26/14
+add session messages
+//---------------------------------------------------------------------------

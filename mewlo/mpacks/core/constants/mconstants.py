@@ -18,6 +18,7 @@ import logging
 
 class MewloConstants(object):
 
+
     # settings
     DEF_SETTINGSEC_config = 'config'
     DEF_SETTINGSEC_aliases = 'aliases'
@@ -48,7 +49,6 @@ class MewloConstants(object):
     DEF_SETTINGVAL_flag_importsetuptoolspacks = True
 
 
-
     # site state for debugging
     DEF_SITESTATE_INITIALIZE_START = 'initializing'
     DEF_SITESTATE_INITIALIZE_END = 'initialized'
@@ -58,13 +58,11 @@ class MewloConstants(object):
     DEF_SITESTATE_SHUTDOWN_END = 'shutdown'
 
 
-
     # verifications
     DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'
     DEF_VFTYPE_pre_user_verification = 'VFTYPE_pre_user_verification'
     DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'
     DEF_VFTYPE_user_passwordreset = 'VFTYPE_user_passwordreset'
-
 
 
     # package stuff
@@ -84,16 +82,13 @@ class MewloConstants(object):
     DEF_PACK_INFOFIELD_versioncritical = 'versioncritical'
 
 
-
     # forms
     DEF_FORM_GenericErrorKey = ''
-
 
 
     # logging
     DEF_LOG_TARGET_filemode_default = 'a'
     DEF_LOG_SqlAlchemyLoggerName = 'sqlalchemy'
-
 
 
     # events
@@ -122,7 +117,6 @@ class MewloConstants(object):
         logging.WARNING : 'WARNING',
         logging.ERROR : 'ERROR'
         }
-
 
 
     # navnodes

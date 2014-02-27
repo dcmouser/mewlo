@@ -44,7 +44,6 @@ class AccountManager(manager.MewloManager):
         #
         # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
         self.viewfiles = {
-            'login_complete': 'login_complete.jn2',
             'logout_complete': 'logout_complete.jn2',
             #
             'register_done_immediate': 'register_done_immediate.jn2',
@@ -172,9 +171,8 @@ class AccountManager(manager.MewloManager):
             # now try logging in
             errordict = self.try_login(request, userdict)
             if (not errordict):
-                # all good
+                # all good -- send them to profile view
                 return self.request_profile(request)
-                #self.render_localview(request, self.viewfiles['login_complete'])
                 # success
                 return None
             # drop down and re-present form with errors
@@ -197,6 +195,8 @@ class AccountManager(manager.MewloManager):
             # ok it's a success, user was found and loaded.
             # tell the session about the user's identity (i.e. the client browser BECOMES this new user and is logged in immediately)
             request.set_user(user)
+            # and now a message to show the user on the next page they load
+            request.add_session_message('success',"You have successfully logged in.")
         # return success or error
         return errordict
 
@@ -227,8 +227,7 @@ class AccountManager(manager.MewloManager):
         # set page info first (as it may be used in page contents)
         self.set_renderpageid(request, 'logout')
         # logout
-        flag_clearsession = True
-        self.try_logout(request, flag_clearsession)
+        self.try_logout(request, flag_clearsession=True)
         # then page contents
         self.render_localview(request, self.viewfiles['logout_complete'])
         # success
@@ -244,6 +243,8 @@ class AccountManager(manager.MewloManager):
         # should we also clear their session variable, which is good for testing?
         if (flag_clearsession):
             request.clearusersession()
+        # and now a message to show the user on the next page they load
+        request.add_session_message('success',"You are now logged out.")
         # success
         return None
 
@@ -338,7 +339,7 @@ class AccountManager(manager.MewloManager):
             # form data is valid
             userdict = form.data
             # now try to register them
-            errordict, successmessage = self.try_register(request, userdict, flag_immediate)
+            (errordict, successmessage) = self.try_register(request, userdict, flag_immediate)
             if (not errordict):
                 # success; called function will have handled rendering view, so we are now done and do not want to drop down
                 return None
@@ -480,7 +481,7 @@ class AccountManager(manager.MewloManager):
         failure = self.sitecomp_mailmanager().send_email(maildict)
         if (failure != None):
             # failure sending email gets added to errordict at root ('') rather than related to a specific field
-            errordict[''] = str(failure)
+            errordict[mconst.DEF_FORM_GenericErrorKey] = failure.msg()
 
         # message to be displayed to user (note: this is only used if errordict is empty)
         successmessage = 'Your account has been registered, but your email must be verified before you can login.  Check your email for your verification code.'

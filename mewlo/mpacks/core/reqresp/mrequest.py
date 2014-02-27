@@ -294,6 +294,52 @@ class MewloRequest(object):
 
 
 
+
+
+
+
+
+
+
+    def add_session_message(self, messagetypestr, message):
+        """Add a quick message to show (possibly anonymouse) visitor on their next page."""
+        session = self.sitecomp_sessionmanager().get_session(self, flag_makesessionifnone=True)
+        session.add_session_message(messagetypestr, message)
+
+    def get_sessionmessages(self, flag_consume=True):
+        """Return the list of session messages, consuming them from session by default."""
+        session = self.sitecomp_sessionmanager().get_session(self, flag_makesessionifnone=False)
+        if (session == None):
+            return []
+        return session.get_sessionmessages(flag_consume)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @classmethod
     def createrequest_from_pathstring(cls, pathstr):
         """Create a simulated web request from a path string, using werkzeug helper function."""

@@ -61,6 +61,12 @@ class MewloSite_Test1(MewloSite):
             return os.path.dirname(os.path.realpath(__file__))+'/config'
 
 
+
+
+
+
+
+
     def add_settings_early(self):
         """
         This is called by default by the base MewloSite as the first thing to do at startup;
@@ -101,7 +107,6 @@ class MewloSite_Test1(MewloSite):
             mconst.DEF_SETTINGNAME_offline_allowadmin: False,
             }
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_config, config)
-
 
 
         # config some aliases we can use (for example in our templates)
@@ -192,6 +197,12 @@ class MewloSite_Test1(MewloSite):
         if (True):
             # let's add a database logger
             logger.add_target(MewloLogTarget_Database(baseclass=mdbmodel_log.MewloDbModel_Log, tablename='log'))
+
+
+
+
+
+
 
 
 

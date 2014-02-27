@@ -12,6 +12,7 @@ from ..manager import modelmanager
 from ..helpers import misc
 import muser
 from ..eventlog.mevent import EFailure, EException
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 
@@ -340,7 +341,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         user = self.find_user_by_dict(userdict)
         if (user == None):
             # ATTN:TODO -- what would be nice is if we checked pending verifications -- if we find the user, instead of saying "user could not be found" we can tell them they need to verify first and give them a link to resend, etc.
-            errordict[''] = "User could not be found."
+            errordict[mconst.DEF_FORM_GenericErrorKey] = "User could not be found."
             return None, errordict
 
         # check password
