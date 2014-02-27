@@ -120,10 +120,10 @@ class MewloSite_Test1(MewloSite):
         # extension pack config -- we need to explicitly enable plugins
         packconfig = {
             'mouser.mewlotestplug' : {
-                'isenabled': True,
+                'isenabled': False,
                 },
             'mouser.testpack' : {
-                'isenabled': True,
+                'isenabled': False,
                 },
             }
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_packs, packconfig)
