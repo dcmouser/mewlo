@@ -86,6 +86,7 @@ class MewloMailManager(manager.MewloManager):
             #server = smtplib.SMTP(host=smtp_host, port=smtp_port, local_hostname=None, timeout=smtp_timeout)
             server = smtplib.SMTP_SSL(host=smtp_host, port=smtp_port, local_hostname=None, timeout=smtp_timeout)
             #server.set_debuglevel(1)
+            #sever.starttls()
             #print "ATTN: send_email 2"
             server.login(smtp_login, smtp_password)
             #print "ATTN: send_email 3"

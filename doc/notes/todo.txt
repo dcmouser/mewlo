@@ -249,3 +249,10 @@ make it easier for controller actions to specify object functions
 2/26/14
 add session messages
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+2/27/14
+change the way _secret config files work -- let them easily overide any settings
+//---------------------------------------------------------------------------
