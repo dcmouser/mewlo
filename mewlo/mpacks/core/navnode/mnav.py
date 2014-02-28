@@ -730,11 +730,12 @@ class NavNode(object):
     def get_menu_url(self, responsecontext):
         """Return value for menu/navbar creation."""
         val = self.get_propertyl(['url'], None, True, responsecontext)
+        urlargs = self.get_propertyl(['urlargs'], None, True, responsecontext)
         if (val==None):
             # no url specified in navnode, but perhaps we can construct it from the route associated with this navnode
             if (self.route != None):
                 # ATTN: TODO - eventually we will need to pass context info to this function to account for url parameters, etc.
-                val = self.route.construct_url(flag_relative=True)
+                val = self.route.construct_url(flag_relative=True, args = urlargs)
         else:
             # val is the url, but we need to add site prefix
             val = self.relative_url(val)

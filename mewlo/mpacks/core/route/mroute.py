@@ -456,8 +456,9 @@ class MewloRoute(object):
         else:
             url = self.mewlosite.absolute_url(self.path)
         # now add args
-        for key,val in args.iteritems():
-            url += '/{0}/{1}'.format(key,val)
+        if (args):
+            for key,val in args.iteritems():
+                url += '/{0}/{1}'.format(key,val)
         return url
 
 

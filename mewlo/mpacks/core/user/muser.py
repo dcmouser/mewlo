@@ -178,11 +178,21 @@ class MewloUser(mdbmodel.MewloDbModel):
         We should only allow this on accounts which have never been logged into or had anything done with.
         Allowing this makes it much easier for someone who provides a bad email at signup to fix it.
         """
+        # It's safe to claim if its a new account that hasn't yet been verified
+        return self.get_ispending_newuser_verification()
+
+
+
+
+    def get_ispending_newuser_verification(self):
+        """Is this user account pending a newuser verification?"""
         return not self.isverified_email
 
 
-
-
+    def get_ispending_fieldmodify_verification(self, request):
+        """Is this user account pending a field modificationverification?"""
+        verification = request.sitecomp_verificationmanager().find_valid_by_type_and_userid(mconst.DEF_VFTYPE_userfield_verification, self.id, None)
+        return (verification != None)
 
 
 

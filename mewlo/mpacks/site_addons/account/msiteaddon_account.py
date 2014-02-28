@@ -223,7 +223,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             ))
         routegroup.append(
             MewloRoute(
-                id = 'modify_field',
+                id = 'cancel_modify_field',
                 path = '/cancelmodify',
                 args = [
                     MewloRouteArgString(
@@ -318,16 +318,26 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 }),
             #
             NavNode('resend_register_verification', {
-                'menulabel': "Resend registration verification",
-                'visible': lambda navnode,context: navnode.isactive(context),
-                'flag_linkurl': False,
-                'parent': 'register',
+                'menulabel': "Resend verification",
+                'visible': lambda navnode,context: not context.get_value('user').get_isloggedin(),
+                #'flag_linkurl': False,
+                'parent': 'site',
+                'sortweight': 9.0,
                 }),
-            NavNode('send_reset_password', {
-                'menulabel': "Request password reset",
-                'visible': lambda navnode,context: navnode.isactive(context),
-                'flag_linkurl': False,
+            NavNode('resend_register_verification2', {
+                'menulabel': "Resend verification",
+                'visible': lambda navnode,context: context.get_value('user').get_isloggedin() and (navnode.isactive(context) or context.get_value('user').get_ispending_newuser_verification()),
+                #'flag_linkurl': False,
                 'parent': 'profile',
+                'sortweight': 9.0,
+                }),
+
+            NavNode('send_reset_password', {
+                'menulabel': "Reset password",
+                'visible': lambda navnode,context: not context.get_value('user').get_isloggedin(),
+                #'flag_linkurl': False,
+                'parent': 'site',
+                'sortweight': 9.0,
                 }),
             NavNode('reset_password', {
                 'menulabel': "Perform password reset",
@@ -337,9 +347,17 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 }),
             NavNode('modify_field', {
                 'menulabel': "Change account profile field",
-                'visible': lambda navnode,context: navnode.isactive(context),
-                'flag_linkurl': False,
+                'visible': lambda navnode,context: context.get_value('user').get_isloggedin(),
+                #'flag_linkurl': False,
                 'parent': 'profile',
+                'urlargs': {'field':'email'},
+                }),
+            NavNode('cancel_modify_field', {
+                'menulabel': "Cancel pending profile change",
+                'visible': lambda navnode,context: navnode.isactive(context) or context.get_value('user').get_ispending_fieldmodify_verification(context.get_value('request')),
+                #'flag_linkurl': False,
+                'parent': 'profile',
+                'urlargs': {'field':'email'},
                 }),
             NavNode('login_bycode', {
                 'menulabel': "Login by code",
@@ -351,9 +369,6 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
         # add nodes to site
         self.mewlosite.comp('navnodemanager').add_nodes(nodes)
-
-
-
 
 
 

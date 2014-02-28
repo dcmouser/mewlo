@@ -988,7 +988,7 @@ class AccountManager(manager.MewloManager):
         fieldname = 'email'
 
         # can we identify this client session with a pending reservation? (ie can we identify the user and the pending verification?)
-        (user, verification) = self.try_find_pending_fieldverification_from_current_session(fieldname)
+        (user, verification) = self.try_find_pending_fieldverification_from_current_session(request, fieldname)
 
         if (user != None):
             # yes, we have identified the pending resgitration
@@ -1002,7 +1002,7 @@ class AccountManager(manager.MewloManager):
             if (formdata != None and form.validate()):
                 # they are submitting form -- so we want to resend the verification now (and possibly change the email on it)
                 fieldval = form.get_val_nonblank(fieldname, user.getfield_byname(fieldname))
-                failure = self.resend_field_verification(user, verification, fieldname, fieldval)
+                failure = self.resend_field_verification(request, user, verification, fieldname, fieldval)
                 if (not failure):
                     # success
                     viewfilename = self.viewfiles['verify_resent']
@@ -1048,7 +1048,7 @@ class AccountManager(manager.MewloManager):
                             if (not user.is_safe_stranger_claim_thisaccount()):
                                 failure = EFailure("Email cannot be changed from this form on an existing active user account; login first to change email address.")
                     if (not failure):
-                        failure = self.resend_field_verification(user, verification, fieldname, fieldval)
+                        failure = self.resend_field_verification(request, user, verification, fieldname, fieldval)
                     if (not failure):
                         # success
                         viewfilename = self.viewfiles['verify_resent']
@@ -1207,7 +1207,7 @@ class AccountManager(manager.MewloManager):
 
             if (user != None):
                 # found user, send them a password reset
-                failure = self.try_send_passwordreset(user)
+                failure = self.try_send_passwordreset(request, user)
             else:
                 failure = EFailure("Could not locate a user account using the information you've provided.")
 
