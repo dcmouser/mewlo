@@ -4,9 +4,10 @@
 *_secret.*
 
 Private
+*.sqlite
+
 debuglog.txt
 debugout.txt
-*.sqlite
 testlogout_python.txt
 testlogout1.txt
 mewlo.log
