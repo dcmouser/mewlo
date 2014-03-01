@@ -25,6 +25,7 @@ class MewloConstants(object):
     DEF_SETTINGSEC_packs = 'packs'
     DEF_SETTINGSEC_database = 'database'
     DEF_SETTINGSEC_mail = 'mail'
+    DEF_SETTINGSEC_siteaddon_account = 'siteaddon_account'
     #
     DEF_SETTINGNAME_pkgdirimps_sitempacks = 'pkgdirimps_sitempacks'
     DEF_SETTINGNAME_controllerroot = 'controllerroot'

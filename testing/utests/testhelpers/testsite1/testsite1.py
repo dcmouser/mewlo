@@ -162,11 +162,12 @@ class MewloSite_Test1(MewloSite):
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_mail, mailconfig)
 
 
-
-
-
-
-
+        # account siteaddon settings
+        siteaddonconfig = {
+            # online status information
+            'registration_mode': 'deferred',
+            }
+        self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_siteaddon_account, siteaddonconfig)
 
 
 

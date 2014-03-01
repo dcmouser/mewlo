@@ -33,3 +33,10 @@ class MThinDict(dict):
             self[key] += separator + val
         else:
             self[key] = val
+
+
+    def appendtovaluelist(self, key, val):
+        if (key in self):
+            self[key].append(val)
+        else:
+            self[key] = [val]

@@ -85,7 +85,8 @@ class MewloRequest(object):
             return self.parsedargs[argname]
         return defaultval
 
-
+    def get_rendercontext(self):
+        return self.response.rendercontext
 
 
 
@@ -301,10 +302,14 @@ class MewloRequest(object):
 
 
 
-    def add_session_message(self, messagetypestr, message):
+    def add_sessionmessage(self, messagedict):
         """Add a quick message to show (possibly anonymouse) visitor on their next page."""
         session = self.get_session(flag_makesessionifnone=True)
-        session.add_session_message(messagetypestr, message)
+        session.add_sessionmessage(messagedict)
+
+    def add_sessionmessage_simple(self, msg, cls=None):
+        """Add a message to current page context."""
+        self.add_sessionmessage( {'msg':msg, 'cls':cls} )
 
     def get_sessionmessages(self, flag_consume=True):
         """Return the list of session messages, consuming them from session by default."""
@@ -315,7 +320,18 @@ class MewloRequest(object):
 
 
 
+    def add_pagemessage(self, messagedict):
+        """Add a message to current page context."""
+        self.get_rendercontext().appendtovaluelist('messages', messagedict )
 
+    def add_pagemessage_simple(self, msg, cls=None):
+        """Add a message to current page context."""
+        self.get_rendercontext().appendtovaluelist('messages', {'msg':message, 'cls':cls} )
+
+    def get_pagemessages(self):
+        """Return the list of messages added to page context."""
+        messagelist = self.get_rendercontext().get_value('messages',[])
+        return messagelist
 
 
 

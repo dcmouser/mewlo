@@ -41,6 +41,8 @@ class AccountManager(manager.MewloManager):
         """Constructor."""
         super(AccountManager,self).__init__(mewlosite, debugmode)
         #
+        self.registration_mode = None
+        #
         self.viewbasepath = '${addon_account_path}/views/'
         #
         # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
@@ -75,6 +77,8 @@ class AccountManager(manager.MewloManager):
 
     def startup(self, eventlist):
         super(AccountManager,self).startup(eventlist)
+        # some settings
+        self.registration_mode = self.mewlosite.get_settingval(mconst.DEF_SETTINGSEC_siteaddon_account, 'registration_mode')
 
     def shutdown(self):
         super(AccountManager,self).shutdown()
@@ -197,7 +201,7 @@ class AccountManager(manager.MewloManager):
             # tell the session about the user's identity (i.e. the client browser BECOMES this new user and is logged in immediately)
             request.set_user(user)
             # and now a message to show the user on the next page they load
-            request.add_session_message('success',"You have successfully logged in.")
+            request.add_sessionmessage_simple("You have successfully logged in.",'success')
         # return success or error
         return errordict
 
@@ -246,7 +250,7 @@ class AccountManager(manager.MewloManager):
             request.clearusersession()
         # and now a message to show the user on the next page they load
         # ATTN: This actually will actually cause a new session object to be created at this time if we just cleared the user session with flag_clearusersession -- which is a bit silly to combine them; but it does help test
-        request.add_session_message('success',"You are now logged out.")
+        request.add_sessionmessage_simple("You are now logged out.",'success')
         # success
         return None
 
@@ -306,8 +310,13 @@ class AccountManager(manager.MewloManager):
 
     def request_register(self, request):
         """Controller function."""
-#        return self.request_register_immediate(request)
-        return self.request_register_deferred(request)
+        if (self.registration_mode=='deferred'):
+            return self.request_register_deferred(request)
+        elif (self.registration_mode=='immediate'):
+            return self.request_register_immediate(request)
+        else:
+            raise Exception("Internal error: Unknown registration_mode of '{0}'.".format(str(self.registration_mode)))
+
 
 
     def request_register_immediate(self, request):
@@ -854,10 +863,13 @@ class AccountManager(manager.MewloManager):
 
 
 
-
     def request_profile(self, request):
         """View user profile."""
         self.set_renderpageid(request, 'profile')
+
+        # test
+        request.add_pagemessage({'cls':'green','msg':"page message one"})
+        request.add_pagemessage({'cls':'red','msg':"page message two"})
 
         user = request.get_user()
         if (user == None):

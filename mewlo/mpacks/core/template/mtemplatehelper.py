@@ -180,15 +180,41 @@ class MewloTemplateHelper(manager.MewloManager):
 
 
 
-    def session_messages_html(self, request):
+    def session_messages_html(self, request, title=None):
         """Show any pending session messages for client."""
-        #
+        messages = request.get_sessionmessages(flag_consume=True)
+        if (not messages):
+            return ''
+        return self.messages_html(messages, title)
+
+
+
+    def page_messages_html(self, request, title=''):
+        """Show any page messages for client -- these are generic messages that can be added to any page context"""
+        messages = request.get_pagemessages()
+        if (not messages):
+            return ''
+        return self.messages_html(messages, title)
+
+
+
+    def messages_html(self, messages, title):
+        """Format some messages."""
+        if (not messages):
+            return ''
         reth = ''
+        reth += '\n<div class="messagelist">\n'
+        if (title):
+            reth += '<h2>{0}</h2>\n'.format(title)
+        reth += '<ul>\n'
         #
-        sessionmessages = request.get_sessionmessages(flag_consume=True)
-        if (sessionmessages):
-            reth += "<B>SESSION MESSAGES: {0}.</B>".format(str(sessionmessages))
+        for messagedict in messages:
+            if (('cls' in messagedict) and (messagedict['cls'])):
+                classpart = 'class="messageclass_{0}"'.format(messagedict['cls'])
+            else:
+                classpart = ''
+            reth += '<li {0}>{1}</li>\n'.format(classpart, messagedict['msg'])
         #
+        reth += '</ul>\n'
+        reth += '</div> <!-- messagelist -->\n'
         return reth
-
-

@@ -6,6 +6,8 @@
 </head>
 
 {{ thelper.nav_bar_html(response) }}
+
 {{ thelper.nav_breadcrumb_html(response) }}
+<hr/>
 {{ thelper.session_messages_html(request) }}
-<br/>&nbsp;<br/>
+{{ thelper.page_messages_html(request) }}

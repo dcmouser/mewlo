@@ -380,9 +380,13 @@ class MewloSite(object):
 
 
 
+    def get_settingval(self, sectionname, valuename, defaultval=None):
+        """Return a settings value."""
+        return self.settings.get_subvalue(sectionname, valuename, defaultval)
 
-
-
+    def get_settingsection(self, sectionname):
+        """Return a settings value."""
+        return self.settings.get_value(sectionname, [])
 
 
 

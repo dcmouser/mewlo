@@ -245,10 +245,17 @@ make it easier for controller actions to specify object functions
 //---------------------------------------------------------------------------
 
 
-//---------------------------------------------------------------------------
-2/26/14
-add session messages
-//---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -268,4 +275,41 @@ Check and report clashes of things like routeids and navnodeids, at startup
 //---------------------------------------------------------------------------
 2/28/14
 consider whether new-user account initial email verifications should be of dif type than email CHANGE verifications
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+2/28/14
+support template loading with special lines (like subject for emails);
+use format:
+@subject=
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+2/28/14
+support the ability to overide menu urlargs on pages -- for example profile page links when viewing another profile
+add example of viewing other user profiles
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+2/28/14
+support forced redirection to login page with smart return
+support forced re-password after long time since login
+//---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+//---------------------------------------------------------------------------
+2/26/14
+consider whether request.context and viewargs should be separate things
+or should we just use context and not pass viewargs separately;
+context is convenient in that it lets us add stuff piecemeal
 //---------------------------------------------------------------------------

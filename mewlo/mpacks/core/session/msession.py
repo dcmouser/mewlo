@@ -151,12 +151,12 @@ class MewloSession(mdbmodel.MewloDbModel):
 
 
 
-    def add_session_message(self, messagetypestr, message):
+    def add_sessionmessage(self, messagedict):
         """Add a quick message to show (possibly anonymouse) visitor on their next page."""
         # get current message list
         messagelist = self.get_sessionvar('messages', [])
-        # add new message as tuple
-        messagelist.append( (messagetypestr, message) )
+        # add new message as dict
+        messagelist.append( messagedict )
         # save it
         self.set_sessionvar('messages', messagelist)
         # mark session dirty (needing save)
@@ -170,8 +170,6 @@ class MewloSession(mdbmodel.MewloDbModel):
             # consume messages
             self.clear_sessionvar('messages')
         return messagelist
-
-
 
 
 
