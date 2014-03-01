@@ -2,3 +2,11 @@
 
 # secret configuration files
 *_secret.*
+
+Private
+debuglog.txt
+debugout.txt
+*.sqlite
+testlogout_python.txt
+testlogout1.txt
+mewlo.log
