@@ -137,6 +137,14 @@ class MewloResponse(object):
         """Shortcut to set some context settings."""
         self.rendercontext['pagenodeid'] = pageid
 
+
+    def set_renderpageid_ifnotset(self, pageid):
+        """Shortcut to set some context settings."""
+        if ('pagenodeid' not in self.rendercontext):
+            self.set_renderpageid(pageid)
+
+
+
     def add_rendercontext(self, args):
         """Shortcut to set some context settings."""
         self.rendercontext.update(args)

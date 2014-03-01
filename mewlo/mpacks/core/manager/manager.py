@@ -112,6 +112,10 @@ class MewloManager(object):
         """Helper function to set page id."""
         request.response.set_renderpageid(pageid)
 
+    def set_renderpageid_ifnotset(self, request, pageid):
+        """Helper function to set page id."""
+        request.response.set_renderpageid_ifnotset(pageid)
+
     def calc_localtemplatepath(self, viewfilepath):
         return self.viewbasepath+viewfilepath
 

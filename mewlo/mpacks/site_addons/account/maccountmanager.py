@@ -159,10 +159,23 @@ class AccountManager(manager.MewloManager):
 
 
     def request_login(self, request):
-        """Present and consume the login form.
-        Return failure"""
-        # set page info first (as it may be used in page contents)
-        self.set_renderpageid(request, 'login')
+        """Present and consume the login form."""
+        didlogin = self.request_login_and_return(request,None)
+        if (didlogin):
+            # success -- send them to profile view
+            return self.request_profile(request)
+        # success
+        return None
+
+
+
+
+    def request_login_and_return(self, request, reasonmessage):
+        """Present and consume the login form -- on success don't send them anywhere.
+        return True if they are logged in and we can present whatever view we want afterwards.
+        return False if not and we presented the login form.
+        """
+
         # init form+formdata
         formdata = request.get_postdata()
         # the form we will use
@@ -176,17 +189,22 @@ class AccountManager(manager.MewloManager):
             # now try logging in
             errordict = self.try_login(request, userdict)
             if (not errordict):
-                # all good -- send them to profile view
-                return self.request_profile(request)
-                # success
-                return None
+                # all good
+                return True
             # drop down and re-present form with errors
             form.merge_errordict(errordict)
 
+        # show reason message to user?
+        if (reasonmessage):
+            request.add_pagemessage({'cls':'notice','msg':reasonmessage})
+
+        # set page info first (as it may be used in page contents) -- note that if caller has already set it, we don't overwrite it and leave it
+        self.set_renderpageid_ifnotset(request, 'login')
         # render form (use forms default view)
         self.render_localview(request, form.get_viewfilename(), {'form':form})
-        # success
-        return None
+        # return False saying we have presented form / handled view
+        return False
+
 
 
 
@@ -865,16 +883,17 @@ class AccountManager(manager.MewloManager):
 
     def request_profile(self, request):
         """View user profile."""
+        # set page id
         self.set_renderpageid(request, 'profile')
+
+        # redirect to login if not logged in (and consume login form data if available)
+        user = self.get_user_forcelogin(request)
+        if (user == None):
+            return None
 
         # test
         request.add_pagemessage({'cls':'green','msg':"page message one"})
         request.add_pagemessage({'cls':'red','msg':"page message two"})
-
-        user = request.get_user()
-        if (user == None):
-            self.render_localview( request, self.viewfiles['generic_error'], {'failuremessage': "No user information to display."})
-            return None
 
         # then page contents
         self.render_localview( request, self.viewfiles['profile'], {'viewuser':user} )
@@ -1651,3 +1670,85 @@ class AccountManager(manager.MewloManager):
         print "ATTN: TO DO CHECK CODE."
         failure = EFailure("Not implemented yet.")
         return failure
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def get_user_forcelogin(self, request, reasonmessage="You must login first before you can access this page."):
+        """Return the logged in user.
+        But if user is not logged in, reroute/redirect to login page (and then back to current request), and return None."""
+
+        # get session user, and just return it if user is logged in
+        user = request.get_user()
+        if (user != None):
+            return user
+
+        # user is not logged in, redirect them to login page
+
+        # one way we could do this is by just presenting the login form on this current page
+        # now present or parse the login form
+        didlogin = self.request_login_and_return(request,reasonmessage)
+        if (didlogin):
+            # success -- return the logged in user
+            return request.get_user()
+
+        # failed to login, but we presented login form
+        return None
+
+

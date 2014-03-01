@@ -313,3 +313,33 @@ consider whether request.context and viewargs should be separate things
 or should we just use context and not pass viewargs separately;
 context is convenient in that it lets us add stuff piecemeal
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+3/1/14
+Catch exceptions from controller control functions, and generate special responses for known ones
+This would allow simple error views on exceptions and also allow redirection via exception, which would let us avoid doing things like:
+    if (redirect_login()): return
+from controller functions, and instead let us just do:
+    redirect_login()
+and let a function throw a redirect exception if it generated page rendering.
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+3/1/14
+All navnodes should have option about whether to display navnode if the page is active.
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+3/1/14
+change all viewarg-based failuremessage/successmessage views to use pagemessages
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+3/1/14
+don't return value from controller functions
+//---------------------------------------------------------------------------
