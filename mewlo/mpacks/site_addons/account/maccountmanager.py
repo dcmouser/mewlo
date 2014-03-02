@@ -481,13 +481,12 @@ class AccountManager(manager.MewloManager):
         verification.save()
 
         # now send them an email telling them how to verify
-        emailtemplatefile = self.calc_localtemplatepath(self.viewfiles['register_deferred_email_verificationsent'])
         verificationurl = self.calc_verificationurl_registration_deferred(verification)
-        maildict = {
-            'to': [ userdict['email'] ],
-            'subject': u'Signup verification email',
-            'body': self.get_mewlosite().renderstr_from_template_file(emailtemplatefile, {'verificationurl':verificationurl})
-        }
+        #
+        emailtemplatefile = self.calc_localtemplatepath(self.viewfiles['register_deferred_email_verificationsent'])
+        maildict = self.get_mewlosite().rendersections_from_template_file(emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
+        maildict['to'] = [ userdict['email'] ]
+        #
         failure = self.sitecomp_mailmanager().send_email(maildict)
         if (failure != None):
             # failure sending email gets added to errordict at root ('') rather than related to a specific field
@@ -1250,14 +1249,11 @@ class AccountManager(manager.MewloManager):
         if (failure):
             return failure
         # email it to the user
-        emailaddress = user.email
-        emailtemplatefile = self.calc_localtemplatepath(self.viewfiles['reset_password_verify_email'])
         verificationurl = self.calc_verificationurl_passwordreset(verification)
-        maildict = {
-            'to': [ emailaddress ],
-            'subject': "Password reset verification",
-            'body': self.get_mewlosite().renderstr_from_template_file(emailtemplatefile, {'verificationurl':verificationurl})
-        }
+        #
+        emailtemplatefile = self.calc_localtemplatepath(self.viewfiles['reset_password_verify_email'])
+        maildict = self.get_mewlosite().rendersections_from_template_file(emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
+        maildict['to'] = [user.email]
         # now send it
         failure = self.sitecomp_mailmanager().send_email(maildict)
 

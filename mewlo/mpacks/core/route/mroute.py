@@ -565,6 +565,10 @@ class MewloRouteGroup(object):
                     # add with prefix
                     prefix = route.id + '.'
                     for key,val in childroutehash.iteritems():
+                        hashkey = prefix+key
+                        if (hashkey in self.routehash):
+                            # warning, we are about to overwrite a route id
+                            print "WARNING: Multiple routes share the same id ({0}); only one will be accessible.".format(prefix.key)
                         self.routehash[prefix+key]=val
             else:
                 # it's a leaf route

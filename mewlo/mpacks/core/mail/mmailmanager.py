@@ -66,6 +66,9 @@ class MewloMailManager(manager.MewloManager):
         esubject = maildict['subject']
         ebody = maildict['body']
         #
+        # ensure eto is a list
+        if (isinstance(eto, basestring)):
+            eto = [eto]
         etos = ", ".join(eto)
         eheader = 'To: {0}\nFrom: {1}\nSubject:{2}\n'.format(etos,efrom,esubject)
         efullmessage = eheader + '\n' + ebody + '\n'
@@ -120,6 +123,10 @@ class MewloMailManager(manager.MewloManager):
         ebody = maildict['body']
         preferred_encoding = 'iso-8859-1'
         text_encoding = preferred_encoding
+
+        # ensure eto is a list
+        if (isinstance(eto, basestring)):
+            eto = [eto]
 
         # compose email and create payload
         (payload, mail_from, rcpt_to, msg_id) = pyzmail.compose_mail(efrom, eto, esubject, preferred_encoding, (ebody,text_encoding))

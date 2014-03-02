@@ -218,13 +218,10 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
     def send_field_verification_email_given_verification(self, verification, fieldname, emailaddress):
         """Send a verification email."""
-        emailtemplatefile = self.calc_account_templatepath(self.viewfiles['user_verify_field_email'])
         verificationurl = self.calc_verificationurl_field(verification, fieldname)
-        maildict = {
-            'to': [ emailaddress ],
-            'subject': "E-mail address verification",
-            'body': self.get_mewlosite().renderstr_from_template_file(emailtemplatefile, {'verificationurl':verificationurl})
-        }
+        emailtemplatefile = self.calc_account_templatepath(self.viewfiles['user_verify_field_email'])
+        maildict = self.get_mewlosite().rendersections_from_template_file(emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
+        maildict['to'] = [emailaddress]
         # now send it
         failure = self.sitecomp_mailmanager().send_email(maildict)
         return failure

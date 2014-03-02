@@ -1146,13 +1146,26 @@ class MewloSite(object):
         template = self.comp('templatemanager').from_file(templatefilepath)
         return self.renderstr_from_template(template, args)
 
+    def renderstr_from_template_string(self, templatestring, args=None):
+        """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
+        template = self.comp('templatemanager').from_string(templatestring)
+        return self.renderstr_from_template(template, args)
+
+    def rendersections_from_template_file(self, templatefilepath, args=None, required_sections=[]):
+        """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
+        template = self.comp('templatemanager').from_file(templatefilepath)
+        return self.rendersections_from_template(template, args, required_sections)
+
+
     def renderstr_from_template(self, template, args=None):
         """Shortcut to return html for a template and set responsedata from it, passing response object to template as an extra arg."""
         renderedtext = template.render_string(args)
         return renderedtext
 
-
-
+    def rendersections_from_template(self, template, args=None, required_sections=[]):
+        """Shortcut to return dictionary of html for a template and set responsedata from it, passing response object to template as an extra arg."""
+        renderedsections = template.render_sections(args, required_sections)
+        return renderedsections
 
 
 

@@ -1,2 +1,6 @@
+@@REM = this is a comment line and will be ignored
+
+@@subject = E-mail address verification
+@@body = 
 Please verify your email address by visiting {{ verificationurl }}
 Let us know if you have any difficulty.

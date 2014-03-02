@@ -11,7 +11,7 @@ from ..manager import manager
 
 # python imports
 import os.path
-
+import re
 
 
 
@@ -33,13 +33,42 @@ class MewloTemplate(object):
         self.filecontents = fp.read()
         fp.close()
 
+    def load_from_string(self, templatestring):
+        """Load a template from a string."""
+        self.filecontents = templatestring
+
 
     def render_string(self, args={}):
         """Render template into a string and return string.  Use args dictionary to pass in values."""
         raise Exception("Base template invoked for function 'render_string'.")
 
-
-
+    def render_sections(self, args={}, required_sections=[]):
+        """Render template broken into sections defined by @@SECTIONAME = headers
+        In addition, any section named 'REM' is ignored.
+        In addition, all section values are trimmed (stripped) of leading and trailing whitespace
+        """
+        # for safety, replace any @@ in args
+        for (key,val) in args.iteritems():
+            args[key] = args[key].replace('@@','__')
+        # render to string
+        renderedtext = self.render_string(args)
+        # regex to use to grab sections
+        patternregex = r'\@\@([a-zA-A]+)\s*\=\s*(.*?)\s*(?=\n\@\@|$)'
+        # now get all matches, which should return tuples of the form (sectionname, sectiontext)
+        allmatches = re.findall(patternregex, renderedtext, re.MULTILINE)
+        # now partse them and fill dictionary
+        sectionsout = {}
+        for findtuple in allmatches:
+            key = findtuple[0].strip()
+            if (key != 'REM'):
+                sectionsout[key] = findtuple[1].strip()
+        #
+        #print "ATTN: in with '{0}' and out with: {1}.".format(renderedtext,str(sectionsout))
+        # check required sections
+        for key in required_sections:
+            if (not key in sectionsout):
+                raise Exeception('Internal error, template is missing a required section ({0}): "{1}" (from {2}).'.format(key, str(sectionsout), self.filepath))
+        return sectionsout
 
 
 

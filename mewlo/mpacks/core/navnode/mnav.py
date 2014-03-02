@@ -168,6 +168,9 @@ class NavNodeManager(manager.MewloManager):
         self.nodehash = {}
         for node in self.nodes:
             # add node to nodehash by id for quick lookup
+            if (node.id in self.nodehash):
+                # warning, we are about to overwrite a route id
+                print "WARNING: Multiple navnodes share the same id ({0}); only one will be accessible.".format(node.id)
             self.nodehash[node.id] = node
             # reset properties (children,parents) and set mewlosite
             node.resetbuild(self.mewlosite)
