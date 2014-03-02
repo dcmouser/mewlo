@@ -48,7 +48,7 @@ def find_callable(callableroot, callableobj):
     callablepath = callableobj
 
     # split dotted path into modules (might be blank), and last item is a functionname
-    modulepath, functionname = split_dottedpath_modulepath_and_funcname(callablepath)
+    (modulepath, functionname) = split_dottedpath_modulepath_and_funcname(callablepath)
 
     # now that we have (possibly None) modulepath string, let's find it from root (which might be None or an actual package)
     mod = find_module_from_dottedpath(callableroot, modulepath)
@@ -226,7 +226,7 @@ def do_importmodule_bypath(filepath, flag_tryinitfiletoo=True):
     failure = None
 
     # extract name, which is the filename with no directory and no extension
-    name, ext = os.path.splitext(os.path.basename(filepath))
+    (name, ext) = os.path.splitext(os.path.basename(filepath))
     # get just the path to the directory containing the file
     dirpath = os.path.dirname(filepath)
 
@@ -269,7 +269,7 @@ def do_importmodule_bypath(filepath, flag_tryinitfiletoo=True):
     # does it already exist?
     if (imploadname != '' and imploadname in sys.modules):
         #print "****** ATTN: MODULE {0} ALREADY LOADED NOT RELOADING! ******".format(imploadname)
-        return sys.modules[imploadname], None
+        return (sys.modules[imploadname], None)
 
 
     # ok this is a strange python thing.
@@ -294,7 +294,7 @@ def do_importmodule_bypath(filepath, flag_tryinitfiletoo=True):
         failure = EException("failed to import module by path ("+filepath+")", exp=exp)
 
     # return it
-    return dynamicmodule, failure
+    return (dynamicmodule, failure)
 
 
 

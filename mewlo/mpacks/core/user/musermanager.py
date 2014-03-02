@@ -74,7 +74,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         errordict = self.error_if_user_exists(userdict)
         if (errordict):
             # errors
-            return None, errordict, ''
+            return (None, errordict, '')
 
         # create user account.
         user = self.modelclass()
@@ -106,7 +106,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         successmessage = 'User account has been successfully created.'
 
         # return success or error
-        return user, errordict, successmessage
+        return (user, errordict, successmessage)
 
 
     def set_userpassword_from_plaintext(self, user, password_plaintext):
@@ -268,7 +268,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         # save it
         verification.save()
         # return it
-        return verification, None
+        return (verification, None)
 
 
 
@@ -349,14 +349,14 @@ class MewloUserManager(modelmanager.MewloModelManager):
         if (user == None):
             # ATTN:TODO -- what would be nice is if we checked pending verifications -- if we find the user, instead of saying "user could not be found" we can tell them they need to verify first and give them a link to resend, etc.
             errordict[mconst.DEF_FORM_GenericErrorKey] = "User could not be found."
-            return None, errordict
+            return (None, errordict)
 
         # check password
         password_plaintext = userdict['password']
         does_passwordmatch = user.does_plaintextpasswordmatch(password_plaintext)
         if (not does_passwordmatch):
             errordict['password'] = "Password does not match."
-            return None, errordict
+            return (None, errordict)
 
         # password matches -- they can be logged in
         # we will update the last login date; called must set session user
@@ -365,7 +365,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         user.actions_after_login()
 
         # return it
-        return user, errordict
+        return (user, errordict)
 
 
 
@@ -385,7 +385,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
                 user = self.modelclass.find_one_bykey(keydict)
                 if (user != None):
                     return (user, fieldname)
-        return None, None
+        return (None, None)
 
 
     def find_user_by_dict(self, userdict):
@@ -504,4 +504,4 @@ class MewloUserManager(modelmanager.MewloModelManager):
         # save it
         verification.save()
         # return it
-        return verification, None
+        return (verification, None)

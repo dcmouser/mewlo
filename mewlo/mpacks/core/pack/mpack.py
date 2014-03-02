@@ -132,7 +132,7 @@ class MewloPack(object):
         self.readytoloadcode = False
 
         # read the json file and parse it into a dictionary
-        self.infodict, failure = readfile_asjson(self.infofilepath, "Pack info file")
+        (self.infodict, failure) = readfile_asjson(self.infofilepath, "Pack info file")
         if (failure == None):
             # set readytoloadcode true since the json parsed properly
             self.readytoloadcode = True
@@ -158,10 +158,10 @@ class MewloPack(object):
         self.readytorun = False
 
         # get path to code module
-        self.codemodule_path, failure = self.get_pathtocodemodule()
+        (self.codemodule_path, failure) = self.get_pathtocodemodule()
         if (failure == None):
             # ask pack manager to load the import from the path
-            self.codemodule, failure = self.packmanager.loadimport(self.codemodule_path)
+            (self.codemodule, failure) = self.packmanager.loadimport(self.codemodule_path)
 
         if (failure == None):
             # if the import worked, instantiate the pack object from it
@@ -184,13 +184,13 @@ class MewloPack(object):
 
         # default module name
         path = self.infofilepath
-        dir, fullname = os.path.split(path)
-        name, ext = os.path.splitext(fullname)
+        (dir, fullname) = os.path.split(path)
+        (name, ext) = os.path.splitext(fullname)
         pathtocodemodule_default = name + '.py'
         # override with explicit
         pathtocodemodule = dir + '/' + self.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_codefile, pathtocodemodule_default)
         # return it
-        return pathtocodemodule, None
+        return (pathtocodemodule, None)
 
 
 
@@ -261,7 +261,7 @@ class MewloPack(object):
             if (failure!=None):
                 return failure
             # we loaded the code, now lets see if it reports it needs a database update
-            database_needupdate, failure = self.update_database_check()
+            (database_needupdate, failure) = self.update_database_check()
             if (failure!=None):
                 return failure
             if (database_needupdate):
@@ -395,19 +395,19 @@ class MewloPack(object):
         self.clear_updateinfo()
 
         # first check for web file update available
-        self.update_webfiles_needupdate, self.update_webfiles_iscritical, webinfodict, failure = self.updatecheck_checkfornewfiles()
+        (self.update_webfiles_needupdate, self.update_webfiles_iscritical, webinfodict, failure) = self.updatecheck_checkfornewfiles()
         if (failure != None):
             # error
             self.appendevent(failure)
-            return self.update_webfiles_needupdate, failure
+            return (self.update_webfiles_needupdate, failure)
 
         if (self.update_webfiles_needupdate):
             # new web version available so stop here and say yes
-            return True, None
+            return (True, None)
 
         # database check
-        self.update_database_needupdate, failure = self.update_database_check()
-        return self.update_database_needupdate, failure
+        (self.update_database_needupdate, failure) = self.update_database_check()
+        return (self.update_database_needupdate, failure)
 
 
 
@@ -417,11 +417,11 @@ class MewloPack(object):
         """
         if (self.packworker!=None):
             # no file update available, so check for database update
-            self.update_database_needupdate, failure = self.packworker.updatecheck_checkdatabase()
+            (self.update_database_needupdate, failure) = self.packworker.updatecheck_checkdatabase()
             self.appendevent(failure)
-            return self.update_database_needupdate, failure
+            return (self.update_database_needupdate, failure)
         # no pack object available -- so do nothing (it should error elsewhere)
-        return False, None
+        return (False, None)
 
 
     def updaterun(self):
@@ -438,10 +438,10 @@ class MewloPack(object):
         self.clear_updateinfo()
 
         # first check for web file update available
-        self.update_webfiles_needupdate, self.update_webfiles_iscritical, webinfodict, failure = self.updatecheck_checkfornewfiles()
+        (self.update_webfiles_needupdate, self.update_webfiles_iscritical, webinfodict, failure) = self.updatecheck_checkfornewfiles()
         if (failure != None):
             self.appendevent(failure)
-            return self.update_webfiles_needupdate, failure
+            return (self.update_webfiles_needupdate, failure)
 
         if (self.update_webfiles_needupdate):
             # ok we want to download and apply the web file update
@@ -454,20 +454,20 @@ class MewloPack(object):
             failure = self.update_download_and_install(mergedinfodict, remotedownloadurl)
             if (failure != None):
                 self.appendevent(failure)
-                return False, failure
+                return (False, failure)
             # we successfully ran a file upodate so we will NOT drop down and check for database update (until next restart)
-            return True, None
+            return (True, None)
 
         # new version not available on web; check if a database update is needed
         if (self.packworker!=None):
-            didupdate, failure = self.packworker.updaterun_database()
+            (didupdate, failure) = self.packworker.updaterun_database()
             if (failure != None):
                 self.appendevent(failure)
-                return False, failure
-            return didupdate, None
+                return (False, failure)
+            return (didupdate, None)
 
         # nothing done
-        return False, None
+        return (False, None)
 
 
 
@@ -499,9 +499,9 @@ class MewloPack(object):
         """
 
         # download web version info json file and parse it
-        webinfodict, failure = self.download_versioninfodict()
+        (webinfodict, failure) = self.download_versioninfodict()
         if (failure != None):
-            return False, False, webinfodict, failure
+            return (False, False, webinfodict, failure)
 
         # ok let's get the remote version string (and local one)
         localversion = self.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_version, None)
@@ -512,18 +512,18 @@ class MewloPack(object):
             # error, no remote version info
             versionfile_url = self.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_url_version, None)
             failure = EFailure("No remote version specified in remote info file ({0}).".format(versionfile_url))
-            return False, False, webinfodict, failure
+            return (False, False, webinfodict, failure)
 
         # ok we have local and remote version strings, let's compare
-        isneweravail, failure = compare_versionstrings_isremotenewer(localversion, remoteversion)
+        (isneweravail, failure) = compare_versionstrings_isremotenewer(localversion, remoteversion)
         if (failure != None):
-            return isneweravail, isremoteversioncritical, webinfodict, failure
+            return (isneweravail, isremoteversioncritical, webinfodict, failure)
 
         # no newer version available?
         if (not isneweravail):
             # should we log a non-error message saying no new version vailable?
             self.appendevent(EInfo("Online check confirms latest version is installed ({0} - {1}).".format(localversion,remotedate)))
-            return False, False, webinfodict, None
+            return (False, False, webinfodict, None)
 
         # new version is available, add event saying so (note we dont RETURN this message as a failure, we add it to our event log, because its not an error)
         if (isremoteversioncritical):
@@ -539,7 +539,7 @@ class MewloPack(object):
             self.appendevent(EInfo("Newer version ({0} - {1}) is available online.".format(remoteversion,remotedate)))
 
         # new version available and no error
-        return True, isremoteversioncritical, webinfodict, None
+        return (True, isremoteversioncritical, webinfodict, None)
 
 
 
@@ -552,15 +552,15 @@ class MewloPack(object):
         versionfile_url = self.get_ourinfofile_property(mconst.DEF_PACK_INFOFIELD_url_version, None)
         if (versionfile_url == None):
             failure = EFailure("No url to check online for updates specified ('url.version').")
-            return None, failure
+            return (None, failure)
 
-        webinfodict, failure = download_file_as_jsondict(versionfile_url)
+        (webinfodict, failure) = download_file_as_jsondict(versionfile_url)
         if (failure != None):
-            return False, failure
+            return (False, failure)
 
         #success
         #print "ATTN: downloaded webinfo dict from {0} as:".format(versionfile_url) + str(webinfodict)
-        return webinfodict, None
+        return (webinfodict, None)
 
 
 
@@ -580,7 +580,7 @@ class MewloPack(object):
         update_download_fname = 'test.zip'
         #
         update_download_filepath = update_download_dir + '/' + update_download_fname
-        downloadedfilepath, failure = download_file_to_file(remotedownloadurl, update_download_filepath)
+        (downloadedfilepath, failure) = download_file_to_file(remotedownloadurl, update_download_filepath)
         if (failure != None):
             return failure
 

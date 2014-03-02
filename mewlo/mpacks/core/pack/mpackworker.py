@@ -158,7 +158,7 @@ class MewloPackWorker(object):
         Check if this pack object needs to run a database update before it can be used.
         :return: tuple (isdatabaseupdateneeded, failure)
         """
-        return False, None
+        return (False, None)
 
 
 
@@ -169,7 +169,7 @@ class MewloPackWorker(object):
         Run a database update.
         :return: tuple (didupdate, failure)
         """
-        return False, None
+        return (False, None)
 
 
 

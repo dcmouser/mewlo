@@ -398,7 +398,7 @@ class MewloSiteManager(object):
         sitemanager.do_main_commandline_early()
 
         # return it
-        return args, sitemanager
+        return (args, sitemanager)
 
 
 

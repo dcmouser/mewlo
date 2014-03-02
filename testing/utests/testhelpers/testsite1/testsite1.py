@@ -462,7 +462,7 @@ def main():
 
     # Create a site manager and ask it to instantiate a site of the class we specify, and handle some generic commandline options
     # it returns parsed commandline args so we can look for any custom ones
-    args, sitemanager = MewloSiteManager.do_main_commandline_startup(MewloSite_Test1, parser)
+    (args, sitemanager) = MewloSiteManager.do_main_commandline_startup(MewloSite_Test1, parser)
 
     # on successful creation, we can parse and do some stuff
     if (sitemanager != None):

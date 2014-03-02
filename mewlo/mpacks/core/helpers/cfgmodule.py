@@ -24,7 +24,7 @@ class MCfgModule(dict):
         self.configname = configname
         # if its a path to config location, translate to mod
         if (isinstance(pkgdirimp_config, basestring)):
-            pkgdirimp_config,failure = callables.importmodule_bypath(pkgdirimp_config)
+            (pkgdirimp_config,failure) = callables.importmodule_bypath(pkgdirimp_config)
         if (pkgdirimp_config==None):
             return
         self.pkgdirimp_config = pkgdirimp_config

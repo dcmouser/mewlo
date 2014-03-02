@@ -37,7 +37,7 @@ def download_file_as_jsondict(url):
         r = download(url)
         # print "ATTN: DEBUG downloaded {0} as: ".format(url) + str(r)
         rjson = r.json()
-        return rjson, None
+        return (rjson, None)
     except Exception as exp:
         return None, mevent.EException("Error downloading and parsing json file from '{0}'.".format(url), exp=exp, flag_traceback=True)
 
@@ -59,7 +59,7 @@ def download_file_to_file(url, targetfilepath):
                     break
                 handle.write(block)
             # success
-            return targetfilepath, None
+            return (targetfilepath, None)
         # failed
         return None, mevent.EFailure('Failed to open target file for download ({0}).'.format(targetfilepath))
     except Exception as exp:

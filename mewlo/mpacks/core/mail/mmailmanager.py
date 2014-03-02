@@ -122,7 +122,7 @@ class MewloMailManager(manager.MewloManager):
         text_encoding = preferred_encoding
 
         # compose email and create payload
-        payload, mail_from, rcpt_to, msg_id = pyzmail.compose_mail(efrom, eto, esubject, preferred_encoding, (ebody,text_encoding))
+        (payload, mail_from, rcpt_to, msg_id) = pyzmail.compose_mail(efrom, eto, esubject, preferred_encoding, (ebody,text_encoding))
         # ATTN: return value of mail_from is bad, and was causing failure to send email for hours before identified
 
         #print payload

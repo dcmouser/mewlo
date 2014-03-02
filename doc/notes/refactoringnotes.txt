@@ -1,0 +1,11 @@
+//---------------------------------------------------------------------------
+To search for tuples being returned without parens, use regex:
+
+return.*(\,[0-9a-zA-Z\s\'\"]+){1,20}$
+
+and on the receiving end use regex:
+
+\,\s*[a-zA-z]+\s*\=.*\(.*\)\s*$
+
+NOTE: USE POWERGREP AS OTHER REGEX (INCLUDING WINGWARE FAIL)
+//---------------------------------------------------------------------------

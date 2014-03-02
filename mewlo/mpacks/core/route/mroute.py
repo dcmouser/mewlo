@@ -74,7 +74,7 @@ class MewloRouteArgFlag(MewloRouteArg):
             argval = int(argval)
         except Exception as exp:
             return None, EFailure("Expected boolean value; " + str(exp))
-        return argval, None
+        return (argval, None)
 
 
     def get_isflag(self):
@@ -98,7 +98,7 @@ class MewloRouteArgString(MewloRouteArg):
 
     def validate_argvalue(self, argval):
         # see parent class for documentation
-        return argval, None
+        return (argval, None)
 
 
     def get_argtypestr(self):
@@ -123,7 +123,7 @@ class MewloRouteArgInteger(MewloRouteArg):
             argval = int(argval)
         except Exception as exp:
             return None, EFailure("Expected integer value; " + str(exp))
-        return argval, None
+        return (argval, None)
 
 
     def get_argtypestr(self):

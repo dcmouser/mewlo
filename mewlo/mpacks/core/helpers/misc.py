@@ -67,7 +67,7 @@ def readfile_asjson(filepath, nicelabel):
         return None, mevent.EException("Syntax error parsing json code in '{0}' from file '{1}'.".format(nicelabel,filepath), exp=exp, flag_traceback=True)
 
     # success
-    return jsondict, None
+    return (jsondict, None)
 
 
 
@@ -223,7 +223,7 @@ def compare_versionstrings_isremotenewer(localversion, remoteversion):
         remotepartval = int(remoteversionparts[i])
         if (localpartval<remotepartval):
             # remote version is newer!
-            return True, None
+            return (True, None)
         elif (localpartval>remotepartval):
             # local version is newer (!)
             return False, mevent.EError("Locally installed version ({0}) is newer than remote version ({1}).".format(localversion,remoteversion))
@@ -232,10 +232,10 @@ def compare_versionstrings_isremotenewer(localversion, remoteversion):
     # all parts in loop match, so now the only question is if there are more parts not yet parsed in remote
     if (len(localversionparts) < len(remoteversionparts)):
         # remote version is newer becase it has an additional part (i.e 2.0 < 2.0.000001
-        return True, None
+        return (True, None)
 
     # local version is same or newer
-    return False, None
+    return (False, None)
 
 
 
@@ -342,7 +342,7 @@ def parse_salthash_parameters(hashedtext):
 def nice_datestring(atime):
     """Return a nice string describing the datetime atime."""
     # ATTN: UNFINISHED -- we would like to say something like jan 1, 2010 at 5:4pm (3 weeks ago)
-    #nowtime = time.time()    
+    #nowtime = time.time()
     localtime = time.localtime(atime)
     timestring = time.strftime('%A, %B %d, %Y at %I:%M %p',localtime)
     return timestring

@@ -290,15 +290,15 @@ class MewloPackManager(manager.MewloManager):
                 return None, EFailure("Failed to load import by path '{0}', because that file does not exist.".format(path))
             else:
                 # then load it dynamically
-                dynamicmodule, failure = importmodule_bypath(path)
+                (dynamicmodule, failure) = importmodule_bypath(path)
                 if (failure != None):
-                    return None, failure
+                    return (None, failure)
 
             # now add it to our class-wide cache, so we don't try to reload it again
             MewloPackManager.classwide_packmodules[path] = dynamicmodule
 
         # return it
-        return MewloPackManager.classwide_packmodules[path], None
+        return (MewloPackManager.classwide_packmodules[path], None)
 
 
 

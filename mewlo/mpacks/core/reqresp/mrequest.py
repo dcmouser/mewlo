@@ -326,7 +326,7 @@ class MewloRequest(object):
 
     def add_pagemessage_simple(self, msg, cls=None):
         """Add a message to current page context."""
-        self.get_rendercontext().appendtovaluelist('messages', {'msg':message, 'cls':cls} )
+        self.get_rendercontext().appendtovaluelist('messages', {'msg':msg, 'cls':cls} )
 
     def get_pagemessages(self):
         """Return the list of messages added to page context."""

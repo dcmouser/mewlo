@@ -130,7 +130,7 @@ class Test_MewloPackWorker(mpackworker.MewloPackWorker):
         if (False):
             # test to say a db update is needed
             return True, EWarning("TEST: The pack 'test_mpack' needs to run a database update before it can run.")
-        return False, None
+        return (False, None)
 
 
     def check_isusable(self):

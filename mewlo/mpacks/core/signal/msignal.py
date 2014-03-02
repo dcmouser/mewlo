@@ -242,7 +242,7 @@ class MewloSignalManager(manager.MewloManager):
         for receiver in self.receivers:
             if (receiver.does_want_signal(id, message, request, source)):
                 # ok it matches, so deliver it
-                result, failure = receiver.handle_signal(id, message, request, source, flag_collectresults)
+                (result, failure) = receiver.handle_signal(id, message, request, source, flag_collectresults)
                 # collect results? if so add tuple to result list
                 if (flag_collectresults):
                     retv.append( (receiver, result, failure,) )

@@ -71,8 +71,7 @@ class AccountManager(manager.MewloManager):
             'reset_password_verify_email': 'reset_password_verify_email.jn2',
             #
             'generic_verification_code_error' : 'generic_verification_code_error.jn2',
-            'generic_success' : 'generic_success.jn2',
-            'generic_error' : 'generic_error.jn2',
+            'generic_message' : 'generic_message.jn2',
             'error_requires_login': 'error_requires_login.jn2',
             }
 
@@ -216,7 +215,7 @@ class AccountManager(manager.MewloManager):
         Return error dictionary."""
 
         # try to log in the user
-        user, errordict = self.sitecomp_usermanager().login_user(userdict)
+        (user, errordict) = self.sitecomp_usermanager().login_user(userdict)
         if (user != None):
             # ok it's a success, user was found and loaded.
             # tell the session about the user's identity (i.e. the client browser BECOMES this new user and is logged in immediately)
@@ -699,7 +698,7 @@ class AccountManager(manager.MewloManager):
             # form data is valid
             userdict = form.data
             # now try to register them
-            user, errordict, successmessage = self.try_create_newuser_deferred(request, userdict)
+            (user, errordict, successmessage) = self.try_create_newuser_deferred(request, userdict)
             if (not errordict):
                 # success
                 viewfilename = self.viewfiles['register_done_deferred_usercreated']
@@ -1374,8 +1373,8 @@ class AccountManager(manager.MewloManager):
                 # success; now we want to consume this verification
                 verification.consume(request)
                 # and drop down to view sucess
-                viewfilename = self.viewfiles['generic_success']
-                viewargs['successmessage'] = "Your password has been successfully changed."
+                request.add_pagemessage_simple("Your password has been successfully changed.", 'success')
+                viewfilename = self.viewfiles['generic_message']
             else:
                 # add error to form
                 form.add_genericerror(failure.msg())
@@ -1452,7 +1451,8 @@ class AccountManager(manager.MewloManager):
             self.handle_modify_field_form(request, user, fieldname, MewloForm_ModifyField_Email)
         else:
             # unsupported field, error
-            self.render_localview(request, self.viewfiles['generic_error'], {'failuremessage':'Error: Unsupported fieldname specified.'} )
+            request.add_pagemessage_simple("ERROR: Unsupported fieldname specified.", 'error')
+            self.render_localview(request, self.viewfiles['generic_message'])
 
 
 
@@ -1477,8 +1477,8 @@ class AccountManager(manager.MewloManager):
             (successmessage, failure) = self.try_modify_field_with_verification(request, user, fieldname, fieldval)
             if (not failure):
                 # success, we've modified the field (or created a verification to do so); and drop down to view sucess
-                viewfilename = self.viewfiles['generic_success']
-                viewargs['successmessage'] = successmessage
+                request.add_pagemessage_simple(successmessage, 'success')
+                viewfilename = self.viewfiles['generic_message']
             else:
                 # add error to form
                 form.add_genericerror(failure.msg())
@@ -1556,9 +1556,11 @@ class AccountManager(manager.MewloManager):
             # form data is valid
             failure = self.try_cancel_modify_field(request, user, fieldname, invalidreason)
             if (failure):
-                self.render_localview(request, self.viewfiles['generic_error'], {'failuremessage':"Failed to cancel pending field change: {1}.".format(fieldname,failure.msg())} )
+                request.add_pagemessage_simple("Failed to cancel pending field change: {1}.".format(fieldname,failure.msg()), 'error')
+                self.render_localview(request, self.viewfiles['generic_message'])
             else:
-                self.render_localview(request, self.viewfiles['generic_success'], {'successmessage':"Previous pending modification of field {0} has been canceled.".format(fieldname)} )
+                request.add_pagemessage_simple("Previous pending modification of field {0} has been canceled.".format(fieldname), 'success')
+                self.render_localview(request, self.viewfiles['generic_message'])
             return
 
         # render form
