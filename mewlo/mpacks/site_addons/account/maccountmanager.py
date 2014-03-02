@@ -27,6 +27,8 @@ from forms.form_generic_confirm import MewloForm_Generic_Confirm
 
 
 
+
+
 class AccountManager(manager.MewloManager):
     """This class is used to help processing requests.
     """
@@ -160,17 +162,18 @@ class AccountManager(manager.MewloManager):
 
     def request_login(self, request):
         """Present and consume the login form."""
-        didlogin = self.request_login_and_return(request,None)
+        didlogin = self.try_login_and_return(request,None)
         if (didlogin):
             # success -- send them to profile view
-            return self.request_profile(request)
-        # success
-        return None
+            self.request_profile(request)
+        else:
+            # the call to try_login_and_return would have rendered login form, so nothing to do here
+            pass
 
 
 
 
-    def request_login_and_return(self, request, reasonmessage):
+    def try_login_and_return(self, request, reasonmessage):
         """Present and consume the login form -- on success don't send them anywhere.
         return True if they are logged in and we can present whatever view we want afterwards.
         return False if not and we presented the login form.
@@ -253,8 +256,7 @@ class AccountManager(manager.MewloManager):
         self.try_logout(request, flag_clearsession=True)
         # then page contents
         self.render_localview(request, self.viewfiles['logout_complete'])
-        # success
-        return None
+
 
 
 
@@ -269,8 +271,7 @@ class AccountManager(manager.MewloManager):
         # and now a message to show the user on the next page they load
         # ATTN: This actually will actually cause a new session object to be created at this time if we just cleared the user session with flag_clearusersession -- which is a bit silly to combine them; but it does help test
         request.add_sessionmessage_simple("You are now logged out.",'success')
-        # success
-        return None
+
 
 
 
@@ -327,37 +328,19 @@ class AccountManager(manager.MewloManager):
 
 
     def request_register(self, request):
-        """Controller function."""
-        if (self.registration_mode=='deferred'):
-            return self.request_register_deferred(request)
-        elif (self.registration_mode=='immediate'):
-            return self.request_register_immediate(request)
+        """Controller function: register user."""
+        # set page info first (as it may be used in page contents)
+        self.set_renderpageid(request, 'register')
+
+        if (self.registration_mode=='immediate'):
+            flag_immediate = True
+            formclass = MewloForm_Register_Immediate
+        elif (self.registration_mode=='deferred'):
+            flag_immediate = False
+            formclass = MewloForm_Register_Deferred
         else:
             raise Exception("Internal error: Unknown registration_mode of '{0}'.".format(str(self.registration_mode)))
 
-
-
-    def request_register_immediate(self, request):
-        """Handle immediate registration case."""
-        formclass = MewloForm_Register_Immediate
-        return self.do_handlepage_register(request, formclass, flag_immediate = True)
-
-
-    def request_register_deferred(self, request):
-        """Handle deferred registration case."""
-        formclass = MewloForm_Register_Deferred
-        return self.do_handlepage_register(request, formclass, flag_immediate = False)
-
-
-
-
-
-
-
-    def do_handlepage_register(self, request, formclass, flag_immediate):
-        """Handle registration based on the formclass and type of registration."""
-        # set page info first (as it may be used in page contents)
-        self.set_renderpageid(request, 'register')
         # init form+formdata
         formdata = request.get_postdata()
         # the form to be used
@@ -371,7 +354,7 @@ class AccountManager(manager.MewloManager):
             (errordict, successmessage) = self.try_register(request, userdict, flag_immediate)
             if (not errordict):
                 # success; called function will have handled rendering view, so we are now done and do not want to drop down
-                return None
+                return
             else:
                 # add errors to form
                 form.merge_errordict(errordict)
@@ -379,8 +362,7 @@ class AccountManager(manager.MewloManager):
 
         # render form
         self.render_localview(request, form.get_viewfilename(), {'form':form})
-        # success
-        return None
+
 
 
 
@@ -403,7 +385,7 @@ class AccountManager(manager.MewloManager):
         # first let's see if we can find an existing user with this unique info -- if so, it's an error
         errordict = self.sitecomp_usermanager().error_if_user_exists(userdict)
         if (errordict):
-            return errordict, ''
+            return (errordict, '')
 
         # create the user immediate or defer via verification
         if (flag_immediate):
@@ -415,7 +397,7 @@ class AccountManager(manager.MewloManager):
             success_viewfile = self.viewfiles['register_done_immediate']
         else:
             # deferrred user creation, we create a verification instead
-            (verification, errordict, successmessage) = self.precreate_newuser_deferred_justverification(request, userdict)
+            (verification, errordict, successmessage) = self.try_precreate_newuser_deferred_justverification(request, userdict)
             success_viewfile = self.viewfiles['register_done_deferred_verification']
 
         if (not errordict):
@@ -453,7 +435,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def precreate_newuser_deferred_justverification(self, request, userdict):
+    def try_precreate_newuser_deferred_justverification(self, request, userdict):
         """
         Create a verification entry for a new user registration.
         We take a userdict instead of explicit variables for username, email, password, so that we can eventually accomodate whatever initial user properties we have specified at time of registration.
@@ -618,18 +600,18 @@ class AccountManager(manager.MewloManager):
         args = request.get_route_parsedargs()
         verification_code = args['code']
         # try to register -- caller will handle rendering the result
-        return self.try_verify_registration_deferred_withcode(request, verification_code)
+        self.verify_registration_deferred_withcode(request, verification_code)
 
 
 
 
 
 
-    def try_verify_registration_deferred_withcode(self, request, verification_code):
+    def verify_registration_deferred_withcode(self, request, verification_code):
         """Try to complete their deferred verification given a code."""
 
         # look up the code
-        verification, failure = self.verify_registration_validatecode(request, verification_code)
+        (verification, failure) = self.try_verify_registration_validatecode(request, verification_code)
         if (failure != None):
             # ATTN: TODO - make this a form where they can provide the verification code manually
             self.render_localview(request, self.viewfiles['verify_registration_deferred_error_codenotfound'], {'failure':failure})
@@ -660,7 +642,7 @@ class AccountManager(manager.MewloManager):
         # only when they submit this successfully do we actually consume the verification entry and create their account
 
         # caller will handle rendering any page results
-        return self.try_finalize_registration_deferred_withverification(request, verification)
+        self.finalize_registration_deferred_withverification(request, verification)
 
 
 
@@ -670,7 +652,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def verify_registration_validatecode(self, request, verification_code):
+    def try_verify_registration_validatecode(self, request, verification_code):
         """Locate verification, check it for different kinds of errors.
         return tuple (verification, failure).
         """
@@ -686,7 +668,7 @@ class AccountManager(manager.MewloManager):
         verification_varname = None
         failure = verificationmanager.basic_validation(verification, verification_code, request, verification_type_expected, is_shortcode_expected, verification_varname)
         # return success or failure
-        return verification, failure
+        return (verification, failure)
 
 
 
@@ -695,7 +677,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def try_finalize_registration_deferred_withverification(self, request, verification):
+    def finalize_registration_deferred_withverification(self, request, verification):
         """
         They have provided a valid registration code which we matched to a verification entry; now we will let them fill in the final form to create their account.
         See try_verify_registration_deferred_withcode for more info.
@@ -717,7 +699,7 @@ class AccountManager(manager.MewloManager):
             # form data is valid
             userdict = form.data
             # now try to register them
-            user, errordict, successmessage = self.create_newuser_deferred(request, userdict)
+            user, errordict, successmessage = self.try_create_newuser_deferred(request, userdict)
             if (not errordict):
                 # success
                 viewfilename = self.viewfiles['register_done_deferred_usercreated']
@@ -741,8 +723,6 @@ class AccountManager(manager.MewloManager):
 
         # render form
         self.render_localview(request, viewfilename,viewargs)
-        # success
-        return None
 
 
 
@@ -814,7 +794,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def create_newuser_deferred(self, request, userdict):
+    def try_create_newuser_deferred(self, request, userdict):
         """
         User has submitted a registration attempt with an accompanying validation code.
         There are a couple of things we need to do here:
@@ -825,11 +805,11 @@ class AccountManager(manager.MewloManager):
 
         # first get verification and re-check that it's still valid
         verification_code = userdict['code']
-        verification, failure = self.verify_registration_validatecode(request, verification_code)
+        (verification, failure) = self.try_verify_registration_validatecode(request, verification_code)
         if (failure != None):
             # error with validation code -- set the message as generic error in errordict and return
             errordict = { '':failure.msg() }
-            return None, errordict, ''
+            return (None, errordict, '')
 
         # verified fields
         verifiedfields = [verification.verification_varname]
@@ -846,7 +826,7 @@ class AccountManager(manager.MewloManager):
         (user, errordict, successmessage) = self.create_newuser(request, userdict, verifiedfields=verifiedfields)
         if (errordict):
             # error
-            return user, errordict, successmessage
+            return (user, errordict, successmessage)
 
         # success, so consume verification
         verification.consume(request)
@@ -857,7 +837,7 @@ class AccountManager(manager.MewloManager):
             request.set_user(user)
 
         # and return
-        return user, errordict, successmessage
+        return (user, errordict, successmessage)
 
 
 
@@ -889,16 +869,15 @@ class AccountManager(manager.MewloManager):
         # redirect to login if not logged in (and consume login form data if available)
         user = self.get_user_forcelogin(request)
         if (user == None):
-            return None
+            return
 
-        # test
+        # ATTN: test
         request.add_pagemessage({'cls':'green','msg':"page message one"})
         request.add_pagemessage({'cls':'red','msg':"page message two"})
 
         # then page contents
         self.render_localview( request, self.viewfiles['profile'], {'viewuser':user} )
-        # success
-        return None
+
 
 
 
@@ -917,7 +896,7 @@ class AccountManager(manager.MewloManager):
         fieldname = args['field']
 
         # first get verification and re-check that it's still valid
-        verification, failure = self.verify_userfield_validatecode(request, verification_code, fieldname)
+        (verification, failure) = self.try_verify_userfield_validatecode(request, verification_code, fieldname)
 
         if (failure == None):
             # code matches, set the field and mark it verified
@@ -931,13 +910,12 @@ class AccountManager(manager.MewloManager):
             self.render_localview(request, self.viewfiles['userfield_verify_success'], {'fieldname': fieldname} )
         else:
             self.render_localview(request, self.viewfiles['userfield_verify_failure'], {'fieldname': fieldname, 'failure': failure.msg()})
-        # success
-        return None
 
 
 
 
-    def verify_userfield_validatecode(self, request, verification_code, verification_varname):
+
+    def try_verify_userfield_validatecode(self, request, verification_code, verification_varname):
         """Locate verification, check it for different kinds of errors.
         return tuple (verification, failure).
         """
@@ -951,8 +929,9 @@ class AccountManager(manager.MewloManager):
         verification_type_expected = mconst.DEF_VFTYPE_userfield_verification
         is_shortcode_expected = False
         failure = verificationmanager.basic_validation(verification, verification_code, request, verification_type_expected, is_shortcode_expected, verification_varname)
+
         # return success or failure
-        return verification, failure
+        return (verification, failure)
 
 
 
@@ -1033,12 +1012,12 @@ class AccountManager(manager.MewloManager):
             if (formdata != None and form.validate()):
                 # they are submitting form -- so we want to resend the verification now (and possibly change the email on it)
                 fieldval = form.get_val_nonblank(fieldname, user.getfield_byname(fieldname))
-                failure = self.resend_field_verification(request, user, verification, fieldname, fieldval)
+                failure = self.try_resend_field_verification(request, user, verification, fieldname, fieldval)
                 if (not failure):
                     # success
                     viewfilename = self.viewfiles['verify_resent']
                     self.render_localview(request, viewfilename, viewargs)
-                    return None
+                    return
                 # there was an error resending the verification, so add error and drop down
                 form.add_genericerror(failure.msg())
             else:
@@ -1079,12 +1058,12 @@ class AccountManager(manager.MewloManager):
                             if (not user.is_safe_stranger_claim_thisaccount()):
                                 failure = EFailure("Email cannot be changed from this form on an existing active user account; login first to change email address.")
                     if (not failure):
-                        failure = self.resend_field_verification(request, user, verification, fieldname, fieldval)
+                        failure = self.try_resend_field_verification(request, user, verification, fieldname, fieldval)
                     if (not failure):
                         # success
                         viewfilename = self.viewfiles['verify_resent']
                         self.render_localview(request, viewfilename, viewargs)
-                        return None
+                        return
                 else:
                     # couldn't find them, that's an error
                     failure = EFailure("Could not find any pending new user registration using the info you have provided.")
@@ -1097,8 +1076,7 @@ class AccountManager(manager.MewloManager):
 
         # render form
         self.render_localview(request, viewfilename, viewargs)
-        # success
-        return None
+
 
 
 
@@ -1120,7 +1098,7 @@ class AccountManager(manager.MewloManager):
                 return (user, verification)
 
         # failed
-        return None, None
+        return (None, None)
 
 
 
@@ -1139,12 +1117,12 @@ class AccountManager(manager.MewloManager):
                 return (user, verification)
 
         # failed
-        return None, None
+        return (None, None)
 
 
 
 
-    def resend_field_verification(self, request, user, verification, fieldname, fieldval):
+    def try_resend_field_verification(self, request, user, verification, fieldname, fieldval):
         """Resend a new user their pending registration verification email.
         If a different email address is specified, CHANGE AND SAVE the verification (and user?) email field first.
         Return None on success, otherwise failure."""
@@ -1246,14 +1224,14 @@ class AccountManager(manager.MewloManager):
                 # success
                 viewfilename = self.viewfiles['reset_password_sent']
                 self.render_localview(request, viewfilename, viewargs)
-                return None
+                return
 
             # there was an error resending the verification, so add error and drop down
             form.add_genericerror(failure.msg())
 
         # render form
         self.render_localview(request, viewfilename, viewargs)
-        return None
+
 
 
 
@@ -1323,23 +1301,23 @@ class AccountManager(manager.MewloManager):
         # get args
         verification_code = request.get_route_parsedarg('code','')
         # try to register -- caller will handle rendering the result
-        return self.try_reset_password_withcode(request, verification_code)
+        self.reset_password_withcode(request, verification_code)
 
 
 
 
-    def try_reset_password_withcode(self, request, verification_code):
+    def reset_password_withcode(self, request, verification_code):
         """Try to complete password reset given a code."""
 
         # look up the code, make sure its valid, unused and unexpired, of the right type, etc.
-        (verification, failure) = self.validatecode_passwordreset(request, verification_code)
+        (verification, failure) = self.try_validatecode_passwordreset(request, verification_code)
         if (failure != None):
             # ATTN: TODO - make this a form where they can provide the verification code manually
             self.render_localview(request, self.viewfiles['generic_verification_code_error'], {'failure':failure})
             return
 
         # code is good
-        return self.try_reset_password_withverification(verification)
+        self.reset_password_withverification(verification)
 
 
 
@@ -1347,7 +1325,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def validatecode_passwordreset(self, request, verification_code):
+    def try_validatecode_passwordreset(self, request, verification_code):
         """
         Locate verification, make sure it's good
         Return tuple (verification, failure).
@@ -1370,7 +1348,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def try_reset_password_withverification(self, request, verification):
+    def reset_password_withverification(self, request, verification):
         """Present them with a form to reset their password."""
 
         # get user from verification
@@ -1391,7 +1369,7 @@ class AccountManager(manager.MewloManager):
             # form data is valid
             password_plaintext = form.get_val('password')
             # now try to set update user's password
-            failure = self.do_reset_password(user, password_plaintext)
+            failure = self.try_reset_password(user, password_plaintext)
             if (not failure):
                 # success; now we want to consume this verification
                 verification.consume(request)
@@ -1411,14 +1389,14 @@ class AccountManager(manager.MewloManager):
 
         # render form
         self.render_localview(request, viewfilename, viewargs)
-        # success
-        return None
 
 
 
 
-    def do_reset_password(self, user, password_plaintext):
-        """Change a user's password."""
+
+    def try_reset_password(self, user, password_plaintext):
+        """Change a user's password.
+        return Failure"""
         self.sitecomp_usermanager().set_userpassword_from_plaintext(user, password_plaintext)
         user.save()
         return None
@@ -1464,25 +1442,22 @@ class AccountManager(manager.MewloManager):
         user = request.get_user()
         if (user == None):
             self.render_localview(request, self.viewfiles['error_requires_login'], {} )
-            return None
+            return
 
         # get fieldname to be modified from args
         fieldname = request.get_route_parsedarg('field')
 
         # now try to modify it -- we only know how to handle certain fields
         if (fieldname == 'email'):
-            self.try_modify_field_form(request, user, fieldname, MewloForm_ModifyField_Email)
+            self.handle_modify_field_form(request, user, fieldname, MewloForm_ModifyField_Email)
         else:
             # unsupported field, error
             self.render_localview(request, self.viewfiles['generic_error'], {'failuremessage':'Error: Unsupported fieldname specified.'} )
-            # success
-            return None
-
-        return
 
 
 
-    def try_modify_field_form(self, request, user, fieldname, formclass):
+
+    def handle_modify_field_form(self, request, user, fieldname, formclass):
         """Present form where user can modify field."""
 
         # init form+formdata
@@ -1511,8 +1486,6 @@ class AccountManager(manager.MewloManager):
 
         # render form
         self.render_localview(request, viewfilename, viewargs)
-        # success
-        return None
 
 
 
@@ -1522,7 +1495,6 @@ class AccountManager(manager.MewloManager):
         """
 
         # if it's a unique field we need to make sure no one else has it -- though note that even if it sneaks through us here, it will be caught again at time of confirmation
-
         if (fieldname == 'email'):
             # modify email
             failure = self.sitecomp_usermanager().check_uniquefield_notinuse(user, fieldname, fieldval)
@@ -1533,7 +1505,7 @@ class AccountManager(manager.MewloManager):
             return (successmessage, failure)
 
         # unsupported
-        return EFailure('Unsupported fieldname in try_modify_field_with_verification().')
+        return ('', EFailure('Unsupported fieldname in try_modify_field_with_verification().') )
 
 
 
@@ -1553,20 +1525,19 @@ class AccountManager(manager.MewloManager):
         # get fieldname to be modified from args
         fieldname = request.get_route_parsedarg('field')
 
-        # try it
-        failure = self.try_cancel_modify_field_form(request, fieldname)
-        return None
+        # handle canceling
+        self.cancel_modify_field_form(request, fieldname)
 
 
 
-    def try_cancel_modify_field_form(self, request, fieldname):
+    def cancel_modify_field_form(self, request, fieldname):
         """Cancel a pending verification for field change request."""
 
         # get logged in user from session (required)
         user = request.get_user()
         if (user == None):
             self.render_localview(request, self.viewfiles['error_requires_login'], {} )
-            return None
+            return
 
         # init form+formdata
         formdata = request.get_postdata()
@@ -1588,12 +1559,11 @@ class AccountManager(manager.MewloManager):
                 self.render_localview(request, self.viewfiles['generic_error'], {'failuremessage':"Failed to cancel pending field change: {1}.".format(fieldname,failure.msg())} )
             else:
                 self.render_localview(request, self.viewfiles['generic_success'], {'successmessage':"Previous pending modification of field {0} has been canceled.".format(fieldname)} )
-            return None
+            return
 
         # render form
         self.render_localview(request, viewfilename, viewargs)
-        # success
-        return None
+
 
 
 
@@ -1614,62 +1584,6 @@ class AccountManager(manager.MewloManager):
 
 
 
-
-
-
-
-
-# THE BELOW CODE IS NOT USED YET
-
-
-
-
-    def request_login_bycode(self, request):
-        """
-        This function lets a user login by verifying a code sent to them (via email).
-        """
-        # get code from args
-        code = request.get_route_parsedarg('code','')
-
-        # set page info first (as it may be used in page contents)
-        self.set_renderpageid(request, 'login_bycode')
-        # init form+formdata
-        formdata = request.get_postdata()
-        # form to be used
-        form = MewloForm_Login_ByCode(formdata)
-
-        # default viewfilename
-        viewfilename = form.get_viewfilename()
-        failuremsg = ''
-
-        # valid submission?
-        if (formdata != None and form.validate()):
-            # form data is valid, get the code specified and drop down
-            code = form.get_val('code','')
-        else:
-            # initialize form
-            form.set_values_from_dict( {'code':code} )
-
-        # if code is specified, check it
-        if (code != ''):
-            failure = self.try_loginbycode(request, code)
-            if (not failure):
-                # success, so we are done, called would have
-                return None
-            # error with code (set failure and drop down)
-            form.add_fielderror('code',failure.msg())
-
-        # show form
-        self.render_localview(request, self.viewfiles['login_bycode'], {'form':form, 'failure': failuremsg} )
-
-
-
-
-
-    def try_loginbycode(self, request, code):
-        print "ATTN: TO DO CHECK CODE."
-        failure = EFailure("Not implemented yet.")
-        return failure
 
 
 
@@ -1739,9 +1653,12 @@ class AccountManager(manager.MewloManager):
         if (user != None):
             return user
 
-        # user is not logged in, redirect them to login page
-
+        # user is not logged in, show them a login page
         # one way we could do this is by just presenting the login form on this current page
+        # note that this is NOT a real REDIRECT to another page -- its basically internally showing and consuming login form before proceeding to request
+        # one reason this works is because the (login) form submits to the current url where it was shown, so the original url does not change when showing login form.
+        # this has some advantages to a full-blown redirect, but there may be times when we need to support multiple-page-request-url redirecting.
+
         # now present or parse the login form
         didlogin = self.request_login_and_return(request,reasonmessage)
         if (didlogin):

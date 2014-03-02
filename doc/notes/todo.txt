@@ -343,3 +343,16 @@ change all viewarg-based failuremessage/successmessage views to use pagemessages
 3/1/14
 don't return value from controller functions
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+3/1/14
+standardize use of function prefixes (request,try, do) in account manager:
+
+suggestion:
+in requests controller handler, use try_ for functions that can return failure values
+//---------------------------------------------------------------------------
+
+
+

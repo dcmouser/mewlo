@@ -234,20 +234,6 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                     ],
                 controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_cancel_modify_field),
             ))
-        routegroup.append(
-            MewloRoute(
-                id = 'login_bycode',
-                path = '/loginby',
-                args = [
-                    MewloRouteArgString(
-                        id = 'code',
-                        required = False,
-                        help = "verification code",
-                        ),
-                    ],
-                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_login_bycode),
-            ))
-
 
         # add routegroup we just created to the site
         self.mewlosite.comp('routemanager').append(routegroup)
@@ -358,12 +344,6 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 #'flag_linkurl': False,
                 'parent': 'profile',
                 'urlargs': {'field':'email'},
-                }),
-            NavNode('login_bycode', {
-                'menulabel': "Login by code",
-                'visible': lambda navnode,context: navnode.isactive(context),
-                'flag_linkurl': False,
-                'parent': 'profile',
                 }),
             ]
 
