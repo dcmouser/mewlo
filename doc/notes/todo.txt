@@ -1,40 +1,6 @@
-//---------------------------------------------------------------------------
-2/27/14
-change the way _secret config files work -- let them easily overide any settings
-//---------------------------------------------------------------------------
-
 
 //---------------------------------------------------------------------------
 2/28/14
 consider whether new-user account initial email verifications should be of dif type than email CHANGE verifications
 //---------------------------------------------------------------------------
 
-
-//---------------------------------------------------------------------------
-2/28/14
-support the ability to overide menu urlargs on pages -- for example profile page links when viewing another profile
-add example of viewing other user profiles
-//---------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------
-2/28/14
-support forced re-password after long time since login
-//---------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------
-3/1/14
-Catch exceptions from controller control functions, and generate special responses for known ones
-This would allow simple error views on exceptions and also allow redirection via exception, which would let us avoid doing things like:
-    if (redirect_login()): return
-from controller functions, and instead let us just do:
-    redirect_login()
-and let a function throw a redirect exception if it generated page rendering.
-//---------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------
-3/1/14
-All navnodes should have option about whether to display navnode if the page is active.
-//---------------------------------------------------------------------------

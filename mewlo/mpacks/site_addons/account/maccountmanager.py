@@ -9,7 +9,9 @@ from mewlo.mpacks.core.manager import manager
 from mewlo.mpacks.core.form.mform import MewloForm
 from mewlo.mpacks.core.user import muser, musermanager
 from mewlo.mpacks.core.eventlog.mevent import EFailure, EException
+from mewlo.mpacks.core.eventlog import mewloexception
 from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
+
 
 # python imports
 
@@ -23,7 +25,7 @@ from forms.form_resend_register_verification import MewloForm_Resend_Register_Ve
 from forms.form_reset_password import MewloForm_Send_Reset_Password, MewloForm_Submit_Reset_Password
 from forms.form_modifyfield_email import MewloForm_ModifyField_Email
 from forms.form_generic_confirm import MewloForm_Generic_Confirm
-
+from forms.form_repassword import MewloForm_RePassword
 
 
 
@@ -63,8 +65,6 @@ class AccountManager(manager.MewloManager):
             'userfield_verify_success' : 'userfield_verify_success.jn2',
             'userfield_verify_failure' : 'userfield_verify_failure.jn2',
             #
-            'login_bycode': 'login_bycode.jn2',
-            #
             'verify_resent': 'verify_resent.jn2',
             #
             'reset_password_sent': 'reset_password_sent.jn2',
@@ -73,6 +73,8 @@ class AccountManager(manager.MewloManager):
             'generic_verification_code_error' : 'generic_verification_code_error.jn2',
             'generic_message' : 'generic_message.jn2',
             'error_requires_login': 'error_requires_login.jn2',
+            #
+            'repassword': 'repassword.jn2',
             }
 
 
@@ -865,7 +867,7 @@ class AccountManager(manager.MewloManager):
         self.set_renderpageid(request, 'profile')
 
         # redirect to login if not logged in (and consume login form data if available)
-        user = self.get_user_forcelogin(request)
+        user = self.get_user_force_login(request)
         if (user == None):
             return
 
@@ -1433,22 +1435,25 @@ class AccountManager(manager.MewloManager):
         # set page info first (as it may be used in page contents)
         self.set_renderpageid(request, 'modify_field')
 
-        # get logged in user from session (required)
-        user = request.get_user()
+        # make sure user is logged in (and has recently provided password)
+        user = self.get_user_force_recentpassword(request, 1)
         if (user == None):
-            self.render_localview(request, self.viewfiles['error_requires_login'], {} )
             return
 
         # get fieldname to be modified from args
         fieldname = request.get_route_parsedarg('field')
+
+        # test - we can overide urlargs for menus here
+        #request.response.set_rendercontext_val('urlargs',{'field':'newfield'})
 
         # now try to modify it -- we only know how to handle certain fields
         if (fieldname == 'email'):
             self.handle_modify_field_form(request, user, fieldname, MewloForm_ModifyField_Email)
         else:
             # unsupported field, error
-            request.add_pagemessage_simple("ERROR: Unsupported fieldname specified.", 'error')
-            self.render_localview(request, self.viewfiles['generic_message'])
+            #request.add_pagemessage_simple("ERROR: Unsupported fieldname specified1.", 'error')
+            #self.render_localview(request, self.viewfiles['generic_message'])
+            raise mewloexception.MewloException_ObjectDoesNotExist("I failed1 to cancel pending field change: {0}.".format(fieldname))
 
 
 
@@ -1552,8 +1557,9 @@ class AccountManager(manager.MewloManager):
             # form data is valid
             failure = self.try_cancel_modify_field(request, user, fieldname, invalidreason)
             if (failure):
-                request.add_pagemessage_simple("Failed to cancel pending field change: {1}.".format(fieldname,failure.msg()), 'error')
-                self.render_localview(request, self.viewfiles['generic_message'])
+                #request.add_pagemessage_simple("Failed to cancel pending field change: {1}.".format(fieldname,failure.msg()), 'error')
+                raise MewloException_ObjectDoesNotExist("I failed2 to cancel pending field change: {0}: {1}.".format(fieldname, failure.msg()))
+                #self.render_localview(request, self.viewfiles['generic_message'])
             else:
                 request.add_pagemessage_simple("Previous pending modification of field {0} has been canceled.".format(fieldname), 'success')
                 self.render_localview(request, self.viewfiles['generic_message'])
@@ -1573,7 +1579,7 @@ class AccountManager(manager.MewloManager):
             failure = self.sitecomp_usermanager().cancel_userfield_verifications(user, request, fieldname, invalidreason)
         else:
             # unsupported field, error
-            failure = EFailure("Error: Unsupported fieldname specified.")
+            failure = EFailure("Error: Unsupported fieldname specified2.")
         return failure
 
 
@@ -1642,7 +1648,7 @@ class AccountManager(manager.MewloManager):
 
 
 
-    def get_user_forcelogin(self, request, reasonmessage="You must login first before you can access this page."):
+    def get_user_force_login(self, request, reasonmessage="You must login first before you can access this page."):
         """Return the logged in user.
         But if user is not logged in, reroute/redirect to login page (and then back to current request), and return None."""
 
@@ -1658,7 +1664,7 @@ class AccountManager(manager.MewloManager):
         # this has some advantages to a full-blown redirect, but there may be times when we need to support multiple-page-request-url redirecting.
 
         # now present or parse the login form
-        didlogin = self.request_login_and_return(request,reasonmessage)
+        didlogin = self.try_login_and_return(request, reasonmessage)
         if (didlogin):
             # success -- return the logged in user
             return request.get_user()
@@ -1667,3 +1673,66 @@ class AccountManager(manager.MewloManager):
         return None
 
 
+
+
+    def get_user_force_recentpassword(self, request, recentminutes, reasonmessage="It's been a while since you logged in so you need to provide your password again before you can continue."):
+        """Return the logged in user.
+        But if user is not logged in, reroute/redirect to login page (and then back to current request), and return None."""
+
+        # first make sure they are logged in!
+        user = self.get_user_force_login(request)
+        if (user == None):
+            # no user, just return
+            return user
+
+        # ok let's check how long since user logged in and proved password
+        date_lastlogin = user.get_date_lastlogin()
+        if (user.has_recently_loggedin(recentminutes)):
+            return user
+
+        # it's been too long, we require them to provide their password via form
+        didpassword = self.try_providepassword_and_return(request, user, reasonmessage)
+        if (didpassword):
+            return user
+
+        # failed to password, but we presented password form
+        return None
+
+
+
+
+    def try_providepassword_and_return(self, request, user, reasonmessage):
+        """Present and consume the password form -- on success don't send them anywhere.
+        return True if they are logged in and we can present whatever view we want afterwards.
+        return False if not and we presented the login form.
+        """
+
+        # init form+formdata
+        formdata = request.get_postdata()
+        # the form we will use
+        form = MewloForm_RePassword(formdata)
+
+        # valid submission?
+        if (formdata != None and form.validate()):
+            # form data is valid
+            if (user):
+                # build dictionary of parameters of registration
+                password_plaintext = form.get_val('password')
+                if (user.does_plaintextpasswordmatch(password_plaintext)):
+                    # match! -- update their date of last login and return user
+                    user.update_date_lastlogin()
+                    return user
+            errordict = {'password':"Password is wrong."}
+            # drop down and re-present form with errors
+            form.merge_errordict(errordict)
+
+        # show reason message to user?
+        if (reasonmessage):
+            request.add_pagemessage({'cls':'notice','msg':reasonmessage})
+
+        # set page info first (as it may be used in page contents) -- note that if caller has already set it, we don't overwrite it and leave it
+        self.set_renderpageid_ifnotset(request, 'repassword')
+        # render form (use forms default view)
+        self.render_localview(request, form.get_viewfilename(), {'form':form})
+        # return False saying we have presented form / handled view
+        return False

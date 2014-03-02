@@ -483,7 +483,8 @@ class NavNodeManager(manager.MewloManager):
 
         # if its not visible, we can stop right now
         isvisible = node.get_isvisible(responsecontext, visiblefieldlist)
-        if (not isvisible):
+        flag_isactive = node.isactive(responsecontext)
+        if ((not isvisible) and (not flag_isactive)):
             return ''
 
         # other properties
@@ -504,7 +505,7 @@ class NavNodeManager(manager.MewloManager):
             html = label
 
         # active highlighting
-        flag_isactive = node.isactive(responsecontext)
+
         if (flag_isactive):
             html = '<span class="nav_active">' + html + '</span>'
 
@@ -733,11 +734,19 @@ class NavNode(object):
     def get_menu_url(self, responsecontext):
         """Return value for menu/navbar creation."""
         val = self.get_propertyl(['url'], None, True, responsecontext)
-        urlargs = self.get_propertyl(['urlargs'], None, True, responsecontext)
         if (val==None):
             # no url specified in navnode, but perhaps we can construct it from the route associated with this navnode
             if (self.route != None):
                 # ATTN: TODO - eventually we will need to pass context info to this function to account for url parameters, etc.
+                urlargs = self.get_propertyl(['urlargs'], None, True, responsecontext)
+                contexturlargs = responsecontext.get_value('urlargs',[])
+                if (contexturlargs):
+                    # merge contexturlargs
+                    if (not urlargs):
+                        urlargs = contexturlargs
+                    else:
+                        urlargs = urlargs.copy()
+                        urlargs.update(contexturlargs)
                 val = self.route.construct_url(flag_relative=True, args = urlargs)
         else:
             # val is the url, but we need to add site prefix

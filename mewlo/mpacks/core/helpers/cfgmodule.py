@@ -59,3 +59,29 @@ class MCfgModule(dict):
                 return getattr(importobj,key)
         # not found
         return defaultval
+
+
+
+    def run_func(self, functionname, *args, **kwargs)    :
+        """Walk imports and run the first priority config file that has the function.  Return the return value of the function, otherwise None if not found."""
+        for importobj in self.configimports:
+            if (hasattr(importobj,functionname)):
+                # found it
+                funcp = getattr(importobj, functionname)
+                return funcp(*args,**kwargs)
+            else:
+                return None
+
+
+    def run_allfuncs(self, functionname, *args, **kwargs)    :
+        """Walk imports in reverse order and run function in ALL.
+        Return the number of functions run."""
+        runcount = 0
+        for importobj in reversed(self.configimports):
+            if (hasattr(importobj,functionname)):
+                # found it
+                funcp = getattr(importobj, functionname)
+                funcp(*args,**kwargs)
+                runcount += 1
+        return runcount
+

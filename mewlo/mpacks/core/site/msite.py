@@ -25,6 +25,7 @@ from ..eventlog import mlogger
 from ..eventlog.mevent import Event, EventList, EWarning, EError, EDebug, EInfo
 from ..eventlog.mlogger import MewloLogger
 from ..eventlog.mlogtarget_file import MewloLogTarget_File
+from ..eventlog import mewloexception
 from ..helpers.misc import get_value_from_dict, resolve_expand_string
 from ..user import muser, musermanager
 from ..group import mgroup
@@ -902,7 +903,12 @@ class MewloSite(object):
         self.logevent(EInfo("Request URL: {0} from {1}.".format(request.get_fullurlpath_original(), request.get_remote_addr())))
 
         # handle the request
-        ishandled = self.comp('routemanager').process_request(self, request)
+        try:
+            ishandled = self.comp('routemanager').process_request(self, request)
+        except mewloexception.MewloException_Web as exp:
+            # we got a web exception, so we can convert that to a response
+            ishandled = True
+            self.process_mewloexception_web_response(request, exp)
 
         # after we end a request we might have stuff to do (this might include, for example, flushing the database)
         self.process_request_ends(request, ishandled)
@@ -939,8 +945,15 @@ class MewloSite(object):
 
 
 
-
-
+    def process_mewloexception_web_response(self, request, exp):
+        """A MewloWeb exception was thrown by controller -- we can generate a page in response to this."""
+        # ATTN: to improve
+        if (exp.flag_dorender):
+            viewfilepath = '${siteviewpath}/generic_exception.jn2'
+            request.add_pagemessage({'cls':'error','msg':str(exp)})
+            request.response.render_from_template_file(viewfilepath)
+            # clear flag
+            exp.flag_dorender = False
 
 
 
@@ -1130,8 +1143,13 @@ class MewloSite(object):
         return self.cfghelper.get_value(keyname,defaultval)
 
 
+    def run_configfunc(self, functionname, *args, **kwargs):
+        """Run func in the appropriate config file(s)."""
+        return self.cfghelper.run_func(functionname,*args, **kwargs)
 
-
+    def run_allconfigfuncs(self, functionname, *args, **kwargs):
+        """Run func in the appropriate config file(s)."""
+        self.cfghelper.run_allfuncs(functionname,*args, **kwargs)
 
 
 

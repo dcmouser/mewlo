@@ -60,6 +60,13 @@ class MewloUser(mdbmodel.MewloDbModel):
         # ATTN: TODO autosave user at end of request
         self.save()
 
+    def get_date_lastlogin(self):
+        return self.get_date_lastlogin
+
+    def has_recently_loggedin(self, recentminutes):
+        """Return true if they have logged in (or provided password) in last recentminutes minutes."""
+        timesincelogin_secs = time.time() - self.date_lastlogin
+        return timesincelogin_secs < recentminutes * 60
 
 
     def does_plaintextpasswordmatch(self, plaintextpassword):

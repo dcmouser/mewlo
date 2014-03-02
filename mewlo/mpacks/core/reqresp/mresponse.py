@@ -149,6 +149,10 @@ class MewloResponse(object):
         """Shortcut to set some context settings."""
         self.rendercontext.update(args)
 
+    def set_rendercontext_val(self, keyname, keyval):
+        """Shortcut to set some context settings."""
+        self.rendercontext.update({keyname:keyval})
+
     def add_rendercontext_defaults(self):
         """Add some default context."""
         mewlosite = self.get_mewlosite()

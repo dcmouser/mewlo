@@ -170,7 +170,10 @@ class MewloSite_Test1(MewloSite):
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_siteaddon_account, siteaddonconfig)
 
 
-
+        #print "TESTING CONFIG1:"
+        #self.run_configfunc('sayhello',1,2,3)
+        #print "TESTING CONFIG2:"
+        #self.run_allconfigfuncs('sayhello',1,2,3)
 
 
 
