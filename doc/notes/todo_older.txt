@@ -176,11 +176,6 @@ But if this is something purely up to the sure to use in their own configuration
 
 
 
-//---------------------------------------------------------------------------
-2/22/14
-option to not allow login until email verified
-//---------------------------------------------------------------------------
-
 
 
 
@@ -194,5 +189,11 @@ all pages that expect codes in urls should also allow them to be manually provid
 //---------------------------------------------------------------------------
 2/25/14
 make it easier for controller actions to specify object functions
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+2/28/14
+consider whether new-user account initial email verifications should be of dif type than email CHANGE verifications
 //---------------------------------------------------------------------------
 
