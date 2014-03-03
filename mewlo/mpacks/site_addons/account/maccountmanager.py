@@ -14,6 +14,7 @@ from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
 
 
 # python imports
+import time
 
 # addon imports
 from forms.form_login import MewloForm_Login
@@ -865,6 +866,21 @@ class AccountManager(manager.MewloManager):
         """View user profile."""
         # set page id
         self.set_renderpageid(request, 'profile')
+
+
+        # test
+        region = 'mtestregion'
+        cachekey = 'testval'
+        cachemanager = self.sitecomp_cachemanager()
+        cacheval = cachemanager.get(region, cachekey)
+        if (cachemanager.is_emptyval(cacheval)):
+            # make and save new value
+            print "ATTN: writing to cache."
+            cacheval = time.time()
+            cachemanager.set(region, cachekey, cacheval)
+        print "ATTN: got val = "+str(cacheval)
+
+
 
         # redirect to login if not logged in (and consume login form data if available)
         user = self.get_user_force_login(request)

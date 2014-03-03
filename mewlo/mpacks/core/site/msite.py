@@ -34,6 +34,7 @@ from ..siteaddon import msiteaddon
 from ..mail import mmailmanager
 from ..helpers import cfgmodule
 from ..constants import mconstants
+from ..cache import mcache
 
 # mewlo imports
 from ..constants.mconstants import MewloConstants as mconst
@@ -172,6 +173,11 @@ class MewloSite(object):
 
         # mail manager
         self.createappendcomp('mailmanager', mmailmanager.MewloMailManager)
+
+        # cache manager
+        cachemanager = self.createappendcomp('cachemanager', mcache.MewloCacheManager_DogPile)
+        cachemanager.make_region('mtestregion')
+
 
 
 

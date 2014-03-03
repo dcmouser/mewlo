@@ -85,7 +85,8 @@ class MewloManager(object):
     def sitecomp_mailmanager(self):
         return self.mewlosite.comp('mailmanager')
 
-
+    def sitecomp_cachemanager(self):
+        return self.mewlosite.comp('cachemanager')
 
 
 

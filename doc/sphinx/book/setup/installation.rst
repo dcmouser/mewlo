@@ -69,16 +69,17 @@ STEP 3 - Setup the Mewlo Environment
 
 	* Change your path to the scripts folder in your mewlo virtual environment (e.g., c:\\coding\\python27\\scripts\\mewloenv\\scripts\\)
 	
-	1. Install the Werkzeug request-response framework: **pip.exe install Werkzeug**
-	2. Install the Jinja2 templating package: **pip.exe install jinja2**
-	3. Install the SQLAlchemy form processing module: **pip.exe install sqlalchemy**
-	4. Install the requests web downloading module: **pip.exe install requests**
-	5. Install the WTForms forms processing module: **pip.exe install wtforms**
-	6. Install the PYZMail email module: **pip.exe install pyzmail**
-	7. Install the required sphinx restructured text (rst) documentation generation tools:
-		a. Core modules: **pip.exe install sphinx**
-		b. Contributor modules: **pip.exe install sphinxcontrib-fulltoc**
-	8. Install the restructured text to PDF conversion module: **pip.exe install rst2pdf**
+	1. Install the Werkzeug request-response framework: **pip install Werkzeug**
+	2. Install the Jinja2 templating package: **pip install jinja2**
+	3. Install the SQLAlchemy form processing module: **pip install sqlalchemy**
+	4. Install the requests web downloading module: **pip install requests**
+	5. Install the WTForms forms processing module: **pip install wtforms**
+	6. Install the PYZMail email module: **pip install pyzmail**
+	7. Install the dogpile cache module: **pip install dogpile.cache**
+	8. Install the required sphinx restructured text (rst) documentation generation tools:
+		a. Core modules: **pip install sphinx**
+		b. Contributor modules: **pip install sphinxcontrib-fulltoc**
+	9. Install the restructured text to PDF conversion module: **pip.exe install rst2pdf**
 
 STEP 4 - Launching the Mewlo Web Server Process
 -----------------------------------------------
