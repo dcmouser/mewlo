@@ -396,35 +396,59 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
         # the keydict MIGHT specify a LIST for each dictionary value
         query = session.query(modelclass)
-        for (key,val) in keydict.iteritems():
-            if (hasattr(val,'__iter__')):
-                if (len(val)==0):
-                    query = query.filter_by({key:None})
-                elif (len(val)==10):
-                    query = query.filter_by({key:val[0]})
-                else:
-                    # build sql filterstring from list
-                    querystr = self.build_filter_from_inlist(key,val)
-                    print "QUERYSTR = '{0}'.".format(querystr)
-                    query = query.filter(querystr)
-            else:
-                query = query.filter_by({key:val})
+
+        # filter the query
+        query = self.filter_query_bykey_within(query, keydict)
 
         result = query.all()
         return result
 
 
 
-    def build_filter_from_inlist(self, key, val):
-        """Build a filter when we have a list."""
-        strlist = []
-        for v in val:
-            if (v==None):
-                strlist.append("NULL")
+    def filter_query_bykey_within(self, query, keydict):
+        """Build and attach filters for a query based on a dictionary keydict that may have LISTS as values."""
+        for (key,val) in keydict.iteritems():
+            if (hasattr(val,'__iter__')):
+                if (len(val)==0):
+                    # empty list means key must = NULL (NONE)
+                    filterdict = {key:None}
+                    query = query.filter_by(**filterdict)
+                elif (len(val)==1):
+                    filterdict = {key:val[0]}
+                    query = query.filter_by(**filterdict)
+                else:
+                    # build sql filterstring from list
+                    querystr = self.build_filter_from_inlist(key, val)
+                    #print "QUERYSTR = '{0}'.".format(querystr)
+                    query = query.filter(querystr)
             else:
+                filterdict = {key:val}
+                query = query.filter_by(**filterdict)
+
+        # now return the query
+        return query
+
+
+
+    def build_filter_from_inlist(self, key, vallist):
+        """Build a filter when we have a list. This should ONLY be called when we know val is a non-empty list"""
+        strlist = []
+        # walk items in list and stringify them for comma join in list
+        for v in vallist:
+            if (v==None):
+                # if None is a value in list, that matches to a NULL
+                strlist.append("NULL")
+            elif (isinstance(v,basestring)):
+                # string value gets doublequotes
+                strlist.append('"{0}"'.format(v))
+            else:
+                # ASSUME numeric, so we cast to str for later comma separated join
                 strlist.append(str(v))
         querystr = '{0} in ({1})'.format(key, ",".join(strlist))
         return querystr
+
+
+
 
 
     def modelclass_find_all(self, modelclass):
