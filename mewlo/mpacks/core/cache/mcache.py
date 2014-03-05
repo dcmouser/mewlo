@@ -76,6 +76,12 @@ class MewloCacheManager(manager.MewloManager):
 
 
 
+
+
+
+
+
+
 class MewloCacheManager_DogPile(MewloCacheManager):
     """Dogpile derived cache."""
 
@@ -90,7 +96,9 @@ class MewloCacheManager_DogPile(MewloCacheManager):
 
     def startup(self, eventlist):
         super(MewloCacheManager_DogPile,self).startup(eventlist)
-        # use site settings to configure mail settings
+        # create a test region
+        self.make_region('mtestregion')
+
 
     def shutdown(self):
         super(MewloCacheManager_DogPile,self).shutdown()
@@ -98,16 +106,31 @@ class MewloCacheManager_DogPile(MewloCacheManager):
 
 
 
+
+
+    # helpers
+
     def is_emptyval(self, val):
         return val == NO_VALUE
 
+    def getd(self, region, key, defaultval=None, expiration_time=None, ignore_expiration=False):
+        """Return a value from the cache, based on the given key."""
+        region = self.convertregion(region)
+        val = region.get(key, expiration_time, ignore_expiration)
+        if (val == NO_VALUE):
+            return defaultval
+        return val
 
 
-    # wrappers from dogpile API
+
+
+
+
+    # direct wrappers from dogpile API
     #see http://dogpilecache.readthedocs.org/en/latest/usage.html#recipes
 
     def make_region(self, regionname):
-        region = make_region().configure(
+        region = make_region(name=regionname).configure(
             "dogpile.cache.memory",
         )
         # add to cache

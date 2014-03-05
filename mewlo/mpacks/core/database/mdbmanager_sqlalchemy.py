@@ -377,6 +377,55 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
             return result
         return defaultval
 
+    def modelclass_find_all_bykey(self, modelclass, keydict, defaultval=None):
+        """Find and return an instance object for the single row specified by keydict.
+        :return: defaultval if not found
+        """
+        session = modelclass.dbsession()
+        query = session.query(modelclass).filter_by(**keydict)
+        result = query.all()
+        return result
+
+
+
+    def modelclass_find_all_bykey_within(self, modelclass, keydict, defaultval=None):
+        """Find and return an instance object for the single row specified by keydict.
+        :return: defaultval if not found
+        """
+        session = modelclass.dbsession()
+
+        # the keydict MIGHT specify a LIST for each dictionary value
+        query = session.query(modelclass)
+        for (key,val) in keydict.iteritems():
+            if (hasattr(val,'__iter__')):
+                if (len(val)==0):
+                    query = query.filter_by({key:None})
+                elif (len(val)==10):
+                    query = query.filter_by({key:val[0]})
+                else:
+                    # build sql filterstring from list
+                    querystr = self.build_filter_from_inlist(key,val)
+                    print "QUERYSTR = '{0}'.".format(querystr)
+                    query = query.filter(querystr)
+            else:
+                query = query.filter_by({key:val})
+
+        result = query.all()
+        return result
+
+
+
+    def build_filter_from_inlist(self, key, val):
+        """Build a filter when we have a list."""
+        strlist = []
+        for v in val:
+            if (v==None):
+                strlist.append("NULL")
+            else:
+                strlist.append(str(v))
+        querystr = '{0} in ({1})'.format(key, ",".join(strlist))
+        return querystr
+
 
     def modelclass_find_all(self, modelclass):
         """Load *all* rows and return them as array."""

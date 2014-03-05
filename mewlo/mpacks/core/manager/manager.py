@@ -78,6 +78,8 @@ class MewloManager(object):
 
     def sitecomp_usermanager(self):
         return self.mewlosite.comp('usermanager')
+    def sitecomp_groupmanager(self):
+        return self.mewlosite.comp('groupmanager')
 
     def sitecomp_verificationmanager(self):
         return self.mewlosite.comp('verificationmanager')
@@ -87,6 +89,9 @@ class MewloManager(object):
 
     def sitecomp_cachemanager(self):
         return self.mewlosite.comp('cachemanager')
+
+    def sitecomp_rbacmanager(self):
+        return self.mewlosite.comp('rbacmanager')
 
 
 

@@ -165,7 +165,7 @@ class MewloSite_Test1(MewloSite):
         # account siteaddon settings
         siteaddonconfig = {
             # online status information
-            'registration_mode': 'deferred',
+            'registration_mode': 'immediate',
             }
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_siteaddon_account, siteaddonconfig)
 

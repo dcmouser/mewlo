@@ -99,6 +99,9 @@ class MewloUserManager(modelmanager.MewloModelManager):
         # ATTN: to do check for save errors
         user.save()
 
+        # create test rbac stuff for user
+        self.create_newuser_rbac_test(user)
+
         # any field verifications needed?
         self.send_field_verifications(user, request, verifiedfields)
 
@@ -502,3 +505,35 @@ class MewloUserManager(modelmanager.MewloModelManager):
         verification.save()
         # return it
         return (verification, None)
+
+
+
+
+
+
+
+
+
+
+
+    def create_newuser_rbac_test(self, user):
+        """Build some test rbac stuff for a user."""
+
+        # first lookup or create a role
+        rbacmanager = self.sitecomp_rbacmanager()
+        role = rbacmanager.lookup_role_byname(mconst.DEF_ROLENAME_groupmembership)
+        if (role == None):
+            # TEST, create it
+            role = rbacmanager.create_role(mconst.DEF_ROLENAME_groupmembership)
+            role.save()
+
+        # ok now let's create a dedicated group for the user
+        groupmanager = self.sitecomp_groupmanager()
+        group = groupmanager.lookup_group_byname(mconst.DEF_GROUPNAME_visitor)
+        if (group == None):
+            # TEST, create it
+            group = groupmanager.create_group(mconst.DEF_GROUPNAME_visitor)
+            group.save()
+
+        # ok now assing user to role with group as resource
+        rbacassignment = rbacmanager.create_assignment(user, role, group)

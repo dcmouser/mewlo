@@ -438,6 +438,23 @@ class MewloDbModel(object):
         """
         return cls.dbm().modelclass_find_one_bykey(cls, keydict, defaultval)
 
+
+    @classmethod
+    def find_all_bykey(cls, keydict, defaultval = None):
+        """Find and return all instances of object specified by keydict.
+        :return: defaultval if not found
+        """
+        return cls.dbm().modelclass_find_all_bykey(cls, keydict, defaultval)
+
+
+    @classmethod
+    def find_all_bykey_within(cls, keydict, defaultval = None):
+        """Find and return all instances of object specified by keydict.
+        :return: defaultval if not found
+        """
+        return cls.dbm().modelclass_find_all_bykey_within(cls, keydict, defaultval)
+
+
     @classmethod
     def find_all(cls):
         """Load *all* rows and return them as array."""

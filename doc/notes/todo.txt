@@ -3,3 +3,18 @@
 2/22/14
 option to not allow login until email verified
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+3/3/14
+we had a confusing error when running initial tests after installation on a new install, because some testsite directories did not exist that were trying to be written to.
+for example, the testsite1/database directory.  fix code so that the directories are create or clearly errored.
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+3/4/14
+setup/install code
+more involved check of good system state at startup
+//---------------------------------------------------------------------------

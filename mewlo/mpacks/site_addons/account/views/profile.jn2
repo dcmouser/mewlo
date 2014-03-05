@@ -6,7 +6,13 @@
 <li>Username: {{ request.get_user().username }}</li>
 <li>Email: {{ request.get_user().get_email_htmlinfo(request) }}</li>
 <li>Sessionid: {{ request.get_session(False).hashkey }}</li>
-</ul:
+</ul>
+
+
+<div>
+User RBAC test:<br/>
+{{rbac_test_html}}
+</div>
 
 
 {% include "${siteviewpath}/footer.jn2" %}

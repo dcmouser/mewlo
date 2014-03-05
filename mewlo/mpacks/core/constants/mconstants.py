@@ -125,6 +125,14 @@ class MewloConstants(object):
 
 
 
+    # rbac
+    DEF_ROLENAME_groupmembership = 'group_membership'
+
+
+    # special groups
+    DEF_GROUPNAME_visitor = 'group.visitor'
+
+
 
 
 

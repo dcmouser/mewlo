@@ -1,0 +1,15 @@
+April 25 Deadline:
+//---------------------------------------------------------------------------
+
+
+1. User Profiles with Avatars (and plugin extensions)
+
+2. File Upload Ssystem
+
+3. ACL System
+
+4. Group System
+
+5. User-user Messaging/Mail System
+
+6. Bridged Login System

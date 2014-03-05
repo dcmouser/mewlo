@@ -869,16 +869,17 @@ class AccountManager(manager.MewloManager):
 
 
         # test
-        region = 'mtestregion'
-        cachekey = 'testval'
-        cachemanager = self.sitecomp_cachemanager()
-        cacheval = cachemanager.get(region, cachekey)
-        if (cachemanager.is_emptyval(cacheval)):
-            # make and save new value
-            print "ATTN: writing to cache."
-            cacheval = time.time()
-            cachemanager.set(region, cachekey, cacheval)
-        print "ATTN: got val = "+str(cacheval)
+        if (False):
+            region = 'mtestregion'
+            cachekey = 'testval'
+            cachemanager = self.sitecomp_cachemanager()
+            cacheval = cachemanager.getd(region, cachekey, None, 5)
+            if (cacheval == None):
+                # make and save new value
+                print "ATTN: writing to cache."
+                cacheval = time.time()
+                cachemanager.set(region, cachekey, cacheval)
+            print "ATTN: got val = "+str(cacheval)
 
 
 
@@ -887,12 +888,19 @@ class AccountManager(manager.MewloManager):
         if (user == None):
             return
 
-        # ATTN: test
+        # ATTN: pagemessage test
         request.add_pagemessage({'cls':'green','msg':"page message one"})
         request.add_pagemessage({'cls':'red','msg':"page message two"})
 
+        # ATTN: rbac test
+        rbacmanager = self.sitecomp_rbacmanager()
+        groupmanager = self.sitecomp_groupmanager()
+        group = groupmanager.lookup_group_byname(mconst.DEF_GROUPNAME_visitor)
+        is_rbactest = rbacmanager.does_subject_have_role_on_resource(user, mconst.DEF_ROLENAME_groupmembership, group)
+        rbac_test_html = "Is user member of visitor group: {0}.".format(is_rbactest)
+
         # then page contents
-        self.render_localview( request, self.viewfiles['profile'], {'viewuser':user} )
+        self.render_localview( request, self.viewfiles['profile'], {'viewuser':user, 'rbac_test_html':rbac_test_html} )
 
 
 

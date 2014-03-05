@@ -47,8 +47,12 @@ class MewloGroup(mdbmodel.MewloDbModel):
             mdbfield.DbfPrimaryId('id', {
                 'label': "The primary key and id# for this group"
                 }),
+            mdbfield.DbfString('groupname', {
+                'label': "Unique name for group"
+                }),
             # globally unique resource reference
             mdbmixins.dbfmixin_gobselfreference(),
+
             ]
 
         return fieldlist

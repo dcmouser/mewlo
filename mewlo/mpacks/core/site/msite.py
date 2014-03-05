@@ -28,7 +28,7 @@ from ..eventlog.mlogtarget_file import MewloLogTarget_File
 from ..eventlog import mewloexception
 from ..helpers.misc import get_value_from_dict, resolve_expand_string
 from ..user import muser, musermanager
-from ..group import mgroup
+from ..group import mgroup, mgroupmanager
 from ..rbac import mrbac
 from ..siteaddon import msiteaddon
 from ..mail import mmailmanager
@@ -171,12 +171,14 @@ class MewloSite(object):
         # user manager
         self.createappendcomp('usermanager', musermanager.MewloUserManager)
 
+        # group manager
+        self.createappendcomp('groupmanager', mgroupmanager.MewloGroupManager)
+
         # mail manager
         self.createappendcomp('mailmanager', mmailmanager.MewloMailManager)
 
         # cache manager
         cachemanager = self.createappendcomp('cachemanager', mcache.MewloCacheManager_DogPile)
-        cachemanager.make_region('mtestregion')
 
 
 

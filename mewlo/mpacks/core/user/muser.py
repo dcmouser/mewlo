@@ -228,6 +228,7 @@ class MewloUser(mdbmodel.MewloDbModel):
 
 
 
+
     @classmethod
     def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""
