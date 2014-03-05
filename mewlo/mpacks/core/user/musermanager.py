@@ -521,11 +521,17 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
         # first lookup or create a role
         rbacmanager = self.sitecomp_rbacmanager()
-        role = rbacmanager.lookup_role_byname(mconst.DEF_ROLENAME_groupmembership)
+        role = rbacmanager.lookup_role_byname(mconst.DEF_ROLENAME_groupownership)
         if (role == None):
-            # TEST, create it
-            role = rbacmanager.create_role(mconst.DEF_ROLENAME_groupmembership)
+            # TEST, create roles
+            role = rbacmanager.create_role(mconst.DEF_ROLENAME_groupownership)
             role.save()
+            role2 = rbacmanager.create_role(mconst.DEF_ROLENAME_groupmembership)
+            role2.save()
+            # now add role hierarchy
+            rolerelation = rbacmanager.create_roleentails(role, role2)
+
+
 
         # ok now let's create a dedicated group for the user
         groupmanager = self.sitecomp_groupmanager()

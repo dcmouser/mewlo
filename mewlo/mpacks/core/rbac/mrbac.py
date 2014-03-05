@@ -253,6 +253,12 @@ class MewloRbacManager(manager.MewloManager):
 
 
 
+
+
+
+
+
+
     def does_subject_have_role(self, subject, role):
         """Just shortcut to does_subject_have_role_on_resource()."""
         return self.does_subject_have_role_on_resource(subject, role, None)
@@ -265,16 +271,14 @@ class MewloRbacManager(manager.MewloManager):
         # our first step is to convert args to id#s
         # we allow caller to pass us subject, role, resource as a pre-resolved id#, OR as an object with a gobid (for subject, resource), OR as a role object, role id, or string for role.
         # note that subject CANNOT be a userid (if it's an id, it must be a gobid)
-
         # for our db search we want subject and resource to GOBids (there are our globally unique numeric identifiers in the gob table).
         # for our db search we want role as as role id#
 
-        # get subject and resource gobids (#ATTN: TODO for efficiency we might want to make this a single OR db query in the future)
+        # get subject and resource gobids (#ATTN: TODO for efficiency we might want to make this a single OR db query in the future), and role id
         subjectid = self.lookup_gobid(subject)
         resourceid = self.lookup_gobid(resource)
-
-        # role id
         roleid = self.lookup_roleid(role)
+
         # list of role ids that entail our roleid
         roleids = self.lookup_entailing_roles(roleid)
 
@@ -294,7 +298,7 @@ class MewloRbacManager(manager.MewloManager):
     def lookup_roleassignids(self, subjectids, roleids, resourceids):
         """Return list of role assignments where any of subjectids has any of roleids on any of resourceids or on resourceid==None."""
 
-        # add None to list of resourceids
+        # always add None to list of resourceids, because an assignment which has None for the resource, means for ALL resources
         if (not None in resourceids):
             resourceids.append(None)
 
@@ -305,9 +309,6 @@ class MewloRbacManager(manager.MewloManager):
         # ATTN: TODO - use a non-orm search for ids for efficiency
         assignments = MewloRoleAssignment.find_all_bykey_within(filterdict)
         assignmentids = [x.id for x in assignments]
-#        assignmentids = []
-#        for assignment in assignments:
-#            assignmentids.append(assignment.id)
         return assignmentids
 
 
@@ -362,12 +363,14 @@ class MewloRbacManager(manager.MewloManager):
 
         # start with ourself
         entailingroleids = []
+
         # loop adding roles until there are no more to add
         addroleids = [roleid]
         while (addroleids):
             # we have some new roles to add,
             # search for parents of addroles
             parentroleids = self.lookup_parentroleids(addroleids)
+            #print "ATTN parents of {0} are {1}.".format(str(addroleids),str(parentroleids))
             # now add addroles
             entailingroleids = entailingroleids + addroleids
             # and new parents not already in our entailing list, are the next roles to add and lookup
@@ -376,6 +379,8 @@ class MewloRbacManager(manager.MewloManager):
             else:
                 addroleids = None
 
+        #print "Entailing roles for {0} are {1}.".format(roleid,str(entailingroleids))
+
         # return list
         return entailingroleids
 
@@ -383,26 +388,25 @@ class MewloRbacManager(manager.MewloManager):
     def lookup_parentroleids(self, roleids):
         """return a list of parent roleids which are parents to any elements in roleids."""
         # ATTN: TODO - use a non-orm search for ids for efficiency
-        parentroles = MewloRole.find_all_bykey_within({'id':roleids})
+        parentroles = MewloRoleHierarchy.find_all_bykey_within({'child_id':roleids})
         parentroleids = [x.id for x in parentroles]
-#        parentroleids = []
-#        for parentrole in parentroles:
-#            parentroleids.append(parentrole.id)
         return parentroleids
 
 
 
 
+
+
+
+
     def create_role(self, rolename):
-        """Create a role."""
-        #ATTN: unfinished
+        """Create a new role."""
         role = MewloRole()
         role.name = rolename
+        # save it
+        role.save()
+        # return it
         return role
-
-
-
-
 
 
 
@@ -412,14 +416,12 @@ class MewloRbacManager(manager.MewloManager):
         # our first step is to convert args to id#s
         # we allow caller to pass us subject, role, resource as a pre-resolved id#, OR as an object with a gobid (for subject, resource), OR as a role object, role id, or string for role.
         # note that subject CANNOT be a userid (if it's an id, it must be a gobid)
-
         # for our db search we want subject and resource to GOBids (there are our globally unique numeric identifiers in the gob table).
         # for our db search we want role as as role id#
 
-        # get subject and resource gobids (#ATTN: TODO for efficiency we might want to make this a single OR db query in the future)
+        # get subject and resource gobids (#ATTN: TODO for efficiency we might want to make this a single OR db query in the future), and roleid
         subjectid = self.lookup_gobid(subject)
         resourceid = self.lookup_gobid(resource)
-        # role id
         roleid = self.lookup_roleid(role)
 
         # create it
@@ -427,6 +429,27 @@ class MewloRbacManager(manager.MewloManager):
         assignment.subject_gobid = subjectid
         assignment.resource_gobid = resourceid
         assignment.role_id = roleid
+        # save it
         assignment.save()
+        # return it
+        return assignment
 
-        return None
+
+
+    def create_roleentails(self, role_parent, role_child):
+        """Add a role hierarchy relation."""
+
+        # lookup args
+        role_parent_id = self.lookup_roleid(role_parent)
+        role_child_id = self.lookup_roleid(role_child)
+
+        # creat it
+        rolerelation = MewloRoleHierarchy()
+        rolerelation.parent_id = role_parent_id
+        rolerelation.child_id = role_child_id
+        # save it
+        rolerelation.save()
+        # return it
+        return rolerelation
+
+

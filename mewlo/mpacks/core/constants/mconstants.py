@@ -127,6 +127,7 @@ class MewloConstants(object):
 
     # rbac
     DEF_ROLENAME_groupmembership = 'group_membership'
+    DEF_ROLENAME_groupownership = 'group.ownership'
 
 
     # special groups

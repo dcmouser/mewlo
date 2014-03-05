@@ -390,14 +390,13 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
     def modelclass_find_all_bykey_within(self, modelclass, keydict, defaultval=None):
         """Find and return an instance object for the single row specified by keydict.
+        the keydict MIGHT specify a LIST for each dictionary value
         :return: defaultval if not found
         """
         session = modelclass.dbsession()
 
-        # the keydict MIGHT specify a LIST for each dictionary value
-        query = session.query(modelclass)
-
         # filter the query
+        query = session.query(modelclass)
         query = self.filter_query_bykey_within(query, keydict)
 
         result = query.all()
