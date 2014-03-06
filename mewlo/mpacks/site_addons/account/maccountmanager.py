@@ -893,14 +893,12 @@ class AccountManager(manager.MewloManager):
         request.add_pagemessage({'cls':'red','msg':"page message two"})
 
         # ATTN: rbac test
-        rbacmanager = self.sitecomp_rbacmanager()
-        groupmanager = self.sitecomp_groupmanager()
-        group = groupmanager.lookup_group_byname(mconst.DEF_GROUPNAME_visitor)
-        is_rbactest = rbacmanager.does_subject_have_role_on_resource(user, mconst.DEF_ROLENAME_groupmembership, group)
-        rbac_test_html = "Is user member of visitor group: {0}.".format(is_rbactest)
+        usermanager = self.sitecomp_usermanager()
+        rbac_info_html = usermanager.get_users_rbac_info_html(user)
 
         # then page contents
-        self.render_localview( request, self.viewfiles['profile'], {'viewuser':user, 'rbac_test_html':rbac_test_html} )
+        self.render_localview( request, self.viewfiles['profile'], {'viewuser':user, 'rbac_info_html':rbac_info_html} )
+
 
 
 

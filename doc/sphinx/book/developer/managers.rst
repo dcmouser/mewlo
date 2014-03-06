@@ -27,7 +27,10 @@ Or, equivelantly:
 Why?
 ----
 
-The single most important reason to do that is that it creates a layer of abstraction regarding the MewloUser class, and removes the need to hardcode the database object class types.
+One major reason to do that is that it creates a layer of abstraction regarding the MewloUser class, and removes the need to hardcode the database object class types.
 
 So for example, if the programmer wanted to, they could with one line drop in a REPLACEMENT 'usermanager' component which used a different ducktyped/derived class based on MewloUser.
 
+Another reason is that the manager objects are PERSISTENT.  They may cache data and they are cleanly retrievable by name from the site object.  It is more natural for them to interface with multiple kinds of models.
+
+Part of the motivtion for letting (model) managers do most of the heavy lifting, has come from the awkwardness and confusion that comes from trying to put such code in model classes themselves.  The division of labor helps separate simple functions that can operate entirely within the lightweight model object (accessors, etc.), and more elaborate functions which may involve interfacing with other models and site objects -- which is handled by a manager.

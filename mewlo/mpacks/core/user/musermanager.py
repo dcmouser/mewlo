@@ -524,12 +524,12 @@ class MewloUserManager(modelmanager.MewloModelManager):
         role = rbacmanager.lookup_role_byname(mconst.DEF_ROLENAME_groupownership)
         if (role == None):
             # TEST, create roles
-            role = rbacmanager.create_role(mconst.DEF_ROLENAME_groupownership)
+            role = rbacmanager.create_role(mconst.DEF_ROLENAME_groupownership, "User owns a group", "MewloUser", "MewloGroup")
             role.save()
-            role2 = rbacmanager.create_role(mconst.DEF_ROLENAME_groupmembership)
-            role2.save()
+            entailedrole = rbacmanager.create_role(mconst.DEF_ROLENAME_groupmembership, "User is a member of a group", "MewloUser", "MewloGroup")
+            entailedrole.save()
             # now add role hierarchy
-            rolerelation = rbacmanager.create_roleentails(role, role2)
+            rolerelation = rbacmanager.create_role_entail(role, entailedrole)
 
 
 
@@ -543,3 +543,35 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
         # ok now assing user to role with group as resource
         rbacassignment = rbacmanager.create_assignment(user, role, group)
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def get_users_rbac_info_html(self, user):
+        """Return some debug info about the users roles."""
+        rbacmanager = self.sitecomp_rbacmanager()
+        groupmanager = self.sitecomp_groupmanager()
+        group = groupmanager.lookup_group_byname(mconst.DEF_GROUPNAME_visitor)
+        is_rbactest = rbacmanager.does_subject_have_role_on_resource(user, mconst.DEF_ROLENAME_groupmembership, group)
+        rbac_info_html = "Is user member of visitor group: {0}.<br/>".format(is_rbactest)
+
+        # test, report all roles that this user is involved in
+        rbac_info_html += "<br/>All role assignments:\n<ul>"
+        assignments = rbacmanager.lookup_roleassigns_either_subject_or_resource(user,'*')
+        for assignment in assignments:
+            assignment_nicedescription = rbacmanager.calc_assignment_nicedescription(assignment)
+            rbac_info_html += "<li>Role assignment: {0}.</li>\n".format(assignment_nicedescription)
+        if (not assignments):
+            rbac_info_html += "<li>NONE</li>\n"
+        rbac_info_html += "</ul>\n"
+
+        return rbac_info_html

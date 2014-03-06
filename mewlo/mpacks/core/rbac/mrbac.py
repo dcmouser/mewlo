@@ -7,7 +7,7 @@ The documentation discusses the RBAC system in more detail.
 Essentially we have 3 tables that work together to build an RBAC system:
 
 1. Role definitions (role_def table; MewloRole class).
-2. Role hierarchy (role_hierarchy table; MewloRoleHierarchy class).
+2. Role entailment (inheritance hierarchy) (role_entail table; MewloRoleEntails class).
 3. Role assignments (role_assign table; MewloRoleAssignment class).
 
 The Role definitions table actually defines roles; this gives each role a name, id, and description.  An example of a role might be "IsOwnerOfGroup".
@@ -96,20 +96,28 @@ class MewloRole(mdbmodel.MewloDbModel):
                 'label': "The unique name for this role"
                 }),
             # text label
-            mdbfield.DbfString('label', {
+            mdbfield.DbfLabelString('label', {
                 'label': "The description label for this role"
+                }),
+            # text label
+            mdbfield.DbfTypeString('classname_subject', {
+                'label': "The name of the object class used in subject of role"
+                }),
+            # text label
+            mdbfield.DbfTypeString('classname_resource', {
+                'label': "The name of the object class used in resource of role (or None)"
                 }),
             # an arbitrarily long string serializing any role properties that we don't have explicit fields for.
             mdbfield.DbfSerialized('serialized_fields', {
                 'label': "The serialzed text version of any extra properties"
                 }),
             # and now relations for role hierarchy
-            mdbfield.Dbf_SelfSelfRelation('childroles',{
-                'associationclass': MewloRoleHierarchy,
+            mdbfield.Dbf_SelfSelfRelation('entailedroles',{
+                'associationclass': MewloRoleEntails,
                 'otherclass': MewloRole,
                 'backrefname': 'parentroles',
                 'primaryjoin_name': 'parent_id',
-                'secondaryjoin_name': 'child_id',
+                'secondaryjoin_name': 'entailedchild_id',
                 }),
              ]
 
@@ -120,11 +128,11 @@ class MewloRole(mdbmodel.MewloDbModel):
 
 
 
-class MewloRoleHierarchy(mdbmodel.MewloDbModel):
+class MewloRoleEntails(mdbmodel.MewloDbModel):
     """The role class manages hierarchy of roles."""
 
     # class variables
-    dbtablename = 'role_hierarchy'
+    dbtablename = 'role_entail'
     dbschemaname = 'default'
 
     @classmethod
@@ -143,8 +151,8 @@ class MewloRoleHierarchy(mdbmodel.MewloDbModel):
                 'foreignkeyname': MewloRole.get_dbtablename()+'.id',
                 }),
             # text label
-            mdbfield.DbfForeignKey('child_id', {
-                'label': "The child role id",
+            mdbfield.DbfForeignKey('entailedchild_id', {
+                'label': "The entailed child role id",
                 'foreignkeyname': MewloRole.get_dbtablename()+'.id',
                 }),
              ]
@@ -278,7 +286,6 @@ class MewloRbacManager(manager.MewloManager):
         subjectid = self.lookup_gobid(subject)
         resourceid = self.lookup_gobid(resource)
         roleid = self.lookup_roleid(role)
-
         # list of role ids that entail our roleid
         roleids = self.lookup_entailing_roles(roleid)
 
@@ -296,7 +303,19 @@ class MewloRbacManager(manager.MewloManager):
 
 
     def lookup_roleassignids(self, subjectids, roleids, resourceids):
-        """Return list of role assignments where any of subjectids has any of roleids on any of resourceids or on resourceid==None."""
+        """Return list of role assignments where any of subjectids has any of roleids on (any of resourceids or on resourceid==None).
+        Each of subject, role, resource much match (i.e. it's AND relations)"""
+        # ATTN: TODO - use a non-orm search for ids for efficiency
+        assignments = self.lookup_roleassigns(subjectids, roleids, resourceids)
+        assignmentids = [x.id for x in assignments]
+        return assignmentids
+
+
+
+
+    def lookup_roleassigns(self, subjectids, roleids, resourceids):
+        """Return list of role assignments where any of subjectids has any of roleids on (any of resourceids or on resourceid==None).
+        Each of subject, role, resource much match (i.e. it's AND relations)"""
 
         # always add None to list of resourceids, because an assignment which has None for the resource, means for ALL resources
         if (not None in resourceids):
@@ -306,10 +325,51 @@ class MewloRbacManager(manager.MewloManager):
         filterdict = {'subject_gobid': subjectids,
                       'resource_gobid': resourceids,
                       'role_id': roleids}
-        # ATTN: TODO - use a non-orm search for ids for efficiency
-        assignments = MewloRoleAssignment.find_all_bykey_within(filterdict)
-        assignmentids = [x.id for x in assignments]
-        return assignmentids
+
+        assignments = MewloRoleAssignment.find_all_advanced(filterdict)
+        return assignments
+
+
+
+
+    def lookup_roleassigns_either_subject_or_resource(self, obj, role):
+        """Return list of role assignments where any of subjectids has any of roleids on (any of resourceids or on resourceid==None).
+        Each of subject, role, resource much match (i.e. it's AND relations)"""
+
+        # our first step is to convert args to id#s
+        # we allow caller to pass us subject, role, resource as a pre-resolved id#, OR as an object with a gobid (for subject, resource), OR as a role object, role id, or string for role.
+        # note that subject CANNOT be a userid (if it's an id, it must be a gobid)
+        # for our db search we want subject and resource to GOBids (there are our globally unique numeric identifiers in the gob table).
+        # for our db search we want role as as role id#
+
+        # get subject and resource gobids (#ATTN: TODO for efficiency we might want to make this a single OR db query in the future), and role id
+        objid = self.lookup_gobid(obj)
+        roleid = self.lookup_roleid(role)
+        # list of role ids that entail our roleid
+        roleids = self.lookup_entailing_roles(roleid)
+
+        # build filter dictionary for role assignments
+        filterdict_or1 = {'subject_gobid': objid,
+                      'resource_gobid': objid,
+                      }
+        filterdict_or2 = {'role_id': roleids}
+        cnflist = [filterdict_or1, filterdict_or2]
+
+        assignments = MewloRoleAssignment.find_all_bycnf(cnflist)
+        return assignments
+
+
+
+
+
+    def calc_assignment_nicedescription(self, assignment):
+        """Return a nice string describing the role assignment."""
+        retstr = "Subject_gobid={0} , Role_id={1} , Resource_gobid={2}.".format(assignment.subject_gobid, assignment.role_id, assignment.resource_gobid)
+        return retstr
+
+
+
+
 
 
 
@@ -332,6 +392,8 @@ class MewloRbacManager(manager.MewloManager):
         if (isinstance(role, (long,int))):
             return role
         if (isinstance(role,basestring)):
+            if (role=='*'):
+                return role
             return self.lookup_roleid_byname(role)
         if (isinstance(role, MewloRole)):
             return role.id
@@ -360,6 +422,9 @@ class MewloRbacManager(manager.MewloManager):
         # ATTN: TODO - in the future we can store a special table of FLATTENED CACHED hierarchy so that we can do this always with a single lookup
         if (roleid == None):
             return [None]
+        if (roleid == '*'):
+            # asterisk string matches all
+            return [roleid]
 
         # start with ourself
         entailingroleids = []
@@ -369,7 +434,7 @@ class MewloRbacManager(manager.MewloManager):
         while (addroleids):
             # we have some new roles to add,
             # search for parents of addroles
-            parentroleids = self.lookup_parentroleids(addroleids)
+            parentroleids = self.lookup_entailingparent_roleids(addroleids)
             #print "ATTN parents of {0} are {1}.".format(str(addroleids),str(parentroleids))
             # now add addroles
             entailingroleids = entailingroleids + addroleids
@@ -385,10 +450,10 @@ class MewloRbacManager(manager.MewloManager):
         return entailingroleids
 
 
-    def lookup_parentroleids(self, roleids):
+    def lookup_entailingparent_roleids(self, roleids):
         """return a list of parent roleids which are parents to any elements in roleids."""
         # ATTN: TODO - use a non-orm search for ids for efficiency
-        parentroles = MewloRoleHierarchy.find_all_bykey_within({'child_id':roleids})
+        parentroles = MewloRoleEntails.find_all_advanced({'entailedchild_id':roleids})
         parentroleids = [x.id for x in parentroles]
         return parentroleids
 
@@ -399,10 +464,13 @@ class MewloRbacManager(manager.MewloManager):
 
 
 
-    def create_role(self, rolename):
+    def create_role(self, rolename, label, classname_subject, classname_resource=None):
         """Create a new role."""
         role = MewloRole()
         role.name = rolename
+        role.label = label
+        role.classname_subject = classname_subject
+        role.classname_resource = classname_resource
         # save it
         role.save()
         # return it
@@ -436,20 +504,19 @@ class MewloRbacManager(manager.MewloManager):
 
 
 
-    def create_roleentails(self, role_parent, role_child):
+    def create_role_entail(self, role_parent, role_entailedchild):
         """Add a role hierarchy relation."""
 
         # lookup args
         role_parent_id = self.lookup_roleid(role_parent)
-        role_child_id = self.lookup_roleid(role_child)
+        role_entailedchild_id = self.lookup_roleid(role_entailedchild)
 
         # creat it
-        rolerelation = MewloRoleHierarchy()
-        rolerelation.parent_id = role_parent_id
-        rolerelation.child_id = role_child_id
+        role_entail = MewloRoleEntails()
+        role_entail.parent_id = role_parent_id
+        role_entail.entailedchild_id = role_entailedchild_id
         # save it
-        rolerelation.save()
+        role_entail.save()
         # return it
-        return rolerelation
-
+        return role_entail
 

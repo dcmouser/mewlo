@@ -440,19 +440,26 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def find_all_bykey(cls, keydict, defaultval = None):
+    def find_all_bykey(cls, keydict):
         """Find and return all instances of object specified by keydict.
         :return: defaultval if not found
         """
-        return cls.dbm().modelclass_find_all_bykey(cls, keydict, defaultval)
+        return cls.dbm().modelclass_find_all_bykey(cls, keydict)
 
 
     @classmethod
-    def find_all_bykey_within(cls, keydict, defaultval = None):
+    def find_all_advanced(cls, keydict):
         """Find and return all instances of object specified by keydict.
         :return: defaultval if not found
         """
-        return cls.dbm().modelclass_find_all_bykey_within(cls, keydict, defaultval)
+        return cls.dbm().modelclass_find_all_advanced(cls, keydict)
+
+
+    @classmethod
+    def find_all_bycnf(cls, cnflist):
+        """Find and return all instances of object specified by cnf list of keydicts
+        """
+        return cls.dbm().modelclass_find_all_bycnf(cls, cnflist)
 
 
     @classmethod

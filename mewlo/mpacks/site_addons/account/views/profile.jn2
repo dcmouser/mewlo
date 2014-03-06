@@ -10,8 +10,8 @@
 
 
 <div>
-User RBAC test:<br/>
-{{rbac_test_html}}
+RBAC info:<br/>
+{{rbac_info_html}}
 </div>
 
 

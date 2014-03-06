@@ -18,3 +18,10 @@ for example, the testsite1/database directory.  fix code so that the directories
 setup/install code
 more involved check of good system state at startup
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+3/6/14
+See escapequote_stringval_for_sql() in mdbmanager_sqlalchemy.py and decide how ot handle raw vs sqlalchemy high level combined expressions
+//---------------------------------------------------------------------------

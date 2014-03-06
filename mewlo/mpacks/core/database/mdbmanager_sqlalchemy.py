@@ -377,9 +377,9 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
             return result
         return defaultval
 
-    def modelclass_find_all_bykey(self, modelclass, keydict, defaultval=None):
-        """Find and return an instance object for the single row specified by keydict.
-        :return: defaultval if not found
+
+    def modelclass_find_all_bykey(self, modelclass, keydict):
+        """Find and return all objects specified by keydict.
         """
         session = modelclass.dbsession()
         query = session.query(modelclass).filter_by(**keydict)
@@ -388,39 +388,56 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-    def modelclass_find_all_bykey_within(self, modelclass, keydict, defaultval=None):
-        """Find and return an instance object for the single row specified by keydict.
+
+
+
+
+
+
+
+
+
+    def modelclass_find_all_advanced(self, modelclass, keydict):
+        """Find and return all rows specified by keydict.
         the keydict MIGHT specify a LIST for each dictionary value
-        :return: defaultval if not found
         """
         session = modelclass.dbsession()
 
         # filter the query
         query = session.query(modelclass)
-        query = self.filter_query_bykey_within(query, keydict)
+        query = self.filter_query_advanced(query, keydict)
 
         result = query.all()
         return result
 
 
 
-    def filter_query_bykey_within(self, query, keydict):
+    def filter_query_advanced(self, query, keydict):
         """Build and attach filters for a query based on a dictionary keydict that may have LISTS as values."""
+        # ATTN: see build_filter_from_inlist() and build_querystrlist() for some overlap non-DRY code
         for (key,val) in keydict.iteritems():
             if (hasattr(val,'__iter__')):
+                # it's a list, which MAY require special filter AND part if it has more than 1 element
                 if (len(val)==0):
                     # empty list means key must = NULL (NONE)
-                    filterdict = {key:None}
-                    query = query.filter_by(**filterdict)
+                    val = None
+                    # now drop down
                 elif (len(val)==1):
-                    filterdict = {key:val[0]}
-                    query = query.filter_by(**filterdict)
+                    val = val[0]
+                    # now drop down
                 else:
                     # build sql filterstring from list
                     querystr = self.build_filter_from_inlist(key, val)
                     #print "QUERYSTR = '{0}'.".format(querystr)
-                    query = query.filter(querystr)
+                    if (querystr != None):
+                        query = query.filter(querystr)
+                    # dont drop down, move to next
+                    continue
+            if (val == '*'):
+                # asterisk matches on all, so we dont even add a query term for it
+                pass
             else:
+                # filter_by will handle string quoting, etc.
                 filterdict = {key:val}
                 query = query.filter_by(**filterdict)
 
@@ -428,24 +445,153 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         return query
 
 
-
     def build_filter_from_inlist(self, key, vallist):
         """Build a filter when we have a list. This should ONLY be called when we know val is a non-empty list"""
-        strlist = []
         # walk items in list and stringify them for comma join in list
+        # note: because we are building an sql string, WE must make sure it is safe and strings are double quoted, etc.
+        # ATTN: see build_querystrlist() and filter_query_advanced() for some overlap non-DRY code
+        strlist = []
         for v in vallist:
             if (v==None):
                 # if None is a value in list, that matches to a NULL
                 strlist.append("NULL")
-            elif (isinstance(v,basestring)):
-                # string value gets doublequotes
-                strlist.append('"{0}"'.format(v))
-            else:
+            elif (isinstance(v,(int,long,float))):
                 # ASSUME numeric, so we cast to str for later comma separated join
                 strlist.append(str(v))
+            else:
+                # string value gets doublequotes
+                if (v == '*'):
+                    # asterisk in the list matches on all, so querystr is None and ignored
+                    return None
+                v = self.escapequote_stringval_for_sql(v)
+                strlist.append(v)
+
+        if (not strlist):
+            # empty?
+            return None
+
         querystr = '{0} in ({1})'.format(key, ",".join(strlist))
         return querystr
 
+
+    def escapequote_stringval_for_sql(self, val):
+        """Wrap val in double quote and escape it."""
+        # ATTN: !!!!!!!!!!!!!!! THIS CODE IS NOT SAFE BECAUSE WE ARE NOT ESCAPING FULLY !!!!!
+        # IT is here only as a placeholder while we decide how fully to commit to sqlalchemy
+        val = '"'+str(val)+'"'
+        return val
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def modelclass_find_all_bycnf(self, modelclass, cnflist):
+        """Find and return all rows specified by keydict.
+        the keydict MIGHT specify a LIST for each dictionary value
+        """
+        # build query
+        session = modelclass.dbsession()
+        query = session.query(modelclass)
+        # add filter to it
+        query = self.filter_query_bycnfkeys(query, cnflist)
+        # return all
+        result = query.all()
+        return result
+
+
+
+    def filter_query_bycnfkeys(self, query, cnflist):
+        """Build and attach filters for a query based on a dictionary keydict that may have LISTS as values."""
+        for disjunction_keydict in cnflist:
+            # loop and combine an AND separated list of dijunction clauses, each one of which is a keydict where we accept if ANY dictionary match
+            disjunctclause = self.make_disjunctclause(disjunction_keydict)
+            #print "ATTN: adding disjunct clause {0}.".format(disjunctclause)
+            if (disjunctclause != None):
+                query = query.filter(disjunctclause)
+        return query
+
+
+    def make_disjunctclause(self, disjunction_keydict):
+        # create the new sub query to return
+
+        # get list of query strings
+        allquerystrs = self.build_querystrlist(disjunction_keydict)
+        # combine them as disjunctions
+        querystr = self.combine_querystr_from_querystrlist(allquerystrs, 'OR')
+        # now return the query
+        return querystr
+
+
+    def build_querystrlist(self, keydict):
+        """Build a list of query strings for each item of keydict; each value in keydict may map to a list of acceptable items"""
+        # ATTN: see build_filter_from_inlist() and filter_query_advanced() for some overlap non-DRY code
+        querystr = ''
+        allquerystrs = []
+
+        for (key,val) in keydict.iteritems():
+            if (hasattr(val,'__iter__')):
+                # it's a list, which MAY require special filter AND part if it has more than 1 element
+                if (len(val)==0):
+                    # empty list means key must = NULL (NONE)
+                    val = None
+                    # now drop down
+                elif (len(val)==1):
+                    val = val[0]
+                    # now drop down
+                else:
+                    # build sql filterstring from list
+                    querystr = self.build_filter_from_inlist(key, val)
+                    #print "QUERYSTR = '{0}'.".format(querystr)
+                    if (querystr != None):
+                        allquerystrs.append(querystr)
+                        continue
+            if (val == '*'):
+                # asterisk matches on all, so we dont even add a query term for it
+                pass
+            else:
+                val = self.escapequote_stringval_for_sql(val)
+                querystr = '{0} = {1}'.format(key,val)
+                allquerystrs.append(querystr)
+
+        # ok now we have our list of querystrings, caller will combine
+        return allquerystrs
+
+
+
+    def combine_querystr_from_querystrlist(self, allquerystrs, combinestr):
+        """Combine query string claues with AND or OR.
+        Return None if empty."""
+        if (not allquerystrs):
+            # empty
+            return None
+        if (len(allquerystrs)==1):
+            # just one, return it
+            return allquerystrs[0]
+        combinedquerystr = ''
+        for querystr in allquerystrs:
+            if (querystr == None):
+                continue
+            if (combinedquerystr == ''):
+                combinedquerystr = '(' + querystr + ')'
+            else:
+                combinedquerystr += ' ' + combinestr + ' ' + '(' + querystr + ')'
+        # return it
+        return combinedquerystr
 
 
 

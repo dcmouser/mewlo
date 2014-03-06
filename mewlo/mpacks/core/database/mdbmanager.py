@@ -44,7 +44,7 @@ class MewloDatabaseManager(manager.MewloManager):
         self.register_modelclass(self, muser.MewloUser)
         self.register_modelclass(self, mgroup.MewloGroup)
         self.register_modelclass(self, mrbac.MewloRole)
-        self.register_modelclass(self, mrbac.MewloRoleHierarchy)
+        self.register_modelclass(self, mrbac.MewloRoleEntails)
         self.register_modelclass(self, mrbac.MewloRoleAssignment)
         # session
         self.register_modelclass(self, msession.MewloSession)

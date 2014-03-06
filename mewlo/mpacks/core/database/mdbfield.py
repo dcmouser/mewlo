@@ -244,6 +244,21 @@ class DbfTypeString(MewloDbField):
         return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))]
 
 
+
+class DbfLabelString(MewloDbField):
+    """Limited length text field."""
+    # ATTN: unfinished
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfLabelString, self).__init__(id, properties)
+
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))]
+
+
+
 class DbfVarname(MewloDbField):
     """Limited length text field."""
     def __init__(self, id, properties={}):
