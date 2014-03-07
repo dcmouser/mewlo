@@ -431,6 +431,20 @@ class MewloDbModel(object):
         """
         return cls.dbm().modelclass_find_one_byprimaryid(cls, primaryid, defaultval)
 
+
+    @classmethod
+    def find_all_byprimaryidlist(cls, primaryidlist):
+        """Find and return matches.
+        """
+        return cls.find_all_advanced({'id':primaryidlist})
+
+    @classmethod
+    def find_all_bygobidlist(cls, gobidlist):
+        """Find and return matches.
+        """
+        return cls.find_all_advanced({'gobid':gobidlist})
+
+
     @classmethod
     def find_one_bykey(cls, keydict, defaultval = None):
         """Find and return an instance object for the single row specified by keydict.

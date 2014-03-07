@@ -205,7 +205,9 @@ class MewloUser(mdbmodel.MewloDbModel):
 
 
 
-
+    def calc_nice_rbaclabel(self):
+        """Return a nice label used for displaying rbac information."""
+        return "user#{0}:{1}".format(self.id, self.username)
 
 
 

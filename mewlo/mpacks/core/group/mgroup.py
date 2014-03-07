@@ -37,6 +37,28 @@ class MewloGroup(mdbmodel.MewloDbModel):
 
 
 
+
+
+    def calc_nice_rbaclabel(self):
+        """Return a nice label used for displaying rbac information."""
+        return "group#{0}:{1}".format(self.id, self.groupname)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @classmethod
     def define_fields(cls, dbmanager):
         """This class-level function defines the database fields for this model -- the columns, etc."""

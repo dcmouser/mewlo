@@ -62,6 +62,7 @@ from ..database import mdbmodel
 from ..database import mdbfield
 from ..database import mdbmixins
 from ..manager import manager
+from ..helpers import misc
 
 # python imports
 
@@ -362,10 +363,6 @@ class MewloRbacManager(manager.MewloManager):
 
 
 
-    def calc_assignment_nicedescription(self, assignment):
-        """Return a nice string describing the role assignment."""
-        retstr = "Subject_gobid={0} , Role_id={1} , Resource_gobid={2}.".format(assignment.subject_gobid, assignment.role_id, assignment.resource_gobid)
-        return retstr
 
 
 
@@ -519,4 +516,149 @@ class MewloRbacManager(manager.MewloManager):
         role_entail.save()
         # return it
         return role_entail
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def lookup_roledefarray_from_assignments(self, roleassignments):
+        """Simply get the roledef objects from the assignments (note that many roleassignments may use same roledef).
+        Return as an array indexed by roleid."""
+        # get UNIQUE roleids
+        roleids = list(set([x.id for x in roleassignments]))
+        # now get these roledefs
+        roledefs = MewloRole.find_all_byprimaryidlist(roleids)
+        # and build indexed list of them
+        roledefarray = misc.convert_list_to_id_indexed_dict(roledefs)
+        return roledefarray
+
+
+
+    def lookup_gobarray_from_assignments(self, role_assignments, roledefarray):
+        """Return an array of OBJECTS used in either subject or resource part of role assignments (note that many roleassignments may use same pbjects).
+        IMPORTANT: role assignments refer to gobids which are unique numeric identifiers that can refer to multiple kinds of objects.
+        This function must lookup and instantiate the proper object instance for the gobid.  There are multiple ways to do this, and some may be messy/slow.
+        So we may want to be cautious about using this function for important things.
+        Return as an array indexed by gobid."""
+        # role assignments may use different classes of objects, so our first task will be to arrange all objects referred to in role assignments by class
+        gobids_by_class = {}
+        for assignment in role_assignments:
+            # for each assignment, get the role, and then the class names for the subject and resource
+            role = roledefarray[assignment.role_id]
+            subject_classname = role.classname_subject
+            resource_classname = role.classname_resource
+            # now add unique values to each list indexed by classname
+            if (subject_classname != None):
+                self.add_uniqueval_to_listkey(assignment.subject_gobid, gobids_by_class, subject_classname)
+            if (resource_classname != None):
+                self.add_uniqueval_to_listkey(assignment.resource_gobid, gobids_by_class, resource_classname)
+
+        # ok now we want to look up the actual objects
+        gobarray = {}
+        for classname, gobidlist in gobids_by_class.iteritems():
+            # lookup object array
+            objarray = self.lookup_objarray_by_class_and_gobidlist(classname, gobidlist)
+            # merge it with main array
+            gobarray.update(objarray)
+
+        # return it
+        return gobarray
+
+
+
+    def add_uniqueval_to_listkey(self, val, keydict, key):
+        """Add id to list indexed by key in keydict."""
+        if (not key in keydict):
+            keydict[key] = [val]
+        elif (not val in keydict[key]):
+            keydict[key].append(val)
+
+
+    def lookup_objarray_by_class_and_gobidlist(self, classname, gobidlist):
+        """We are given a classname and a gobidlist; we want to return the objects with matching gobids.
+        This is tricky because the classname must be looked up dynamically."""
+        # first convert clasname into classmodel
+        classmodel = self.lookup_classmodel_from_classname(classname)
+        # now fetch matching objects
+        objs = classmodel.find_all_bygobidlist(gobidlist)
+        # convert to indexed
+        #objarray = misc.convert_list_to_id_indexed_dict(objs)
+        objarray = misc.convert_list_to_attribute_indexed_dict(objs, 'gobid')
+        # return it
+        return objarray
+
+
+    def lookup_classmodel_from_classname(self, classname):
+        """Find the MewloModel derived CLASS specified by classname."""
+        classmodel = self.sitecomp_dbmanager().lookupclass(classname)
+        return classmodel
+
+
+
+
+
+
+
+    def calc_assignment_nicedescription(self, assignment, roledefarray=None, gobarray=None):
+        """Return a nice string describing the role assignment."""
+        subjectlabel = self.calc_nicelabel_from_gobid(assignment.subject_gobid, gobarray)
+        resourcelabel = self.calc_nicelabel_from_gobid(assignment.resource_gobid, gobarray)
+        rolelabel = self.calc_nicelabel_from_roleid(assignment.role_id, roledefarray)
+        if (assignment.resource_gobid != None):
+            retstr = "Subject [{0}] has role [{1}] on resource [{2}]".format(subjectlabel, rolelabel, resourcelabel)
+        else:
+            retstr = "Subject [{0}] has role [{1}]".format(subjectlabel, rolelabel)
+        return retstr
+
+
+    def calc_nicelabel_from_gobid(self, gobid, gobarray):
+        """Return a nice string label for the gobid."""
+        if ((not gobarray) or (not gobid in gobarray)):
+            return '#{0}'.format(gobid)
+        # all gob based objects must support the function calc_nice_rbaclabel() which should return a nice display label for the object, something like "User #123, named 'abc'"
+        label = gobarray[gobid].calc_nice_rbaclabel()
+        return label
+
+
+    def calc_nicelabel_from_roleid(self, role_id, roledefarray):
+        """Return a nice string label for the roleid."""
+        if ((not roledefarray) or (not role_id in roledefarray)):
+            label = '#{0}'.format(role_id)
+        label = "#{0}:{1}".format(role_id, roledefarray[role_id].label)
+        return label
 

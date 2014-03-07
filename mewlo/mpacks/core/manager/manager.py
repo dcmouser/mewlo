@@ -93,6 +93,9 @@ class MewloManager(object):
     def sitecomp_rbacmanager(self):
         return self.mewlosite.comp('rbacmanager')
 
+    def sitecomp_dbmanager(self):
+        return self.mewlosite.comp('dbmanager')
+
 
 
     def get_setting_value(self, sectionmame, defaultval=None):

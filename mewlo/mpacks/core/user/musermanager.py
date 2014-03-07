@@ -565,13 +565,26 @@ class MewloUserManager(modelmanager.MewloModelManager):
         rbac_info_html = "Is user member of visitor group: {0}.<br/>".format(is_rbactest)
 
         # test, report all roles that this user is involved in
-        rbac_info_html += "<br/>All role assignments:\n<ul>"
+
+        # get all assignments involving the user
         assignments = rbacmanager.lookup_roleassigns_either_subject_or_resource(user,'*')
+        # now lookup array of ROLEDEFS for these roles, and then array of OBJECTS involved in these assignments
+        roledefarray = rbacmanager.lookup_roledefarray_from_assignments(assignments)
+        gobarray = rbacmanager.lookup_gobarray_from_assignments(assignments, roledefarray)
+
+        # build the html
+        rbac_info_html += "<br/>All role assignments:\n<ul>"
         for assignment in assignments:
-            assignment_nicedescription = rbacmanager.calc_assignment_nicedescription(assignment)
+            assignment_nicedescription = rbacmanager.calc_assignment_nicedescription(assignment, roledefarray, gobarray)
             rbac_info_html += "<li>Role assignment: {0}.</li>\n".format(assignment_nicedescription)
         if (not assignments):
             rbac_info_html += "<li>NONE</li>\n"
         rbac_info_html += "</ul>\n"
 
         return rbac_info_html
+
+
+
+
+
+

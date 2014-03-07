@@ -348,3 +348,38 @@ def nice_datestring(atime):
     return timestring
 
 
+
+
+def convert_list_to_id_indexed_dict(objlist):
+    """Convert a list of objects to a dictionary indexed by obj.id."""
+    indexeddict = {}
+    for obj in objlist:
+        indexeddict[obj.id] = obj
+    return indexeddict
+
+
+def convert_list_to_attribute_indexed_dict(objlist, attributename):
+    """Convert a list of objects to a dictionary indexed by obj.id."""
+    indexeddict = {}
+    for obj in objlist:
+        attributeval = getattr(obj, attributename)
+        indexeddict[attributeval] = obj
+    return indexeddict
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

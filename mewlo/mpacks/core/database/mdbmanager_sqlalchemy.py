@@ -366,6 +366,10 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         return defaultval
 
 
+
+
+
+
     def modelclass_find_one_bykey(self, modelclass, keydict, defaultval=None):
         """Find and return an instance object for the single row specified by keydict.
         :return: defaultval if not found
@@ -385,6 +389,33 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         query = session.query(modelclass).filter_by(**keydict)
         result = query.all()
         return result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -500,6 +531,8 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
+
+
     def modelclass_find_all_bycnf(self, modelclass, cnflist):
         """Find and return all rows specified by keydict.
         the keydict MIGHT specify a LIST for each dictionary value
@@ -527,7 +560,7 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
     def make_disjunctclause(self, disjunction_keydict):
-        # create the new sub query to return
+        """Return a disjunctive clause for later recombination as part of a DNF or CNF expression."""
 
         # get list of query strings
         allquerystrs = self.build_querystrlist(disjunction_keydict)
@@ -592,6 +625,46 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
                 combinedquerystr += ' ' + combinestr + ' ' + '(' + querystr + ')'
         # return it
         return combinedquerystr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
