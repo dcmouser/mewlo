@@ -19,16 +19,18 @@ It doesn't actually *do* anything -- but does describe and version the core code
 from mewlo.mpacks.core.pack import mpackworker
 
 # our imports
-import msiteaddon_account
+from mewlo.mpacks.site_addons.account import msiteaddon_account
+import msiteaddon_group
 
 
-class MewloPackWorker_SiteAddon_Account(mpackworker.MewloPackWorker):
+
+class MewloPackWorker_SiteAddon_Group(mpackworker.MewloPackWorker):
     """
     """
 
     def __init__(self, pack):
         # parent constructor
-        super(MewloPackWorker_SiteAddon_Account, self).__init__(pack)
+        super(MewloPackWorker_SiteAddon_Group, self).__init__(pack)
 
 
     def startup(self, mewlosite, eventlist):
@@ -43,14 +45,14 @@ class MewloPackWorker_SiteAddon_Account(mpackworker.MewloPackWorker):
 
     def shutdown(self):
         # called by Mewlo system when it's ready for us to do any shutdown
-        super(MewloPackWorker_SiteAddon_Account, self).shutdown()
+        super(MewloPackWorker_SiteAddon_Group, self).shutdown()
         return None
 
 
 
     def setup_everything(self, mewlosite, eventlist):
         # called by Mewlo system when it's ready for us to do any setup stuff
-        mewlosite.createappendcomp('accountaddon', msiteaddon_account.MewloSiteAddon_Account)
+        mewlosite.createappendcomp('groupaddon', msiteaddon_group.MewloSiteAddon_Group)
         return None
 
 
@@ -64,6 +66,6 @@ class MewloPackWorker_SiteAddon_Account(mpackworker.MewloPackWorker):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        str = " "*indent + "MewloPackWorker_SiteAddon_Account reporting in.\n"
+        str = " "*indent + "MewloPackWorker_SiteAddon_Group reporting in.\n"
         return str
 

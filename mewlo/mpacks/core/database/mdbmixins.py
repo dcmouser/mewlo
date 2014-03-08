@@ -45,9 +45,6 @@ def dbfmixins_authortracker(prefixstr=''):
 def dbfmixins_workflow(prefixstr=''):
     """Mixin fields for tracking author creation+modification data."""
     fieldlist = [
-        mdbfield.DbfBoolean(prefixstr+'is_deleted', {
-            'label': "Has the object been virtually deleted?"
-            }),
         mdbfield.DbfBoolean(prefixstr+'is_draft', {
             'label': "Has the object been marked as in draft state by author?"
             }),
@@ -81,3 +78,20 @@ def dbfmixin_gobreference(relationname):
             })
     return field
 
+
+
+
+def dbfmixins_disabledelete():
+    """Mixin fields for tracking author creation+modification data."""
+    fieldlist = [
+        mdbfield.DbfBoolean('is_deleted', {
+            'label': "Has the object been virtually deleted (invisible and unusable)?"
+            }),
+        mdbfield.DbfBoolean('is_disabled', {
+            'label': "Has the object been disabled (but is still visible)?"
+            }),
+        mdbfield.DbfLabelString('disabledreason', {
+            'label': "Reason the object is disabled (if it is)"
+            }),
+        ]
+    return fieldlist

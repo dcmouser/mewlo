@@ -130,7 +130,11 @@ class MewloUser(mdbmodel.MewloDbModel):
             # now let's check for pending change to their email
             verification = request.sitecomp_verificationmanager().find_valid_by_type_and_userid(mconst.DEF_VFTYPE_userfield_verification, self.id, 'email')
             if (verification != None):
-                rethtml += " [pending change to {0}]".format(verification.verification_varval)
+                if (verification.verification_varval != self.email):
+                    rethtml += " [pending change to {0}]".format(verification.verification_varval)
+                else:
+                    # it's initial email verification, so nothing extra to display
+                    pass
 
         # return it
         return rethtml
@@ -259,6 +263,8 @@ class MewloUser(mdbmodel.MewloDbModel):
             # globally unique resource reference
             mdbmixins.dbfmixin_gobselfreference(),
             ]
+        # standard objet deleted/enabled flags
+        fieldlist += mdbmixins.dbfmixins_disabledelete()
 
         return fieldlist
 

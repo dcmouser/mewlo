@@ -74,8 +74,9 @@ class MewloGroup(mdbmodel.MewloDbModel):
                 }),
             # globally unique resource reference
             mdbmixins.dbfmixin_gobselfreference(),
-
             ]
+        # standard objet deleted/enabled flags
+        fieldlist += mdbmixins.dbfmixins_disabledelete()
 
         return fieldlist
 

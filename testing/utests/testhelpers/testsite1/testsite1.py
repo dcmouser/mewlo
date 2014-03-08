@@ -23,8 +23,9 @@ from mewlo.mpacks.core.eventlog.mevent import EWarning
 from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
 
 # account addon
-from mewlo.mpacks.site_addons.account import msiteaddon_account
-#from mewlo.mpacks.site_addons.account import accountmanager
+#from mewlo.mpacks.site_addons.account import msiteaddon_account
+#from mewlo.mpacks.site_addons.group import msiteaddon_group
+
 
 
 # python imports
@@ -356,7 +357,9 @@ class MewloSite_Test1(MewloSite):
     def add_addons(self):
         """Add any site addons."""
         # register accountmanager addon component
-        self.createappendcomp('accountaddon', msiteaddon_account.MewloSiteAddon_Account)
+        # this is now handled automatically by addong mpacks
+        #self.createappendcomp('accountaddon', msiteaddon_account.MewloSiteAddon_Account)
+        #self.createappendcomp('groupaddon', msiteaddon_group.MewloSiteAddon_Group)
 
 
 

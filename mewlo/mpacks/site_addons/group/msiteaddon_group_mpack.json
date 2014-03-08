@@ -1,0 +1,31 @@
+{
+	"uniqueid": "mewlo.siteaddon.group",
+
+	"nicename": "Mewlo Group SiteAddon",
+	"label": "Mewlo Group SiteAddon",
+	"description": "Site addon that prepovides group features.",
+
+	"group": "core",
+	"genre": "core",
+
+	"isrequired": true,
+
+	"author": "mouser@donationcoder.com",
+
+	"version": "1.1.0",
+	"versiondate": "jan 1, 2014",
+
+	"versionlog": {
+		"1.0.0": "first private release"
+		},
+
+	"url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/siteaddon/group",
+	"url.version":  "http://www.donationcoder.com/Software/Mouser/mewlo/updates/core/siteaddon/msiteaddon_group_mpack.json",
+	"url.download": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/core/siteaddon/msiteaddon_group_mpack.zip",
+
+
+	"codefile": "msiteaddon_group_mpack.py",
+	"codeclass": "MewloPackWorker_SiteAddon_Group"
+
+
+}

@@ -36,3 +36,19 @@ Thoughts:
 Nice study of django complexity:
 
     * http://thegarywilson.com/blog/2012/software-metrics-django-case-study/
+
+    
+On customizing Django User model:
+
+    * https://docs.djangoproject.com/en/1.5/topics/auth/customizing/#substituting-a-custom-user-model
+
+
+Generic relations (compare to our rbac gobid approach):
+
+    * https://docs.djangoproject.com/en/1.4/ref/contrib/contenttypes/#generic-relations
+    
+    
+Django community code that is related to Mewlo:
+
+    * http://django-guardian.readthedocs.org/en/v1.2/ - object based ACL
+    

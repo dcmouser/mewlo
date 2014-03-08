@@ -13,3 +13,14 @@ We also probably want to think about a hierarchical organization of Groups -- wi
 One real dilemma that I have with the Group model is the overlap in functionality between Groups and other "structures" under which we might organize content and users.  Consider the idea of having "Projects" that users can be part of.  Is a Project the same as a Group?  They seem like they would have the same basically functionality and API -- where users could create Projects, join them, have different roles, etc.
 
 So do we want to think of a "Group" as a very abstract container object, from which we can subclass to get "Projects", "User Groups", "Permission Groups", "Newsletter Groups", etc..?
+
+
+
+Group Roles
+-----------
+
+In Mewlo, group membership is handled via the RBAC permission system.
+
+So, when we say that "User X is in group Z", that is internally represented by a role assignment entry saying that user X has role Y in group Z.
+
+There are multiple role types that relate to group membership, and of course different group roles will have different permissions.

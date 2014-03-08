@@ -16,7 +16,7 @@ from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
 import os, sys
 
 # our imports
-import maccountmanager
+import msiteaddon_account_manager
 
 # this is just a way to get the relative directory easily, and we use this in config settings
 import controllers as pkgdirimp_controllers
@@ -40,7 +40,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         # path prefix (used below in route setup)
         self.routepathprefix = '/account'
         # create the helper manager
-        self.accountmanager = self.mewlosite.createappendcomp('accountmanager', maccountmanager.AccountManager)
+        self.accountmanager = self.mewlosite.createappendcomp('accountmanager', msiteaddon_account_manager.AccountAddonManager)
 
 
     def prestartup_register(self, eventlist):
