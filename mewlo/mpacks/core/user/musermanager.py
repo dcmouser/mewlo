@@ -554,34 +554,19 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-
-
-    def get_users_rbac_info_html(self, user):
+    def get_annotated_assignments_for_user(self, user):
         """Return some debug info about the users roles."""
         rbacmanager = self.sitecomp_rbacmanager()
-        groupmanager = self.sitecomp_groupmanager()
-        group = groupmanager.lookup_group_byname(mconst.DEF_GROUPNAME_visitor)
-        is_rbactest = rbacmanager.does_subject_have_role_on_resource(user, mconst.DEF_ROLENAME_groupmembership, group)
-        rbac_info_html = "Is user member of visitor group: {0}.<br/>".format(is_rbactest)
 
-        # test, report all roles that this user is involved in
-
-        # get all assignments involving the user
+        # get all assignments involving the group
         assignments = rbacmanager.lookup_roleassigns_either_subject_or_resource(user,'*')
-        # now lookup array of ROLEDEFS for these roles, and then array of OBJECTS involved in these assignments
-        roledefarray = rbacmanager.lookup_roledefarray_from_assignments(assignments)
-        gobarray = rbacmanager.lookup_gobarray_from_assignments(assignments, roledefarray)
 
-        # build the html
-        rbac_info_html += "<br/>All role assignments:\n<ul>"
-        for assignment in assignments:
-            assignment_nicedescription = rbacmanager.calc_assignment_nicedescription(assignment, roledefarray, gobarray)
-            rbac_info_html += "<li>Role assignment: {0}.</li>\n".format(assignment_nicedescription)
-        if (not assignments):
-            rbac_info_html += "<li>NONE</li>\n"
-        rbac_info_html += "</ul>\n"
+        # for every assignment lookup real subject, resource, role info
+        rbacmanager.annotate_assignments(assignments)
 
-        return rbac_info_html
+        # return annotated assignments
+        return assignments
+
 
 
 

@@ -894,10 +894,10 @@ class AccountAddonManager(manager.MewloManager):
 
         # ATTN: rbac test
         usermanager = self.sitecomp_usermanager()
-        rbac_info_html = usermanager.get_users_rbac_info_html(user)
+        assignments_annotated = usermanager.get_annotated_assignments_for_user(user)
 
         # then page contents
-        self.render_localview( request, self.viewfiles['profile'], {'studieduser':user, 'rbac_info_html':rbac_info_html} )
+        self.render_localview( request, self.viewfiles['profile'], {'studieduser':user, 'assignments_annotated':assignments_annotated} )
 
 
 

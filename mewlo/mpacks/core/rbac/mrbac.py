@@ -126,6 +126,12 @@ class MewloRole(mdbmodel.MewloDbModel):
 
 
 
+    def calc_nice_rbaclabel(self):
+        """Nice display accessor."""
+        return "role#{0}:{1}".format(self.id, self.label)
+
+
+
 
 
 
@@ -203,12 +209,44 @@ class MewloRoleAssignment(mdbmodel.MewloDbModel):
 
 
 
+    def calc_nice_annotated_html_info(self):
+        """Return a nice html string for the assignment, using optional annotated object info."""
+
+        subjectlabel = self.calc_nicelabel_from_objorid('annotated_subject',self.subject_gobid)
+        resourcelabel = self.calc_nicelabel_from_objorid('annotated_resource', self.resource_gobid)
+        rolelabel = self.calc_nicelabel_from_objorid('annotated_role', self.role_id)
+        if (self.resource_gobid != None):
+            retstr = "Subject [{0}] has role [{1}] on resource [{2}]".format(subjectlabel, rolelabel, resourcelabel)
+        else:
+            retstr = "Subject [{0}] has role [{1}]".format(subjectlabel, rolelabel)
+        return retstr
+
+
+    def calc_nicelabel_from_objorid(self, attributename, fallbackid):
+        """Return a nice string label for the annotated object."""
+        if (hasattr(self,attributename)):
+            attr = getattr(self, attributename)
+            if (attr != None):
+                return attr.calc_nice_rbaclabel()
+        return '#{0}'.format(fallbackid)
 
 
 
 
-
-
+    def annotate_with_array(self, roledefarray, gobarray):
+        """Annotate with roledef and gobarrays."""
+        if (self.role_id in roledefarray):
+            self.annotated_role = roledefarray[self.role_id]
+        else:
+            self.annotated_role = None
+        if ((self.subject_gobid != None) and (self.subject_gobid in gobarray)):
+            self.annotated_subject = gobarray[self.subject_gobid]
+        else:
+            self.annotated_subject = None
+        if ((self.resource_gobid != None) and (self.resource_gobid in gobarray)):
+            self.annotated_resource = gobarray[self.resource_gobid]
+        else:
+            self.annotated_resource = None
 
 
 
@@ -634,31 +672,16 @@ class MewloRbacManager(manager.MewloManager):
 
 
 
-    def calc_assignment_nicedescription(self, assignment, roledefarray=None, gobarray=None):
-        """Return a nice string describing the role assignment."""
-        subjectlabel = self.calc_nicelabel_from_gobid(assignment.subject_gobid, gobarray)
-        resourcelabel = self.calc_nicelabel_from_gobid(assignment.resource_gobid, gobarray)
-        rolelabel = self.calc_nicelabel_from_roleid(assignment.role_id, roledefarray)
-        if (assignment.resource_gobid != None):
-            retstr = "Subject [{0}] has role [{1}] on resource [{2}]".format(subjectlabel, rolelabel, resourcelabel)
-        else:
-            retstr = "Subject [{0}] has role [{1}]".format(subjectlabel, rolelabel)
-        return retstr
 
 
-    def calc_nicelabel_from_gobid(self, gobid, gobarray):
-        """Return a nice string label for the gobid."""
-        if ((not gobarray) or (not gobid in gobarray)):
-            return '#{0}'.format(gobid)
-        # all gob based objects must support the function calc_nice_rbaclabel() which should return a nice display label for the object, something like "User #123, named 'abc'"
-        label = gobarray[gobid].calc_nice_rbaclabel()
-        return label
 
 
-    def calc_nicelabel_from_roleid(self, role_id, roledefarray):
-        """Return a nice string label for the roleid."""
-        if ((not roledefarray) or (not role_id in roledefarray)):
-            label = '#{0}'.format(role_id)
-        label = "#{0}:{1}".format(role_id, roledefarray[role_id].label)
-        return label
 
+    def annotate_assignments(self, assignments):
+        """Given a list of assignments, annotate them with real info about the roles and objects involved."""
+        # now lookup array of ROLEDEFS for these roles, and then array of OBJECTS involved in these assignments
+        roledefarray = self.lookup_roledefarray_from_assignments(assignments)
+        gobarray = self.lookup_gobarray_from_assignments(assignments, roledefarray)
+        # now annotate the assignments with the objects
+        for assignment in assignments:
+            assignment.annotate_with_array(roledefarray, gobarray)
