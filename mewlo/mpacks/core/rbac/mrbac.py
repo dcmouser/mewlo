@@ -598,7 +598,7 @@ class MewloRbacManager(manager.MewloManager):
         """Simply get the roledef objects from the assignments (note that many roleassignments may use same roledef).
         Return as an array indexed by roleid."""
         # get UNIQUE roleids
-        roleids = list(set([x.id for x in roleassignments]))
+        roleids = list(set([x.role_id for x in roleassignments]))
         # now get these roledefs
         roledefs = MewloRole.find_all_byprimaryidlist(roleids)
         # and build indexed list of them

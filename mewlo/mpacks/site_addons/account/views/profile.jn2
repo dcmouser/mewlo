@@ -1,6 +1,6 @@
 {% include "${siteviewpath}/header.jn2" %}
 
-<h1>Your profile:</h1>
+<h1>User profile:</h1>
 
 <ul>
 <li>Username: {{ studieduser.username }}</li>
