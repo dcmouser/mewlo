@@ -554,22 +554,5 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-    def get_annotated_assignments_for_user(self, user):
-        """Return some debug info about the users roles."""
-        rbacmanager = self.sitecomp_rbacmanager()
-
-        # get all assignments involving the group
-        assignments = rbacmanager.lookup_roleassigns_either_subject_or_resource(user,'*')
-
-        # for every assignment lookup real subject, resource, role info
-        rbacmanager.annotate_assignments(assignments)
-
-        # return annotated assignments
-        return assignments
-
-
-
-
-
 
 

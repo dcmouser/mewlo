@@ -892,12 +892,13 @@ class AccountAddonManager(manager.MewloManager):
         request.add_pagemessage({'cls':'green','msg':"page message one"})
         request.add_pagemessage({'cls':'red','msg':"page message two"})
 
-        # ATTN: rbac test
-        usermanager = self.sitecomp_usermanager()
-        assignments_annotated = usermanager.get_annotated_assignments_for_user(user)
+        # get all assignments involving the user
+        rbacmanager = self.sitecomp_rbacmanager()
+        assignments = rbacmanager.lookup_roleassigns_either_subject_or_resource(user,'*')
+        rbacmanager.annotate_assignments(assignments)
 
         # then page contents
-        self.render_localview( request, self.viewfiles['profile'], {'studieduser':user, 'assignments_annotated':assignments_annotated} )
+        self.render_localview( request, self.viewfiles['profile'], {'studieduser':user, 'assignments':assignments} )
 
 
 

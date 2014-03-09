@@ -685,3 +685,4 @@ class MewloRbacManager(manager.MewloManager):
         # now annotate the assignments with the objects
         for assignment in assignments:
             assignment.annotate_with_array(roledefarray, gobarray)
+        return assignments

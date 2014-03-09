@@ -133,10 +133,13 @@ class GroupAddonManager(manager.MewloManager):
         # set page id
         self.set_renderpageid(request, 'groupinfo')
 
-        # contents
+        # get the group
         groupmanager = self.sitecomp_groupmanager()
         group = groupmanager.modelclass.find_one_byprimaryid(groupid)
-        assignments_annotated = groupmanager.get_annotated_assignments_for_group(group)
+        # get all assignments involving the group
+        rbacmanager = self.sitecomp_rbacmanager()
+        assignments = rbacmanager.lookup_roleassigns_either_subject_or_resource(group,'*')
+        rbacmanager.annotate_assignments(assignments)
 
         # then page contents
-        self.render_localview( request, self.viewfiles['groupinfo'], {'group':group, 'assignments_annotated':assignments_annotated} )
+        self.render_localview( request, self.viewfiles['groupinfo'], {'group':group, 'assignments':assignments} )

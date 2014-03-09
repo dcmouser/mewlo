@@ -12,7 +12,7 @@
 <div>
 RBAC info:<br/>
 <ul>
-{% for assignment in assignments_annotated %}
+{% for assignment in assignments %}
 	<li> {{ assignment.calc_nice_annotated_html_info() }} </li>
 {% endfor %}
 </ul>
