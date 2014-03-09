@@ -127,15 +127,15 @@ class GroupAddonManager(manager.MewloManager):
 
     def request_groupinfo(self, request):
         """Group info."""
-        # get args
-        groupid = request.get_route_parsedarg('id',None)
-
         # set page id
         self.set_renderpageid(request, 'groupinfo')
 
+        # get args
+        groupid = request.get_route_parsedarg('id',None)
         # get the group
         groupmanager = self.sitecomp_groupmanager()
-        group = groupmanager.modelclass.find_one_byprimaryid(groupid)
+        #group = groupmanager.modelclass.find_one_byprimaryid(groupid)
+        group = groupmanager.modelclass.find_one_bynameorid(groupid)
         # get all assignments involving the group
         rbacmanager = self.sitecomp_rbacmanager()
         assignments = rbacmanager.lookup_roleassigns_either_subject_or_resource(group,'*')

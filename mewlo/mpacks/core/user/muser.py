@@ -289,7 +289,9 @@ class MewloUser(mdbmodel.MewloDbModel):
 
 
 
-
+    @classmethod
+    def find_one_bynameorid(cls, nameorid):
+        return cls.find_one_byflexibleid('username',nameorid)
 
 
 

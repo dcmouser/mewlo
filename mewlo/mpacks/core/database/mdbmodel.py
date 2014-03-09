@@ -737,3 +737,12 @@ class MewloDbModel(object):
     @classmethod
     def nice_datestring(self, atime):
         return misc.nice_datestring(atime)
+
+
+
+    @classmethod
+    def find_one_byflexibleid(cls, stringfieldname, nameorid):
+        """Lookup one by primary id or by field name value."""
+        if (isinstance(nameorid,(int,long)) or nameorid.isnumeric()):
+            return cls.find_one_byprimaryid(nameorid)
+        return cls.find_one_bykey({stringfieldname:nameorid})

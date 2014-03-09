@@ -149,6 +149,7 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
         # these are related to Routes above, except that NavNodes are like a hierarchical menu structure / site map, wheras Routes are flat patterns that map to controllers
         nodes = [
             NavNode('grouplist', {
+                'menulabel': 'groups',
                 'visible': True,
                 'parent': 'site',
                 'sortweight': 9.0,

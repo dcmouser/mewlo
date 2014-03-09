@@ -154,7 +154,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 path = '/profile',
                 args = [
                         MewloRouteArgString(
-                            id = 'userid',
+                            id = 'id',
                             required = False,
                             help = "id of user whose profile is being viewed",
                             ),

@@ -867,26 +867,22 @@ class AccountAddonManager(manager.MewloManager):
         # set page id
         self.set_renderpageid(request, 'profile')
 
+        # get args
+        userid = request.get_route_parsedarg('id',None)
+        if (userid == None):
+            # use current client user
+            user = self.get_user_force_login(request)
+            # redirect to login if not logged in (and consume login form data if available)
+            if (user == None):
+                return
+        else:
+            # lookup user
+            usermanager = self.sitecomp_usermanager()
+            user = usermanager.modelclass.find_one_bynameorid(userid)
+            if (user == None):
+                raise mewloexception.MewloException_ObjectDoesNotExist("Could not find requested user '{0}'.".format(userid))
 
-        # test
-        if (False):
-            region = 'mtestregion'
-            cachekey = 'testval'
-            cachemanager = self.sitecomp_cachemanager()
-            cacheval = cachemanager.getd(region, cachekey, None, 5)
-            if (cacheval == None):
-                # make and save new value
-                print "ATTN: writing to cache."
-                cacheval = time.time()
-                cachemanager.set(region, cachekey, cacheval)
-            print "ATTN: got val = "+str(cacheval)
 
-
-
-        # redirect to login if not logged in (and consume login form data if available)
-        user = self.get_user_force_login(request)
-        if (user == None):
-            return
 
         # ATTN: pagemessage test
         request.add_pagemessage({'cls':'green','msg':"page message one"})
