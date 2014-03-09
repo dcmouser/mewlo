@@ -250,22 +250,23 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         # these are related to Routes above, except that NavNodes are like a hierarchical menu structure / site map, wheras Routes are flat patterns that map to controllers
         nodes = [
             NavNode('login', {
-                'visible': lambda navnode,context: not (context.get_value('user').get_isloggedin()),
+                'visible': lambda navnode,context: not (context.get_value('clientuser').get_isloggedin()),
                 'parent': 'site',
                 'sortweight': 8.0,
                 }),
             NavNode('logout', {
-                'menulabel': lambda navnode,context: "logout ({0})".format(context.get_value('user').get_username()),
+                'menulabel': lambda navnode,context: "logout ({0})".format(context.get_value('clientuser').get_username()),
                 'menulabel_short': 'logout',
                 'menuhint' : 'logout of your account',
-                'visible': lambda navnode,context: context.get_value('user').get_isloggedin(),
+                'visible': lambda navnode,context: context.get_value('clientuser').get_isloggedin(),
+                'hide_evenifactive': True,
                 'parent': 'site',
                 'sortweight': 8.0,
                 'pagetitle': 'Logout Page',
                 }),
             #
             NavNode('register', {
-                'visible': lambda navnode,context: not (context.get_value('user').get_isloggedin()),
+                'visible': lambda navnode,context: not (context.get_value('clientuser').get_isloggedin()),
                 'parent': 'site',
                 'sortweight': 1.0,
                 }),
@@ -290,7 +291,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 'menulabel': "profile",
                 'menulabel_short': 'profile',
                 'menuhint' : 'your profile',
-                'visible': lambda navnode,context: context.get_value('user').get_isloggedin(),
+                'visible': lambda navnode,context: context.get_value('clientuser').get_isloggedin(),
                 'parent': 'site',
                 'sortweight': 7.0,
                 'pagetitle': 'User Profile',
@@ -306,14 +307,15 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             #
             NavNode('resend_register_verification', {
                 'menulabel': "Resend verification",
-                'visible': lambda navnode,context: not context.get_value('user').get_isloggedin(),
+                'visible': lambda navnode,context: not context.get_value('clientuser').get_isloggedin(),
                 #'flag_linkurl': False,
                 'parent': 'site',
                 'sortweight': 9.0,
                 }),
             NavNode('resend_register_verification2', {
+                'route': 'resend_register_verification',
                 'menulabel': "Resend verification",
-                'visible': lambda navnode,context: context.get_value('user').get_isloggedin() and (navnode.isactive(context) or context.get_value('user').get_ispending_newuser_verification()),
+                'visible': lambda navnode,context: context.get_value('clientuser').get_isloggedin() and (navnode.isactive(context) or context.get_value('clientuser').get_ispending_newuser_verification()),
                 #'flag_linkurl': False,
                 'parent': 'profile',
                 'sortweight': 9.0,
@@ -321,7 +323,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
             NavNode('send_reset_password', {
                 'menulabel': "Reset password",
-                'visible': lambda navnode,context: not context.get_value('user').get_isloggedin(),
+                'visible': lambda navnode,context: not context.get_value('clientuser').get_isloggedin(),
                 #'flag_linkurl': False,
                 'parent': 'site',
                 'sortweight': 9.0,
@@ -334,14 +336,14 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 }),
             NavNode('modify_field', {
                 'menulabel': "Change account profile field",
-                'visible': lambda navnode,context: context.get_value('user').get_isloggedin(),
+                'visible': lambda navnode,context: context.get_value('clientuser').get_isloggedin(),
                 #'flag_linkurl': False,
                 'parent': 'profile',
                 'urlargs': {'field':'email'},
                 }),
             NavNode('cancel_modify_field', {
                 'menulabel': "Cancel pending profile change",
-                'visible': lambda navnode,context: navnode.isactive(context) or context.get_value('user').get_ispending_fieldmodify_verification(context.get_value('request')),
+                'visible': lambda navnode,context: navnode.isactive(context) or context.get_value('clientuser').get_ispending_fieldmodify_verification(context.get_value('request')),
                 #'flag_linkurl': False,
                 'parent': 'profile',
                 'urlargs': {'field':'email'},

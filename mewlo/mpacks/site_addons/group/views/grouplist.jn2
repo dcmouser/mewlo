@@ -1,0 +1,12 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+<h1>Group List</h1>
+
+<ul>
+{% for group in grouplist %}
+	<li> {{ group.calc_nice_html_info() }} </li>
+{% endfor %}
+</ul>
+
+
+{% include "${siteviewpath}/footer.jn2" %}

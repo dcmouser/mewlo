@@ -37,6 +37,9 @@ class MewloDbModel(object):
     dbsqlahelper = None
     dbmanager = None
     #
+    mewlosite = None
+    objmanager = None
+    #
     did_create_table = False
     did_create_mapper = False
     did_create_prerequisites = False
@@ -291,7 +294,9 @@ class MewloDbModel(object):
         #
         cls.dbsqlatable = None
         cls.dbsqlahelper = None
+        cls.mewlosite = None
         cls.dbmanager = None
+        cls.objmanager = None
         #
         cls.did_create_table = False
         cls.did_create_mapper = False
@@ -304,10 +309,17 @@ class MewloDbModel(object):
 
 
     @classmethod
-    def set_dbm(cls, dbmanager):
+    def set_dbm(cls, mewlosite, dbmanager):
         """Set the dbmanager, to be used when creating tables, etc."""
+        cls.mewlosite = mewlosite
         cls.dbmanager = dbmanager
         cls.compute_tableprefix()
+
+    @classmethod
+    def set_objectmanager(cls, objectmanager):
+        """Set some info."""
+        cls.objmanager = objectmanager
+
 
     @classmethod
     def dbm(cls):

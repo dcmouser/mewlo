@@ -44,6 +44,15 @@ class MewloGroup(mdbmodel.MewloDbModel):
         return "group#{0}:{1}".format(self.id, self.groupname)
 
 
+    def calc_nice_html_info(self):
+        """Return nice html info for display."""
+        return "{0}: {1}".format(self.id, self.groupname)
+
+
+
+
+
+
 
 
 
@@ -69,8 +78,14 @@ class MewloGroup(mdbmodel.MewloDbModel):
             mdbfield.DbfPrimaryId('id', {
                 'label': "The primary key and id# for this group"
                 }),
-            mdbfield.DbfString('groupname', {
+            mdbfield.DbfUsername('groupname', {
                 'label': "Unique name for group"
+                }),
+            mdbfield.DbfLabelString('label', {
+                'label': "Label for the group"
+                }),
+            mdbfield.DbfString('description', {
+                'label': "Description for the group"
                 }),
             # globally unique resource reference
             mdbmixins.dbfmixin_gobselfreference(),

@@ -1,0 +1,17 @@
+{% include "${siteviewpath}/header.jn2" %}
+
+
+<h1>Group info:</h1>
+
+<ul>
+<li>Group name: {{ group.groupname }}</li>
+<li>Label: {{ group.label }}</li>
+<li>Description: {{ group.description }}</li>
+</ul>
+
+<div>
+RBAC info:<br/>
+{{rbac_info_html}}
+</div>
+
+{% include "${siteviewpath}/footer.jn2" %}

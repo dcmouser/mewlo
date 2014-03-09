@@ -164,7 +164,7 @@ class MewloResponse(object):
         self.rendercontext['response'] = self
         self.rendercontext['site'] = mewlosite
         #
-        self.rendercontext['user'] = self.request.get_user_or_maketemporaryguest()
+        self.rendercontext['clientuser'] = self.request.get_user_or_maketemporaryguest()
         #
         self.rendercontext['thelper'] = mewlosite.comp('templatehelper')
         self.rendercontext['alias'] = mewlosite.comp('assetmanager').get_resolvedaliases()

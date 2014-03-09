@@ -37,17 +37,13 @@ class MewloPackWorker_SiteAddon_Group(mpackworker.MewloPackWorker):
         # called by Mewlo system when it's ready for us to do any setup stuff
         # return failure if any, or None on success
         retv = self.setup_everything(mewlosite, eventlist)
-        if (retv != None):
-            return retv
-        #
-        return None
+        return retv
 
 
     def shutdown(self):
         # called by Mewlo system when it's ready for us to do any shutdown
         super(MewloPackWorker_SiteAddon_Group, self).shutdown()
         return None
-
 
 
     def setup_everything(self, mewlosite, eventlist):
@@ -59,9 +55,6 @@ class MewloPackWorker_SiteAddon_Group(mpackworker.MewloPackWorker):
     def setup_databaseclasses(self):
         # called by Mewlo system when it's ready for us to do any setup stuff
         return None
-
-
-
 
 
     def dumps(self, indent=0):

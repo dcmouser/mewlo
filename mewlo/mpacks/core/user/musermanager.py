@@ -538,7 +538,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         group = groupmanager.lookup_group_byname(mconst.DEF_GROUPNAME_visitor)
         if (group == None):
             # TEST, create it
-            group = groupmanager.create_group(mconst.DEF_GROUPNAME_visitor)
+            group = groupmanager.create_group(mconst.DEF_GROUPNAME_visitor, 'The visitor group that all members belong to', 'A longer description of the visitor group')
             group.save()
 
         # ok now assing user to role with group as resource

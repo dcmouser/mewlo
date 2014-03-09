@@ -3,8 +3,8 @@
 <h1>Your profile:</h1>
 
 <ul>
-<li>Username: {{ request.get_user().username }}</li>
-<li>Email: {{ request.get_user().get_email_htmlinfo(request) }}</li>
+<li>Username: {{ studieduser.username }}</li>
+<li>Email: {{ studieduser.get_email_htmlinfo(request) }}</li>
 <li>Sessionid: {{ request.get_session(False).hashkey }}</li>
 </ul>
 

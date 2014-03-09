@@ -8,7 +8,7 @@
 	"group": "core",
 	"genre": "core",
 
-	"isrequired": true,
+	"isrequired": false,
 
 	"author": "mouser@donationcoder.com",
 
@@ -22,7 +22,6 @@
 	"url.home": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/siteaddon/group",
 	"url.version":  "http://www.donationcoder.com/Software/Mouser/mewlo/updates/core/siteaddon/msiteaddon_group_mpack.json",
 	"url.download": "http://www.donationcoder.com/Software/Mouser/mewlo/updates/core/siteaddon/msiteaddon_group_mpack.zip",
-
 
 	"codefile": "msiteaddon_group_mpack.py",
 	"codeclass": "MewloPackWorker_SiteAddon_Group"

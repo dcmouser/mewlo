@@ -29,6 +29,11 @@ See escapequote_stringval_for_sql() in mdbmanager_sqlalchemy.py and decide how o
 
 //---------------------------------------------------------------------------
 3/6/14
-Store site pointer in model CLASSES,
 Store manager pointer in model CLASSED.
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+3/8/14
+fix "LOGOUT (GUEST)" bug in menu navbar after logging out.
 //---------------------------------------------------------------------------

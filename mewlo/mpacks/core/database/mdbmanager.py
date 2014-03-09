@@ -188,7 +188,7 @@ class MewloDatabaseManager(manager.MewloManager):
             #print "ATTN: IN register_modelclass with mewlosite = {0}.".format(str(self.mewlosite))
             self.mewlosite.comp('registrymanager').register_class(owner, modelclass)
             # and now call into the modelclass to tell them about the manager that owns them (this is used by the model class when creating tables, etc.)
-            modelclass.set_dbm(self)
+            modelclass.set_dbm(self.mewlosite, self)
 
         # success
         return None

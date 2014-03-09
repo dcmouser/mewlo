@@ -126,6 +126,12 @@ class MewloSite_Test1(MewloSite):
             'mouser.testpack' : {
                 'isenabled': False,
                 },
+            'mewlo.siteaddon.account' : {
+                'isenabled': True,
+                },
+            'mewlo.siteaddon.group' : {
+                'isenabled': True,
+                },
             }
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_packs, packconfig)
 

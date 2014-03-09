@@ -1,6 +1,6 @@
 """
-msiteaddon_account.py
-This file contains a siteaddon class for handling account creation/login
+msiteaddon_group.py
+This file contains a siteaddon class for handling group stuff
 """
 
 
@@ -38,7 +38,7 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
         # call parent constructor
         super(MewloSiteAddon_Group, self).__init__(mewlosite, debugmode)
         # path prefix (used below in route setup)
-        self.routepathprefix = '/group'
+        self.routepathprefix = '/groups'
         # create the helper manager
         self.groupaddonmanager = self.mewlosite.createappendcomp('group_addon_manager', msiteaddon_group_manager.GroupAddonManager)
 
@@ -117,9 +117,15 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
 
         routegroup.append(
             MewloRoute(
-                id = 'group',
-                path = '/group',
-                controller = MewloController(root=pkgdirimp_controllers, function=self.groupaddonmanager.request_group),
+                id = 'grouplist',
+                path = '/list',
+                controller = MewloController(root=pkgdirimp_controllers, function=self.groupaddonmanager.request_grouphome),
+            ))
+        routegroup.append(
+            MewloRoute(
+                id = 'groupinfo',
+                path = '/info',
+                controller = MewloController(root=pkgdirimp_controllers, function=self.groupaddonmanager.request_groupinfo),
                 args = [
                     MewloRouteArgString(
                         id = 'id',
@@ -127,7 +133,6 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
                         help = "id of group",
                         ),
                     ],
-
             ))
 
         # add routegroup we just created to the site
@@ -143,9 +148,15 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
 
         # these are related to Routes above, except that NavNodes are like a hierarchical menu structure / site map, wheras Routes are flat patterns that map to controllers
         nodes = [
-            NavNode('group', {
+            NavNode('grouplist', {
                 'visible': True,
                 'parent': 'site',
+                'sortweight': 9.0,
+                }),
+            NavNode('groupinfo', {
+                #'visible': True,
+                'visible': lambda navnode,context: navnode.isactive(context),
+                'parent': 'grouplist',
                 'sortweight': 9.0,
                 }),
             ]

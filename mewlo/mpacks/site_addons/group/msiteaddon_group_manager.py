@@ -34,20 +34,16 @@ class GroupAddonManager(manager.MewloManager):
         """Constructor."""
         super(GroupAddonManager,self).__init__(mewlosite, debugmode)
         #
-        self.registration_mode = None
-        #
-        self.viewbasepath = '${addon_account_path}/views/'
+        self.viewbasepath = '${addon_group_path}/views/'
         #
         # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
         self.viewfiles = {
+            'grouplist' : 'grouplist.jn2',
+            'groupinfo' : 'groupinfo.jn2',
             }
 
 
-    def startup(self, eventlist):
-        super(GroupAddonManager,self).startup(eventlist)
 
-    def shutdown(self):
-        super(GroupAddonManager,self).shutdown()
 
 
 
@@ -111,8 +107,17 @@ class GroupAddonManager(manager.MewloManager):
 
 
 
+    def request_grouphome(self, request):
+        """Group list."""
+        # set page id
+        self.set_renderpageid(request, 'grouplist')
 
+        # contents
+        groupmanager = self.sitecomp_groupmanager()
+        grouplist = groupmanager.modelclass.find_all()
 
+        # then page contents
+        self.render_localview( request, self.viewfiles['grouplist'], {'grouplist':grouplist} )
 
 
 
@@ -120,9 +125,19 @@ class GroupAddonManager(manager.MewloManager):
 
 
 
-
-
-
-    def request_group(self, request):
+    def request_groupinfo(self, request):
         """Group info."""
-        pass
+        # get args
+        groupid = request.get_route_parsedarg('id',None)
+
+        # set page id
+        self.set_renderpageid(request, 'groupinfo')
+
+        # contents
+        groupmanager = self.sitecomp_groupmanager()
+        group = groupmanager.modelclass.find_one_byprimaryid(groupid)
+        #
+        rbac_info_html = groupmanager.get_group_rbac_info(group)
+
+        # then page contents
+        self.render_localview( request, self.viewfiles['groupinfo'], {'group':group, 'rbac_info_html':rbac_info_html} )

@@ -897,7 +897,8 @@ class AccountAddonManager(manager.MewloManager):
         rbac_info_html = usermanager.get_users_rbac_info_html(user)
 
         # then page contents
-        self.render_localview( request, self.viewfiles['profile'], {'viewuser':user, 'rbac_info_html':rbac_info_html} )
+        self.render_localview( request, self.viewfiles['profile'], {'studieduser':user, 'rbac_info_html':rbac_info_html} )
+
 
 
 

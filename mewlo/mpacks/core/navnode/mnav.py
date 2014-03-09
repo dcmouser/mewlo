@@ -483,8 +483,9 @@ class NavNodeManager(manager.MewloManager):
 
         # if its not visible, we can stop right now
         isvisible = node.get_isvisible(responsecontext, visiblefieldlist)
+        hide_evenifactive = node.get_property('hide_evenifactive', False, True, responsecontext)
         flag_isactive = node.isactive(responsecontext)
-        if ((not isvisible) and (not flag_isactive)):
+        if ((not isvisible) and ((not flag_isactive) or (hide_evenifactive))):
             return ''
 
         # other properties
