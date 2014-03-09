@@ -173,6 +173,7 @@ class MewloSite_Test1(MewloSite):
         siteaddonconfig = {
             # online status information
             'registration_mode': 'immediate',
+            'flag_require_email_verified_before_login': False,
             }
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_siteaddon_account, siteaddonconfig)
 

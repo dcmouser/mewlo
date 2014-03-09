@@ -45,7 +45,7 @@ class AccountAddonManager(manager.MewloManager):
     def __init__(self, mewlosite, debugmode):
         """Constructor."""
         super(AccountAddonManager,self).__init__(mewlosite, debugmode)
-        #
+        # settings
         self.registration_mode = None
         #
         self.viewbasepath = '${addon_account_path}/views/'

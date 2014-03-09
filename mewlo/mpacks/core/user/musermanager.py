@@ -33,6 +33,8 @@ class MewloUserManager(modelmanager.MewloModelManager):
         # also keep track of temp user
         self.modelclass_tempuser = muser.MewloUserTemp
         muser.MewloUserTemp.set_objectmanager(self)
+        # settings
+        self.flag_require_email_verified_before_login = None
         #
         # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
         self.viewfiles = {
@@ -44,6 +46,9 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
     def startup(self, eventlist):
         super(MewloUserManager,self).startup(eventlist)
+        # some settings
+        self.flag_require_email_verified_before_login = self.mewlosite.get_settingval(mconst.DEF_SETTINGSEC_siteaddon_account, 'flag_require_email_verified_before_login')
+
 
     def shutdown(self):
         super(MewloUserManager,self).shutdown()
@@ -360,7 +365,19 @@ class MewloUserManager(modelmanager.MewloModelManager):
             errordict['password'] = "Password does not match."
             return (None, errordict)
 
-        # password matches -- they can be logged in
+        # password matches
+
+        # let's make sure we aren't blocking them from logging in for somet reason.
+
+        if ( self.flag_require_email_verified_before_login and (not user.is_field_verified('email'))):
+            # can't login until you validate your email
+            errordict[''] = "Your email must be verified before you can login; please check your email account for our email or request another verification email."
+            errordict['_needsemailverification'] = True
+            return (None, errordict)
+
+
+        # log them in
+
         # we will update the last login date; called must set session user
         user.update_date_lastlogin()
         # force any actions after they login? (we may want to do this if our hash password algorithm changes)

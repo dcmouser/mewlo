@@ -169,10 +169,17 @@ class MewloUser(mdbmodel.MewloDbModel):
         """Return tuple (fieldvalue, isverified) for this field."""
         # ATTN: unfinished
         if (fieldname == 'email'):
-            return (self.email, self.isverified_email)
+            return (self.email, self.is_field_verified(fieldname))
         # unknown
-        raise Exception("Do not know how to get value for field {0}.".format(fieldname))
+        raise Exception("Do not know how to get value and verificationstatus for field {0}.".format(fieldname))
 
+
+    def is_field_verified(self, fieldname):
+        """Return True if field value is verified."""
+        if (fieldname == 'email'):
+            return self.isverified_email
+        # unknown
+        raise Exception("Do not know how to get verification status for field {0}.".format(fieldname))
 
 
 

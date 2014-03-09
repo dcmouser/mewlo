@@ -1,11 +1,5 @@
 
 //---------------------------------------------------------------------------
-2/22/14
-option to not allow login until email verified
-//---------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------
 3/3/14
 we had a confusing error when running initial tests after installation on a new install, because some testsite directories did not exist that were trying to be written to.
 for example, the testsite1/database directory.  fix code so that the directories are create or clearly errored at startup.
@@ -25,3 +19,9 @@ more involved check of good system state at startup
 See escapequote_stringval_for_sql() in mdbmanager_sqlalchemy.py and decide how ot handle raw vs sqlalchemy high level combined expressions
 //---------------------------------------------------------------------------
 
+
+
+//---------------------------------------------------------------------------
+3/9/14
+On group list page, each group should link to its info page.
+//---------------------------------------------------------------------------
