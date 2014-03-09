@@ -20,7 +20,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
 
 
     def __init__(self, mewlosite, debugmode):
-        super(MewloVerificationManager,self).__init__(mewlosite, debugmode, mverification.MewloVerification)
+        super(MewloVerificationManager,self).__init__(mewlosite, debugmode, mverification.MewloVerification, True)
 
     def startup(self, eventlist):
         super(MewloVerificationManager,self).startup(eventlist)

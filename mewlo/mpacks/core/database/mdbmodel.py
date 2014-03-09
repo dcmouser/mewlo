@@ -257,7 +257,7 @@ class MewloDbModel(object):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloDbModel (" + self.__class__.__name__ + ") reporting in.\n"
+        outstr = " "*indent + "MewloDbModel (" + self.__class__.__name__ + ") instance reporting in."
         return outstr
 
 
@@ -724,7 +724,10 @@ class MewloDbModel(object):
     @classmethod
     def classdumps(cls, indent=0):
         """Debug information for CLASS."""
-        outstr = " "*indent + "Model fields:\n"
+        outstr = ""
+        outstr += " "*indent + "objmanager: {0}.\n".format(str(cls.objmanager))
+        outstr += " "*indent + "dbmanager: {0}.\n".format(str(cls.dbmanager))
+        outstr += " "*indent + "Model fields:\n"
         for field in cls.fieldlist:
             outstr += " "*indent + "{0}: {1}\n".format(field.id, str(field.properties))
         return outstr

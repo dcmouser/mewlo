@@ -19,7 +19,7 @@ class MewloSessionManager(modelmanager.MewloModelManager):
 
 
     def __init__(self, mewlosite, debugmode):
-        super(MewloSessionManager,self).__init__(mewlosite, debugmode, msession.MewloSession)
+        super(MewloSessionManager,self).__init__(mewlosite, debugmode, msession.MewloSession, True)
         # cookie name
         self.sessionid_cookiename = 'mewlosessionid'
 

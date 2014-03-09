@@ -23,14 +23,16 @@ from ..constants.mconstants import MewloConstants as mconst
 class MewloUserManager(modelmanager.MewloModelManager):
     """User model manager."""
 
-
+    # class constants
+    description = "Handles the user database model"
 
 
     def __init__(self, mewlosite, debugmode):
         # parent constructor -- pass in the main modelclass we manager
-        super(MewloUserManager,self).__init__(mewlosite, debugmode, muser.MewloUser)
+        super(MewloUserManager,self).__init__(mewlosite, debugmode, muser.MewloUser, True)
         # also keep track of temp user
         self.modelclass_tempuser = muser.MewloUserTemp
+        muser.MewloUserTemp.set_objectmanager(self)
         #
         # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
         self.viewfiles = {

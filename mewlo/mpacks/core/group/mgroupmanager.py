@@ -23,9 +23,12 @@ from ..constants.mconstants import MewloConstants as mconst
 class MewloGroupManager(modelmanager.MewloModelManager):
     """Group model manager."""
 
+    # class constants
+    description = "Handles the group database model"
+
     def __init__(self, mewlosite, debugmode):
         # parent constructor -- pass in the main modelclass we manager
-        super(MewloGroupManager,self).__init__(mewlosite, debugmode, mgroup.MewloGroup)
+        super(MewloGroupManager,self).__init__(mewlosite, debugmode, mgroup.MewloGroup, True)
 
 
     def startup(self, eventlist):
