@@ -25,3 +25,19 @@ See escapequote_stringval_for_sql() in mdbmanager_sqlalchemy.py and decide how o
 3/9/14
 On group list page, each group should link to its info page.
 //---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+3/9/14
+Refactor and simplify code
+write syncdb-like functions
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+3/9/14
+install virtualenv for django
+make setup/startup as clean as django
+//---------------------------------------------------------------------------
+
+

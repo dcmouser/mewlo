@@ -7,6 +7,9 @@ Derived template for jinja2.
 import mtemplate
 
 
+# jinja2 imports
+import jinja2
+
 
 
 
@@ -47,8 +50,12 @@ class MewloTemplate_Jinja2(mtemplate.MewloTemplate):
         if (self.jinja2_environement == None):
             # create it for first time, use our custom file loader which knows how to resolve view files
             import mjinja2_loader
+            # we use our custom loader
             jinja2_templateLoader = mjinja2_loader.MewloJinja2Loader(templatemanager.mewlosite)
-            self.jinja2_environement = mjinja2_loader.MewloJinja2Environment(templatemanager.mewlosite, loader=jinja2_templateLoader)
+            # by setting this to jinja2.StrictUndefined we cause an exception if an undefined variable is referenced in a template (default behavior is just insert a blank)
+            jinja2_undefined = jinja2.StrictUndefined
+            # create the environment
+            self.jinja2_environement = mjinja2_loader.MewloJinja2Environment(templatemanager.mewlosite, loader=jinja2_templateLoader, undefined=jinja2_undefined)
         return self.jinja2_environement
 
 

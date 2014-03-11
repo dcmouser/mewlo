@@ -31,8 +31,8 @@ class MewloJinja2Loader(jinja2.BaseLoader):
 class MewloJinja2Environment(jinja2.Environment):
     """Our custom jinja2 environment knows how to locate relative paths."""
 
-    def __init__(self, mewlosite, loader):
-        super(MewloJinja2Environment,self).__init__(loader=loader)
+    def __init__(self, mewlosite, loader, undefined):
+        super(MewloJinja2Environment,self).__init__(loader=loader, undefined = undefined)
         self.mewlosite = mewlosite
 
     def join_path(self, template, parent):

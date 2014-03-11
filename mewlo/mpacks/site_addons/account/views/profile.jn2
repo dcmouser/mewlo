@@ -1,4 +1,6 @@
-{% include "${siteviewpath}/header.jn2" %}
+{% extends "${siteviewpath}/base.jn2" %}
+
+{% block content %}
 
 <h1>User profile:</h1>
 
@@ -8,7 +10,6 @@
 <li>Sessionid: {{ request.get_session(False).hashkey }}</li>
 </ul>
 
-
 <div>
 RBAC info:<br/>
 <ul>
@@ -17,6 +18,6 @@ RBAC info:<br/>
 {% endfor %}
 </ul>
 </div>
+mrrp
 
-
-{% include "${siteviewpath}/footer.jn2" %}
+{% endblock %}

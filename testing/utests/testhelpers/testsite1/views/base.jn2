@@ -1,0 +1,6 @@
+{% include "./header.jn2" %}
+
+{% block content %}
+{% endblock %}
+
+{% include "./footer.jn2" %}

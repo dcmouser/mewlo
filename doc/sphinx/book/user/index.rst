@@ -1,13 +1,12 @@
 User Packages
 =============
 
-From here you can learn about the core Mewlo packages.
+From here you can learn about the Mewlo User system.
 
 .. toctree::
 
    auth
    file_uploads
-   groups
    login
    mailbox
    objects

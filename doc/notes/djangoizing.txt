@@ -1,0 +1,1 @@
+This document will be used to keep track of things we need to improve in mewlo to make them at least as good as the way django/pylons does things.
