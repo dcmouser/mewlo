@@ -687,6 +687,7 @@ class MewloSite(object):
             mconst.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_siteurl_relative,''),
             mconst.DEF_SETTINGNAME_sitefilepath: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_sitefilepath),
             mconst.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_sitename),
+            mconst.DEF_SETTINGNAME_mewlofilepath: self.get_installdir(),
             }
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_aliases, aliases)
         self.alias_settings_change()
@@ -1013,6 +1014,9 @@ class MewloSite(object):
     # these just shortcut to assetmanager
     def resolve(self, text):
         return self.comp('assetmanager').resolve(text)
+
+    def resolve_filepath(self, text):
+        return self.comp('assetmanager').resolve_filepath(text)
 
     def absolute_filepath(self, relpath):
         return self.comp('assetmanager').absolute_filepath(relpath)

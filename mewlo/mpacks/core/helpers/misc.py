@@ -9,6 +9,7 @@ from ..eventlog import mevent
 from ..eventlog import mexceptionplus
 
 # python imports
+import os
 import re
 import pickle
 import time
@@ -370,7 +371,10 @@ def convert_list_to_attribute_indexed_dict(objlist, attributename):
 
 
 
-
+def canonicalize_filepath(filepath):
+    """Convert \ to / and remove trailing /"""
+    # ATTN: UNFINISHED
+    return os.path.normpath(filepath)
 
 
 

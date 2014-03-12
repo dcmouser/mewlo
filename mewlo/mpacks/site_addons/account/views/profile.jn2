@@ -18,6 +18,5 @@ RBAC info:<br/>
 {% endfor %}
 </ul>
 </div>
-mrrp
 
 {% endblock %}

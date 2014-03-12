@@ -320,6 +320,27 @@ class MewloSite_Test1(MewloSite):
 
 
 
+    def add_latesettings_aliases(self):
+        """Here would be a good time to do any asset configuration stuff."""
+        self.configure_assets()
+
+
+
+    def configure_assets(self):
+        """Configure some asset settings."""
+        # a mirror for overiding select file files
+        orig_filedirpath = '${mewlofilepath}'
+        new_filedirpath = '${sitefilepath}/replacemirror'
+        assetmanager=self.comp('assetmanager')
+        assetmanager.add_replacement_mirrorfiledir_static(orig_filedirpath, new_filedirpath)
+
+
+
+
+
+
+
+
 
 
 

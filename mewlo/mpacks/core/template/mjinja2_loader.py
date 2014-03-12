@@ -18,7 +18,7 @@ class MewloJinja2Loader(jinja2.BaseLoader):
         self.mewlosite = mewlosite
 
     def get_source(self, environment, template):
-        path = self.mewlosite.resolve(template)
+        path = self.mewlosite.resolve_filepath(template)
         if not os.path.exists(path):
             raise jinja2.TemplateNotFound(template)
         mtime = os.path.getmtime(path)
