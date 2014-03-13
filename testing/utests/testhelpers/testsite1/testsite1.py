@@ -370,26 +370,30 @@ class MewloSite_Test1(MewloSite):
         # setting up static file serving
 
         # add external asset mount point where we can copy public static files so they can be served by a separate traditional web server
+        # presumably this directory is being served by a more traditional webserver, at this url we specify below
         assetmanager.add_assetmount(
             massetmanager.MewloAssetMount_ExternalServer('external_assets', filepath = '${mewlofilepath}/public_assets', urlabs = 'http://127.0.0.1/mewlo/mewlo/public_assets' )
             )
 
-        # add internal asset mount point where we will serve files internally
+        # add internal asset mount point where we will serve files internally; a route will be automatically created for any asset source attached to this mount point; we can choose the path prefix for urls served by the route
         assetmanager.add_assetmount(
-            massetmanager.MewloAssetMount_InternalRoute('internal_assets', routeid = 'static_files')
+            massetmanager.MewloAssetMount_InternalRoute('internal_assets', urlpath='assets')
             )
 
 
         # now that we have some mount points, we can specify some files to be hosted on them
+        # note that the ids for all asset sources MUST be unique
+        # first we mount the files in the staticfilesource/ directory as internal assets that we will serve internally via mewlo; the id will be used for alias creation, and for the route
         assetmanager.add_assetsource(
-            massetmanager.MewloAssetSource('internal', mountid = 'internal_assets', filepath = '${sitefilepath}/staticfilesource')
+            massetmanager.MewloAssetSource(id='internal', mountid = 'internal_assets', filepath = '${sitefilepath}/staticfilesource')
             )
-        # lets mount same files ALSO at the external asset mount, as a test
+        # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
         assetmanager.add_assetsource(
-            massetmanager.MewloAssetSource('external', mountid = 'external_assets', filepath = '${sitefilepath}/staticfilesource')
+            massetmanager.MewloAssetSource(id='external', mountid = 'external_assets', filepath = '${sitefilepath}/staticfilesource')
             )
 
-
+        # remember that one should never refer to the assets by a hardcoded url or file path; always use the aliases created by these functions, which will take the form (where ID is the id of the asset source):
+        # 'asset_ID_urlrel' | 'asset_ID_urlabs' | 'asset_ID_filepath'
 
 
 

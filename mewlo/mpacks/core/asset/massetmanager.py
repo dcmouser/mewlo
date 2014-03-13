@@ -355,15 +355,15 @@ class MewloAssetMount(object):
 class MewloAssetMount_InternalRoute(MewloAssetMount):
     """Object representing a static asset mount point - handled by internal route."""
 
-    def __init__(self, id, routeid):
+    def __init__(self, id, urlpath='assets'):
         """Constructor."""
         super(MewloAssetMount_InternalRoute,self).__init__(id)
-        self.routeid = routeid
+        self.urlpath = urlpath
 
     def dumps(self, indent=0):
         """Debug information."""
         outstr = " "*indent + "MewloAssetMount_InternalRoute (" + self.__class__.__name__  + ") reporting in.\n"
-        outstr += " "*indent + " id={0}, routeid={1}\n".format(self.id, self.routeid)
+        outstr += " "*indent + " id={0}\n".format(self.id)
         return outstr
 
 
@@ -376,7 +376,7 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
 
         # what should be the path to these files? the source id is guaranteed to be unique so we use that
         routeid = 'assetroute_' + assetsource.get_id()
-        routepath = '/assets/' + assetsource.get_id()
+        routepath = '/{0}/{1}'.format(self.urlpath, assetsource.get_id())
         filepath = assetsource.get_filepath()
 
         # create the new route for serving these files at this location
@@ -476,7 +476,10 @@ class MewloAssetMount_ExternalServer(MewloAssetMount):
 
 
 class MewloAssetSource(object):
-    """Object representing a static asset source directory."""
+    """Object representing a static asset source directory.
+    remember that one should never refer to the assets by a hardcoded url or file path; always use the aliases created by these functions, which will take the form (where ID is the id of the asset source):
+    'asset_ID_urlrel' | 'asset_ID_urlabs' | 'asset_ID_filepath'
+    """
 
     def __init__(self, id, mountid, filepath):
         self.id = id
