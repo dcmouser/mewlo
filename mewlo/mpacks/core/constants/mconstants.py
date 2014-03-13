@@ -26,6 +26,7 @@ class MewloConstants(object):
     DEF_SETTINGSEC_database = 'database'
     DEF_SETTINGSEC_mail = 'mail'
     DEF_SETTINGSEC_siteaddon_account = 'siteaddon_account'
+    DEF_SETTINGSEC_asset_mounts = 'asset_mounts'
     #
     DEF_SETTINGNAME_mewlofilepath = 'mewlofilepath'
     #

@@ -21,6 +21,7 @@ from mewlo.mpacks.core.eventlog.mlogtarget_file import MewloLogTarget_File
 from mewlo.mpacks.core.eventlog.mlogtarget_python import MewloLogTarget_Python
 from mewlo.mpacks.core.eventlog.mevent import EWarning
 from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
+from mewlo.mpacks.core.asset import massetmanager
 
 # account addon
 #from mewlo.mpacks.site_addons.account import msiteaddon_account
@@ -178,6 +179,28 @@ class MewloSite_Test1(MewloSite):
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_siteaddon_account, siteaddonconfig)
 
 
+
+        # ATTN: UNFINISHED
+        # asset mounts config
+        if (False):
+            assetmountconfig = {
+            'default' : {
+                # an internal assetmount just needs a url route
+                'type': 'internal',
+                'routeid': 'static_files',
+                },
+            'external' : {
+                'type': 'external',
+                'filepath': '${mewlofilepath}/public_assets',
+                'urlpath': 'http://127.0.0.1/mewlo/public_assets',
+                },
+            }
+            self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_asset_mounts, assetmountconfig)
+
+
+
+
+
         #print "TESTING CONFIG1:"
         #self.run_configfunc('sayhello',1,2,3)
         #print "TESTING CONFIG2:"
@@ -302,13 +325,14 @@ class MewloSite_Test1(MewloSite):
 
 
         #static file server
-        routegroup.append(
-            MewloRoute_StaticFiles(
-                id  = 'static_files',
-                path = '/static',
-                controller = MewloController_StaticFiles(
-                    sourcepath = '${sitefilepath}/public_html'
-                    ),
+        if (False):
+            routegroup.append(
+                MewloRoute_StaticFiles(
+                    id  = 'static_files',
+                    path = '/static',
+                    controller = MewloController_StaticFiles(
+                        sourcepath = '${sitefilepath}/staticfilesource'
+                        ),
                 ))
 
 
@@ -320,19 +344,50 @@ class MewloSite_Test1(MewloSite):
 
 
 
-    def add_latesettings_aliases(self):
-        """Here would be a good time to do any asset configuration stuff."""
-        self.configure_assets()
 
 
 
-    def configure_assets(self):
+
+
+
+
+
+
+
+
+
+
+
+    def add_latesettings_assets(self):
         """Configure some asset settings."""
-        # a mirror for overiding select file files
+
+        # a mirror directory allowing us to overide view and static files that are part of mewlo
         orig_filedirpath = '${mewlofilepath}'
-        new_filedirpath = '${sitefilepath}/replacemirror'
+        new_filedirpath = '${sitefilepath}/replacemirror/mewlo'
         assetmanager=self.comp('assetmanager')
-        assetmanager.add_replacement_mirrorfiledir_static(orig_filedirpath, new_filedirpath)
+        assetmanager.add_replacement_mirrorfiledir(orig_filedirpath, new_filedirpath)
+
+        # setting up static file serving
+
+        # add external asset mount point where we can copy public static files so they can be served by a separate traditional web server
+        assetmanager.add_assetmount(
+            massetmanager.MewloAssetMount_ExternalServer('external_assets', filepath = '${mewlofilepath}/public_assets', urlabs = 'http://127.0.0.1/mewlo/mewlo/public_assets' )
+            )
+
+        # add internal asset mount point where we will serve files internally
+        assetmanager.add_assetmount(
+            massetmanager.MewloAssetMount_InternalRoute('internal_assets', routeid = 'static_files')
+            )
+
+
+        # now that we have some mount points, we can specify some files to be hosted on them
+        assetmanager.add_assetsource(
+            massetmanager.MewloAssetSource('internal', mountid = 'internal_assets', filepath = '${sitefilepath}/staticfilesource')
+            )
+        # lets mount same files ALSO at the external asset mount, as a test
+        assetmanager.add_assetsource(
+            massetmanager.MewloAssetSource('external', mountid = 'external_assets', filepath = '${sitefilepath}/staticfilesource')
+            )
 
 
 

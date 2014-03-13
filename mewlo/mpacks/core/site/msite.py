@@ -644,6 +644,7 @@ class MewloSite(object):
         self.add_earlydefault_settings()
         self.add_settings_early()
         self.add_latesettings_aliases()
+        self.add_latesettings_assets()
 
         # other stuff
         self.add_loggers()
@@ -682,6 +683,11 @@ class MewloSite(object):
 
     def add_latesettings_aliases(self):
         """Add some late aliases."""
+        self.add_latedefault_aliases()
+
+
+    def add_latedefault_aliases(self):
+        """Add some late aliases."""
         aliases = {
             mconst.DEF_SETTINGNAME_siteurl_absolute: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_siteurl_absolute),
             mconst.DEF_SETTINGNAME_siteurl_relative: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_siteurl_relative,''),
@@ -691,6 +697,11 @@ class MewloSite(object):
             }
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_aliases, aliases)
         self.alias_settings_change()
+
+
+    def add_latesettings_assets(self):
+        """Does nothing in base class, but subclass can overide."""
+        pass
 
 
     def add_loggers(self):

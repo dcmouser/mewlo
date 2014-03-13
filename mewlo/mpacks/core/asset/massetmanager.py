@@ -11,11 +11,13 @@ A MewloAssetManager allows aliases to be set, and ensures all references to file
 # mewlo imports
 from ..helpers import misc
 from ..manager import manager
+from ..route import mroute, mroute_staticfiles
+from ..controller import mcontroller_staticfiles
 
 # python imports
 import os
 import copy
-
+import distutils
 
 
 
@@ -34,6 +36,15 @@ class MewloAssetManager(manager.MewloManager):
         # init
         self.alias_settings = None
         self.replacements_filepaths_static = {}
+        self.asset_mounts = {}
+        self.asset_sources = {}
+        self.routegroup_mounting = None
+
+    def prestartup_register(self, eventlist):
+        super(MewloAssetManager,self).prestartup_register(eventlist)
+        # we mount our sources here at this stage, BEFORE startup() because at the point it will be too late to add new routes
+        self.mountsources()
+
 
     def startup(self, eventlist):
         super(MewloAssetManager,self).startup(eventlist)
@@ -48,7 +59,9 @@ class MewloAssetManager(manager.MewloManager):
         self.alias_settings = alias_settings
 
 
-
+    def add_alias(self, aliasname, aliasval):
+        """Add an alias."""
+        self.alias_settings[aliasname] = aliasval
 
 
 
@@ -137,7 +150,7 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
-    def add_replacement_filepath_static(self, orig_filepath, new_filepath):
+    def add_replacement_filepath(self, orig_filepath, new_filepath):
         """Add a new mapping to replace a filepath."""
         # ATTN: note that we do not handle the case where the new_filepath has been previously rerouted to something else
         # first ensure all are in canonical format
@@ -148,7 +161,7 @@ class MewloAssetManager(manager.MewloManager):
         #print "ATTN:DEBUG adding asset replacement for '{0}' is '{1}'.".format(orig_filepath, new_filepath)
 
 
-    def add_replacement_mirrorfiledir_static(self, orig_filedirpath, new_filedirpath):
+    def add_replacement_mirrorfiledir(self, orig_filedirpath, new_filedirpath):
         """Traverse two mirror didrectories and add cases where there exists replacement files in the new filedirpath."""
         # first ensure all are in canonical format
         #print "ATTN: walking in add_replacement_mirrorfiledir_static with filepath1 '{0}'.".format(orig_filedirpath)
@@ -170,7 +183,7 @@ class MewloAssetManager(manager.MewloManager):
                 new_filepath = os.path.abspath(os.path.join(new_filedirpath+relativedir, file))
                 if (os.path.isfile(new_filepath)):
                     orig_filepath = os.path.abspath(os.path.join(rootdir, file))
-                    self.add_replacement_filepath_static(orig_filepath, new_filepath)
+                    self.add_replacement_filepath(orig_filepath, new_filepath)
             # replace non mirrored subdirs so we dont bother recursing into them?
             subdirscopy = copy.copy(subdirs)
             for subdir in subdirscopy:
@@ -205,5 +218,322 @@ class MewloAssetManager(manager.MewloManager):
         # nope, so return it as is
         #print "ATTN: Not found returning as is."
         return filepath
+
+
+
+
+
+
+
+
+
+    def add_assetmount(self, assetmount):
+        """Add a staticfile_mount dictionary, with keys for 'filepath', 'urlpath'."""
+        id = assetmount.get_id()
+        self.asset_mounts[id] = assetmount
+
+    def add_assetsource(self, assetsource):
+        """Add a staticfile_mount dictionary, with keys for 'filepath', 'urlpath'."""
+        id = assetsource.get_id()
+        self.asset_sources[id] = assetsource
+
+
+
+
+
+    def dumps(self, indent=0):
+        """Debug information."""
+        outstr = " "*indent + "AssetManager (" + self.__class__.__name__  + ") reporting in.\n"
+        outstr += self.dumps_description(indent+1)
+        outstr += " "*indent + " AssetMounts:\n"
+        for (id, assetmount) in self.asset_mounts.iteritems():
+            outstr += assetmount.dumps(indent+2)
+        outstr += " "*indent + " AssetSources:\n"
+        for (id, assetsource) in self.asset_sources.iteritems():
+            outstr += assetsource.dumps(indent+2)
+        return outstr
+
+
+
+
+
+
+
+
+
+    def mountsources(self):
+        """Mount our asset sources on our asset mounts."""
+        # walk each asset source, choose a real mountpoint for it, then mount it there
+        for (id, assetsource) in self.asset_sources.iteritems():
+            mountpoint = self.calc_mountpoint_for_assetsource(assetsource)
+            mountpoint.mount_source(assetsource, self)
+
+
+    def calc_mountpoint_for_assetsource(self, assetsource):
+        """Calculate which mountpoint this source wants to be mounted at."""
+        mountpoint = self.find_mountpoint_byid(assetsource.get_mountid())
+        return mountpoint
+
+    def find_mountpoint_byid(self, mountid):
+        """Lookup mountpoint by id; return None if not found."""
+        if (mountid in self.asset_mounts):
+            return self.asset_mounts[mountid]
+        return None
+
+    def get_routegroup_mounting(self):
+        """We use a single routegroup under which we create our static routes for internal mount points."""
+        if (self.routegroup_mounting == None):
+            # create the routegroup
+            self.routegroup_mounting = mroute.MewloRouteGroup()
+            # add routegroup we just created to the site
+            self.sitecomp_routemanager().append(self.routegroup_mounting)
+        return self.routegroup_mounting
+
+
+    def mirrorfiles(self, filepath_source, filepath_destination, dry_run=0):
+        """We want to mirror some (asset) files between directories (recursive into subdirs).
+        We may have to create the filepath_target deeply.
+        Return failure on error or None."""
+        # resolve paths
+        filepath_source = self.resolve_filepath(filepath_source)
+        filepath_destination = self.resolve_filepath(filepath_destination)
+        # now mirror
+        result = distutils.dir_util.copy_tree(filepath_source, filepath_destination, dry_run=dry_run)
+        if (dry_run):
+            print "ATTN:DEBUG result of mirrorfiles from '{0}' to '{1}': {2}".format(filepath_source, filepath_destination,str(result))
+        return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class MewloAssetMount(object):
+    """Object representing a static asset mount point."""
+
+    def __init__(self, id):
+        self.id = id
+
+    def get_id(self):
+        return self.id
+
+    def mount_source(self, assetsource, assetmanager):
+        """Mount an asset source on us."""
+        # base class does nothing
+        pass
+
+
+
+
+
+
+class MewloAssetMount_InternalRoute(MewloAssetMount):
+    """Object representing a static asset mount point - handled by internal route."""
+
+    def __init__(self, id, routeid):
+        """Constructor."""
+        super(MewloAssetMount_InternalRoute,self).__init__(id)
+        self.routeid = routeid
+
+    def dumps(self, indent=0):
+        """Debug information."""
+        outstr = " "*indent + "MewloAssetMount_InternalRoute (" + self.__class__.__name__  + ") reporting in.\n"
+        outstr += " "*indent + " id={0}, routeid={1}\n".format(self.id, self.routeid)
+        return outstr
+
+
+    def mount_source(self, assetsource, assetmanager):
+        """Mount an asset source on us.
+        For an InternalRoute mount point, this means wiring to a controller that will serve the static assets internally (via mewlo).
+        """
+        # internal mounts are routed under a special routegroup
+        routegroup = assetmanager.get_routegroup_mounting()
+
+        # what should be the path to these files? the source id is guaranteed to be unique so we use that
+        routeid = 'assetroute_' + assetsource.get_id()
+        routepath = '/assets/' + assetsource.get_id()
+        filepath = assetsource.get_filepath()
+
+        # create the new route for serving these files at this location
+        route = mroute_staticfiles.MewloRoute_StaticFiles(
+            id  = routeid,
+            path = routepath,
+            controller = mcontroller_staticfiles.MewloController_StaticFiles(sourcepath = filepath),
+        )
+
+        # add the route to our routegroup
+        routegroup.append(route)
+
+        # store it in the asset source for later
+        assetsource.set_route(route)
+
+        # and now we want to create some aliases for refering to them via url and file
+        aliasprefix = 'asset_' + assetsource.get_id()
+        assetmanager.add_alias(aliasprefix + '_urlrel', assetmanager.mewlosite.relative_url(routepath))
+        assetmanager.add_alias(aliasprefix + '_urlabs', assetmanager.mewlosite.absolute_url(routepath))
+        assetmanager.add_alias(aliasprefix + '_filepath', filepath)
+
+
+
+
+
+class MewloAssetMount_ExternalServer(MewloAssetMount):
+    """Object representing a static asset mount point - handled by exposing a directory to an external web server."""
+
+    def __init__(self, id, filepath, urlabs, urlrel=None):
+        """Constructor."""
+        super(MewloAssetMount_ExternalServer,self).__init__(id)
+        self.filepath = filepath
+        self.urlabs = urlabs
+        if (urlrel == None):
+            urlrel = urlabs
+        self.urlrel = urlrel
+
+    def dumps(self, indent=0):
+        """Debug information."""
+        outstr = " "*indent + "MewloAssetMount_ExternalServer (" + self.__class__.__name__  + ") reporting in.\n"
+        outstr += " "*indent + " id={0}, filepath='{1}', urlabs='{2}', urlrel='{2}'\n".format(self.id, self.filepath, self.urlabs, self.urlrel)
+        return outstr
+
+
+    def mount_source(self, assetsource, assetmanager):
+        """Mount an asset source on us.
+        For an ExternalServer mount point, this means physically copying (mirroring) the contents of the source file directory to a target path, where some other web server will handle serving the files.
+        """
+
+        # ok let's mirror the files
+        filepath_source = assetsource.get_filepath()
+        filepath_destination = self.filepath + '/' + assetsource.get_id()
+        failure = assetmanager.mirrorfiles(filepath_source, filepath_destination)
+
+        # for the alias filepath, we could use the source filepath, or the external destination filepath
+        # using the former seems easier and more reliable, but using the later might make it easier to spot problems
+        # in the future we may want to decide based on what kind of mount and source we are using
+        aliasfilepath = assetsource.get_filepath()
+
+        # and now we want to create some aliases for refering to them via url and file
+        aliasprefix = 'asset_' + assetsource.get_id()
+        assetmanager.add_alias(aliasprefix + '_urlrel', self.urlrel + '/' + assetsource.get_id())
+        assetmanager.add_alias(aliasprefix + '_urlabs', self.urlabs + '/' + assetsource.get_id())
+        assetmanager.add_alias(aliasprefix + '_filepath', aliasfilepath)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class MewloAssetSource(object):
+    """Object representing a static asset source directory."""
+
+    def __init__(self, id, mountid, filepath):
+        self.id = id
+        self.mountid = mountid
+        self.filepath = filepath
+        self.route = None
+
+    def get_id(self):
+        return self.id
+
+    def get_mountid(self):
+        return self.mountid
+
+    def get_filepath(self):
+        return self.filepath
+
+    def set_route(self, route):
+        self.route = route
+
+    def dumps(self, indent=0):
+        """Debug information."""
+        outstr = " "*indent + "MewloAssetSource (" + self.__class__.__name__  + ") reporting in.\n"
+        outstr += " "*indent + " id={0}, mountid={1}, filepath='{2}'\n".format(self.id, self.mountid, self.filepath)
+        return outstr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

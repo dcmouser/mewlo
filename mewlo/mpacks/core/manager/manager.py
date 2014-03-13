@@ -80,22 +80,18 @@ class MewloManager(object):
         return self.mewlosite.comp('usermanager')
     def sitecomp_groupmanager(self):
         return self.mewlosite.comp('groupmanager')
-
     def sitecomp_verificationmanager(self):
         return self.mewlosite.comp('verificationmanager')
-
     def sitecomp_mailmanager(self):
         return self.mewlosite.comp('mailmanager')
-
     def sitecomp_cachemanager(self):
         return self.mewlosite.comp('cachemanager')
-
     def sitecomp_rbacmanager(self):
         return self.mewlosite.comp('rbacmanager')
-
     def sitecomp_dbmanager(self):
         return self.mewlosite.comp('dbmanager')
-
+    def sitecomp_routemanager(self):
+        return self.mewlosite.comp('routemanager')
 
 
     def get_setting_value(self, sectionmame, defaultval=None):

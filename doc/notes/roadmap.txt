@@ -12,4 +12,5 @@ April 25 Deadline:
 
 5. User-user Messaging/Mail System
 
-6. Bridged Login System
+6. Static file system
+
