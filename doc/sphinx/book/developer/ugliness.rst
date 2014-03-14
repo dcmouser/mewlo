@@ -96,3 +96,7 @@ Ugly Code
 
 
 
+3/14/14
+    * We recently had to do some really ugly stuff with regard to component startups (see prestartup_1() and prestartup_2()) in order to allow everyone a chance to get assets set up even for addons.  Find a way to fix this.
+    
+   

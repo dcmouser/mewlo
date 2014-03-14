@@ -221,23 +221,60 @@ class MewloSite(object):
     def startup_allcomponents(self, eventlist):
         """Startup all created helper manager components; note the order is important and is preserved from when we added."""
 
-        # walk the component list and ask each to register any db classes
-        for key,obj in self.components.get_tuplelist():
-            # pre startup - register database classes
-            obj.prestartup_register(eventlist)
-
-        # now that all database models have been registered with the system, finalize creation of models -- create all db tables, etc
-        self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
+        # prestartups, which are more involved since they may involve adding additional components during the process
+        self.do_prestartups(eventlist)
 
         # walk the component list and let each startup
         for key,obj in self.components.get_tuplelist():
             # start up the component
+            #print "Doing startup on {0}".format(key)
             obj.startup(eventlist)
+
 
         # walk the component list and let each do any post-startup
         for key,obj in self.components.get_tuplelist():
             # post startup
             obj.poststartup(eventlist)
+
+
+
+
+    def do_prestartups(self, eventlist):
+        """Do multi-sage prestartup stuff."""
+
+        # stage 1
+        ranlist = []
+        didone = False
+        # loop while we added new things to do
+        while (not didone):
+            # walk the component list and ask each to register any db classes
+            for key,obj in self.components.get_tuplelist():
+                # pre startup - register database classes
+                if (not key in ranlist):
+                    #print "Doing prestartup_1 on {0}".format(key)
+                    obj.prestartup_1(eventlist)
+                    # add to ranlist and set flag saying we did a new one
+                    ranlist.append(key)
+                    didone = True
+
+        # stage 2
+        ranlist = []
+        didone = False
+        # loop while we added new things to do
+        while (not didone):
+            # walk the component list and ask each to register any db classes
+            for key,obj in self.components.get_tuplelist():
+                # pre startup - register database classes
+                if (not key in ranlist):
+                    #print "Doing prestartup_2 on {0}".format(key)
+                    obj.prestartup_2(eventlist)
+                    # add to ranlist and set flag saying we did a new one
+                    ranlist.append(key)
+                    didone = True
+
+
+        # now that all database models have been registered with the system, finalize creation of models -- create all db tables, etc
+        self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
 
 
 
@@ -464,12 +501,13 @@ class MewloSite(object):
     def appendcomp(self, componentname, component):
         """Shortcut to append an already created component."""
         self.components.append(componentname, component)
+        #print "ATTN:DEBUG in site appendcomp({0}).".format(componentname)
         return component
 
     def createappendcomp(self, componentname, componentclass, *args, **kwargs):
         """Shortcut to create and then append a component by class."""
         component = componentclass(self, self.debugmode, *args, **kwargs)
-        self.components.append(componentname, component)
+        self.appendcomp(componentname, component)
         return component
 
 

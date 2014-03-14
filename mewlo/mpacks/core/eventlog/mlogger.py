@@ -73,13 +73,21 @@ class MewloLogManager(manager.MewloManager):
         self.is_shuttingdown = False
 
 
-    def prestartup_register(self, eventlist):
+    def prestartup_1(self, eventlist):
         """Startup everything."""
         # parent call
-        super(MewloLogManager,self).prestartup_register(eventlist)
+        super(MewloLogManager,self).prestartup_1(eventlist)
         # now all loggers get their chance
         for logger in self.loggers:
-            logger.prestartup_register(self.mewlosite, eventlist)
+            logger.prestartup_1(self.mewlosite, eventlist)
+
+    def prestartup_2(self, eventlist):
+        """Startup everything."""
+        # parent call
+        super(MewloLogManager,self).prestartup_2(eventlist)
+        # now all loggers get their chance
+        for logger in self.loggers:
+            logger.prestartup_2(self.mewlosite, eventlist)
 
 
     def startup(self, eventlist):
@@ -198,7 +206,10 @@ class MewloLogFilter(object):
     def __init__(self):
         self.andfilters = []
 
-    def prestartup_register(self, mewlosite, eventlist):
+    def prestartup_1(self, mewlosite, eventlist):
+        """Any database models to create?"""
+        pass
+    def prestartup_2(self, mewlosite, eventlist):
         """Any database models to create?"""
         pass
 
@@ -387,10 +398,12 @@ class MewloLogTarget(object):
         return self.stopprocessing
 
 
-    def prestartup_register(self, mewlosite, eventlist):
+    def prestartup_1(self, mewlosite, eventlist):
         """Any database models to create?"""
         pass
-
+    def prestartup_2(self, mewlosite, eventlist):
+        """Any database models to create?"""
+        pass
 
     def startup(self, mewlosite, eventlist):
         """Any initial startup to do?"""
@@ -532,12 +545,20 @@ class MewloLogger(object):
 
 
 
-    def prestartup_register(self, mewlosite, eventlist):
+    def prestartup_1(self, mewlosite, eventlist):
         """Let our children do the prestartup."""
         for filter in self.filters:
-            filter.prestartup_register(mewlosite, eventlist)
+            filter.prestartup_1(mewlosite, eventlist)
         for target in self.targets:
-            target.prestartup_register(mewlosite, eventlist)
+            target.prestartup_1(mewlosite, eventlist)
+
+    def prestartup_2(self, mewlosite, eventlist):
+        """Let our children do the prestartup."""
+        for filter in self.filters:
+            filter.prestartup_2(mewlosite, eventlist)
+        for target in self.targets:
+            target.prestartup_2(mewlosite, eventlist)
+
 
 
     def startup(self, mewlosite, eventlist):

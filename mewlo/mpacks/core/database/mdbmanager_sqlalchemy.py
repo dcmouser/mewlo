@@ -166,9 +166,9 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-    def prestartup_register(self, eventlist):
+    def prestartup_1(self, eventlist):
         """Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup."""
-        super(MewloDatabaseManagerSqlA,self).prestartup_register(eventlist)
+        super(MewloDatabaseManagerSqlA,self).prestartup_1(eventlist)
         # this needs to be done at this state so it's ready for database table creation, etc.
         self.setup_sqlahelpers(eventlist)
 

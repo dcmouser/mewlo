@@ -7,6 +7,7 @@ Other related work
 
     * http://pythonhosted.org/PyCK/README.html
 
+    * http://12factor.net/
 
 
 

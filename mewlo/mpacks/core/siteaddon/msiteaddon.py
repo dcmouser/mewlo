@@ -32,14 +32,28 @@ class MewloSiteAddon(manager.MewloManager):
         super(MewloSiteAddon, self).__init__(mewlosite, debugmode)
 
 
-    def prestartup_register(self, eventlist):
+    def prestartup_1(self, eventlist):
         """
         This is called for all managers, before any managers get startup() called.
         By the time this gets called you can be sure that ALL managers/components have been added to the site.
         The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
         The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
         """
-        super(MewloSiteAddon, self).prestartup_register(eventlist)
+        super(MewloSiteAddon, self).prestartup_1(eventlist)
+
+
+    def prestartup_2(self, eventlist):
+        """
+        This is called for all managers, before any managers get startup() called.
+        By the time this gets called you can be sure that ALL managers/components have been added to the site.
+        The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
+        The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
+        """
+        super(MewloSiteAddon, self).prestartup_2(eventlist)
+        # these used to be in startup()
+        self.add_aliases()
+        self.add_routes()
+        self.add_navnodes()
 
 
     def startup(self, eventlist):
@@ -47,10 +61,6 @@ class MewloSiteAddon(manager.MewloManager):
         super(MewloSiteAddon, self).startup(eventlist)
         #
         self.mewlosite.logevent("Startup of siteaddon ({0}).".format(self.__class__.__name__))
-        #
-        self.add_aliases()
-        self.add_routes()
-        self.add_navnodes()
 
 
     def poststartup(self, eventlist):
@@ -88,7 +98,8 @@ class MewloSiteAddon(manager.MewloManager):
 
 
 
-
+    def sitecomp_assetmanager(self):
+        return self.mewlosite.comp('assetmanager')
 
 
 

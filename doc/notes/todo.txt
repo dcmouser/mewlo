@@ -49,3 +49,24 @@ I think we could solve this by having a site create additional mirror directorie
 But it might be nice to offer a simpler non-config approach to this, by letting user specify a single MIRROR directory, and having mewlo auto map package found to a subdir.
 So core/ would be one subdir, and then each other addon would get its own, whether its installed as an egg outside of mewlo main dir or not.
 //---------------------------------------------------------------------------
+
+
+
+
+//---------------------------------------------------------------------------
+3/13/14
+Rename dbfield mixins to dbfield composite
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+3/13/14
+Write nice link generator helper functions callable from templates
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+3/13/14
+Fix use of siteaddon class -- make it a manager or something.
+//---------------------------------------------------------------------------
+

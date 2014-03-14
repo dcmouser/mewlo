@@ -82,10 +82,18 @@ class MewloPackManager(manager.MewloManager):
         self.set_setuptools_entrypoint_groupname('mewlo.packs')
 
 
+    def prestartup_1(self, eventlist):
+        super(MewloPackManager,self).prestartup_1(eventlist)
+        self.do_discover(eventlist)
+
 
     def startup(self, eventlist):
         """Any initial startup stuff to do?"""
         super(MewloPackManager,self).startup(eventlist)
+        #self.do_discover(eventlist)
+
+
+    def do_discover(self, eventlist):
         # discover the packs in the pack directories
         self.discover_packs(eventlist)
         # startup packs right away?

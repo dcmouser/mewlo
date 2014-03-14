@@ -80,6 +80,7 @@ STEP 3 - Setup the Mewlo Environment
 		a. Core modules: **pip install sphinx**
 		b. Contributor modules: **pip install sphinxcontrib-fulltoc**
 	9. Install the restructured text to PDF conversion module: **pip.exe install rst2pdf**
+	10. Install distutils: **pip install distutils** (im not sure if this is needed - jr 3/13/14)
 
 STEP 4 - Launching the Mewlo Web Server Process
 -----------------------------------------------

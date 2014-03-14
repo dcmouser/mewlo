@@ -11,6 +11,7 @@ from mewlo.mpacks.core.route.mroute import *
 from mewlo.mpacks.core.controller.mcontroller import MewloController
 from mewlo.mpacks.core.setting.msettings import MewloSettings
 from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
+from mewlo.mpacks.core.asset import massetmanager
 
 # python imports
 import os, sys
@@ -43,14 +44,27 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         self.accountmanager = self.mewlosite.createappendcomp('accountmanager', msiteaddon_account_manager.AccountAddonManager)
 
 
-    def prestartup_register(self, eventlist):
+    def prestartup_1(self, eventlist):
         """
         This is called for all managers, before any managers get startup() called.
         By the time this gets called you can be sure that ALL managers/components have been added to the site.
         The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
         The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
         """
-        super(MewloSiteAddon_Account, self).prestartup_register(eventlist)
+        super(MewloSiteAddon_Account, self).prestartup_1(eventlist)
+
+
+    def prestartup_2(self, eventlist):
+        """
+        prestartup_2
+        """
+        super(MewloSiteAddon_Account, self).prestartup_2(eventlist)
+        #print "IN msiteaddon_account.prestartup_2"
+        assetmanager = self.sitecomp_assetmanager()
+        # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
+        assetmanager.add_assetsource(
+            massetmanager.MewloAssetSource(id='acccount_addon', mountid = 'external_assets', filepath = '${addon_account_path}/assets')
+            )
 
 
     def startup(self, eventlist):
@@ -58,6 +72,8 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         Do preparatory stuff.
         """
         super(MewloSiteAddon_Account, self).startup(eventlist)
+        #print "IN msiteaddon_account.startup"
+
 
 
     def shutdown(self):

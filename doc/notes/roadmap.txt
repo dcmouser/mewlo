@@ -6,11 +6,7 @@ April 25 Deadline:
 
 2. File Upload Ssystem
 
-3. ACL System
+3. Group System
 
-4. Group System
-
-5. User-user Messaging/Mail System
-
-6. Static file system
+4. User-user Messaging/Mail System
 

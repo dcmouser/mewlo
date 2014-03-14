@@ -45,7 +45,7 @@ class MewloPackWorker_SiteAddon_Account(mpackworker.MewloPackWorker):
 
 
     def setup_everything(self, mewlosite, eventlist):
-        # called by Mewlo system when it's ready for us to do any setup stuff
+        # called by us
         mewlosite.createappendcomp('accountaddon', msiteaddon_account.MewloSiteAddon_Account)
         return None
 

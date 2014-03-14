@@ -40,14 +40,20 @@ class MewloAssetManager(manager.MewloManager):
         self.asset_sources = {}
         self.routegroup_mounting = None
 
-    def prestartup_register(self, eventlist):
-        super(MewloAssetManager,self).prestartup_register(eventlist)
-        # we mount our sources here at this stage, BEFORE startup() because at the point it will be too late to add new routes
-        self.mountsources()
+    def prestartup_1(self, eventlist):
+        super(MewloAssetManager,self).prestartup_1(eventlist)
+        pass
+
+    def prestartup_2(self, eventlist):
+        super(MewloAssetManager,self).prestartup_2(eventlist)
+        pass
 
 
     def startup(self, eventlist):
         super(MewloAssetManager,self).startup(eventlist)
+        # we mount our sources here at this stage, BEFORE startup() because at the point it will be too late to add new routes
+        # ATTN: BUT THIS IS A PROBLEM BECAUSE THIS GETS CALLED BEFORE site addons and plugins get a chance to register mounts
+        self.mountsources()
 
     def shutdown(self):
         super(MewloAssetManager,self).shutdown()
@@ -84,6 +90,7 @@ class MewloAssetManager(manager.MewloManager):
         """Call resolve THEN call replace_filepath."""
         resolvedtext = self.resolve(text)
         resolvedtext = self.replace_filepath(resolvedtext)
+        #print "ATTN:DEBUG resolved '{0}' to '{1}'.".format(text, resolvedtext)
         return resolvedtext
 
 
@@ -298,10 +305,34 @@ class MewloAssetManager(manager.MewloManager):
         filepath_source = self.resolve_filepath(filepath_source)
         filepath_destination = self.resolve_filepath(filepath_destination)
         # now mirror
-        result = distutils.dir_util.copy_tree(filepath_source, filepath_destination, dry_run=dry_run)
+        # ATTN: this does not support the replacement of files system to let user override specific files, and so needs to be rewritten to support that
+        result = misc.copy_tree_withcallback(filepath_source, filepath_destination, dry_run=dry_run, callbackfp = self.mirrorcopytree_callback)
         if (dry_run):
             print "ATTN:DEBUG result of mirrorfiles from '{0}' to '{1}': {2}".format(filepath_source, filepath_destination,str(result))
         return None
+
+
+    def mirrorcopytree_callback(self, filepath_source, filepath_dest):
+        """Return a tuple of the form <BoolShouldCopy, new_filepath_source, new_filepath_dest>."""
+        filepath_source = self.resolve_filepath(filepath_source)
+        return (True, filepath_source, filepath_dest)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
