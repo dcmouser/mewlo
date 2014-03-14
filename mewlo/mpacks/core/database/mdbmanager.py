@@ -14,7 +14,7 @@ from ..session import msession
 from ..verification import mverification
 import mdbsettings, mdbmanager_sqlalchemy, mdbmodel_settings, mdbmodel_gob
 from ..setting.msettings import MewloSettings
-
+from ..constants.mconstants import MewloConstants as mconst
 
 
 
@@ -30,30 +30,37 @@ class MewloDatabaseManager(manager.MewloManager):
 
     def __init__(self, mewlosite, debugmode):
         super(MewloDatabaseManager,self).__init__(mewlosite, debugmode)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_earlycore])
         self.databasesettings = {}
         self.modelclasses = {}
 
 
-    def prestartup_1(self, eventlist):
-        """Register core database models."""
-        # call parent
-        super(MewloDatabaseManager,self).prestartup_1(eventlist)
-        # register the gob (global object) model; all users/groups/etc have a unique gob id; it lets us set up foreign keys to dif kinds of objects via their gob id
-        self.register_modelclass(self, mdbmodel_gob.MewloDbModel_Gob)
-        # user group role stuff
-        self.register_modelclass(self, muser.MewloUser)
-        self.register_modelclass(self, mgroup.MewloGroup)
-        self.register_modelclass(self, mrbac.MewloRole)
-        self.register_modelclass(self, mrbac.MewloRoleEntails)
-        self.register_modelclass(self, mrbac.MewloRoleAssignment)
-        # session
-        self.register_modelclass(self, msession.MewloSession)
-        # verification
-        self.register_modelclass(self, mverification.MewloVerification)
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloDatabaseManager,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_earlycore):
+            # register the gob (global object) model; all users/groups/etc have a unique gob id; it lets us set up foreign keys to dif kinds of objects via their gob id
+            self.register_modelclass(self, mdbmodel_gob.MewloDbModel_Gob)
+            # user group role stuff
+            self.register_modelclass(self, muser.MewloUser)
+            self.register_modelclass(self, mgroup.MewloGroup)
+            self.register_modelclass(self, mrbac.MewloRole)
+            self.register_modelclass(self, mrbac.MewloRoleEntails)
+            self.register_modelclass(self, mrbac.MewloRoleAssignment)
+            # session
+            self.register_modelclass(self, msession.MewloSession)
+            # verification
+            self.register_modelclass(self, mverification.MewloVerification)
 
 
-    def startup(self, eventlist):
-        super(MewloDatabaseManager,self).startup(eventlist)
+
+
+
+
+
+
 
 
     def shutdown(self):

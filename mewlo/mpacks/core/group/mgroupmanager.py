@@ -31,11 +31,12 @@ class MewloGroupManager(modelmanager.MewloModelManager):
         super(MewloGroupManager,self).__init__(mewlosite, debugmode, mgroup.MewloGroup, True)
 
 
-    def startup(self, eventlist):
-        super(MewloGroupManager,self).startup(eventlist)
 
-    def shutdown(self):
-        super(MewloGroupManager,self).shutdown()
+
+
+
+
+
 
 
 

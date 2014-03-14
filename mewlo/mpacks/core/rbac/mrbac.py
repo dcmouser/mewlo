@@ -292,11 +292,10 @@ class MewloRbacManager(manager.MewloManager):
         """Constructor."""
         super(MewloRbacManager,self).__init__(mewlosite, debugmode)
 
-    def startup(self, eventlist):
-        super(MewloRbacManager,self).startup(eventlist)
 
-    def shutdown(self):
-        super(MewloRbacManager,self).shutdown()
+
+
+
 
 
 

@@ -1,9 +1,0 @@
-{% include "${siteviewpath}/header.jn2" %}
-
-<h1>Replacement Login page</h1>
-
-
-{{ thelper.html_autoform(form) }}
-
-
-{% include "${siteviewpath}/footer.jn2" %}

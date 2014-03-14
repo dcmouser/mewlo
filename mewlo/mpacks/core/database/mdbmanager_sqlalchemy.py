@@ -159,6 +159,7 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         # call parent func
         super(MewloDatabaseManagerSqlA,self).__init__(mewlosite, debugmode)
         # init
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_earlycore])
         # helpers for different databases
         self.alchemyhelpers = {}
         self.sqlalchemylogger = None
@@ -166,11 +167,17 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
 
 
 
-    def prestartup_1(self, eventlist):
-        """Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup."""
-        super(MewloDatabaseManagerSqlA,self).prestartup_1(eventlist)
-        # this needs to be done at this state so it's ready for database table creation, etc.
-        self.setup_sqlahelpers(eventlist)
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloDatabaseManagerSqlA,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_earlycore):
+            # this needs to be done at this state so it's ready for database table creation, etc.
+            self.setup_sqlahelpers(eventlist)
+
+
+
 
     def setup_sqlahelpers(self, eventlist):
         # create helpers
@@ -182,10 +189,6 @@ class MewloDatabaseManagerSqlA(mdbmanager.MewloDatabaseManager):
         # let's put in place some log catchers
         self.setup_logcatchers()
 
-
-    def startup(self, eventlist):
-        # call parent func
-        super(MewloDatabaseManagerSqlA,self).startup(eventlist)
 
 
 

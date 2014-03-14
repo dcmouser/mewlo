@@ -93,31 +93,30 @@ class NavNodeManager(manager.MewloManager):
     def __init__(self, mewlosite, debugmode):
         """Constructor for the clas."""
         super(NavNodeManager,self).__init__(mewlosite, debugmode)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_latecore, mconst.DEF_STARTUPSTAGE_routeend])
         self.nodes = []
         self.nodehash = {}
 
 
-    def startup(self, eventlist):
-        """Called at start of application."""
-        super(NavNodeManager,self).startup(eventlist)
-        # initial nodes
-        self.sitenode = NavNode('site')
-        self.orphannode = NavNode('__orphans__')
-        startnodes = [self.sitenode, self.orphannode]
-        self.add_nodes(startnodes)
+
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(NavNodeManager,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_latecore):
+            # initial nodes
+            self.sitenode = NavNode('site')
+            self.orphannode = NavNode('__orphans__')
+            startnodes = [self.sitenode, self.orphannode]
+            self.add_nodes(startnodes)
+        elif (stageid == mconst.DEF_STARTUPSTAGE_routeend):
+            self.buildstructure()
 
 
-    def poststartup(self, eventlist):
-        """Called after all managers finish with startup()."""
-        super(NavNodeManager,self).poststartup(eventlist)
-        #
-        self.buildstructure()
 
 
 
-    def shutdown(self):
-        """Called at shutdown of application."""
-        super(NavNodeManager,self).shutdown()
 
 
 

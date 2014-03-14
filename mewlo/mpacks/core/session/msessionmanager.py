@@ -23,11 +23,11 @@ class MewloSessionManager(modelmanager.MewloModelManager):
         # cookie name
         self.sessionid_cookiename = 'mewlosessionid'
 
-    def startup(self, eventlist):
-        super(MewloSessionManager,self).startup(eventlist)
 
-    def shutdown(self):
-        super(MewloSessionManager,self).shutdown()
+
+
+
+
 
 
     def dumps(self, indent=0):

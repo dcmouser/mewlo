@@ -49,6 +49,7 @@ from ..helpers.debugging import smart_dotted_idpath
 from mexceptionplus import reraiseplus
 from mevent import Event
 from ..manager import manager
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 import logging
@@ -67,34 +68,22 @@ class MewloLogManager(manager.MewloManager):
 
     def __init__(self, mewlosite, debugmode):
         super(MewloLogManager,self).__init__(mewlosite, debugmode)
+        self.needs_startupstages(mconst.DEF_STARTUPSTAGE_LISTALL)
         self.loggers = []
         self.pythonlogginghooks = []
         self.debugmode = debugmode
         self.is_shuttingdown = False
 
 
-    def prestartup_1(self, eventlist):
-        """Startup everything."""
-        # parent call
-        super(MewloLogManager,self).prestartup_1(eventlist)
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloLogManager,self).startup_prep(stageid, eventlist)
         # now all loggers get their chance
         for logger in self.loggers:
-            logger.prestartup_1(self.mewlosite, eventlist)
+            logger.startup_prep(stageid, eventlist, self.mewlosite)
 
-    def prestartup_2(self, eventlist):
-        """Startup everything."""
-        # parent call
-        super(MewloLogManager,self).prestartup_2(eventlist)
-        # now all loggers get their chance
-        for logger in self.loggers:
-            logger.prestartup_2(self.mewlosite, eventlist)
-
-
-    def startup(self, eventlist):
-        """Startup everything."""
-        super(MewloLogManager,self).startup(eventlist)
-        for logger in self.loggers:
-            logger.startup(self.mewlosite, eventlist)
 
 
 
@@ -206,20 +195,14 @@ class MewloLogFilter(object):
     def __init__(self):
         self.andfilters = []
 
-    def prestartup_1(self, mewlosite, eventlist):
-        """Any database models to create?"""
-        pass
-    def prestartup_2(self, mewlosite, eventlist):
-        """Any database models to create?"""
-        pass
-
-    def startup(self, mewlosite, eventlist):
-        """Any initial startup to do?"""
+    def startup_prep(self, stageid, eventlist, mewlosite):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
         pass
 
-    def shutdown(self):
-        """Shutdown everything, we are about to exit."""
-        pass
+
+
 
 
     def add_andfilter(self, filter):
@@ -398,16 +381,12 @@ class MewloLogTarget(object):
         return self.stopprocessing
 
 
-    def prestartup_1(self, mewlosite, eventlist):
-        """Any database models to create?"""
-        pass
-    def prestartup_2(self, mewlosite, eventlist):
-        """Any database models to create?"""
-        pass
-
-    def startup(self, mewlosite, eventlist):
-        """Any initial startup to do?"""
-        self.startedup = True
+    def startup_prep(self, stageid, eventlist, mewlosite):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        if (stageid == mconst.DEF_STARTUPSTAGE_postmodels):
+            self.startedup = True
 
 
 
@@ -544,29 +523,15 @@ class MewloLogger(object):
         self.targets.append(target)
 
 
-
-    def prestartup_1(self, mewlosite, eventlist):
-        """Let our children do the prestartup."""
+    def startup_prep(self, stageid, eventlist, mewlosite):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
         for filter in self.filters:
-            filter.prestartup_1(mewlosite, eventlist)
+            filter.startup_prep(stageid, eventlist, mewlosite)
         for target in self.targets:
-            target.prestartup_1(mewlosite, eventlist)
+            target.startup_prep(stageid, eventlist, mewlosite)
 
-    def prestartup_2(self, mewlosite, eventlist):
-        """Let our children do the prestartup."""
-        for filter in self.filters:
-            filter.prestartup_2(mewlosite, eventlist)
-        for target in self.targets:
-            target.prestartup_2(mewlosite, eventlist)
-
-
-
-    def startup(self, mewlosite, eventlist):
-        """Any initial startup stuff to do?"""
-        for filter in self.filters:
-            filter.startup(mewlosite, eventlist)
-        for target in self.targets:
-            target.startup(mewlosite, eventlist)
 
 
 

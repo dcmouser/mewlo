@@ -43,26 +43,10 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
         self.groupaddonmanager = self.mewlosite.createappendcomp('group_addon_manager', msiteaddon_group_manager.GroupAddonManager)
 
 
-    def prestartup_1(self, eventlist):
-        """
-        This is called for all managers, before any managers get startup() called.
-        By the time this gets called you can be sure that ALL managers/components have been added to the site.
-        The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
-        The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
-        """
-        super(MewloSiteAddon_Group, self).prestartup_1(eventlist)
 
 
-    def startup(self, eventlist):
-        """
-        Do preparatory stuff.
-        """
-        super(MewloSiteAddon_Group, self).startup(eventlist)
 
 
-    def shutdown(self):
-        """Shutdown everything."""
-        pass
 
 
 

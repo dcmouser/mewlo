@@ -66,9 +66,6 @@ class MewloSignalReceiver(object):
         #print "**** IN SIGNALRECEIVER STARTUP ****"
         pass
 
-    def shutdown(self):
-        #print "**** IN SIGNALRECEIVER SHUTDOWN ****"
-        pass
 
 
 

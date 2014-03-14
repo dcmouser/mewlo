@@ -34,8 +34,6 @@ from ..siteaddon import msiteaddon
 from ..mail import mmailmanager
 from ..helpers import cfgmodule
 from ..cache import mcache
-
-# mewlo imports
 from ..constants.mconstants import MewloConstants as mconst
 
 
@@ -182,99 +180,237 @@ class MewloSite(object):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     def startup(self, eventlist = None):
         """
         Do preparatory stuff after settings have been set.
         It is critical that this function get called prior to running the system.
         """
 
-        # update state
-        self.set_statelabel(mconst.DEF_SITESTATE_STARTUP_START)
-
-        # we log errors/warnings to an eventlist and return it; either one we are passed or we create a new one if needed
-        if (eventlist == None):
-            eventlist = EventList()
-
-        # any settings caching or other pre-preparation we need to do
-        self.preprocess_settings(eventlist)
-        # validate site settings first to make sure all is good
-        self.validatesettings(eventlist)
-
         # now startup all site components
-        self.startup_allcomponents(eventlist)
-
-        # log all startup events
-        self.logevents(eventlist)
-
-        # update state
-        self.set_statelabel(mconst.DEF_SITESTATE_STARTUP_END)
-
-        # commit any pending db stuff (normally we commit after each request)
-        self.comp('dbmanager').commit_all_dbs()
+        self.startup_prep_allcomponents(eventlist)
 
         # and return the eventlist
         return eventlist
 
 
 
-    def startup_allcomponents(self, eventlist):
-        """Startup all created helper manager components; note the order is important and is preserved from when we added."""
-
-        # prestartups, which are more involved since they may involve adding additional components during the process
-        self.do_prestartups(eventlist)
-
-        # walk the component list and let each startup
-        for key,obj in self.components.get_tuplelist():
-            # start up the component
-            #print "Doing startup on {0}".format(key)
-            obj.startup(eventlist)
-
-
-        # walk the component list and let each do any post-startup
-        for key,obj in self.components.get_tuplelist():
-            # post startup
-            obj.poststartup(eventlist)
-
-
-
-
-    def do_prestartups(self, eventlist):
-        """Do multi-sage prestartup stuff."""
-
-        # stage 1
-        ranlist = []
-        didone = False
-        # loop while we added new things to do
-        while (not didone):
-            # walk the component list and ask each to register any db classes
-            for key,obj in self.components.get_tuplelist():
-                # pre startup - register database classes
-                if (not key in ranlist):
-                    #print "Doing prestartup_1 on {0}".format(key)
-                    obj.prestartup_1(eventlist)
-                    # add to ranlist and set flag saying we did a new one
-                    ranlist.append(key)
-                    didone = True
+    def startup_prep(self, stageid, eventlist):
+        """Startup prep."""
+        if (stageid == mconst.DEF_STARTUPSTAGE_sitepreinit):
+            # early prep
+            # update state
+            self.set_statelabel(mconst.DEF_SITESTATE_STARTUP_START)
+            # we log errors/warnings to an eventlist and return it; either one we are passed or we create a new one if needed
+            if (eventlist == None):
+                eventlist = EventList()
+            # any settings caching or other pre-preparation we need to do
+            self.preprocess_settings(eventlist)
+            # validate site settings first to make sure all is good
+            self.validatesettings(eventlist)
+        elif (stageid == mconst.DEF_STARTUPSTAGE_sitebuildmodels):
+            # all database models have been registered with the system, finalize creation of models -- create all db tables, etc
+            self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
+        elif (stageid == mconst.DEF_STARTUPSTAGE_sitepostinit):
+            # after other components are done
+            # log all startup events
+            self.logevents(eventlist)
+            # update state
+            self.set_statelabel(mconst.DEF_SITESTATE_STARTUP_END)
+            # commit any pending db stuff (normally we commit after each request)
+            self.comp('dbmanager').commit_all_dbs()
 
 
-        # after first prestartup1, all database models have been registered with the system, finalize creation of models -- create all db tables, etc
-        self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
+
+    def startup_prep_allcomponents(self, eventlist):
+        """Loop through all startup stages and invoke all components (and ourself)."""
+        finishedstages = []
+        desiredstages = {}
+        for stageid in mconst.DEF_STARTUPSTAGE_LISTALL:
+            # invole all of our components that want this stage
+            print "ATTN:DEBUG DOING STAGE '{0}'.".format(stageid)
+            component_tuples = self.components.get_tuplelist()
+            for (key, obj) in component_tuples:
+                if (not key in desiredstages):
+                    # get the desired stages for the component since we haven't gotten it yet (this can happen later if the component is newly added)
+                    desiredstages[key] = obj.get_startup_stages_needed()
+                    # now we check if this component wants stages we already completed, and error if so
+                    missedstages = list(set(finishedstages) & set(desiredstages[key]))
+                    #print "ATTN: GOT DESIRED FOR {0}: {1} - with missed = {2}".format(key,str(desiredstages[key]), str(missedstages))
+                    if (missedstages):
+                        raise Exception("Component '{0}' wants startup_prep for stage(s) '{1}' but was created AFTER that startup stage completed (during stage '{2}').".format(obj, str(missedstages), stageid))
+                # if this component wants this stage, invoke it
+                if (stageid in desiredstages[key]):
+                    # invoke it and log it
+                    self.logevent("Running startup_prep stage {0} for component: {1}.".format(stageid, str(obj)))
+                    obj.startup_prep(stageid, eventlist)
+                    # and REMOVE the stageid from desired list for this component
+                    desiredstages[key].remove(stageid)
+            # not invoke OURSELVES on this stage
+            self.startup_prep(stageid, eventlist)
+            # after we ran all components through a stage, mark that stage as complete (this helps us detect when a NEWLY added component missed a stage).
+            finishedstages.append(stageid)
 
 
-        # stage 2
-        ranlist = []
-        didone = False
-        # loop while we added new things to do
-        while (not didone):
-            # walk the component list and ask each to register any db classes
-            for key,obj in self.components.get_tuplelist():
-                # pre startup - register database classes
-                if (not key in ranlist):
-                    #print "Doing prestartup_2 on {0}".format(key)
-                    obj.prestartup_2(eventlist)
-                    # add to ranlist and set flag saying we did a new one
-                    ranlist.append(key)
-                    didone = True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

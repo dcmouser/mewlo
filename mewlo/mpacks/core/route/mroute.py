@@ -8,7 +8,7 @@ This file contains classes to support url routes
 from ..controller import mcontroller
 from ..eventlog.mevent import EFailure, EFailureExtend
 from ..manager import manager
-
+from ..constants.mconstants import MewloConstants as mconst
 
 
 class MewloRouteArg(object):
@@ -601,26 +601,25 @@ class MewloRouteManager(manager.MewloManager):
 
     def __init__(self, mewlosite, debugmode):
         super(MewloRouteManager,self).__init__(mewlosite, debugmode)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_routestart])
         self.routegroup = MewloRouteGroup('', None, None)
 
 
-    def startup(self, eventlist):
-        super(MewloRouteManager,self).startup(eventlist)
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloRouteManager,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_routestart):
+            self.routegroup.build_structure(self.mewlosite, self.mewlosite, eventlist)
+            self.routegroup.build_routehash()
 
 
 
 
-    def poststartup(self, eventlist):
-        """Called after all managers finish with startup()."""
-        super(MewloRouteManager,self).poststartup(eventlist)
-        #
-        self.routegroup.build_structure(self.mewlosite, self.mewlosite, eventlist)
-        self.routegroup.build_routehash()
 
 
 
-    def shutdown(self):
-        super(MewloRouteManager,self).shutdown()
 
 
 

@@ -56,11 +56,6 @@ class Test_MewloPackWorker(mpackworker.MewloPackWorker):
 
 
 
-    def shutdown(self):
-        # called by Mewlo system when it's ready for us to do any shutdown
-        super(Test_MewloPackWorker, self).shutdown()
-        return None
-
 
 
 

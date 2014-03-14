@@ -34,12 +34,10 @@ class MewloCacheManager(manager.MewloManager):
         """Constructor."""
         super(MewloCacheManager,self).__init__(mewlosite, debugmode)
 
-    def startup(self, eventlist):
-        super(MewloCacheManager,self).startup(eventlist)
-        # use site settings to configure mail settings
 
-    def shutdown(self):
-        super(MewloCacheManager,self).shutdown()
+
+
+
 
 
     def addcache_region(self, key, regionobj):
@@ -93,15 +91,20 @@ class MewloCacheManager_DogPile(MewloCacheManager):
     def __init__(self, mewlosite, debugmode):
         """Constructor."""
         super(MewloCacheManager_DogPile,self).__init__(mewlosite, debugmode)
-
-    def startup(self, eventlist):
-        super(MewloCacheManager_DogPile,self).startup(eventlist)
-        # create a test region
-        self.make_region('mtestregion')
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_assetstuff])
 
 
-    def shutdown(self):
-        super(MewloCacheManager_DogPile,self).shutdown()
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloCacheManager_DogPile,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_assetstuff):
+            # create a test region
+            self.make_region('mtestregion')
+
+
+
 
 
 

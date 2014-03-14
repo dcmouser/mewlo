@@ -18,7 +18,6 @@ import logging
 
 class MewloConstants(object):
 
-
     # settings
     DEF_SETTINGSEC_config = 'config'
     DEF_SETTINGSEC_aliases = 'aliases'
@@ -86,6 +85,21 @@ class MewloConstants(object):
     DEF_PACK_INFOFIELD_versiondate = 'versiondate'
     DEF_PACK_INFOFIELD_versioncritical = 'versioncritical'
 
+    # startup stages
+    DEF_STARTUPSTAGE_sitepreinit = 'sitepreinit'
+    DEF_STARTUPSTAGE_earlycore = 'earlycore'
+    DEF_STARTUPSTAGE_latecore = 'latecore'
+    DEF_STARTUPSTAGE_premodels = 'premodels'
+    DEF_STARTUPSTAGE_addonstuff = 'addonstuff'
+    DEF_STARTUPSTAGE_sitebuildmodels = 'sitebuildmodels'
+    DEF_STARTUPSTAGE_postmodels = 'postmodels'
+    DEF_STARTUPSTAGE_assetstuff = 'assetstuff'
+    DEF_STARTUPSTAGE_routestart = 'routeend'
+    DEF_STARTUPSTAGE_routeend = 'routeend'
+    DEF_STARTUPSTAGE_final = 'final'
+    DEF_STARTUPSTAGE_finalreport = 'finalreport'
+    DEF_STARTUPSTAGE_sitepostinit = 'sitepostinit'
+    DEF_STARTUPSTAGE_LISTALL = [DEF_STARTUPSTAGE_sitepreinit, DEF_STARTUPSTAGE_earlycore, DEF_STARTUPSTAGE_latecore, DEF_STARTUPSTAGE_premodels, DEF_STARTUPSTAGE_sitebuildmodels, DEF_STARTUPSTAGE_postmodels, DEF_STARTUPSTAGE_addonstuff, DEF_STARTUPSTAGE_assetstuff, DEF_STARTUPSTAGE_routestart, DEF_STARTUPSTAGE_routeend, DEF_STARTUPSTAGE_final, DEF_STARTUPSTAGE_finalreport, DEF_STARTUPSTAGE_sitepostinit]
 
     # forms
     DEF_FORM_GenericErrorKey = ''

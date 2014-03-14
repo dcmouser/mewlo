@@ -35,12 +35,13 @@ class MewloMailManager(manager.MewloManager):
         """Constructor."""
         super(MewloMailManager,self).__init__(mewlosite, debugmode)
 
-    def startup(self, eventlist):
-        super(MewloMailManager,self).startup(eventlist)
-        # use site settings to configure mail settings
 
-    def shutdown(self):
-        super(MewloMailManager,self).shutdown()
+
+
+
+
+
+
 
 
 

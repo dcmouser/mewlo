@@ -66,6 +66,7 @@ class MewloPackManager(manager.MewloManager):
     def __init__(self, mewlosite, debugmode):
         # stuff
         super(MewloPackManager,self).__init__(mewlosite, debugmode)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_earlycore, mconst.DEF_STARTUPSTAGE_latecore])
         self.dirlist = []
         self.infofilepaths = []
         self.filepatternsuffix = ''
@@ -82,17 +83,20 @@ class MewloPackManager(manager.MewloManager):
         self.set_setuptools_entrypoint_groupname('mewlo.packs')
 
 
-    def prestartup_1(self, eventlist):
-        super(MewloPackManager,self).prestartup_1(eventlist)
-        self.do_discover(eventlist)
 
-    def prestartup_2(self, eventlist):
-        super(MewloPackManager,self).prestartup_2(eventlist)
-        self.startup_packs(eventlist)
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloPackManager,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_earlycore):
+            self.do_discover(eventlist)
+        elif (stageid == mconst.DEF_STARTUPSTAGE_latecore):
+            self.startup_packs(eventlist)
 
-    def startup(self, eventlist):
-        """Any initial startup stuff to do?"""
-        super(MewloPackManager,self).startup(eventlist)
+
+
+
 
 
     def do_discover(self, eventlist):

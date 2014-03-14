@@ -8,10 +8,11 @@ ATTN: this code has become a bit kludgey and could use some rewriting.
 """
 
 
-# helper imports
+# mewlo imports
 from ..setting.msettings import MewloSettings
 from ..helpers.misc import get_value_from_dict
 from ..database import mdbmodel_settings
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 import datetime
@@ -42,24 +43,24 @@ class MewloSettingsDb(MewloSettings):
     def __init__(self, mewlosite, debugmode):
         # parent constructor
         super(MewloSettingsDb, self).__init__(mewlosite, debugmode)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_earlycore])
         # keep track of date of last database sync
         self.sync_timestamps = {}
         self.sync_timestamp_all = None
 
 
-    def prestartup_1(self, eventlist):
+    def startup_prep(self, stageid, eventlist):
         """
-        Called before starting up, to ask managers to register any database classes BEFORE they may be used in startup.
-        In this case we create a new db model class dynamically, right now, based on parameters passed to us at time of initialization.
-        This makes it particularly easy for us to create new database-settings tables.
-        ATTN: As neat as this is, I think it would be better to not do this, and to require a separate thin derived class for each settings table.
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
-        # call parent
-        super(MewloSettingsDb,self).prestartup_1(eventlist)
-        # build and set self.dbmodelclass
-        self.buildset_dbmodelclass()
-        # register model class
-        self.mewlosite.comp('dbmanager').register_modelclass(self, self.dbmodelclass)
+        super(MewloSettingsDb,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_earlycore):
+            # build and set self.dbmodelclass
+            self.buildset_dbmodelclass()
+            # register model class
+            self.mewlosite.comp('dbmanager').register_modelclass(self, self.dbmodelclass)
+
+
 
 
     def buildset_dbmodelclass(self):
@@ -67,16 +68,9 @@ class MewloSettingsDb(MewloSettings):
         self.dbmodelclass = self.__class__.dbmodelclass
 
 
-    def startup(self, eventlist):
-        """Any initial startup stuff to do?"""
-        # parent constructor
-        super(MewloSettingsDb, self).startup(eventlist)
 
 
-    def shutdown(self):
-        """Shutdown."""
-        # parent
-        super(MewloSettingsDb, self).shutdown()
+
 
 
 

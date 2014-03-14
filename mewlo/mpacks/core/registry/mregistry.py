@@ -52,13 +52,10 @@ class MewloComponent(object):
         self.features['id'] = id
 
 
-    def startup(self):
-        #print "**** IN COMPONENT STARTUP ****"
-        pass
 
-    def shutdown(self):
-        #print "**** IN COMPONENT SHUTDOWN ****"
-        pass
+
+
+
 
 
     def get_features(self):
@@ -112,8 +109,7 @@ class MewloRegistryManager(manager.MewloManager):
         self.componenthash = {}
 
 
-    def startup(self, eventlist):
-        super(MewloRegistryManager,self).startup(eventlist)
+
 
 
     def shutdown(self):

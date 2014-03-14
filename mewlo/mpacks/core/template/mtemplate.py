@@ -7,6 +7,7 @@ The MewloTemplateManager knows about all registered template types, and can find
 
 # mewlo imports
 from ..manager import manager
+from ..constants.mconstants import MewloConstants as mconst
 
 
 # python imports
@@ -83,16 +84,24 @@ class MewloTemplateManager(manager.MewloManager):
 
     def __init__(self, mewlosite, debugmode):
         super(MewloTemplateManager,self).__init__(mewlosite, debugmode)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_routestart])
         self.templatetypes = []
 
-    def startup(self, eventlist):
-        super(MewloTemplateManager,self).startup(eventlist)
-        # register some built in template types
-        import mtemplate_jinja2
-        self.register_templateclass(mtemplate_jinja2.MewloTemplate_Jinja2)
 
-    def shutdown(self):
-        super(MewloTemplateManager,self).shutdown()
+
+
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloTemplateManager,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_routestart):
+            # register some built in template types
+            import mtemplate_jinja2
+            self.register_templateclass(mtemplate_jinja2.MewloTemplate_Jinja2)
+
+
+
 
 
 

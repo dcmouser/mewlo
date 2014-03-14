@@ -38,47 +38,28 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
     def __init__(self, mewlosite, debugmode):
         # call parent constructor
         super(MewloSiteAddon_Account, self).__init__(mewlosite, debugmode)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_addonstuff])
         # path prefix (used below in route setup)
         self.routepathprefix = '/account'
         # create the helper manager
         self.accountmanager = self.mewlosite.createappendcomp('accountmanager', msiteaddon_account_manager.AccountAddonManager)
 
 
-    def prestartup_1(self, eventlist):
+    def startup_prep(self, stageid, eventlist):
         """
-        This is called for all managers, before any managers get startup() called.
-        By the time this gets called you can be sure that ALL managers/components have been added to the site.
-        The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
-        The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
-        super(MewloSiteAddon_Account, self).prestartup_1(eventlist)
-
-
-    def prestartup_2(self, eventlist):
-        """
-        prestartup_2
-        """
-        super(MewloSiteAddon_Account, self).prestartup_2(eventlist)
-        #print "IN msiteaddon_account.prestartup_2"
-        assetmanager = self.sitecomp_assetmanager()
-        # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
-        assetmanager.add_assetsource(
-            massetmanager.MewloAssetSource(id='acccount_addon', mountid = 'external_assets', filepath = '${addon_account_path}/assets')
-            )
-
-
-    def startup(self, eventlist):
-        """
-        Do preparatory stuff.
-        """
-        super(MewloSiteAddon_Account, self).startup(eventlist)
-        #print "IN msiteaddon_account.startup"
+        super(MewloSiteAddon_Account,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_addonstuff):
+            #print "IN msiteaddon_account.prestartup_2"
+            assetmanager = self.sitecomp_assetmanager()
+            # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
+            assetmanager.add_assetsource(
+                massetmanager.MewloAssetSource(id='acccount_addon', mountid = 'external_assets', filepath = '${addon_account_path}/assets')
+                )
 
 
 
-    def shutdown(self):
-        """Shutdown everything."""
-        pass
 
 
 

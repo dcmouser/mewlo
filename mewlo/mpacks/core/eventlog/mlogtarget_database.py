@@ -8,6 +8,7 @@ from __future__ import print_function
 
 # mewlo imports
 from mlogger import MewloLogTarget
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 import sys
@@ -31,27 +32,26 @@ class MewloLogTarget_Database(MewloLogTarget):
         self.dbmanager = None
 
 
-    def prestartup_1(self, mewlosite, eventlist):
-        """Create db models."""
-        # call parent
-        super(MewloLogTarget_Database,self).prestartup_1(mewlosite, eventlist)
-        # create the logging class we will use for this table
-        customclassname = self.baseclass.__name__ + '_' + self.tablename
-        self.dbmanager = mewlosite.comp('dbmanager')
-        # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
-        self.logclass = self.dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
-        # now register it
-        self.dbmanager.register_modelclass(self, self.logclass)
+    def startup_prep(self, stageid, eventlist, mewlosite):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloLogTarget_Database,self).startup_prep(stageid, eventlist, mewlosite)
+        if (stageid == mconst.DEF_STARTUPSTAGE_premodels):
+            # create the logging class we will use for this table
+            customclassname = self.baseclass.__name__ + '_' + self.tablename
+            self.dbmanager = mewlosite.comp('dbmanager')
+            # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
+            self.logclass = self.dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
+            # now register it
+            self.dbmanager.register_modelclass(self, self.logclass)
 
 
-    def startup(self, mewlosite, eventlist):
-        """Startup everything."""
-        # parent
-        super(MewloLogTarget_Database,self).startup(mewlosite, eventlist)
 
-    def shutdown(self):
-        """Shutdown everything, we are about to exit."""
-        super(MewloLogTarget_Database,self).shutdown()
+
+
+
+
 
 
     def readytowrite(self):

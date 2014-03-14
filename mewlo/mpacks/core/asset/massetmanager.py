@@ -35,30 +35,28 @@ class MewloAssetManager(manager.MewloManager):
         """Constructor."""
         super(MewloAssetManager,self).__init__(mewlosite, debugmode)
         # init
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_assetstuff])
         self.alias_settings = None
         self.replacements_filepaths_static = {}
         self.asset_mounts = {}
         self.asset_sources = {}
         self.routegroup_mounting = None
 
-    def prestartup_1(self, eventlist):
-        super(MewloAssetManager,self).prestartup_1(eventlist)
-        pass
 
-    def prestartup_2(self, eventlist):
-        super(MewloAssetManager,self).prestartup_2(eventlist)
-        pass
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloAssetManager,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_assetstuff):
+            # set up replacement mirror for main mewlo directory? no, we will just do by pack
+            # self.add_default_replacement_mirror_dirs()
+            # mount our sources
+            self.mountsources()
 
 
-    def startup(self, eventlist):
-        super(MewloAssetManager,self).startup(eventlist)
-        # set up replacement mirror for main mewlo directory? no, we will just do by pack
-        # self.add_default_replacement_mirror_dirs()
-        # mount our sources
-        self.mountsources()
 
-    def shutdown(self):
-        super(MewloAssetManager,self).shutdown()
+
 
 
 
@@ -377,7 +375,6 @@ class MewloAssetManager(manager.MewloManager):
         for (id, assetsource) in self.asset_sources.iteritems():
             mountpoint = self.calc_mountpoint_for_assetsource(assetsource)
             mountpoint.mount_source(assetsource, self)
-
 
     def calc_mountpoint_for_assetsource(self, assetsource):
         """Calculate which mountpoint this source wants to be mounted at."""

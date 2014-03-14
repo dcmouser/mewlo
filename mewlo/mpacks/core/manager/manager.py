@@ -4,7 +4,8 @@ manager.py
 A base class for high-level site-helping managers.
 """
 
-
+# mewlo imports
+from ..constants.mconstants import MewloConstants as mconst
 
 
 
@@ -23,42 +24,37 @@ class MewloManager(object):
         When this happens you should never do much -- because you may have no idea what other managers/components have been created yet.
         """
         self.mewlosite = mewlosite
+        self.startup_stages_needed = [mconst.DEF_STARTUPSTAGE_finalreport]
+
+    def needs_startupstages(self, stagelist):
+        """Merge some startup stages."""
+        # we want to eliminted duplicates so we use list(set())
+        self.startup_stages_needed = list(set(self.startup_stages_needed + stagelist))
+
+    def get_startup_stages_needed(self):
+        """Return a list of startup stages needed by this component."""
+        return self.startup_stages_needed
 
 
-    def prestartup_1(self, eventlist):
+    def startup_prep(self, stageid, eventlist):
         """
-        This is called for all managers, before any managers get startup() called.
-        By the time this gets called you can be sure that ALL managers/components have been added to the site.
-        The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
-        The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
-        pass
+        if (stageid == mconst.DEF_STARTUPSTAGE_finalreport):
+            self.mewlosite.logevent("Finished startup of manager ({0}).".format(self.__class__.__name__))
 
 
-    def prestartup_2(self, eventlist):
-        """
-        This is called for all managers, before any managers get startup() called.
-        By the time this gets called you can be sure that ALL managers/components have been added to the site.
-        The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
-        The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
-        """
-        pass
-
-
-    def startup(self, eventlist):
-        """Startup everything."""
-        self.mewlosite.logevent("Startup of manager ({0}).".format(self.__class__.__name__))
-
-
-    def poststartup(self, eventlist):
-        """Called after all managers finish with startup()."""
-        pass
 
 
     def shutdown(self):
         """Shutdown everything, we are about to exit."""
         self.mewlosite.logevent("Shutdown of manager ({0}).".format(self.__class__.__name__))
-        pass
+
+
+
+
+
+
 
     def get_description(self):
         return self.description

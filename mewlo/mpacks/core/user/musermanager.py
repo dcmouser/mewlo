@@ -30,6 +30,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
     def __init__(self, mewlosite, debugmode):
         # parent constructor -- pass in the main modelclass we manager
         super(MewloUserManager,self).__init__(mewlosite, debugmode, muser.MewloUser, True)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_final])
         # also keep track of temp user
         self.modelclass_tempuser = muser.MewloUserTemp
         muser.MewloUserTemp.set_objectmanager(self)
@@ -43,15 +44,18 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloUserManager,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_final):
+            # some settings
+            self.flag_require_email_verified_before_login = self.mewlosite.get_settingval(mconst.DEF_SETTINGSEC_siteaddon_account, 'flag_require_email_verified_before_login')
 
-    def startup(self, eventlist):
-        super(MewloUserManager,self).startup(eventlist)
-        # some settings
-        self.flag_require_email_verified_before_login = self.mewlosite.get_settingval(mconst.DEF_SETTINGSEC_siteaddon_account, 'flag_require_email_verified_before_login')
 
 
-    def shutdown(self):
-        super(MewloUserManager,self).shutdown()
+
 
 
 

@@ -6,7 +6,7 @@ This file contains bases classes for MewloSiteAddons
 
 # mewlo imports
 from ..manager import manager
-
+from ..constants.mconstants import MewloConstants as mconst
 
 
 
@@ -30,42 +30,24 @@ class MewloSiteAddon(manager.MewloManager):
         When this happens you should never do much -- because you may have no idea what other managers/components have been created yet.
         """
         super(MewloSiteAddon, self).__init__(mewlosite, debugmode)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_addonstuff])
 
 
-    def prestartup_1(self, eventlist):
+
+    def startup_prep(self, stageid, eventlist):
         """
-        This is called for all managers, before any managers get startup() called.
-        By the time this gets called you can be sure that ALL managers/components have been added to the site.
-        The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
-        The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
-        super(MewloSiteAddon, self).prestartup_1(eventlist)
+        super(MewloSiteAddon,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_addonstuff):
+            self.add_aliases()
+            self.add_routes()
+            self.add_navnodes()
 
 
-    def prestartup_2(self, eventlist):
-        """
-        This is called for all managers, before any managers get startup() called.
-        By the time this gets called you can be sure that ALL managers/components have been added to the site.
-        The most important thing is that in this function managers create and register any database classes BEFORE they may be used in startup.
-        The logic is that all managers must register their database classes, then the database tables will be build, then we can proceed to startup.
-        """
-        super(MewloSiteAddon, self).prestartup_2(eventlist)
-        # these used to be in startup()
-        self.add_aliases()
-        self.add_routes()
-        self.add_navnodes()
 
 
-    def startup(self, eventlist):
-        """Startup everything."""
-        super(MewloSiteAddon, self).startup(eventlist)
-        #
-        self.mewlosite.logevent("Startup of siteaddon ({0}).".format(self.__class__.__name__))
 
-
-    def poststartup(self, eventlist):
-        """Called after all managers finish with startup()."""
-        super(MewloSiteAddon, self).poststartup(eventlist)
 
 
 

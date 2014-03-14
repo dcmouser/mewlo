@@ -45,6 +45,8 @@ class AccountAddonManager(manager.MewloManager):
     def __init__(self, mewlosite, debugmode):
         """Constructor."""
         super(AccountAddonManager,self).__init__(mewlosite, debugmode)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_final])
+
         # settings
         self.registration_mode = None
         #
@@ -79,13 +81,16 @@ class AccountAddonManager(manager.MewloManager):
             }
 
 
-    def startup(self, eventlist):
-        super(AccountAddonManager,self).startup(eventlist)
-        # some settings
-        self.registration_mode = self.mewlosite.get_settingval(mconst.DEF_SETTINGSEC_siteaddon_account, 'registration_mode')
 
-    def shutdown(self):
-        super(AccountAddonManager,self).shutdown()
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(AccountAddonManager,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_final):
+            self.registration_mode = self.mewlosite.get_settingval(mconst.DEF_SETTINGSEC_siteaddon_account, 'registration_mode')
+
+
 
 
 

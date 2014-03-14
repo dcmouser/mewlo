@@ -27,11 +27,7 @@ class MewloTemplateHelper(manager.MewloManager):
     def __init__(self, mewlosite, debugmode):
         super(MewloTemplateHelper,self).__init__(mewlosite, debugmode)
 
-    def startup(self, eventlist):
-        super(MewloTemplateHelper,self).startup(eventlist)
 
-    def shutdown(self):
-        super(MewloTemplateHelper,self).shutdown()
 
 
 
