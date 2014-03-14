@@ -13,6 +13,7 @@ from ..helpers import misc
 from ..manager import manager
 from ..route import mroute, mroute_staticfiles
 from ..controller import mcontroller_staticfiles
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 import os
@@ -51,8 +52,9 @@ class MewloAssetManager(manager.MewloManager):
 
     def startup(self, eventlist):
         super(MewloAssetManager,self).startup(eventlist)
-        # we mount our sources here at this stage, BEFORE startup() because at the point it will be too late to add new routes
-        # ATTN: BUT THIS IS A PROBLEM BECAUSE THIS GETS CALLED BEFORE site addons and plugins get a chance to register mounts
+        # set up replacement mirror for main mewlo directory? no, we will just do by pack
+        # self.add_default_replacement_mirror_dirs()
+        # mount our sources
         self.mountsources()
 
     def shutdown(self):
@@ -69,6 +71,12 @@ class MewloAssetManager(manager.MewloManager):
         """Add an alias."""
         self.alias_settings[aliasname] = aliasval
 
+
+    def canonicalresolve(self, text):
+        """Resolve string that could include $ aliases, AND THEN canonicalize it."""
+        text = self.resolve(text)
+        text = misc.canonicalize_filepath(text)
+        return text
 
 
     def resolve(self, text):
@@ -157,25 +165,80 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def add_default_replacement_mirror_dirs(self):
+        """Add default mewlo replacement directory."""
+        # a mirror directory allowing us to overide view and static files that are part of mewlo, under mewlo code
+        orig_filedirpath = '${mewlofilepath}'
+        replacemirrorpath = self.get_setting_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_replacemirrorpath, None)
+        if (replacemirrorpath != None):
+            # add mirror for main mewlo directory under subdirectory of replacedir
+            new_filedirpath = replacemirrorpath + '/mewlo'
+            self.add_replacement_mirrorfiledir(orig_filedirpath, new_filedirpath, True)
+
+
+    def add_outside_replacement_mirror_dirs(self,  orig_filedirpath, subdirid, flag_onlyifoutsidemain):
+        """Add mewlo replacement directory -- IFF source is outside main mewlo path."""
+        if (flag_onlyifoutsidemain):
+            if (self.is_filepath_under_another(orig_filedirpath, '${mewlofilepath}')):
+                # it's a subdirectory under main mewlo path, so do nothing
+                #print "ATTN:DEBUG {0} is under {1} so not adding another mirror."
+                return
+
+        # a mirror subdirectory of a path outside main mewlo path, identified by an id
+        replacemirrorpath = self.get_setting_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_replacemirrorpath, None)
+        if (replacemirrorpath != None):
+            # add mirror for main mewlo directory under subdirectory of replacedir
+            new_filedirpath = replacemirrorpath + '/' + subdirid
+            self.add_replacement_mirrorfiledir(orig_filedirpath, new_filedirpath, True)
+
+
+
+    def is_filepath_under_another(self, filepath, potentialparent_filepath):
+        filepath = self.canonicalresolve(filepath)
+        potentialparent_filepath = self.canonicalresolve(potentialparent_filepath)
+        if (filepath.startswith(potentialparent_filepath)):
+            return True
+        return False
+
+
+
     def add_replacement_filepath(self, orig_filepath, new_filepath):
         """Add a new mapping to replace a filepath."""
         # ATTN: note that we do not handle the case where the new_filepath has been previously rerouted to something else
         # first ensure all are in canonical format
-        orig_filepath = self.resolve(misc.canonicalize_filepath(orig_filepath))
-        new_filepath = self.resolve(misc.canonicalize_filepath(new_filepath))
+        orig_filepath = self.canonicalresolve(orig_filepath)
+        new_filepath = self.canonicalresolve(new_filepath)
         # now add it to our dictionary
         self.replacements_filepaths_static[orig_filepath] = new_filepath
         #print "ATTN:DEBUG adding asset replacement for '{0}' is '{1}'.".format(orig_filepath, new_filepath)
 
 
-    def add_replacement_mirrorfiledir(self, orig_filedirpath, new_filedirpath):
+    def add_replacement_mirrorfiledir(self, orig_filedirpath, new_filedirpath, flag_mkpath_root):
         """Traverse two mirror didrectories and add cases where there exists replacement files in the new filedirpath."""
         # first ensure all are in canonical format
-        #print "ATTN: walking in add_replacement_mirrorfiledir_static with filepath1 '{0}'.".format(orig_filedirpath)
-        orig_filedirpath = self.resolve(misc.canonicalize_filepath(orig_filedirpath))
-        new_filedirpath = self.resolve(misc.canonicalize_filepath(new_filedirpath))
+        #print "ATTN: walking in add_replacement_mirrorfiledir_static1 for '{0}' with filepath1 '{1}'.".format(orig_filedirpath, new_filedirpath)
+        orig_filedirpath = self.canonicalresolve(orig_filedirpath)
+        new_filedirpath = self.canonicalresolve(new_filedirpath)
         orig_filedirpath_len = len(orig_filedirpath)
-        #print "ATTN: walking in add_replacement_mirrorfiledir_static with filepath '{0}'.".format(orig_filedirpath)
+        #print "ATTN: walking in add_replacement_mirrorfiledir_static2 for '{0}' with filepath1 '{1}'.".format(orig_filedirpath, new_filedirpath)
+        if (flag_mkpath_root):
+            # make the root mirrored path to help user locate it, if it doesnt exist
+            #print "ATTN:DEBUG making mirror source directory of {0}.".format(new_filedirpath)
+            distutils.dir_util.mkpath(new_filedirpath)
         # now recurse deep in orig_filepath
         for (rootdir, subdirs, files) in os.walk(orig_filedirpath):
             # ok we have a candidate rootdir -- we want to get the relative path from orig_filedirpath
@@ -225,6 +288,46 @@ class MewloAssetManager(manager.MewloManager):
         # nope, so return it as is
         #print "ATTN: Not found returning as is."
         return filepath
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

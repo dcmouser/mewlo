@@ -86,20 +86,18 @@ class MewloPackManager(manager.MewloManager):
         super(MewloPackManager,self).prestartup_1(eventlist)
         self.do_discover(eventlist)
 
+    def prestartup_2(self, eventlist):
+        super(MewloPackManager,self).prestartup_2(eventlist)
+        self.startup_packs(eventlist)
 
     def startup(self, eventlist):
         """Any initial startup stuff to do?"""
         super(MewloPackManager,self).startup(eventlist)
-        #self.do_discover(eventlist)
 
 
     def do_discover(self, eventlist):
         # discover the packs in the pack directories
         self.discover_packs(eventlist)
-        # startup packs right away?
-        if (True):
-            self.startup_packs(eventlist)
-
 
 
     def startup_packs(self, eventlist):
@@ -359,9 +357,9 @@ class MewloPackManager(manager.MewloManager):
             flag_enable = get_value_from_dict(self.default_packsettings, mconst.DEF_SETTINGNAME_isenabled)
             reason = "default enable/disable state for packs"
         else:
-           if (flag_enable):
+            if (flag_enable):
                 reason = "explicitly enabled in site settings"
-           else:
+            else:
                 reason = "explicitly disabled in site settings"
         return (flag_enable, reason)
 

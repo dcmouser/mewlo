@@ -130,6 +130,10 @@ class SignalSender(object):
         # init
         pass
 
+    def startup(self, mewlosite, eventlist):
+        #print "**** IN SIGNALRECEIVER STARTUP ****"
+        pass
+
     def dumps(self, indent=0):
         """Debug information."""
         outstr = " "*indent + "SignalSender reporting in.\n"
@@ -181,11 +185,10 @@ class MewloSignalManager(manager.MewloManager):
         super(MewloSignalManager,self).startup(eventlist)
         # and now the receivers and senders
         # ATTN: problem -- receivers are not created yet at this time, so this code is useless
-        #print "ATTN: in signal dispatcher startup with {0} receivers.".format(len(self.receivers))
         for receiver in self.receivers:
-            receiver.startup()
+            receiver.startup(self.mewlosite, eventlist)
         for sender in self.senders:
-            sender.startup()
+            sender.startup(self.mewlosite, eventlist)
 
     def shutdown(self):
         super(MewloSignalManager,self).shutdown()

@@ -21,6 +21,7 @@ From here you can learn about extending the Mewlo system.
    naming_style
    siteaddons
    siteconfig
+   startup
    testing
    to_resolve
    ugliness

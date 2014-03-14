@@ -33,7 +33,6 @@ from ..rbac import mrbac
 from ..siteaddon import msiteaddon
 from ..mail import mmailmanager
 from ..helpers import cfgmodule
-from ..constants import mconstants
 from ..cache import mcache
 
 # mewlo imports
@@ -257,6 +256,11 @@ class MewloSite(object):
                     ranlist.append(key)
                     didone = True
 
+
+        # after first prestartup1, all database models have been registered with the system, finalize creation of models -- create all db tables, etc
+        self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
+
+
         # stage 2
         ranlist = []
         didone = False
@@ -273,8 +277,6 @@ class MewloSite(object):
                     didone = True
 
 
-        # now that all database models have been registered with the system, finalize creation of models -- create all db tables, etc
-        self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
 
 
 
@@ -405,7 +407,8 @@ class MewloSite(object):
         # required stuff
         self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_siteurl_relative, True, "site has no relative url specified; assumed to start at root (/).")
         self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_siteurl_absolute, True, "site has no absolute url address.")
-        self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_sitefilepath, True, "site has no filepath specified for it's home directory.")
+        self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_sitefilepath, True, "site has no filepath specified for its home directory.")
+        self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_replacemirrorpath, True, "site has no filepath specified for its replacemirrore directory.")
 
         # return events encountered
         return eventlist

@@ -83,6 +83,7 @@ class MewloSite_Test1(MewloSite):
             mconst.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
             # should we also load mewlo site installed setuptools plugins
             mconst.DEF_SETTINGNAME_flag_importsetuptoolspacks: True,
+            mconst.DEF_SETTINGNAME_replacemirrorpath: '${sitefilepath}/replacemirror',
             }
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_config, config)
 
@@ -361,14 +362,9 @@ class MewloSite_Test1(MewloSite):
     def add_latesettings_assets(self):
         """Configure some asset settings."""
 
-        # a mirror directory allowing us to overide view and static files that are part of mewlo
-        orig_filedirpath = '${mewlofilepath}'
-        new_filedirpath = '${sitefilepath}/replacemirror/mewlo'
-        assetmanager=self.comp('assetmanager')
-        assetmanager.add_replacement_mirrorfiledir(orig_filedirpath, new_filedirpath)
 
         # setting up static file serving
-
+        assetmanager = self.comp('assetmanager')
         # add external asset mount point where we can copy public static files so they can be served by a separate traditional web server
         # presumably this directory is being served by a more traditional webserver, at this url we specify below
         assetmanager.add_assetmount(

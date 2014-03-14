@@ -53,11 +53,6 @@ So core/ would be one subdir, and then each other addon would get its own, wheth
 
 
 
-//---------------------------------------------------------------------------
-3/13/14
-Rename dbfield mixins to dbfield composite
-//---------------------------------------------------------------------------
-
 
 //---------------------------------------------------------------------------
 3/13/14
@@ -65,8 +60,15 @@ Write nice link generator helper functions callable from templates
 //---------------------------------------------------------------------------
 
 
+
+
 //---------------------------------------------------------------------------
-3/13/14
-Fix use of siteaddon class -- make it a manager or something.
+3/14/14
+Make egg addons use subdirectories in replacemirror directory
 //---------------------------------------------------------------------------
 
+
+//---------------------------------------------------------------------------
+3/14/14
+We need some more consistent logic for what goes in config settings and what is created as objects directly
+//---------------------------------------------------------------------------

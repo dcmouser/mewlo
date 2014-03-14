@@ -99,4 +99,9 @@ Ugly Code
 3/14/14
     * We recently had to do some really ugly stuff with regard to component startups (see prestartup_1() and prestartup_2()) in order to allow everyone a chance to get assets set up even for addons.  Find a way to fix this.
     
-   
+3/14/14
+    * We need some more consistent logic for what goes in config settings and what is created as objects directly
+    
+3/14/14
+    * It's confusing how alias_settings is passed to asset manager, and it's inconsistent in that it's not settings but a dictionary of aliases.
+    * get_resolvedaliases() is horribly inefficient

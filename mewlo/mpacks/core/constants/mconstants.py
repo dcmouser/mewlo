@@ -39,6 +39,7 @@ class MewloConstants(object):
     DEF_SETTINGNAME_logfilepath = 'logfilepath'
     DEF_SETTINGNAME_dbfilepath = 'dbfilepath'
     DEF_SETTINGNAME_siteview_filepath = 'siteviewpath'
+    DEF_SETTINGNAME_replacemirrorpath = 'mirrorpath'
     DEF_SETTINGNAME_sitename = 'sitename'
     DEF_SETTINGNAME_flag_importsetuptoolspacks = 'flag_importsetuptoolspacks'
     #

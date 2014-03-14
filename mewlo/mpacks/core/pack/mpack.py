@@ -193,6 +193,12 @@ class MewloPack(object):
         return (pathtocodemodule, None)
 
 
+    def get_homedirpath(self):
+        """Get home directory of pack."""
+        path = self.infofilepath
+        (dir, fullname) = os.path.split(path)
+        return dir
+
 
     def instantiate_packworker(self):
         """Assuming we have imported the dynamic pack module, now create the pack object that we invoke to do work"""
@@ -267,6 +273,9 @@ class MewloPack(object):
             if (database_needupdate):
                 # cannot allow startup since it needs a database update
                 return EWarning("Cannot start pack because it reports that it needs to run a database update first.")
+            # setup replacement mirror for pack
+            self.add_outside_replacement_mirror_dirs_for_pack()
+            # now packworker instantiate and setup
             if (self.packworker!=None):
                 # ok we loaded the code, now we need to ask the code itself if its ready to run
                 failure = self.packworker.check_isusable()
@@ -287,14 +296,22 @@ class MewloPack(object):
     def get_mewlosite(self):
         return self.packmanager.get_mewlosite()
 
+    def sitecomp_assetmanager(self):
+        return self.get_mewlosite().comp('assetmanager')
 
 
 
 
 
 
-
-
+    def add_outside_replacement_mirror_dirs_for_pack(self):
+        """Each pack informs the assetmanager that it may have static files that need replacing/overiding."""
+        subdirid = 'mpack_' + self.get_uniqueid()
+        flag_onlyifoutsidemain = False
+        orig_filedirpath = self.get_homedirpath()
+        #
+        assetmanager = self.sitecomp_assetmanager()
+        assetmanager.add_outside_replacement_mirror_dirs(orig_filedirpath, subdirid, flag_onlyifoutsidemain)
 
 
 
