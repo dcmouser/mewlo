@@ -32,19 +32,19 @@ class MewloLogTarget_Database(MewloLogTarget):
         self.dbmanager = None
 
 
-    def startup_prep(self, stageid, eventlist, mewlosite):
+    def startup(self, eventlist, mewlosite):
         """
         This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
-        super(MewloLogTarget_Database,self).startup_prep(stageid, eventlist, mewlosite)
-        if (stageid == mconst.DEF_STARTUPSTAGE_premodels):
-            # create the logging class we will use for this table
-            customclassname = self.baseclass.__name__ + '_' + self.tablename
-            self.dbmanager = mewlosite.comp('dbmanager')
-            # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
-            self.logclass = self.dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
-            # now register it
-            self.dbmanager.register_modelclass(self, self.logclass)
+        super(MewloLogTarget_Database,self).startup(eventlist, mewlosite)
+
+        # create the logging class we will use for this table
+        customclassname = self.baseclass.__name__ + '_' + self.tablename
+        self.dbmanager = mewlosite.comp('dbmanager')
+        # NOTE: we call create_derived_dbmodelclass() to dynamically on the fly create a new model class based on an existing one, but with unique table, etc.
+        self.logclass = self.dbmanager.create_derived_dbmodelclass(self, self.baseclass, customclassname, self.tablename)
+        # now register it
+        self.dbmanager.register_modelclass(self, self.logclass)
 
 
 
@@ -56,7 +56,9 @@ class MewloLogTarget_Database(MewloLogTarget):
 
     def readytowrite(self):
         """Before we can save items we need to be started up AND the base class used for logging needs to have been registered."""
-        return (self.get_startedup() and self.logclass!=None and self.logclass.get_isreadytodb())
+        # ATTN: this is inefficient to call this every time?
+        bretv = (self.get_startedup() and self.logclass!=None and self.logclass.get_isreadytodb())
+        return bretv
 
 
     def process(self, logmessage, flag_isfromqueue):

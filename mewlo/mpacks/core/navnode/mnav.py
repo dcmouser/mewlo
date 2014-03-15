@@ -747,7 +747,8 @@ class NavNode(object):
                     else:
                         urlargs = urlargs.copy()
                         urlargs.update(contexturlargs)
-                val = self.route.construct_url(flag_relative=True, args = urlargs)
+                request = responsecontext.get_value('request', None)
+                val = self.route.build_routeurl(request=request, flag_relative=True, args = urlargs)
         else:
             # val is the url, but we need to add site prefix
             val = self.relative_url(val)

@@ -24,7 +24,7 @@ class MewloManager(object):
         When this happens you should never do much -- because you may have no idea what other managers/components have been created yet.
         """
         self.mewlosite = mewlosite
-        self.startup_stages_needed = [mconst.DEF_STARTUPSTAGE_finalreport]
+        self.startup_stages_needed = []
 
     def needs_startupstages(self, stagelist):
         """Merge some startup stages."""
@@ -40,8 +40,7 @@ class MewloManager(object):
         """
         This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
-        if (stageid == mconst.DEF_STARTUPSTAGE_finalreport):
-            self.mewlosite.logevent("Finished startup of manager ({0}).".format(self.__class__.__name__))
+        pass
 
 
 

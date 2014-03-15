@@ -339,6 +339,10 @@ class MewloRequest(object):
 
 
 
+    def build_routeurl_byid(self, routeid, flag_relative, args):
+        """Build a url to a route with some optional args."""
+        return self.mewlosite.comp('routemanager').build_routeurl_byid(routeid, flag_relative, args, self)
+
 
 
 

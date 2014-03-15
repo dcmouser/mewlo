@@ -447,9 +447,10 @@ class MewloRoute(object):
 
 
 
-    def construct_url(self, flag_relative=True, args={}):
+    def build_routeurl(self, request=None, flag_relative=True, args={}):
         """Construct a url for this route.
-        ATTN: TODO - this is preliminary version; eventually we will want to be able to accept info for context so we can fill parameters."""
+        ATTN: UNFINISHED."""
+        # ATTN:TODO - we take request as an argument here so that we can eventually choose to use https if request was https, etc.
         # base url
         if (flag_relative):
             url = self.mewlosite.relative_url(self.path)
@@ -652,13 +653,13 @@ class MewloRouteManager(manager.MewloManager):
 
 
 
-    def build_routeurl_byid(self, routeid, flag_relative, args):
+    def build_routeurl_byid(self, routeid, flag_relative, args, request):
         """Build a url to a route with some optional args."""
         route = self.lookup_route_byid(routeid)
         if (route == None):
             url = 'COULD NOT FIND ROUTE BY ID {0}'.format(routeid)
         else:
-            url = route.construct_url(flag_relative=flag_relative, args=args)
+            url = route.build_routeurl(request=request, flag_relative=flag_relative, args=args)
         return url
 
 

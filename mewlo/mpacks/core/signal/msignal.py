@@ -40,7 +40,7 @@ ATTN:TODO - There is a lot more to implement here.
 
 # mewlo imports
 from ..manager import manager
-
+from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
 
@@ -66,7 +66,9 @@ class MewloSignalReceiver(object):
         #print "**** IN SIGNALRECEIVER STARTUP ****"
         pass
 
-
+    def shutdown(self):
+        #print "**** IN SIGNALRECEIVER SHUTDOWN ****"
+        pass
 
 
     def does_want_signal(self, id, message, request, source):
@@ -131,6 +133,10 @@ class SignalSender(object):
         #print "**** IN SIGNALRECEIVER STARTUP ****"
         pass
 
+    def shutdown(self):
+        #print "**** IN SIGNALRECEIVER SHUTDOWN ****"
+        pass
+
     def dumps(self, indent=0):
         """Debug information."""
         outstr = " "*indent + "SignalSender reporting in.\n"
@@ -173,19 +179,27 @@ class MewloSignalManager(manager.MewloManager):
         """Constructor."""
         super(MewloSignalManager,self).__init__(mewlosite, debugmode)
         # init
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_final])
         self.signals = []
         self.senders = []
         self.receivers = []
 
 
-    def startup(self, eventlist):
-        super(MewloSignalManager,self).startup(eventlist)
-        # and now the receivers and senders
-        # ATTN: problem -- receivers are not created yet at this time, so this code is useless
-        for receiver in self.receivers:
-            receiver.startup(self.mewlosite, eventlist)
-        for sender in self.senders:
-            sender.startup(self.mewlosite, eventlist)
+    def startup_prep(self, stageid, eventlist):
+        """
+        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        """
+        super(MewloSignalManager,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_final):
+            # ATTN: problem -- receivers may not created yet at this time? so this code may be useless?
+            # ATTN: TODO - check
+            for receiver in self.receivers:
+                receiver.startup(self.mewlosite, eventlist)
+            for sender in self.senders:
+                sender.startup(self.mewlosite, eventlist)
+
+
+
 
     def shutdown(self):
         super(MewloSignalManager,self).shutdown()

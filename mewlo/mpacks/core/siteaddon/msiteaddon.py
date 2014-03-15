@@ -103,37 +103,6 @@ class MewloSiteAddon(manager.MewloManager):
 
 
 
-#class MewloSiteAddonManager(manager.MewloManager):
-#    """
-#    The MewloSiteAddonManager class manages a set of site addons
-#    """
-#
-#    def __init__(self, mewlosite, debugmode):
-#        super(MewloSiteAddonManager,self).__init__(mewlosite, debugmode)
-#        self.siteaddons = []
-#
-#    def startup(self, eventlist):
-#        super(MewloSiteAddonManager,self).startup(eventlist)
-#        for siteaddon in self.siteaddons:
-#            siteaddon.startup(self.mewlosite)
-#
-#    def shutdown(self):
-#        super(MewloSiteAddonManager,self).shutdown()
-#
-#    def append(self, siteaddon):
-#        """Append a new siteaddon (or list of routes) (or hierarchical routegroups) to our routes list."""
-#        self.siteaddons.append(siteaddon)
-#
-#    def dumps(self, indent=0):
-#        """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-#        outstr = " "*indent + "MewloSiteAddonManager reporting in with {0} site addons registered:\n".format(len(self.siteaddons))
-#        #outstr += " "*indent + " Routegroup: ers: " + str(self.controllerroot) + "\n"
-#        for siteaddon in self.siteaddons:
-#            outstr += siteaddon.dumps(indent+1)
-#        return outstr
-
-
-
 
 
 

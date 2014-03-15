@@ -225,14 +225,14 @@ class MewloUserManager(modelmanager.MewloModelManager):
         if (not failure):
             # now build the email
             # ATTN: THESE VIEWFILES NEED FIXING
-            failure = self.send_field_verification_email_given_verification(verification, fieldname, emailaddress)
+            failure = self.send_field_verification_email_given_verification(request, verification, fieldname, emailaddress)
         return failure
 
 
 
-    def send_field_verification_email_given_verification(self, verification, fieldname, emailaddress):
+    def send_field_verification_email_given_verification(self, request, verification, fieldname, emailaddress):
         """Send a verification email."""
-        verificationurl = self.calc_verificationurl_field(verification, fieldname)
+        verificationurl = self.calc_verificationurl_field(request, verification, fieldname)
         emailtemplatefile = self.calc_account_templatepath(self.viewfiles['user_verify_field_email'])
         maildict = self.get_mewlosite().rendersections_from_template_file(emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
         maildict['to'] = [emailaddress]
@@ -294,9 +294,9 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-    def calc_verificationurl_field(self, verification, fieldname):
+    def calc_verificationurl_field(self, request, verification, fieldname):
         """The url user must visit to verify field change/initialization."""
-        url = self.get_mewlosite().build_routeurl_byid('userfield_verify', flag_relative=False, args={'field':fieldname, 'code':verification.verification_code} )
+        url = request.build_routeurl_byid('userfield_verify', flag_relative=False, args={'field':fieldname, 'code':verification.verification_code})
         return url
 
 

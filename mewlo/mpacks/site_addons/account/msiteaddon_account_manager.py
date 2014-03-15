@@ -489,7 +489,7 @@ class AccountAddonManager(manager.MewloManager):
         verification.save()
 
         # now send them an email telling them how to verify
-        verificationurl = self.calc_verificationurl_registration_deferred(verification)
+        verificationurl = self.calc_verificationurl_registration_deferred(verification, request)
         #
         emailtemplatefile = self.calc_localtemplatepath(self.viewfiles['register_deferred_email_verificationsent'])
         maildict = self.get_mewlosite().rendersections_from_template_file(emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
@@ -511,11 +511,11 @@ class AccountAddonManager(manager.MewloManager):
 
 
 
-    def calc_verificationurl_registration_deferred(self, verification):
+    def calc_verificationurl_registration_deferred(self, verification, request):
         """Compute the verification url for a verification object for deferred registration.
         This will require asking the site what the base url should be.
         """
-        url = self.get_mewlosite().build_routeurl_byid('register_deferred_verify', flag_relative=False, args={'code':verification.verification_code} )
+        url = request.build_routeurl_byid('register_deferred_verify', flag_relative=False, args={'code':verification.verification_code} )
         return url
 
 
@@ -1276,7 +1276,7 @@ class AccountAddonManager(manager.MewloManager):
         if (failure):
             return failure
         # email it to the user
-        verificationurl = self.calc_verificationurl_passwordreset(verification)
+        verificationurl = self.calc_verificationurl_passwordreset(verification, request)
         #
         emailtemplatefile = self.calc_localtemplatepath(self.viewfiles['reset_password_verify_email'])
         maildict = self.get_mewlosite().rendersections_from_template_file(emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
@@ -1289,9 +1289,9 @@ class AccountAddonManager(manager.MewloManager):
 
 
 
-    def calc_verificationurl_passwordreset(self, verification):
+    def calc_verificationurl_passwordreset(self, verification, request):
         """Build url user should visit to verify."""
-        url = self.get_mewlosite().build_routeurl_byid('reset_password', flag_relative=False, args={'code':verification.verification_code} )
+        url = request.build_routeurl_byid('reset_password', flag_relative=False, args={'code':verification.verification_code} )
         return url
 
 

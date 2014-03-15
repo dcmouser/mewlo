@@ -68,7 +68,7 @@ class MewloLogManager(manager.MewloManager):
 
     def __init__(self, mewlosite, debugmode):
         super(MewloLogManager,self).__init__(mewlosite, debugmode)
-        self.needs_startupstages(mconst.DEF_STARTUPSTAGE_LISTALL)
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_logstartup])
         self.loggers = []
         self.pythonlogginghooks = []
         self.debugmode = debugmode
@@ -80,9 +80,10 @@ class MewloLogManager(manager.MewloManager):
         This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
         super(MewloLogManager,self).startup_prep(stageid, eventlist)
-        # now all loggers get their chance
-        for logger in self.loggers:
-            logger.startup_prep(stageid, eventlist, self.mewlosite)
+        if (stageid == mconst.DEF_STARTUPSTAGE_logstartup):
+            # now all loggers get their chance
+            for logger in self.loggers:
+                logger.startup(eventlist, self.mewlosite)
 
 
 
@@ -195,7 +196,7 @@ class MewloLogFilter(object):
     def __init__(self):
         self.andfilters = []
 
-    def startup_prep(self, stageid, eventlist, mewlosite):
+    def startup(self, eventlist, mewlosite):
         """
         This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
@@ -381,12 +382,11 @@ class MewloLogTarget(object):
         return self.stopprocessing
 
 
-    def startup_prep(self, stageid, eventlist, mewlosite):
+    def startup(self, eventlist, mewlosite):
         """
-        This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
+        The log is now ready to do processing.
         """
-        if (stageid == mconst.DEF_STARTUPSTAGE_postmodels):
-            self.startedup = True
+        self.startedup = True
 
 
 
@@ -523,14 +523,14 @@ class MewloLogger(object):
         self.targets.append(target)
 
 
-    def startup_prep(self, stageid, eventlist, mewlosite):
+    def startup(self, eventlist, mewlosite):
         """
         This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
         for filter in self.filters:
-            filter.startup_prep(stageid, eventlist, mewlosite)
+            filter.startup(eventlist, mewlosite)
         for target in self.targets:
-            target.startup_prep(stageid, eventlist, mewlosite)
+            target.startup(eventlist, mewlosite)
 
 
 

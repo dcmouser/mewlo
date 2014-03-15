@@ -277,21 +277,25 @@ class MewloSite(object):
         desiredstages = {}
         for stageid in mconst.DEF_STARTUPSTAGE_LISTALL:
             # invole all of our components that want this stage
-            print "ATTN:DEBUG DOING STAGE '{0}'.".format(stageid)
+            #print "ATTN:DEBUG DOING STAGE '{0}'.".format(stageid)
+            self.logevent("Beginning startup_prep stage: '{0}'.".format(stageid))
             component_tuples = self.components.get_tuplelist()
             for (key, obj) in component_tuples:
                 if (not key in desiredstages):
                     # get the desired stages for the component since we haven't gotten it yet (this can happen later if the component is newly added)
                     desiredstages[key] = obj.get_startup_stages_needed()
-                    # now we check if this component wants stages we already completed, and error if so
-                    missedstages = list(set(finishedstages) & set(desiredstages[key]))
-                    #print "ATTN: GOT DESIRED FOR {0}: {1} - with missed = {2}".format(key,str(desiredstages[key]), str(missedstages))
-                    if (missedstages):
-                        raise Exception("Component '{0}' wants startup_prep for stage(s) '{1}' but was created AFTER that startup stage completed (during stage '{2}').".format(obj, str(missedstages), stageid))
+                    if (not desiredstages[key]):
+                        self.logevent("Component {0} reports it does not need any startup prep.".format(key))
+                    else:
+                        # now we check if this component wants stages we already completed, and error if so
+                        missedstages = list(set(finishedstages) & set(desiredstages[key]))
+                        #print "ATTN: GOT DESIRED FOR {0}: {1} - with missed = {2}".format(key,str(desiredstages[key]), str(missedstages))
+                        if (missedstages):
+                            raise Exception("Component {0} wants startup_prep for stage(s) [{1}] but was created AFTER that startup stage completed (during stage '{2}').".format(key, str(missedstages), stageid))
                 # if this component wants this stage, invoke it
                 if (stageid in desiredstages[key]):
                     # invoke it and log it
-                    self.logevent("Running startup_prep stage {0} for component: {1}.".format(stageid, str(obj)))
+                    self.logevent("Component {0} - running startup_prep stage '{1}'.".format(key, stageid))
                     obj.startup_prep(stageid, eventlist)
                     # and REMOVE the stageid from desired list for this component
                     desiredstages[key].remove(stageid)
@@ -1387,7 +1391,3 @@ class MewloSite(object):
 
 
 
-
-    def build_routeurl_byid(self, routeid, flag_relative, args):
-        """Build a url to a route with some optional args."""
-        return self.comp('routemanager').build_routeurl_byid(routeid, flag_relative, args)

@@ -64,11 +64,15 @@ Write nice link generator helper functions callable from templates
 
 //---------------------------------------------------------------------------
 3/14/14
-Make egg addons use subdirectories in replacemirror directory
+We need some more consistent logic for what goes in config settings and what is created as objects directly
 //---------------------------------------------------------------------------
 
 
 //---------------------------------------------------------------------------
 3/14/14
-We need some more consistent logic for what goes in config settings and what is created as objects directly
+fix startup code for log stuff so that it doesnt have to trigger on every startup prep stage
 //---------------------------------------------------------------------------
+
+
+
+
