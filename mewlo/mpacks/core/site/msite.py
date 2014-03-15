@@ -66,6 +66,10 @@ class MewloSite(object):
         self.debugmode = debugmode
         self.commandlineargs = commandlineargs
 
+        # keep track of what stage we are in for testing, etc.
+        self.startup_prep_stage = None
+        self.site_stage = None
+
         # set global variable (not currently used)
         mglobals.set_mewlosite(self)
 
@@ -118,7 +122,7 @@ class MewloSite(object):
         self.createappendcomp('logmanager', mlogger.MewloLogManager)
 
         # now update site state (log manager should catch this)
-        self.set_statelabel(mconst.DEF_SITESTATE_INITIALIZE_START)
+        self.set_site_stage(mconst.DEF_SITESTAGE_INITIALIZE_START)
 
         # create (non-db-persistent) site settings -- these are set by configuration at runtime
         self.settings = self.createappendcomp('settings', MewloSettings)
@@ -244,31 +248,6 @@ class MewloSite(object):
 
 
 
-    def startup_prep(self, stageid, eventlist):
-        """Startup prep."""
-        if (stageid == mconst.DEF_STARTUPSTAGE_sitepreinit):
-            # early prep
-            # update state
-            self.set_statelabel(mconst.DEF_SITESTATE_STARTUP_START)
-            # we log errors/warnings to an eventlist and return it; either one we are passed or we create a new one if needed
-            if (eventlist == None):
-                eventlist = EventList()
-            # any settings caching or other pre-preparation we need to do
-            self.preprocess_settings(eventlist)
-            # validate site settings first to make sure all is good
-            self.validatesettings(eventlist)
-        elif (stageid == mconst.DEF_STARTUPSTAGE_sitebuildmodels):
-            # all database models have been registered with the system, finalize creation of models -- create all db tables, etc
-            self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
-        elif (stageid == mconst.DEF_STARTUPSTAGE_sitepostinit):
-            # after other components are done
-            # log all startup events
-            self.logevents(eventlist)
-            # update state
-            self.set_statelabel(mconst.DEF_SITESTATE_STARTUP_END)
-            # commit any pending db stuff (normally we commit after each request)
-            self.comp('dbmanager').commit_all_dbs()
-
 
 
     def startup_prep_allcomponents(self, eventlist):
@@ -277,8 +256,7 @@ class MewloSite(object):
         desiredstages = {}
         for stageid in mconst.DEF_STARTUPSTAGE_LISTALL:
             # invole all of our components that want this stage
-            #print "ATTN:DEBUG DOING STAGE '{0}'.".format(stageid)
-            self.logevent("Beginning startup_prep stage: '{0}'.".format(stageid))
+            self.set_startup_prep_stage(stageid)
             component_tuples = self.components.get_tuplelist()
             for (key, obj) in component_tuples:
                 if (not key in desiredstages):
@@ -306,6 +284,40 @@ class MewloSite(object):
 
 
 
+    def set_startup_prep_stage(self, stageid):
+        """We keep track of which startup_prep stage we are in, in case we need to check it from other functions; this can be useful for detecting actions that should not be called after a certain stage."""
+        self.startup_prep_stage = stageid
+        self.set_site_stage('startup.{0}'.format(stageid))
+
+    def set_site_stage(self, stageid):
+        self.site_stage = stageid
+	if (self.get_debugmode()):
+	    print "ATTN:DEBUG Beginning site site stage: '{0}'.".format(stageid)
+	    self.logevent("Beginning site site stage: '{0}'.".format(stageid))
+
+
+    def get_startup_prep_stage(self):
+        """Return current startup prep_stage."""
+        return self.startup_prep_stage
+    def get_startup_prep_stage_index(self):
+        """Return current startup prep_stage."""
+        return self.get_startup_prep_stage_index_from_stageid(self.startup_prep_stage)
+
+    def get_startup_prep_stage_index_from_stageid(self, stageid):
+        """Return index of a stageid string."""
+        if (stageid==None):
+            return -1
+        return mconst.DEF_STARTUPSTAGE_LISTALL.index(stageid)
+
+    def check_startup_prep_stagerange(self, minstageid, maxstageid):
+        """Throw an exception if we are not within stage range."""
+        curstageindex = self.get_startup_prep_stage_index()
+        minstageid_index = get_startup_prep_stage_index_from_stageid(minstageid)
+        maxstageid_index = get_startup_prep_stage_index_from_stageid(maxstageid)
+        if ((minstageid_index > -1) and (curstageindex<minstageid_index)):
+            raise Exception("Startup_prep stage is too low for current operation ({0} -- needs to be at least {1}).".format(get_startup_prep_stage(), minstageid))
+        if ((maxstageid_index > -1) and (curstageindex>maxstageid_index)):
+            raise Exception("Startup_prep stage is too high for current operation ({0} -- needs to be at most {1}).".format(get_startup_prep_stage(), maxstageid))
 
 
 
@@ -325,11 +337,26 @@ class MewloSite(object):
 
 
 
-
-
-
-
-
+    def startup_prep(self, stageid, eventlist):
+        """Site has startup stuff it runs in different stages just like other components."""
+        if (stageid == mconst.DEF_STARTUPSTAGE_sitepreinit):
+            # early prep
+            # we log errors/warnings to an eventlist and return it; either one we are passed or we create a new one if needed
+            if (eventlist == None):
+                eventlist = EventList()
+            # any settings caching or other pre-preparation we need to do
+            self.preprocess_settings(eventlist)
+            # validate site settings first to make sure all is good
+            self.validatesettings(eventlist)
+        elif (stageid == mconst.DEF_STARTUPSTAGE_sitebuildmodels):
+            # all database models have been registered with the system, finalize creation of models -- create all db tables, etc
+            self.build_db_tablesandmappers()
+        elif (stageid == mconst.DEF_STARTUPSTAGE_sitepostinit):
+            # after other components are done
+            # log all startup events
+            self.logevents(eventlist)
+            # commit any pending db stuff (normally we commit after each request)
+            self.comp('dbmanager').commit_all_dbs()
 
 
 
@@ -426,13 +453,13 @@ class MewloSite(object):
         """Shutdown everything."""
 
         # update state
-        self.set_statelabel(mconst.DEF_SITESTATE_SHUTDOWN_START)
+        self.set_site_stage(mconst.DEF_SITESTAGE_SHUTDOWN_START)
 
         # now shut down all site components
         self.shutdown_allcomponents()
 
         # update state (note this won't be logged since we will have shutdown log/db by now)
-        self.set_statelabel(mconst.DEF_SITESTATE_SHUTDOWN_END)
+        self.set_site_stage(mconst.DEF_SITESTAGE_SHUTDOWN_END)
 
         # done
         return eventlist
@@ -503,6 +530,9 @@ class MewloSite(object):
 
 
 
+    def build_db_tablesandmappers(self):
+	"""It's time to build all registered models and database tables, etc."""
+	self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
 
 
 
@@ -676,11 +706,7 @@ class MewloSite(object):
         """Return the debubmode."""
         return self.debugmode
 
-    def set_statelabel(self, statelabel):
-        """For debugging we keep track of startup state progression."""
-        self.statelabel = statelabel
-        if (self.get_debugmode()):
-            self.logevent("Site changes to state '{0}'.".format(statelabel))
+
 
 
     def get_sitename(self):
@@ -839,7 +865,7 @@ class MewloSite(object):
         self.add_fallback_loggers()
 
         # now update site state (log manager should catch this)
-        self.set_statelabel(mconst.DEF_SITESTATE_INITIALIZE_END)
+        self.set_site_stage(mconst.DEF_SITESTAGE_INITIALIZE_END)
 
 
 

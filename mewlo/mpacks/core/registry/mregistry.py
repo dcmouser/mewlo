@@ -206,7 +206,9 @@ class MewloRegistryManager(manager.MewloManager):
         """Shutdown all registered components."""
         #print "***SHUTTING DOWN REGISTERED COMPONENTS: "+str(len(self.components))
         for component in self.components:
-            component.shutdown()
+            if (hasattr(component,'shutdown')):
+                # if the component has a shutdown function, call it
+                component.shutdown()
         self.components = []
         self.componenthash = {}
 
