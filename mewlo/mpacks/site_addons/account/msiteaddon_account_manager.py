@@ -1175,7 +1175,7 @@ class AccountAddonManager(manager.MewloManager):
 
         # ok now we need to send it
         email = verification.verification_varval
-        failure = self.sitecomp_usermanager().send_field_verification_email_given_verification(verification, fieldname, email)
+        failure = self.sitecomp_usermanager().send_field_verification_email_given_verification(request, verification, fieldname, email)
         return failure
 
 

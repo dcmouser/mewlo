@@ -9,6 +9,7 @@ from ..controller import mcontroller
 from ..eventlog.mevent import EFailure, EFailureExtend
 from ..manager import manager
 from ..constants.mconstants import MewloConstants as mconst
+from ..helpers import misc
 
 
 class MewloRouteArg(object):
@@ -464,6 +465,58 @@ class MewloRoute(object):
 
 
 
+    def build_routelink(self, linktext, linkargs={}, request=None, flag_relative=True, args={}):
+        """Construct a link for this route."""
+        # first build the url
+        url = self.build_routeurl(request=request, flag_relative = flag_relative, args=args)
+        # now build the link given the url.
+        linkhtml = misc.build_ahref_link(linktext, linkargs, url)
+        return linkhtml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -664,4 +717,11 @@ class MewloRouteManager(manager.MewloManager):
 
 
 
-
+    def build_routelink_byid(self, linktext, linkargs, routeid, flag_relative, args, request):
+        """Build an html a href link to a route with some optional args."""
+        route = self.lookup_route_byid(routeid)
+        if (route == None):
+            url = 'COULD NOT FIND ROUTE BY ID {0}'.format(routeid)
+        else:
+            url = route.build_routelink(linktext=linktext, linkargs=linkargs, request=request, flag_relative=flag_relative, args=args)
+        return url

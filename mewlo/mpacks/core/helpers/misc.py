@@ -489,3 +489,28 @@ def copy_tree_withcallback(src, dst, preserve_mode=1, preserve_times=1,
 
 
 
+def build_ahref_link(linktext, linkargs, url):
+    """Build an a href link given text and args."""
+    extrataghtml = build_extrataghtml(linkargs)
+    htmltext = '<a href="{0}"{1}>{2}</a>'.format(url,extrataghtml,linktext)
+    return htmltext
+
+def build_extrataghtml(tagdict):
+    """Build a text string of tag assignments for within an html element."""
+    htmltext = ''
+    if (tagdict):
+        for (key,val) in tagdict.iteritems():
+            htmltext += ' {0}="{1}"'.format(key,val)
+    return htmltext
+
+
+
+
+
+
+
+
+
+
+
+

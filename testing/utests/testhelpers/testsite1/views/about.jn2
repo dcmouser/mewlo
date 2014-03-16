@@ -2,4 +2,8 @@
 
 Welcome to the Demo Site ABOUT page.
 
+<div>
+Click {{ request.build_routelink_byid("here",'profile',linkargs={'class':'simplelink'}) }} to view your profile.
+</div>
+
 {% include "./footer.jn2" %}

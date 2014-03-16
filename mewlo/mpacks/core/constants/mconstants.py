@@ -56,8 +56,6 @@ class MewloConstants(object):
     # site state for debugging
     DEF_SITESTAGE_INITIALIZE_START = 'initializing'
     DEF_SITESTAGE_INITIALIZE_END = 'initialized'
-    DEF_SITESTAGE_STARTUP_START = 'starting'
-    DEF_SITESTAGE_STARTUP_END = 'started'
     DEF_SITESTAGE_SHUTDOWN_START = 'shuttingdown'
     DEF_SITESTAGE_SHUTDOWN_END = 'shutdown'
 

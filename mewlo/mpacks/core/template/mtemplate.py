@@ -54,9 +54,9 @@ class MewloTemplate(object):
         # render to string
         renderedtext = self.render_string(args)
         # regex to use to grab sections
-        patternregex = r'\@\@([a-zA-A]+)\s*\=\s*(.*?)\s*(?=\n\@\@|$)'
+        patternregex = r'\@\@([a-zA-A]+)\s*\=\s*(.*?)\s*(?=\n\@\@|\Z)'
         # now get all matches, which should return tuples of the form (sectionname, sectiontext)
-        allmatches = re.findall(patternregex, renderedtext, re.MULTILINE)
+        allmatches = re.findall(patternregex, renderedtext, re.MULTILINE | re.DOTALL)
         # now partse them and fill dictionary
         sectionsout = {}
         for findtuple in allmatches:
@@ -64,7 +64,7 @@ class MewloTemplate(object):
             if (key != 'REM'):
                 sectionsout[key] = findtuple[1].strip()
         #
-        #print "ATTN: in with '{0}' and out with: {1}.".format(renderedtext,str(sectionsout))
+        print "ATTN: in with '{0}' and out with: {1}.".format(renderedtext,str(sectionsout))
         # check required sections
         for key in required_sections:
             if (not key in sectionsout):

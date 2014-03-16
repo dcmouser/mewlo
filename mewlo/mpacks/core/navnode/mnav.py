@@ -492,6 +492,7 @@ class NavNodeManager(manager.MewloManager):
         url = node.get_menu_url(responsecontext)
         hint = node.get_menu_hint(responsecontext)
         flag_linkurl = node.get_flag_linkurl(responsecontext)
+        request = responsecontext.get_value('request')
 
         # build main html
         if (url!=None and flag_linkurl):
