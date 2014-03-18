@@ -440,7 +440,7 @@ class MewloSite_Test1(MewloSite):
     def add_addons(self):
         """Add any site addons."""
         # register accountmanager addon component
-        # this is now handled automatically by addong mpacks
+        # this is now handled automatically by addon mpacks
         #self.createappendcomp('accountaddon', msiteaddon_account.MewloSiteAddon_Account)
         #self.createappendcomp('groupaddon', msiteaddon_group.MewloSiteAddon_Group)
 

@@ -37,7 +37,11 @@ class MewloRequest(object):
         self.response = mresponse.MewloResponse(self)
 
 
-
+    def get_matchedroute_namespace(self):
+        """Return the namespace of the matched route."""
+        if (self.route != None):
+            return self.route.namespace
+        return None
 
 
     # accessors
@@ -339,14 +343,14 @@ class MewloRequest(object):
 
 
 
-    def build_routeurl_byid(self, routeid, flag_relative, args):
+    def build_routeurl_byid(self, routeid, flag_relative, args, namespace=None):
         """Build a url to a route with some optional args."""
-        return self.mewlosite.comp('routemanager').build_routeurl_byid(routeid, flag_relative, args, self)
+        return self.mewlosite.comp('routemanager').build_routeurl_byid(routeid, flag_relative, args, self, namespace)
 
 
-    def build_routelink_byid(self, linktext, routeid, linkargs={}, flag_relative=True, args={}):
+    def build_routelink_byid(self, linktext, routeid, linkargs={}, flag_relative=True, args={}, namespace=None):
         """Build a url to a route with some optional args."""
-        return self.mewlosite.comp('routemanager').build_routelink_byid(linktext, linkargs, routeid, flag_relative, args, self)
+        return self.mewlosite.comp('routemanager').build_routelink_byid(linktext, linkargs, routeid, flag_relative, args, self, namespace)
 
 
 

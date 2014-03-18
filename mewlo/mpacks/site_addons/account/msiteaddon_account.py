@@ -41,6 +41,8 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         self.needs_startupstages([mconst.DEF_STARTUPSTAGE_addonstuff])
         # path prefix (used below in route setup)
         self.routepathprefix = '/account'
+        # namespace
+        self.namespace = 'account'
         # create the helper manager
         self.accountmanager = self.mewlosite.createappendcomp('accountmanager', msiteaddon_account_manager.AccountAddonManager)
 
@@ -103,15 +105,16 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
 
 
+
+
+
     def add_routes(self):
         """This is called by default by the base MewloSite near startup, to add routes to the system."""
 
         # create a routegroup
-        routegroup = MewloRouteGroup()
-        # overide the parent import-pack-directory for the urls in this group? if we don't it will use the controller root set in SITE config
-        routegroup.set_controllerroot(pkgdirimp_controllers)
-        routegroup.set_pathprefix(self.routepathprefix)
+        routegroup = MewloRouteGroup(controllerroot = pkgdirimp_controllers, pathprefix=self.routepathprefix, namespace = self.namespace)
 
+        # now add routes to it
         routegroup.append(
             MewloRoute(
                 id = 'login',
@@ -305,24 +308,21 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             NavNode('resend_register_verification', {
                 'menulabel': "Resend verification",
                 'visible': lambda navnode,context: not context.get_value('clientuser').get_isloggedin(),
-                #'flag_linkurl': False,
-                'parent': 'site',
+                'parent': 'register',
                 'sortweight': 9.0,
                 }),
             NavNode('resend_register_verification2', {
                 'route': 'resend_register_verification',
                 'menulabel': "Resend verification",
                 'visible': lambda navnode,context: context.get_value('clientuser').get_isloggedin() and (navnode.isactive(context) or context.get_value('clientuser').get_ispending_newuser_verification()),
-                #'flag_linkurl': False,
                 'parent': 'profile',
                 'sortweight': 9.0,
                 }),
-
+            #
             NavNode('send_reset_password', {
                 'menulabel': "Reset password",
                 'visible': lambda navnode,context: not context.get_value('clientuser').get_isloggedin(),
-                #'flag_linkurl': False,
-                'parent': 'site',
+                'parent': 'login',
                 'sortweight': 9.0,
                 }),
             NavNode('reset_password', {
@@ -334,21 +334,19 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             NavNode('modify_field', {
                 'menulabel': "Change account profile field",
                 'visible': lambda navnode,context: context.get_value('clientuser').get_isloggedin(),
-                #'flag_linkurl': False,
                 'parent': 'profile',
                 'urlargs': {'field':'email'},
                 }),
             NavNode('cancel_modify_field', {
                 'menulabel': "Cancel pending profile change",
                 'visible': lambda navnode,context: navnode.isactive(context) or context.get_value('clientuser').get_ispending_fieldmodify_verification(context.get_value('request')),
-                #'flag_linkurl': False,
                 'parent': 'profile',
                 'urlargs': {'field':'email'},
                 }),
             ]
 
         # add nodes to site
-        self.mewlosite.comp('navnodemanager').add_nodes(nodes)
+        self.mewlosite.comp('navnodemanager').add_nodes(nodes, namespace = self.namespace)
 
 
 

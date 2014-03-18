@@ -139,11 +139,15 @@ class NavNodeManager(manager.MewloManager):
 
 
 
-    def add_nodes(self, nodestoadd):
+    def add_nodes(self, nodestoadd, namespace=''):
         """Add one or more nodes to our node list."""
+        # ATTN: unfinished - namespace not implemented yet
         if type(nodestoadd) is list:
+            for node in nodestoadd:
+                node.set_namespace(namespace)
             self.nodes.extend(nodestoadd)
         else:
+            nodestoadd.set_namespace(namespace)
             self.nodes.append(nodestoadd)
 
 
@@ -616,13 +620,19 @@ class NavNode(object):
         """Constructor for the class."""
         self.id = id
         self.properties = properties
+        self.namespace = ''
         self.resetbuild(None)
 
 
+    def set_namespace(self, namespace):
+        self.namespace = namespace
+
+    def fullid(self):
+        return misc.namespacedid(self.namespace, self.id)
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "Navnode '{0}' reporting in:\n".format(self.id)
+        outstr = " "*indent + "Navnode '{0}' reporting in:\n".format(self.fullid())
         outstr += " "*indent + " properties: {0}.\n".format(str(self.properties))
         outstr += " "*indent + " parents: {0}.\n".format(self.nodelist_tostring(self.parents))
         outstr += " "*indent + " children: {0}.\n".format(self.nodelist_tostring(self.children))
@@ -651,7 +661,7 @@ class NavNode(object):
             # lookup by name
             if (routeid==None):
                 routeid = self.id
-            self.route = self.mewlosite.comp('routemanager').lookup_route_byid(routeid)
+            self.route = self.mewlosite.comp('routemanager').lookup_route_byid(routeid, self.namespace)
 
 
 

@@ -159,6 +159,8 @@ class MewloRoute(object):
         self.extras = extras
         self.forcedargs = forcedargs
         #
+        self.namespace = ''
+        #
         self.controllerroot = None
         self.mewlosite = None
         #
@@ -183,12 +185,16 @@ class MewloRoute(object):
     def get_routegroup(self):
         return self.parent
 
+    def fullid(self):
+        return misc.namespacedid(self.namespace, self.id)
 
-    def build_structure(self, parent, mewlosite, eventlist):
+
+    def build_structure(self, parent, mewlosite, eventlist, parentnamespace=''):
         """Startup any info/caching; this is called before system startup by our parent site."""
-
         self.parent = parent
         self.mewlosite = mewlosite
+        # set namespace
+        self.namespace = parentnamespace
         # root propagation
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
@@ -205,8 +211,8 @@ class MewloRoute(object):
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloRoute '" + self.id + "':\n"
-        outstr += " "*indent + " path: " + self.path + "\n"
+        outstr = " "*indent + "MewloRoute '{0}':\n".format(self.fullid())
+        outstr += " "*indent + " path: {0}\n".format(self.path)
         indent += 1
         if (self.controller != None):
             outstr += self.controller.dumps(indent)
@@ -526,7 +532,7 @@ class MewloRouteGroup(object):
     The MewloRouteGroup class holds a list of routes (or child RouteGroups); it's a way of letting us organize collections of routes
     """
 
-    def __init__(self, id='', controllerroot=None, routes=None):
+    def __init__(self, id='', controllerroot=None, routes=None, pathprefix='', namespace=''):
         self.id = id
         self.controllerroot = controllerroot
         self.routes = []
@@ -536,28 +542,35 @@ class MewloRouteGroup(object):
         self.routehash = {}
         #
         self.pathprefix = ''
+        self.namespace = namespace
         #
         if (routes != None):
             self.append(routes)
 
 
-    def build_structure(self, parent, mewlosite, eventlist):
-        """Initial preparation, invoked by parent."""
+    def fullid(self):
+        return misc.namespacedid(self.namespace, self.id)
 
+
+    def build_structure(self, parent, mewlosite, eventlist, parentnamespace=''):
+        """Initial preparation, invoked by parent."""
         self.parent = parent
+        # full namespace
+        fullnamespace = misc.combined_namespace(parentnamespace, self.namespace)
+        #print "ATTN:DEBUG in routegroup build_structure with '{0}' and '{1}' and '{2}' and '{3}'".format(self.id, self.namespace, parentnamespace, fullnamespace)
         # we want to propagate controllerroot from parent down
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
         # recursive startup
         for route in self.routes:
-            route.build_structure(self, mewlosite, eventlist)
+            route.build_structure(self, mewlosite, eventlist, fullnamespace)
 
 
 
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
-        outstr = " "*indent + "MewloRouteGroup reporting in:\n"
+        outstr = " "*indent + "MewloRouteGroup '{0}' reporting in:\n".format(self.fullid())
         outstr += " "*indent + " Root for controllers: " + str(self.controllerroot) + "\n"
         outstr += " "*indent + " Path prefix: " + self.pathprefix + "\n"
         outstr += " "*indent + " Route hash: " + str(self.routehash) + "\n"
@@ -580,6 +593,10 @@ class MewloRouteGroup(object):
         self.pathprefix = pathprefix
     def get_pathprefix(self):
         return self.pathprefix
+    def set_namespace(self, idprefix):
+        self.namespace = namespace
+    def get_namespace(self):
+        return self.namespace
     def get_parent(self):
         return self.parent
 
@@ -612,10 +629,11 @@ class MewloRouteGroup(object):
         for route in self.routes:
             if (route.get_isgroup()):
                 childroutehash = route.build_routehash()
-                if (route.id==None or route.id==''):
+                if (True or route.id==None or route.id==''):
                     # just merge it into us
                     self.routehash.update(childroutehash)
                 else:
+                    raise Exception("We do not do this branch currently.")
                     # add with prefix
                     prefix = route.id + '.'
                     for key,val in childroutehash.iteritems():
@@ -623,17 +641,28 @@ class MewloRouteGroup(object):
                         if (hashkey in self.routehash):
                             # warning, we are about to overwrite a route id
                             print "WARNING: Multiple routes share the same id ({0}); only one will be accessible.".format(prefix.key)
-                        self.routehash[prefix+key]=val
+                        self.routehash[hashkey]=val
             else:
                 # it's a leaf route
-                self.routehash[route.id] = route
+                #hashkey = route.id
+                hashkey = route.fullid()
+                self.routehash[hashkey] = route
         return self.routehash
 
 
-    def lookup_route_byid(self, routeid):
+    def lookup_route_byid(self, routeid, namespace):
         """Lookup routeid in our hash of all routes."""
-        if (routeid in self.routehash):
-            return self.routehash[routeid]
+        #print "ATTN: in lookup_route_byid with {0} andnamespave {1}.".format(routeid, namespace)
+        # first we check namespace + routeid
+        hashkey = namespace + '::' + routeid
+        #print "ATTN: in lookup_route_byid with hashkey = {0} and routeid = {1} and namespace {2}.".format(hashkey, routeid, namespace)
+        if (hashkey in self.routehash):
+            return self.routehash[hashkey]
+        # if not found, we check routeid, with no namespace
+        hashkey = routeid
+        #print "ATTN: in lookup_route_byid with hashkey = {0} and routeid = {1} and namespace {2}.".format(hashkey, routeid, namespace)
+        if (hashkey in self.routehash):
+            return self.routehash[hashkey]
         return None
 
 
@@ -699,16 +728,27 @@ class MewloRouteManager(manager.MewloManager):
         return outstr
 
 
+    def use_requestnamespace(self, request, namespace):
+        """Use the namespace in the matched request route if nothing explicit passed."""
+        if (namespace != None):
+            return namespace
+        if (request == None):
+            return ''
+        return request.get_matchedroute_namespace()
 
-    def lookup_route_byid(self, routeid):
+
+    def lookup_route_byid(self, routeid, namespace):
         """Lookup routeid in our hash of all routes."""
-        return self.routegroup.lookup_route_byid(routeid)
+        return self.routegroup.lookup_route_byid(routeid, namespace)
 
 
 
-    def build_routeurl_byid(self, routeid, flag_relative, args, request):
+    def build_routeurl_byid(self, routeid, flag_relative, args, request, namespace=None):
         """Build a url to a route with some optional args."""
-        route = self.lookup_route_byid(routeid)
+        # get namespace from request if none is passed
+        namespace = self.use_requestnamespace(request, namespace)
+        # lookup route
+        route = self.lookup_route_byid(routeid, namespace)
         if (route == None):
             url = 'COULD NOT FIND ROUTE BY ID {0}'.format(routeid)
         else:
@@ -717,9 +757,12 @@ class MewloRouteManager(manager.MewloManager):
 
 
 
-    def build_routelink_byid(self, linktext, linkargs, routeid, flag_relative, args, request):
+    def build_routelink_byid(self, linktext, linkargs, routeid, flag_relative, args, request, namespace=None):
         """Build an html a href link to a route with some optional args."""
-        route = self.lookup_route_byid(routeid)
+        # get namespace from request if none is passed
+        namespace = self.use_requestnamespace(request, namespace)
+        # lookup route
+        route = self.lookup_route_byid(routeid, namespace)
         if (route == None):
             url = 'COULD NOT FIND ROUTE BY ID {0}'.format(routeid)
         else:

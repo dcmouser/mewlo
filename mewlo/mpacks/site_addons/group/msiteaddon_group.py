@@ -39,6 +39,8 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
         super(MewloSiteAddon_Group, self).__init__(mewlosite, debugmode)
         # path prefix (used below in route setup)
         self.routepathprefix = '/groups'
+        # namespaces
+        self.namespace = 'group'
         # create the helper manager
         self.groupaddonmanager = self.mewlosite.createappendcomp('group_addon_manager', msiteaddon_group_manager.GroupAddonManager)
 
@@ -94,11 +96,9 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
         """This is called by default by the base MewloSite near startup, to add routes to the system."""
 
         # create a routegroup
-        routegroup = MewloRouteGroup()
-        # overide the parent import-pack-directory for the urls in this group? if we don't it will use the controller root set in SITE config
-        routegroup.set_controllerroot(pkgdirimp_controllers)
-        routegroup.set_pathprefix(self.routepathprefix)
+        routegroup = MewloRouteGroup(controllerroot = pkgdirimp_controllers, pathprefix=self.routepathprefix, namespace = self.namespace)
 
+        # now add routes to it
         routegroup.append(
             MewloRoute(
                 id = 'grouplist',
@@ -139,7 +139,6 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
                 'sortweight': 9.0,
                 }),
             NavNode('groupinfo', {
-                #'visible': True,
                 'visible': lambda navnode,context: navnode.isactive(context),
                 'parent': 'grouplist',
                 'sortweight': 9.0,
@@ -147,7 +146,7 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
             ]
 
         # add nodes to site
-        self.mewlosite.comp('navnodemanager').add_nodes(nodes)
+        self.mewlosite.comp('navnodemanager').add_nodes(nodes, namespace = self.namespace)
 
 
 

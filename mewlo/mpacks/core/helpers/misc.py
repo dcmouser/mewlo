@@ -514,3 +514,23 @@ def build_extrataghtml(tagdict):
 
 
 
+
+def combined_namespace(parentnamespace, childnamespace):
+    """Combine parent and child namespace strings."""
+    if (parentnamespace and childnamespace):
+        return parentnamespace + '::' + childnamespace
+    if (parentnamespace):
+        return parentnamespace
+    if (childnamespace):
+        return childnamespace
+    return ''
+
+def namespacedid(namespace, childid):
+    """Combine parent and child namespace strings."""
+    if (not childid):
+        childid = '[ANONYMOUS]'
+    if (namespace):
+        return namespace + '::' + childid
+    return '::'+childid
+
+
