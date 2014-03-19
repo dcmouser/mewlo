@@ -343,14 +343,71 @@ class MewloRequest(object):
 
 
 
-    def build_routeurl_byid(self, routeid, flag_relative, args, namespace=None):
+    def build_routeurl_byid(self, routeid, flag_relative, args):
         """Build a url to a route with some optional args."""
-        return self.mewlosite.comp('routemanager').build_routeurl_byid(routeid, flag_relative, args, self, namespace)
+        # ATTN: we can leave namespace as None since routemanager will look it up from us passing the SELF request field
+        return self.mewlosite.comp('routemanager').build_routeurl_byid(routeid, flag_relative, args, self, namespace=None)
 
 
-    def build_routelink_byid(self, linktext, routeid, linkargs={}, flag_relative=True, args={}, namespace=None):
+    def build_routelink_byid(self, linktext, routeid, linkargs={}, flag_relative=True, args={}):
         """Build a url to a route with some optional args."""
-        return self.mewlosite.comp('routemanager').build_routelink_byid(linktext, linkargs, routeid, flag_relative, args, self, namespace)
+        # ATTN: we can leave namespace as None since routemanager will look it up from us passing the SELF request field
+        return self.mewlosite.comp('routemanager').build_routelink_byid(linktext, linkargs, routeid, flag_relative, args, self, namespace=None)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # these just shortcut to assetmanager
+    def resolve(self, text):
+        return self.mewlosite.comp('assetmanager').resolve(text, self.get_matchedroute_namespace())
+
+    def resolve_filepath(self, filepath):
+        return self.mewlosite.comp('assetmanager').resolve_filepath(filepath, self.get_matchedroute_namespace())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

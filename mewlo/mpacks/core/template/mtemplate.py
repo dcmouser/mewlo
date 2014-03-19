@@ -22,7 +22,9 @@ import re
 class MewloTemplate(object):
     """The MewloTemplate class represents a single template file."""
 
-    def __init__(self):
+    def __init__(self, request, templatemanager):
+        self.request = request
+        self.templatemanager = templatemanager
         self.filepath = None
         self.filecontents = None
 
@@ -64,7 +66,7 @@ class MewloTemplate(object):
             if (key != 'REM'):
                 sectionsout[key] = findtuple[1].strip()
         #
-        print "ATTN: in with '{0}' and out with: {1}.".format(renderedtext,str(sectionsout))
+        #print "ATTN: in with '{0}' and out with: {1}.".format(renderedtext,str(sectionsout))
         # check required sections
         for key in required_sections:
             if (not key in sectionsout):
@@ -106,11 +108,13 @@ class MewloTemplateManager(manager.MewloManager):
 
 
 
-    def from_file(self, filepath, templatetypeid=None):
+    def from_file(self, request, filepath, templatetypeid=None):
         """Instantiate a template from a file."""
-        filepath = self.mewlosite.resolve_filepath(filepath)
+        # ATTN:TODO - get namespace
+        namespace = None
         templatelcass = self.lookup_templatetype_byfile(filepath, templatetypeid)
-        template = templatelcass(self)
+        template = templatelcass(self, request)
+        filepath = self.mewlosite.resolve_filepath(filepath, namespace)
         template.load_from_file(filepath)
         return template
 

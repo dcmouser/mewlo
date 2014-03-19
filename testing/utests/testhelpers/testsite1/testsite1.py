@@ -216,7 +216,7 @@ class MewloSite_Test1(MewloSite):
         logger = self.add_logger(MewloLogger('mytestlogger'))
 
         # now add some targets (handlers) to it
-        logger.add_target(MewloLogTarget_File(filename=self.resolve('${logfilepath}/testlogout1.txt'), filemode='w'))
+        logger.add_target(MewloLogTarget_File(filename=self.resolve('${logfilepath}/testlogout1.txt', namespace=None), filemode='w'))
 
         if (False):
             # want to test raising an exception on failure to write/open file? uncomment this -- the bad blank filename will throw an exception
@@ -225,7 +225,7 @@ class MewloSite_Test1(MewloSite):
         if (True):
             # let's add standard python logging as a test, and route that to file; this creates a standard python-style logger and catches events sent to that
             import logging
-            pythonlogger = MewloLogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolve('${logfilepath}/testlogout_python.txt'))
+            pythonlogger = MewloLogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolve('${logfilepath}/testlogout_python.txt', namespace=None))
             logger.add_target(MewloLogTarget_Python(pythonlogger))
             # and then as a test, let's create an error message in this log
             pythonlogger.error("This is a manual python test error.")

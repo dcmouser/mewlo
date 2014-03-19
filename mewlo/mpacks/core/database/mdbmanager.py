@@ -135,9 +135,9 @@ class MewloDatabaseManager(manager.MewloManager):
 
 
 
-    def resolve(self, text):
+    def resolve(self, text, namespace):
         """Sometimes database engine configuration settings will use mewlo aliases like {$databasedirectory}, etc.  This resolves them."""
-        return self.mewlosite.resolve(text)
+        return self.mewlosite.resolve(text, namespace)
 
 
 

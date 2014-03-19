@@ -17,8 +17,11 @@ class MewloJinja2Loader(jinja2.BaseLoader):
         super(MewloJinja2Loader,self).__init__()
         self.mewlosite = mewlosite
 
-    def get_source(self, environment, template):
-        path = self.mewlosite.resolve_filepath(template)
+    def get_source(self, environment, templatefilepath):
+        """Lookup a source template file."""
+        # ATTN: UNFINISHED - we want namespace from request
+        namespace = None
+        path = self.mewlosite.resolve_filepath(templatefilepath, namespace)
         if not os.path.exists(path):
             raise jinja2.TemplateNotFound(template)
         mtime = os.path.getmtime(path)
@@ -35,11 +38,11 @@ class MewloJinja2Environment(jinja2.Environment):
         super(MewloJinja2Environment,self).__init__(loader=loader, undefined = undefined)
         self.mewlosite = mewlosite
 
-    def join_path(self, template, parent):
+    def join_path(self, templatefilepath, parent):
         """Override join_path() to enable relative template paths."""
-        if (template.startswith('./')):
-            return os.path.join(os.path.dirname(parent), template)
-        return template
+        if (templatefilepath.startswith('./')):
+            return os.path.join(os.path.dirname(parent), templatefilepath)
+        return templatefilepath
 
 
 

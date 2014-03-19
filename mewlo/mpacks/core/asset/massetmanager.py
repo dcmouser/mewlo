@@ -67,24 +67,68 @@ class MewloAssetManager(manager.MewloManager):
 
     def add_alias(self, aliasname, aliasval):
         """Add an alias."""
+        # ATTN: this is bad -- we are treating alias settings schizophrenically -- using set_alias_settings above to transfer from site settings to alias settings, but then using this function to add them to us
+        # we need to standardize this and use DRY to only store them in one place (presumably the asset manager).
         self.alias_settings[aliasname] = aliasval
 
 
-    def canonicalresolve(self, text):
-        """Resolve string that could include $ aliases, AND THEN canonicalize it."""
-        text = self.resolve(text)
-        text = misc.canonicalize_filepath(text)
-        return text
 
 
-    def resolve(self, text):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def resolve(self, text, namespace):
         """Resolve a string that could include $ aliases.  This is the central function that many places call."""
         if (text==None):
             return None
         if (not isinstance(text, basestring)):
             return text
         # ok resolve aliases -- for now we use a helper function to do the main work
-        resolvedtext = misc.resolve_expand_string(text, self.alias_settings)
+        resolvedtext = misc.resolve_expand_string(text, self.alias_settings, namespace)
         # now we have a fully resolved string that may have contained some aliases
         return resolvedtext
 
@@ -92,37 +136,40 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
-    def resolve_filepath(self, text):
+    def resolve_filepath(self, text, namespace):
         """Call resolve THEN call replace_filepath."""
-        resolvedtext = self.resolve(text)
+        resolvedtext = self.resolve(text, namespace)
         resolvedtext = self.replace_filepath(resolvedtext)
         #print "ATTN:DEBUG resolved '{0}' to '{1}'.".format(text, resolvedtext)
         return resolvedtext
 
 
-
-
+    def resolve_filepath_canonical_noreplace(self, text, namespace):
+        """Resolve string that could include $ aliases, AND THEN canonicalize it."""
+        text = self.resolve(text, namespace)
+        text = misc.canonicalize_filepath(text)
+        return text
 
 
 
 
     # shortcuts that just call resolve() with some extra info
 
-    def absolute_filepath(self, relpath):
+    def resolve_absolute_filepath(self, relpath, namespace):
         """Shortcut to resolve a filepath given a relative path."""
-        return self.resolve_filepath('${sitefilepath}' + relpath)
+        return self.resolve_filepath('${sitefilepath}' + relpath, namespace)
 
-    def absolute_url(self, relpath):
+    def resolve_absolute_url(self, relpath, namespace):
         """Shortcut to resolve a url given a relative path."""
         if (self.isabsoluteurl(relpath)):
-            return relpath
-        return self.resolve('${siteurl_absolute}' + relpath)
+            return self.resolve(relpath, namespace)
+        return self.resolve('${siteurl_absolute}' + relpath, namespace)
 
-    def relative_url(self, relpath):
+    def resolve_relative_url(self, relpath, namespace):
         """Shortcut to resolve a url that is relative to our server root."""
         if (self.isabsoluteurl(relpath)):
-            return relpath
-        return self.resolve('${siteurl_relative}' + relpath)
+            return self.resolve(relpath, namespace)
+        return self.resolve('${siteurl_relative}' + relpath, namespace)
 
     def isabsoluteurl(self, urlpath):
         """Return True if urlpath is already an absolute path (starting with http)."""
@@ -132,15 +179,65 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
-    def get_resolvedaliases(self):
+    def get_resolvedaliases_UNUSED(self, namespace):
         """Return a dictionary of resolved aliases; might be useful for templates."""
         # ATTN: Note that most aliases will not need resolving, but some may recurively include each other, that's why we have to do this
         # ATTN: Note that this could be quite slow unless we do it smartly -- would be nice to cache this result so that we don't have to recreate it each call
         # ATTN: TODO eliminate this function
         aliases = {}
         for key,val in self.alias_settings.iteritems():
-            aliases[key] = misc.resolve_expand_string(val, self.alias_settings)
+            aliases[key] = misc.resolve_expand_string(val, self.alias_settings, namespace)
         return aliases
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -206,8 +303,8 @@ class MewloAssetManager(manager.MewloManager):
 
 
     def is_filepath_under_another(self, filepath, potentialparent_filepath):
-        filepath = self.canonicalresolve(filepath)
-        potentialparent_filepath = self.canonicalresolve(potentialparent_filepath)
+        filepath = self.resolve_filepath_canonical_noreplace(filepath, namespace=None)
+        potentialparent_filepath = self.resolve_filepath_canonical_noreplace(potentialparent_filepath, namespace=None)
         if (filepath.startswith(potentialparent_filepath)):
             return True
         return False
@@ -218,8 +315,8 @@ class MewloAssetManager(manager.MewloManager):
         """Add a new mapping to replace a filepath."""
         # ATTN: note that we do not handle the case where the new_filepath has been previously rerouted to something else
         # first ensure all are in canonical format
-        orig_filepath = self.canonicalresolve(orig_filepath)
-        new_filepath = self.canonicalresolve(new_filepath)
+        orig_filepath = self.resolve_filepath_canonical_noreplace(orig_filepath, namespace=None)
+        new_filepath = self.resolve_filepath_canonical_noreplace(new_filepath, namespace=None)
         # now add it to our dictionary
         self.replacements_filepaths_static[orig_filepath] = new_filepath
         #print "ATTN:DEBUG adding asset replacement for '{0}' is '{1}'.".format(orig_filepath, new_filepath)
@@ -229,8 +326,8 @@ class MewloAssetManager(manager.MewloManager):
         """Traverse two mirror didrectories and add cases where there exists replacement files in the new filedirpath."""
         # first ensure all are in canonical format
         #print "ATTN: walking in add_replacement_mirrorfiledir_static1 for '{0}' with filepath1 '{1}'.".format(orig_filedirpath, new_filedirpath)
-        orig_filedirpath = self.canonicalresolve(orig_filedirpath)
-        new_filedirpath = self.canonicalresolve(new_filedirpath)
+        orig_filedirpath = self.resolve_filepath_canonical_noreplace(orig_filedirpath, namespace=None)
+        new_filedirpath = self.resolve_filepath_canonical_noreplace(new_filedirpath, namespace=None)
         orig_filedirpath_len = len(orig_filedirpath)
         #print "ATTN: walking in add_replacement_mirrorfiledir_static2 for '{0}' with filepath1 '{1}'.".format(orig_filedirpath, new_filedirpath)
         if (flag_mkpath_root):
@@ -402,8 +499,8 @@ class MewloAssetManager(manager.MewloManager):
         We may have to create the filepath_target deeply.
         Return failure on error or None."""
         # resolve paths
-        filepath_source = self.resolve_filepath(filepath_source)
-        filepath_destination = self.resolve_filepath(filepath_destination)
+        filepath_source = self.resolve_filepath(filepath_source, namespace=None)
+        filepath_destination = self.resolve_filepath(filepath_destination, namespace=None)
         # now mirror
         # ATTN: this does not support the replacement of files system to let user override specific files, and so needs to be rewritten to support that
         result = misc.copy_tree_withcallback(filepath_source, filepath_destination, dry_run=dry_run, callbackfp = self.mirrorcopytree_callback)
@@ -414,7 +511,7 @@ class MewloAssetManager(manager.MewloManager):
 
     def mirrorcopytree_callback(self, filepath_source, filepath_dest):
         """Return a tuple of the form <BoolShouldCopy, new_filepath_source, new_filepath_dest>."""
-        filepath_source = self.resolve_filepath(filepath_source)
+        filepath_source = self.resolve_filepath(filepath_source, namespace=None)
         return (True, filepath_source, filepath_dest)
 
 
@@ -525,8 +622,8 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
 
         # and now we want to create some aliases for refering to them via url and file
         aliasprefix = 'asset_' + assetsource.get_id()
-        assetmanager.add_alias(aliasprefix + '_urlrel', assetmanager.mewlosite.relative_url(routepath))
-        assetmanager.add_alias(aliasprefix + '_urlabs', assetmanager.mewlosite.absolute_url(routepath))
+        assetmanager.add_alias(aliasprefix + '_urlrel', assetmanager.resolve_relative_url(routepath, namespace=None))
+        assetmanager.add_alias(aliasprefix + '_urlabs', assetmanager.resolve_absolute_url(routepath, namespace=None))
         assetmanager.add_alias(aliasprefix + '_filepath', filepath)
 
 

@@ -23,11 +23,12 @@ class MewloTemplate_Jinja2(mtemplate.MewloTemplate):
     templatetype_id = 'jinja2'
     templatetype_extensions = ('.jn2',)
 
-    def __init__(self, templatemanager):
-        self.templatemanager = templatemanager
-        self.jinja2_environement = None
+    def __init__(self, request, templatemanager):
         # parent function
-        super(MewloTemplate_Jinja2, self).__init__()
+        super(MewloTemplate_Jinja2, self).__init__(request, templatemanager)
+        #
+        self.jinja2_environement = None
+
 
 
     def load_from_file(self, filepath):
@@ -47,6 +48,7 @@ class MewloTemplate_Jinja2(mtemplate.MewloTemplate):
 
     def getmake_jinja2_environment(self, templatemanager):
         """Class singleton reference to the jinja2 engine, created on first use."""
+        # ATTN:!!!! THIS IS NOT A CLASS SINGLETON TODO:FIGUREOUT WHAT YOU REALLY WANT
         if (self.jinja2_environement == None):
             # create it for first time, use our custom file loader which knows how to resolve view files
             import mjinja2_loader

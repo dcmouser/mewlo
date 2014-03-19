@@ -291,9 +291,9 @@ class MewloSite(object):
 
     def set_site_stage(self, stageid):
         self.site_stage = stageid
-	if (self.get_debugmode()):
-	    print "ATTN:DEBUG Beginning site site stage: '{0}'.".format(stageid)
-	    self.logevent("Beginning site site stage: '{0}'.".format(stageid))
+        if (self.get_debugmode()):
+            print "ATTN:DEBUG Beginning site site stage: '{0}'.".format(stageid)
+        self.logevent("Beginning site site stage: '{0}'.".format(stageid))
 
 
     def get_startup_prep_stage(self):
@@ -531,8 +531,8 @@ class MewloSite(object):
 
 
     def build_db_tablesandmappers(self):
-	"""It's time to build all registered models and database tables, etc."""
-	self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
+        """It's time to build all registered models and database tables, etc."""
+        self.comp('dbmanager').create_tableandmapper_forallmodelclasses()
 
 
 
@@ -938,7 +938,7 @@ class MewloSite(object):
 
         # now add some targets (handlers) to it
         fpath = self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_default_logfilename)
-        self.fallbacklogger.add_target(MewloLogTarget_File(filename=self.resolve(fpath), filemode='w'))
+        self.fallbacklogger.add_target(MewloLogTarget_File(filename=self.resolve(fpath, namespace=None), filemode='w'))
 
 
 
@@ -998,6 +998,7 @@ class MewloSite(object):
 
     def alias_settings_change(self):
         """Inform asset manager of new alias settings.  This *must* be called whenever alias settings may change."""
+        # alias settings are taken from main site alias settings -- so this keeps them sync'd
         self.comp('assetmanager').set_alias_settings(self.settings.get_value(mconst.DEF_SETTINGSEC_aliases))
 
 
@@ -1230,20 +1231,20 @@ class MewloSite(object):
 
 
     # these just shortcut to assetmanager
-    def resolve(self, text):
-        return self.comp('assetmanager').resolve(text)
+    def resolve(self, text, namespace):
+        return self.comp('assetmanager').resolve(text, namespace)
 
-    def resolve_filepath(self, text):
-        return self.comp('assetmanager').resolve_filepath(text)
+    def resolve_filepath(self, text, namespace):
+        return self.comp('assetmanager').resolve_filepath(text, namespace)
 
-    def absolute_filepath(self, relpath):
-        return self.comp('assetmanager').absolute_filepath(relpath)
+    def resolve_absolute_filepath(self, relpath, namespace):
+        return self.comp('assetmanager').resolve_absolute_filepath(relpath, namespace)
 
-    def absolute_url(self, relpath):
-        return self.comp('assetmanager').absolute_url(relpath)
+    def resolve_absolute_url(self, relpath, namespace):
+        return self.comp('assetmanager').resolve_absolute_url(relpath, namespace)
 
-    def relative_url(self, relpath):
-        return self.comp('assetmanager').relative_url(relpath)
+    def resolve_relative_url(self, relpath, namespace):
+        return self.comp('assetmanager').resolve_relative_url(relpath, namespace)
 
 
 
@@ -1391,7 +1392,7 @@ class MewloSite(object):
 
     def renderstr_from_template_file(self, templatefilepath, args=None):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
-        template = self.comp('templatemanager').from_file(templatefilepath)
+        template = self.comp('templatemanager').from_file(request, templatefilepath)
         return self.renderstr_from_template(template, args)
 
     def renderstr_from_template_string(self, templatestring, args=None):
@@ -1399,9 +1400,9 @@ class MewloSite(object):
         template = self.comp('templatemanager').from_string(templatestring)
         return self.renderstr_from_template(template, args)
 
-    def rendersections_from_template_file(self, templatefilepath, args=None, required_sections=[]):
+    def rendersections_from_template_file(self, request, templatefilepath, args=None, required_sections=[]):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
-        template = self.comp('templatemanager').from_file(templatefilepath)
+        template = self.comp('templatemanager').from_file(request, templatefilepath)
         return self.rendersections_from_template(template, args, required_sections)
 
 

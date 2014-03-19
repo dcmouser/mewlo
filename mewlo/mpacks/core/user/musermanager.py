@@ -234,7 +234,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         """Send a verification email."""
         verificationurl = self.calc_verificationurl_field(request, verification, fieldname)
         emailtemplatefile = self.calc_account_templatepath(self.viewfiles['user_verify_field_email'])
-        maildict = self.get_mewlosite().rendersections_from_template_file(emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
+        maildict = self.get_mewlosite().rendersections_from_template_file(request, emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
         maildict['to'] = [emailaddress]
         # now send it
         failure = self.sitecomp_mailmanager().send_email(maildict)

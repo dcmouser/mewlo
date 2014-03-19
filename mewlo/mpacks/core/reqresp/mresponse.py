@@ -167,7 +167,7 @@ class MewloResponse(object):
         self.rendercontext['clientuser'] = self.request.get_user_or_maketemporaryguest()
         #
         self.rendercontext['thelper'] = mewlosite.comp('templatehelper')
-        self.rendercontext['alias'] = mewlosite.comp('assetmanager').get_resolvedaliases()
+        #self.rendercontext['alias'] = mewlosite.comp('assetmanager').get_resolvedaliases()
         #
         self.did_add_rendercontext_defaults = True
 
@@ -223,18 +223,12 @@ class MewloResponse(object):
 
     def render_from_template_file(self, templatefilepath, args=None):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
-        template = self.get_mewlosite().comp('templatemanager').from_file(templatefilepath)
+        template = self.get_mewlosite().comp('templatemanager').from_file(self.request, templatefilepath)
         return self.render_from_template(template, args)
-
-    def renderstr_from_template_file(self, templatefilepath, args=None):
-        """Shortcut to return html for a template and set responsedata from it, passing response object to template as an extra arg."""
-        template = self.get_mewlosite().comp('templatemanager').from_file(templatefilepath)
-        return self.renderstr_from_template(template, args)
-
 
     def render_from_template(self, template, args=None):
         """Shortcut to render a template and set responsedata from it, passing response object to template as an extra arg."""
-        self.set_responsedata(self.renderstr_from_template(template,args))
+        self.set_responsedata(self.renderstr_from_template(template, args))
         return None
 
     def renderstr_from_template(self, template, args=None):

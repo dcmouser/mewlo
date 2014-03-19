@@ -12,6 +12,7 @@ From here you can learn about the core Mewlo packs.
    dispatcher
    forms
    logging
+   namespaces
    navigation
    packs
    registry

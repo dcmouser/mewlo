@@ -459,10 +459,11 @@ class MewloRoute(object):
         ATTN: UNFINISHED."""
         # ATTN:TODO - we take request as an argument here so that we can eventually choose to use https if request was https, etc.
         # base url
+        namespace = self.namespace
         if (flag_relative):
-            url = self.mewlosite.relative_url(self.path)
+            url = self.mewlosite.resolve_relative_url(self.path, namespace)
         else:
-            url = self.mewlosite.absolute_url(self.path)
+            url = self.mewlosite.resolve_absolute_url(self.path, namespace)
         # now add args
         if (args):
             for key,val in args.iteritems():
@@ -654,13 +655,17 @@ class MewloRouteGroup(object):
         """Lookup routeid in our hash of all routes."""
         #print "ATTN: in lookup_route_byid with {0} andnamespave {1}.".format(routeid, namespace)
         # first we check namespace + routeid
-        hashkey = namespace + '::' + routeid
-        #print "ATTN: in lookup_route_byid with hashkey = {0} and routeid = {1} and namespace {2}.".format(hashkey, routeid, namespace)
-        if (hashkey in self.routehash):
-            return self.routehash[hashkey]
+        if (not routeid.startswith('::')):
+            hashkey = namespace + '::' + routeid
+            #print "ATTN: in lookup_route_byid with hashkey = {0} and routeid = {1} and namespace {2}.".format(hashkey, routeid, namespace)
+            if (hashkey in self.routehash):
+                return self.routehash[hashkey]
         # if not found, we check routeid, with no namespace
         hashkey = routeid
         #print "ATTN: in lookup_route_byid with hashkey = {0} and routeid = {1} and namespace {2}.".format(hashkey, routeid, namespace)
+        if (hashkey in self.routehash):
+            return self.routehash[hashkey]
+        hashkey = '::'+routeid
         if (hashkey in self.routehash):
             return self.routehash[hashkey]
         return None

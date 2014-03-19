@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>{{ thelper.nav_pagetitle(response) }}</title>
-<link rel="stylesheet" type="text/css" href="{{alias.asset_internal_urlrel}}/navbar.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="{{request.resolve("${asset_internal_urlrel}/navbar.css")}}" media="screen" />
 </head>
 
 {{ thelper.nav_bar_html(response) }}

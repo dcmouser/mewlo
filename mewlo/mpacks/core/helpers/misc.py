@@ -94,7 +94,7 @@ def does_dict_filter_match(object_features, feature_filter):
 
 
 
-def resolve_expand_string(patternstring, replacementdict, depthcount=0):
+def resolve_expand_string(patternstring, replacementdict, namespace, depthcount=0):
     """Do recursive replacement in string with patterns."""
     # print "ATTN:DEBUG Asked to exp '"+patternstring+"' with :" + str(replacementdict)
 
@@ -105,7 +105,7 @@ def resolve_expand_string(patternstring, replacementdict, depthcount=0):
             return retv
         # recursively expand
         try:
-            retv = resolve_expand_string(replacementdict[match.group(1)], replacementdict, depthcount+1)
+            retv = resolve_expand_string(replacementdict[match.group(1)], replacementdict, namespace, depthcount+1)
         except Exception as exp:
             mexceptionplus.reraiseplus(exp, "Could not find a key '{0}' in alias replacement dictionary: {1}".format(match.group(1),replacementdict))
         return retv
@@ -524,6 +524,7 @@ def combined_namespace(parentnamespace, childnamespace):
     if (childnamespace):
         return childnamespace
     return ''
+
 
 def namespacedid(namespace, childid):
     """Combine parent and child namespace strings."""

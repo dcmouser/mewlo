@@ -492,7 +492,7 @@ class AccountAddonManager(manager.MewloManager):
         verificationurl = self.calc_verificationurl_registration_deferred(verification, request)
         #
         emailtemplatefile = self.calc_localtemplatepath(self.viewfiles['register_deferred_email_verificationsent'])
-        maildict = self.get_mewlosite().rendersections_from_template_file(emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
+        maildict = self.get_mewlosite().rendersections_from_template_file(request, emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
         maildict['to'] = [ userdict['email'] ]
         #
         failure = self.sitecomp_mailmanager().send_email(maildict)
@@ -1279,7 +1279,7 @@ class AccountAddonManager(manager.MewloManager):
         verificationurl = self.calc_verificationurl_passwordreset(verification, request)
         #
         emailtemplatefile = self.calc_localtemplatepath(self.viewfiles['reset_password_verify_email'])
-        maildict = self.get_mewlosite().rendersections_from_template_file(emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
+        maildict = self.get_mewlosite().rendersections_from_template_file(request, emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
         maildict['to'] = [user.email]
         # now send it
         failure = self.sitecomp_mailmanager().send_email(maildict)

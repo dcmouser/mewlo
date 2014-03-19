@@ -33,7 +33,7 @@ class MewloController_StaticFiles(mcontroller.MewloController):
         basefilepath = self.sourcepath
         relpath = '/'.join(request.parsedargs['requestargs'])
         filepath = basefilepath + "/" + relpath
-        filepath = request.mewlosite.resolve_filepath(filepath)
+        filepath = request.resolve_filepath(filepath)
 
         # ATTN: TODO -- make sure user is not trying any .. tricks to get us to back up past source direcotry
         # ATTN: TODO -- does our call to request.mewlosite.resolve create a danger of them using alias paths to get at our files?
