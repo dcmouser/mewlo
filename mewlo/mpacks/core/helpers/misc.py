@@ -535,3 +535,18 @@ def namespacedid(namespace, childid):
     return '::'+childid
 
 
+def lookup_namespaced_byid(id, namespace, thedict):
+    if (not id.startswith('::')):
+        hashkey = namespace + '::' + id
+        if (hashkey in thedict):
+            return thedict[hashkey]
+        hashkey = '::'+id
+        if (hashkey in thedict):
+            return thedict[hashkey]
+    hashkey = id
+    if (hashkey in thedict):
+        return thedict[hashkey]
+    # not found
+    return None
+
+

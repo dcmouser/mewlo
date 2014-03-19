@@ -110,11 +110,9 @@ class MewloTemplateManager(manager.MewloManager):
 
     def from_file(self, request, filepath, templatetypeid=None):
         """Instantiate a template from a file."""
-        # ATTN:TODO - get namespace
-        namespace = None
         templatelcass = self.lookup_templatetype_byfile(filepath, templatetypeid)
-        template = templatelcass(self, request)
-        filepath = self.mewlosite.resolve_filepath(filepath, namespace)
+        template = templatelcass(request, self)
+        filepath = request.resolve_filepath(filepath)
         template.load_from_file(filepath)
         return template
 

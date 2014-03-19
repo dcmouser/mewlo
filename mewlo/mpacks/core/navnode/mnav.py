@@ -159,17 +159,10 @@ class NavNodeManager(manager.MewloManager):
         # if its not a string, just return it
         if (not isinstance(nodeid,basestring)):
             return nodeid
-        if (not nodeid.startswith('::')):
-            hashkey = namespace + '::' + nodeid
-            if (hashkey in self.nodehash):
-                return self.nodehash[hashkey]
-        hashkey = nodeid
-        if (hashkey in self.nodehash):
-            return self.nodehash[hashkey]
-        hashkey = '::'+nodeid
-        if (hashkey in self.nodehash):
-            return self.nodehash[hashkey]
-        return None
+        node = misc.lookup_namespaced_byid(nodeid, namespace, self.nodehash)
+        return node
+
+
 
 
 

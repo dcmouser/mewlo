@@ -654,22 +654,8 @@ class MewloRouteGroup(object):
     def lookup_route_byid(self, routeid, namespace):
         """Lookup routeid in our hash of all routes."""
         #print "ATTN: in lookup_route_byid with {0} andnamespave {1}.".format(routeid, namespace)
-        # first we check namespace + routeid
-        if (not routeid.startswith('::')):
-            hashkey = namespace + '::' + routeid
-            #print "ATTN: in lookup_route_byid with hashkey = {0} and routeid = {1} and namespace {2}.".format(hashkey, routeid, namespace)
-            if (hashkey in self.routehash):
-                return self.routehash[hashkey]
-        # if not found, we check routeid, with no namespace
-        hashkey = routeid
-        #print "ATTN: in lookup_route_byid with hashkey = {0} and routeid = {1} and namespace {2}.".format(hashkey, routeid, namespace)
-        if (hashkey in self.routehash):
-            return self.routehash[hashkey]
-        hashkey = '::'+routeid
-        if (hashkey in self.routehash):
-            return self.routehash[hashkey]
-        return None
-
+        route = misc.lookup_namespaced_byid(routeid, namespace, self.routehash)
+        return route
 
 
 

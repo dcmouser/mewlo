@@ -35,7 +35,7 @@ class MewloTemplate_Jinja2(mtemplate.MewloTemplate):
         """Load a template from a file."""
         self.filepath = filepath
         # get/make environment which uses our custom handler
-        jinja2_environement = self.getmake_jinja2_environment(self.templatemanager)
+        jinja2_environement = self.getmake_jinja2_environment(self.templatemanager, self.request)
         # load the template file
         self.template = jinja2_environement.get_template( filepath )
 
@@ -46,18 +46,18 @@ class MewloTemplate_Jinja2(mtemplate.MewloTemplate):
         return renderedtext
 
 
-    def getmake_jinja2_environment(self, templatemanager):
+    def getmake_jinja2_environment(self, templatemanager, request):
         """Class singleton reference to the jinja2 engine, created on first use."""
         # ATTN:!!!! THIS IS NOT A CLASS SINGLETON TODO:FIGUREOUT WHAT YOU REALLY WANT
         if (self.jinja2_environement == None):
             # create it for first time, use our custom file loader which knows how to resolve view files
             import mjinja2_loader
             # we use our custom loader
-            jinja2_templateLoader = mjinja2_loader.MewloJinja2Loader(templatemanager.mewlosite)
+            jinja2_templateLoader = mjinja2_loader.MewloJinja2Loader(templatemanager.mewlosite, request)
             # by setting this to jinja2.StrictUndefined we cause an exception if an undefined variable is referenced in a template (default behavior is just insert a blank)
             jinja2_undefined = jinja2.StrictUndefined
             # create the environment
-            self.jinja2_environement = mjinja2_loader.MewloJinja2Environment(templatemanager.mewlosite, loader=jinja2_templateLoader, undefined=jinja2_undefined)
+            self.jinja2_environement = mjinja2_loader.MewloJinja2Environment(templatemanager.mewlosite, request, loader=jinja2_templateLoader, undefined=jinja2_undefined)
         return self.jinja2_environement
 
 
