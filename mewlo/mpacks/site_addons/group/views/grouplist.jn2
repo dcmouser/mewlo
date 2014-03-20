@@ -4,7 +4,7 @@
 
 <ul>
 {% for group in grouplist %}
-	<li> {{ group.calc_nice_html_info() }} </li>
+	<li> {{ groupinfofunc(group, request) }} </li>	
 {% endfor %}
 </ul>
 

@@ -41,23 +41,7 @@ make setup/startup as clean as django
 //---------------------------------------------------------------------------
 
 
-//---------------------------------------------------------------------------
-3/12/14
-Our new asset file replacement mirror directory thing works fine for any files installed under main mewlo/ directory.
-But it does not solve the issue of addon packages (mpacks) install through eggs that may be OUTSIDE of the main mewlo directory.
-I think we could solve this by having a site create additional mirror directories for each such package using an alias to refer to that mpack's home dir.
-But it might be nice to offer a simpler non-config approach to this, by letting user specify a single MIRROR directory, and having mewlo auto map package found to a subdir.
-So core/ would be one subdir, and then each other addon would get its own, whether its installed as an egg outside of mewlo main dir or not.
-//---------------------------------------------------------------------------
 
-
-
-
-
-//---------------------------------------------------------------------------
-3/13/14
-Write nice LINK (not just url) generator helper functions callable from templates
-//---------------------------------------------------------------------------
 
 
 
@@ -69,11 +53,6 @@ We need some more consistent logic for what goes in config settings and what is 
 
 
 
-
-//---------------------------------------------------------------------------
-3/15/14
-We nicely track startup STAGE, but we removed the general stage tracking that is useful for debugging; put generic stage tracking back in 
-//---------------------------------------------------------------------------
 
 
 
@@ -93,8 +72,11 @@ We have code in mtemplate_jinja2 talking about class singleton environment that 
 //---------------------------------------------------------------------------
 
 
+
 //---------------------------------------------------------------------------
 3/19/14
-on forced re-enter password to continue, its mistakenly thinking a form is being submitted
+group and account addons have lost their prefixes for routes
 //---------------------------------------------------------------------------
+
+
 

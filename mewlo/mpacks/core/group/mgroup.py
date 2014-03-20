@@ -44,10 +44,6 @@ class MewloGroup(mdbmodel.MewloDbModel):
         return "group#{0}:{1}".format(self.id, self.groupname)
 
 
-    def calc_nice_html_info(self):
-        """Return nice html info for display."""
-        return "{0}: {1}".format(self.id, self.groupname)
-
 
 
 

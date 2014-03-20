@@ -112,7 +112,7 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
                 args = [
                     MewloRouteArgString(
                         id = 'id',
-                        required = False,
+                        required = True,
                         help = "id of group",
                         ),
                     ],

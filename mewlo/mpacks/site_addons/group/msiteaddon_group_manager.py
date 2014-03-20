@@ -117,10 +117,14 @@ class GroupAddonManager(manager.MewloManager):
         grouplist = groupmanager.modelclass.find_all()
 
         # then page contents
-        self.render_localview( request, self.viewfiles['grouplist'], {'grouplist':grouplist} )
+        self.render_localview( request, self.viewfiles['grouplist'], {'grouplist':grouplist, 'groupinfofunc':self.groupinfofunc} )
 
 
-
+    def groupinfofunc(self, group, request):
+        """Return some info for a group."""
+        linkhtml = request.build_routelink_byid(linktext= group.groupname, routeid='groupinfo', args= {'id':group.id})
+        rethtml = "{0}. {1}".format(group.id, linkhtml)
+        return rethtml
 
 
 

@@ -542,7 +542,7 @@ class MewloRouteGroup(object):
         self.mewlosite = None
         self.routehash = {}
         #
-        self.pathprefix = ''
+        self.pathprefix = pathprefix
         self.namespace = namespace
         #
         if (routes != None):
