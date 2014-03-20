@@ -85,10 +85,9 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
         thisdir = os.path.abspath(os.path.dirname(__file__))
         aliases = {
             # add an alias so we can refer to our view path
-            'addon_group_path': thisdir,
+            'addon_path': thisdir,
             }
-        self.mewlosite.settings.merge_settings_key(mconst.DEF_SETTINGSEC_aliases, aliases)
-
+        self.mewlosite.merge_settings_aliases(aliases, namespace=self.namespace)
 
 
 

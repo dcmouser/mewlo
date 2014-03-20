@@ -36,7 +36,7 @@ class MewloAssetManager(manager.MewloManager):
         super(MewloAssetManager,self).__init__(mewlosite, debugmode)
         # init
         self.needs_startupstages([mconst.DEF_STARTUPSTAGE_assetstuff])
-        self.alias_settings = None
+        self.aliases = {}
         self.replacements_filepaths_static = {}
         self.asset_mounts = {}
         self.asset_sources = {}
@@ -60,16 +60,20 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
-    def set_alias_settings(self, alias_settings):
-        """Assign the alias settings."""
-        self.alias_settings = alias_settings
+    #def set_alias_settings(self, aliases):
+    #    """Assign the alias settings."""
+    #    self.aliases = aliases
 
 
-    def add_alias(self, aliasname, aliasval):
+    def merge_aliases(self, aliases, namespace):
+        """Merge in some aliases."""
+        for (key,val) in aliases.iteritems():
+            self.add_alias(key, val, namespace)
+
+    def add_alias(self, aliasname, aliasval, namespace):
         """Add an alias."""
-        # ATTN: this is bad -- we are treating alias settings schizophrenically -- using set_alias_settings above to transfer from site settings to alias settings, but then using this function to add them to us
-        # we need to standardize this and use DRY to only store them in one place (presumably the asset manager).
-        self.alias_settings[aliasname] = aliasval
+        hashkey = misc.namespacedid(namespace, aliasname)
+        self.aliases[hashkey] = aliasval
 
 
 
@@ -128,7 +132,7 @@ class MewloAssetManager(manager.MewloManager):
         if (not isinstance(text, basestring)):
             return text
         # ok resolve aliases -- for now we use a helper function to do the main work
-        resolvedtext = misc.resolve_expand_string(text, self.alias_settings, namespace)
+        resolvedtext = misc.resolve_expand_string(text, self.aliases, namespace)
         # now we have a fully resolved string that may have contained some aliases
         return resolvedtext
 
@@ -185,8 +189,8 @@ class MewloAssetManager(manager.MewloManager):
         # ATTN: Note that this could be quite slow unless we do it smartly -- would be nice to cache this result so that we don't have to recreate it each call
         # ATTN: TODO eliminate this function
         aliases = {}
-        for key,val in self.alias_settings.iteritems():
-            aliases[key] = misc.resolve_expand_string(val, self.alias_settings, namespace)
+        for key,val in self.aliases.iteritems():
+            aliases[key] = misc.resolve_expand_string(val, self.aliases, namespace)
         return aliases
 
 
@@ -450,6 +454,9 @@ class MewloAssetManager(manager.MewloManager):
         """Debug information."""
         outstr = " "*indent + "AssetManager (" + self.__class__.__name__  + ") reporting in.\n"
         outstr += self.dumps_description(indent+1)
+        outstr += " "*indent + " Aliases:\n"
+        for (key, val) in self.aliases.iteritems():
+            outstr += " "*indent + " [{0}] = '{1}'\n".format(key,val)
         outstr += " "*indent + " AssetMounts:\n"
         for (id, assetmount) in self.asset_mounts.iteritems():
             outstr += assetmount.dumps(indent+2)
@@ -494,13 +501,13 @@ class MewloAssetManager(manager.MewloManager):
         return self.routegroup_mounting
 
 
-    def mirrorfiles(self, filepath_source, filepath_destination, dry_run=0):
+    def mirrorfiles(self, filepath_source, filepath_destination, namespace, dry_run=0):
         """We want to mirror some (asset) files between directories (recursive into subdirs).
         We may have to create the filepath_target deeply.
         Return failure on error or None."""
         # resolve paths
-        filepath_source = self.resolve_filepath(filepath_source, namespace=None)
-        filepath_destination = self.resolve_filepath(filepath_destination, namespace=None)
+        filepath_source = self.resolve_filepath(filepath_source, namespace)
+        filepath_destination = self.resolve_filepath(filepath_destination, namespace)
         # now mirror
         # ATTN: this does not support the replacement of files system to let user override specific files, and so needs to be rewritten to support that
         result = misc.copy_tree_withcallback(filepath_source, filepath_destination, dry_run=dry_run, callbackfp = self.mirrorcopytree_callback)
@@ -603,6 +610,7 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
         routegroup = assetmanager.get_routegroup_mounting()
 
         # what should be the path to these files? the source id is guaranteed to be unique so we use that
+        namespace = assetsource.get_namespace()
         routeid = 'assetroute_' + assetsource.get_id()
         routepath = '/{0}/{1}'.format(self.urlpath, assetsource.get_id())
         filepath = assetsource.get_filepath()
@@ -622,10 +630,12 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
 
         # and now we want to create some aliases for refering to them via url and file
         aliasprefix = 'asset_' + assetsource.get_id()
-        assetmanager.add_alias(aliasprefix + '_urlrel', assetmanager.resolve_relative_url(routepath, namespace=None))
-        assetmanager.add_alias(aliasprefix + '_urlabs', assetmanager.resolve_absolute_url(routepath, namespace=None))
-        assetmanager.add_alias(aliasprefix + '_filepath', filepath)
-
+        aliases = {
+            aliasprefix + '_urlrel' : assetmanager.resolve_relative_url(routepath, namespace=namespace),
+            aliasprefix + '_urlabs' : assetmanager.resolve_absolute_url(routepath, namespace=namespace),
+            aliasprefix + '_filepath' : filepath,
+            }
+        assetmanager.merge_aliases(aliases, namespace)
 
 
 
@@ -655,9 +665,10 @@ class MewloAssetMount_ExternalServer(MewloAssetMount):
         """
 
         # ok let's mirror the files
+        namespace = assetsource.get_namespace()
         filepath_source = assetsource.get_filepath()
         filepath_destination = self.filepath + '/' + assetsource.get_id()
-        failure = assetmanager.mirrorfiles(filepath_source, filepath_destination)
+        failure = assetmanager.mirrorfiles(filepath_source, filepath_destination, namespace)
 
         # for the alias filepath, we could use the source filepath, or the external destination filepath
         # using the former seems easier and more reliable, but using the later might make it easier to spot problems
@@ -666,11 +677,12 @@ class MewloAssetMount_ExternalServer(MewloAssetMount):
 
         # and now we want to create some aliases for refering to them via url and file
         aliasprefix = 'asset_' + assetsource.get_id()
-        assetmanager.add_alias(aliasprefix + '_urlrel', self.urlrel + '/' + assetsource.get_id())
-        assetmanager.add_alias(aliasprefix + '_urlabs', self.urlabs + '/' + assetsource.get_id())
-        assetmanager.add_alias(aliasprefix + '_filepath', aliasfilepath)
-
-
+        aliases = {
+            aliasprefix + '_urlrel' : self.urlrel + '/' + assetsource.get_id(),
+            aliasprefix + '_urlabs' : self.urlabs + '/' + assetsource.get_id(),
+            aliasprefix + '_filepath' : aliasfilepath,
+            }
+        assetmanager.merge_aliases(aliases, namespace)
 
 
 
@@ -709,11 +721,12 @@ class MewloAssetSource(object):
     'asset_ID_urlrel' | 'asset_ID_urlabs' | 'asset_ID_filepath'
     """
 
-    def __init__(self, id, mountid, filepath):
+    def __init__(self, id, mountid, filepath, namespace):
         self.id = id
         self.mountid = mountid
         self.filepath = filepath
         self.route = None
+        self.namespace = namespace
 
     def get_id(self):
         return self.id
@@ -724,12 +737,15 @@ class MewloAssetSource(object):
     def get_filepath(self):
         return self.filepath
 
+    def get_namespace(self):
+        return self.namespace
+
     def set_route(self, route):
         self.route = route
 
     def dumps(self, indent=0):
         """Debug information."""
-        outstr = " "*indent + "MewloAssetSource (" + self.__class__.__name__  + ") reporting in.\n"
+        outstr = " "*indent + "MewloAssetSource ({0}) [namespace={1}] reporting in.\n".format(self.__class__.__name__ , self.namespace)
         outstr += " "*indent + " id={0}, mountid={1}, filepath='{2}'\n".format(self.id, self.mountid, self.filepath)
         return outstr
 

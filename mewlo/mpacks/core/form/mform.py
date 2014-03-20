@@ -11,7 +11,7 @@ from ..constants.mconstants import MewloConstants as mconst
 
 
 # library imports
-from wtforms import Form, BooleanField, StringField, validators
+from wtforms import Form, BooleanField, StringField, HiddenField, validators
 
 
 
@@ -19,7 +19,8 @@ from wtforms import Form, BooleanField, StringField, validators
 
 class MewloForm(Form):
 
-
+    # all forms get hidden input of form classname
+    formclassname = HiddenField('Form class name', [])
 
     class Meta:
         # Enable CSRF?
@@ -34,8 +35,8 @@ class MewloForm(Form):
     def __init__(self, *args, **kwargs):
         # parent constructor (important for wtform)
         super(MewloForm, self).__init__(*args, **kwargs)
-
-
+        # set form classname
+        self.set_onevalue('formclassname',self.__class__.__name__)
 
     def add_fielderror(self, fieldname, errorstr):
         self.merge_errordict({fieldname: errorstr})

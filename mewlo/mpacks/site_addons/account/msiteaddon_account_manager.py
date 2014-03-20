@@ -50,7 +50,7 @@ class AccountAddonManager(manager.MewloManager):
         # settings
         self.registration_mode = None
         #
-        self.viewbasepath = '${addon_account_path}/views/'
+        self.viewbasepath = '${addon_path}/views/'
         #
         # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
         self.viewfiles = {
@@ -888,7 +888,6 @@ class AccountAddonManager(manager.MewloManager):
                 raise mewloexception.MewloException_ObjectDoesNotExist("Could not find requested user '{0}'.".format(userid))
 
 
-
         # ATTN: pagemessage test
         request.add_pagemessage({'cls':'green','msg':"page message one"})
         request.add_pagemessage({'cls':'red','msg':"page message two"})
@@ -1487,7 +1486,8 @@ class AccountAddonManager(manager.MewloManager):
         """Present form where user can modify field."""
 
         # init form+formdata
-        formdata = request.get_postdata()
+        #formdata = request.get_postdata()
+        formdata = request.get_postdata_verifyformclass(formclass)
         # form to be used
         form = formclass(formdata)
 
@@ -1733,9 +1733,11 @@ class AccountAddonManager(manager.MewloManager):
         """
 
         # init form+formdata
-        formdata = request.get_postdata()
+        formclass = MewloForm_RePassword
+
+        formdata = request.get_postdata_verifyformclass(formclass)
         # the form we will use
-        form = MewloForm_RePassword(formdata)
+        form = formclass(formdata)
 
         # valid submission?
         if (formdata != None and form.validate()):
@@ -1761,3 +1763,5 @@ class AccountAddonManager(manager.MewloManager):
         self.render_localview(request, form.get_viewfilename(), {'form':form})
         # return False saying we have presented form / handled view
         return False
+
+

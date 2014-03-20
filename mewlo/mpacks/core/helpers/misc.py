@@ -141,7 +141,7 @@ def does_dict_filter_match(object_features, feature_filter):
 
 def resolve_expand_string(patternstring, replacementdict, namespace, depthcount=0):
     """Do recursive replacement in string with patterns."""
-    # print "ATTN:DEBUG Asked to exp '"+patternstring+"' with :" + str(replacementdict)
+    #print "ATTN:DEBUG Asked to exp '"+patternstring+"' with :" + str(replacementdict)+" in namespace '{0}'".format(namespace)
 
     def resolve_expand_string_replacevar(match):
         """Recursive call to expand contents."""
@@ -157,7 +157,7 @@ def resolve_expand_string(patternstring, replacementdict, namespace, depthcount=
             mexceptionplus.reraiseplus(exp, "Could not find a key '{0}' in alias replacement dictionary: {1}".format(match.group(1),replacementdict))
         return retv
 
-    regexpat = r'\$\{([a-zA-Z0-9\_\-]+)\}'
+    regexpat = r'\$\{([a-zA-Z0-9\_\-\:]+)\}'
     retv = re.sub(regexpat, resolve_expand_string_replacevar, patternstring)
     return retv
 

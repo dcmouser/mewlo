@@ -245,7 +245,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
     def calc_account_templatepath(self, viewfilepath):
         """Template path inside user account site addon."""
-        viewbasepath = '${addon_account_path}/views/'
+        viewbasepath = '${addon_path}/views/'
         return viewbasepath+viewfilepath
 
 

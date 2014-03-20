@@ -112,13 +112,6 @@ class MewloSite_Test1(MewloSite):
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_config, config)
 
 
-        # config some aliases we can use (for example in our templates)
-        aliases = {
-            # let's add an alias to where we are going to serve static files from (note this is pointing not to a directory but to a ROUTE path)
-            'staticurl': '${siteurl_relative}/static',
-            }
-        self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_aliases, aliases)
-
 
         # extension pack config -- we need to explicitly enable plugins
         packconfig = {
@@ -381,11 +374,11 @@ class MewloSite_Test1(MewloSite):
         # note that the ids for all asset sources MUST be unique
         # first we mount the files in the staticfilesource/ directory as internal assets that we will serve internally via mewlo; the id will be used for alias creation, and for the route
         assetmanager.add_assetsource(
-            massetmanager.MewloAssetSource(id='internal', mountid = 'internal_assets', filepath = '${sitefilepath}/staticfilesource')
+            massetmanager.MewloAssetSource(id='internal', mountid = 'internal_assets', filepath = '${sitefilepath}/staticfilesource', namespace=None)
             )
         # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
         assetmanager.add_assetsource(
-            massetmanager.MewloAssetSource(id='external', mountid = 'external_assets', filepath = '${sitefilepath}/staticfilesource')
+            massetmanager.MewloAssetSource(id='external', mountid = 'external_assets', filepath = '${sitefilepath}/staticfilesource', namespace=None)
             )
 
         # remember that one should never refer to the assets by a hardcoded url or file path; always use the aliases created by these functions, which will take the form (where ID is the id of the asset source):

@@ -57,7 +57,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             assetmanager = self.sitecomp_assetmanager()
             # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
             assetmanager.add_assetsource(
-                massetmanager.MewloAssetSource(id='acccount_addon', mountid = 'external_assets', filepath = '${addon_account_path}/assets')
+                massetmanager.MewloAssetSource(id='account_addon', mountid = 'external_assets', filepath = '${addon_path}/assets', namespace=self.namespace)
                 )
 
 
@@ -98,9 +98,10 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         thisdir = os.path.abspath(os.path.dirname(__file__))
         aliases = {
             # add an alias so we can refer to our view path
-            'addon_account_path': thisdir,
+            'addon_path': thisdir,
+            #self.namespace+'::'+'addon_account_path': thisdir,
             }
-        self.mewlosite.settings.merge_settings_key(mconst.DEF_SETTINGSEC_aliases, aliases)
+        self.mewlosite.merge_settings_aliases(aliases, namespace=self.namespace)
 
 
 

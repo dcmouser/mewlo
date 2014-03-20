@@ -902,8 +902,7 @@ class MewloSite(object):
             mconst.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_sitename),
             mconst.DEF_SETTINGNAME_mewlofilepath: self.get_installdir(),
             }
-        self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_aliases, aliases)
-        self.alias_settings_change()
+        self.merge_settings_aliases(aliases, namespace=None)
 
 
     def add_latesettings_assets(self):
@@ -971,13 +970,7 @@ class MewloSite(object):
             mconst.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
             mconst.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
             }
-        self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_aliases, aliases)
-
-
-
-
-
-
+        self.merge_settings_aliases(aliases, namespace=None)
 
 
 
@@ -996,10 +989,6 @@ class MewloSite(object):
         self.settings.merge_settings(settings)
 
 
-    def alias_settings_change(self):
-        """Inform asset manager of new alias settings.  This *must* be called whenever alias settings may change."""
-        # alias settings are taken from main site alias settings -- so this keeps them sync'd
-        self.comp('assetmanager').set_alias_settings(self.settings.get_value(mconst.DEF_SETTINGSEC_aliases))
 
 
     def add_logger(self, logger):
@@ -1009,8 +998,8 @@ class MewloSite(object):
 
 
 
-
-
+    def merge_settings_aliases(self, aliases, namespace):
+        self.comp('assetmanager').merge_aliases(aliases, namespace)
 
 
 

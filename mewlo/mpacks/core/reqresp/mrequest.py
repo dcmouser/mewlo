@@ -130,6 +130,20 @@ class MewloRequest(object):
             return None
         return self.wreq.form
 
+
+    def get_postdata_verifyformclass(self, formclass):
+        """Get form post data, but return None if the hidden field for formclass does not match."""
+        if (not self.get_ispostmethod()):
+            # the form data wasn't posted (gett'd?), so we disallow
+            return None
+        formclassname = formclass.__name__
+        formdata = self.wreq.form
+        if ((not 'formclassname' in formdata) or (formdata['formclassname'] != formclassname)):
+            #print "ATTN: rejecting form {0} because of {1}.".format(formclassname, str(formdata))
+            return None
+        return formdata
+
+
     def get_cookieval(self,cookiename):
         """Return cookie from client browser request."""
         return self.wreq.cookies.get(cookiename)

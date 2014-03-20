@@ -104,7 +104,7 @@ class MewloTemplateHelper(manager.MewloManager):
         reth = ''
         # skip hidden fields
         if (field.type=='HiddenField'):
-            return field()
+            return field() + '\n'
         css_class = ''
         #
         reth += '<div class="form_field">\n'
