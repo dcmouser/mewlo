@@ -83,7 +83,7 @@ class MewloSite_Test1(MewloSite):
             mconst.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
             # should we also load mewlo site installed setuptools plugins
             mconst.DEF_SETTINGNAME_flag_importsetuptoolspacks: True,
-            mconst.DEF_SETTINGNAME_replacemirrorpath: '${sitefilepath}/replacemirror',
+            mconst.DEF_SETTINGNAME_replaceshadowpath: '${sitefilepath}/replaceshadow',
             }
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_config, config)
 
@@ -149,7 +149,7 @@ class MewloSite_Test1(MewloSite):
                 },
             }
         self.settings.merge_settings_key(mconst.DEF_SETTINGSEC_database, databaseconfig)
-
+        self.settings.listappend_settings_key(mconst.DEF_SETTINGSEC_make_dirs, '${dbfilepath}')
 
         # email config settings
         mailconfig = {

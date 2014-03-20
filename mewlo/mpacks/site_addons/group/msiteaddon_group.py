@@ -141,6 +141,7 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
                 'visible': lambda navnode,context: navnode.isactive(context),
                 'parent': 'grouplist',
                 'sortweight': 9.0,
+                'flag_linkurl': False,
                 }),
             ]
 

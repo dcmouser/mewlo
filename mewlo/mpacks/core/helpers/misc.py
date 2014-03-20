@@ -530,7 +530,11 @@ def copy_tree_withcallback(src, dst, preserve_mode=1, preserve_times=1,
 
 
 
-
+def makedirectorypath(dirpath):
+    """Just a thin wrapper around mkpath."""
+    from distutils.dir_util import mkpath
+    retv = mkpath(dirpath)
+    return retv
 
 
 

@@ -76,6 +76,19 @@ class MewloSettings(manager.MewloManager):
 
 
 
+    def listappend_settings_key(self, keyname, listitemstoadd):
+        """Merge in a new dicitonary into our main dictionary at a specific root section (creating root section if needed)."""
+        if (not isinstance(listitemstoadd,list)):
+            listitemstoadd = [listitemstoadd]
+        if not keyname in self.settingdict:
+            self.settingdict[keyname] = listitemstoadd
+        else:
+            # merge the new settings with old, e.g. union of arrays or dictionaries, etc
+            self.settingdict[keyname] += listitemstoadd
+
+
+
+
 
     def set(self, newsettings):
         """Overwrite all."""

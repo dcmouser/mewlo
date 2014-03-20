@@ -26,6 +26,7 @@ class MewloConstants(object):
     DEF_SETTINGSEC_mail = 'mail'
     DEF_SETTINGSEC_siteaddon_account = 'siteaddon_account'
     DEF_SETTINGSEC_asset_mounts = 'asset_mounts'
+    DEF_SETTINGSEC_make_dirs = 'make_dirs'
     #
     DEF_SETTINGNAME_mewlofilepath = 'mewlofilepath'
     #
@@ -38,7 +39,7 @@ class MewloConstants(object):
     DEF_SETTINGNAME_logfilepath = 'logfilepath'
     DEF_SETTINGNAME_dbfilepath = 'dbfilepath'
     DEF_SETTINGNAME_siteview_filepath = 'siteviewpath'
-    DEF_SETTINGNAME_replacemirrorpath = 'mirrorpath'
+    DEF_SETTINGNAME_replaceshadowpath = 'shadowpath'
     DEF_SETTINGNAME_sitename = 'sitename'
     DEF_SETTINGNAME_flag_importsetuptoolspacks = 'flag_importsetuptoolspacks'
     #

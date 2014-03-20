@@ -578,7 +578,7 @@ class MewloSite(object):
         self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_siteurl_relative, True, "site has no relative url specified; assumed to start at root (/).")
         self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_siteurl_absolute, True, "site has no absolute url address.")
         self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_sitefilepath, True, "site has no filepath specified for its home directory.")
-        self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_replacemirrorpath, True, "site has no filepath specified for its replacemirrore directory.")
+        self.validate_setting_config(eventlist, mconst.DEF_SETTINGNAME_replaceshadowpath, True, "site has no filepath specified for its replaceshadowe directory.")
 
         # return events encountered
         return eventlist

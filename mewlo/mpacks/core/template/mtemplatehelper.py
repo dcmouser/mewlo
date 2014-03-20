@@ -17,7 +17,9 @@ import os.path
 
 
 class MewloTemplateHelper(manager.MewloManager):
-    """The MewloTemplateHelper class helps templates render output."""
+    """The MewloTemplateHelper class helps templates render output.
+    This object is created ONCE (being derived from manager.MewloManager is a clue to this) and reused on different requests.
+    """
 
     # class constants
     description = "The template helper is accessed within view files to provide shortcut helper functions and text"
@@ -26,9 +28,6 @@ class MewloTemplateHelper(manager.MewloManager):
 
     def __init__(self, mewlosite, debugmode):
         super(MewloTemplateHelper,self).__init__(mewlosite, debugmode)
-
-
-
 
 
 

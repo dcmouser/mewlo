@@ -2,7 +2,9 @@
 mninja2_loader.py
 Custom loader used to find jinja2 templates.
 This is a class that Jinja system uses to help it lookup referenced files; our version lets it find mewlo files.
-ATTN: If we want to make these classes below not have to be re-created for each request, we need to remove mewlosite variable from init and get it (and or request) dynamically.
+
+ATTN: Currently these objects (loader and environment) are created on EACH REQUEST.
+If we want to make these classes below not have to be re-created for each request, we need to remove mewlosite variable from init and get it (and or request) dynamically.
 """
 
 
@@ -21,7 +23,6 @@ class MewloJinja2Loader(jinja2.BaseLoader):
 
     def get_source(self, environment, templatefilepath):
         """Lookup a source template file."""
-        # ATTN: UNFINISHED - we want namespace from request
         namespace = self.request.get_matchedroute_namespace()
         #print "ATTN: in MewloJinja2Loader get_source() looking for '{0}' in namespace '{1}'.".format(templatefilepath, namespace)
         path = self.mewlosite.resolve_filepath(templatefilepath, namespace)

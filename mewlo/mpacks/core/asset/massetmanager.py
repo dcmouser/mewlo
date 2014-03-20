@@ -35,7 +35,7 @@ class MewloAssetManager(manager.MewloManager):
         """Constructor."""
         super(MewloAssetManager,self).__init__(mewlosite, debugmode)
         # init
-        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_assetstuff])
+        self.needs_startupstages([mconst.DEF_STARTUPSTAGE_logstartup, mconst.DEF_STARTUPSTAGE_assetstuff])
         self.aliases = {}
         self.replacements_filepaths_static = {}
         self.asset_mounts = {}
@@ -48,14 +48,25 @@ class MewloAssetManager(manager.MewloManager):
         This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
         super(MewloAssetManager,self).startup_prep(stageid, eventlist)
+        if (stageid == mconst.DEF_STARTUPSTAGE_logstartup):
+            # create any directories that settings tell us to
+            self.makeuserdirs()
         if (stageid == mconst.DEF_STARTUPSTAGE_assetstuff):
-            # set up replacement mirror for main mewlo directory? no, we will just do by pack
-            # self.add_default_replacement_mirror_dirs()
+            # set up replacement shadow for main mewlo directory? no, we will just do by pack
+            # self.add_default_replacement_shadow_dirs()
             # mount our sources
             self.mountsources()
 
 
 
+
+    def makeuserdirs(self):
+        """User may have added directories they want us to create."""
+        dirlist = self.mewlosite.settings.get_value(mconst.DEF_SETTINGSEC_make_dirs, [])
+        for dirpath in dirlist:
+            dirpath = self.resolve(dirpath,None)
+            #print "ATTN:DEBUG site wants us to create dir '{0}'.".format(dirpath)
+            misc.makedirectorypath(dirpath)
 
 
 
@@ -278,31 +289,31 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
-    def add_default_replacement_mirror_dirs(self):
+    def add_default_replacement_shadow_dirs(self):
         """Add default mewlo replacement directory."""
-        # a mirror directory allowing us to overide view and static files that are part of mewlo, under mewlo code
+        # a shadow directory allowing us to overide view and static files that are part of mewlo, under mewlo code
         orig_filedirpath = '${mewlofilepath}'
-        replacemirrorpath = self.get_setting_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_replacemirrorpath, None)
-        if (replacemirrorpath != None):
-            # add mirror for main mewlo directory under subdirectory of replacedir
-            new_filedirpath = replacemirrorpath + '/mewlo'
-            self.add_replacement_mirrorfiledir(orig_filedirpath, new_filedirpath, True)
+        replaceshadowpath = self.get_setting_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_replaceshadowpath, None)
+        if (replaceshadowpath != None):
+            # add shadow for main mewlo directory under subdirectory of replacedir
+            new_filedirpath = replaceshadowpath + '/mewlo'
+            self.add_replacement_shadowfiledir(orig_filedirpath, new_filedirpath, True)
 
 
-    def add_outside_replacement_mirror_dirs(self,  orig_filedirpath, subdirid, flag_onlyifoutsidemain):
+    def add_outside_replacement_shadow_dirs(self,  orig_filedirpath, subdirid, flag_onlyifoutsidemain):
         """Add mewlo replacement directory -- IFF source is outside main mewlo path."""
         if (flag_onlyifoutsidemain):
             if (self.is_filepath_under_another(orig_filedirpath, '${mewlofilepath}')):
                 # it's a subdirectory under main mewlo path, so do nothing
-                #print "ATTN:DEBUG {0} is under {1} so not adding another mirror."
+                #print "ATTN:DEBUG {0} is under {1} so not adding another shadow."
                 return
 
-        # a mirror subdirectory of a path outside main mewlo path, identified by an id
-        replacemirrorpath = self.get_setting_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_replacemirrorpath, None)
-        if (replacemirrorpath != None):
-            # add mirror for main mewlo directory under subdirectory of replacedir
-            new_filedirpath = replacemirrorpath + '/' + subdirid
-            self.add_replacement_mirrorfiledir(orig_filedirpath, new_filedirpath, True)
+        # a shadow subdirectory of a path outside main mewlo path, identified by an id
+        replaceshadowpath = self.get_setting_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_replaceshadowpath, None)
+        if (replaceshadowpath != None):
+            # add shadow for main mewlo directory under subdirectory of replacedir
+            new_filedirpath = replaceshadowpath + '/' + subdirid
+            self.add_replacement_shadowfiledir(orig_filedirpath, new_filedirpath, True)
 
 
 
@@ -326,17 +337,17 @@ class MewloAssetManager(manager.MewloManager):
         #print "ATTN:DEBUG adding asset replacement for '{0}' is '{1}'.".format(orig_filepath, new_filepath)
 
 
-    def add_replacement_mirrorfiledir(self, orig_filedirpath, new_filedirpath, flag_mkpath_root):
-        """Traverse two mirror didrectories and add cases where there exists replacement files in the new filedirpath."""
+    def add_replacement_shadowfiledir(self, orig_filedirpath, new_filedirpath, flag_mkpath_root):
+        """Traverse two shadow didrectories and add cases where there exists replacement files in the new filedirpath."""
         # first ensure all are in canonical format
-        #print "ATTN: walking in add_replacement_mirrorfiledir_static1 for '{0}' with filepath1 '{1}'.".format(orig_filedirpath, new_filedirpath)
+        #print "ATTN: walking in add_replacement_shadowfiledir_static1 for '{0}' with filepath1 '{1}'.".format(orig_filedirpath, new_filedirpath)
         orig_filedirpath = self.resolve_filepath_canonical_noreplace(orig_filedirpath, namespace=None)
         new_filedirpath = self.resolve_filepath_canonical_noreplace(new_filedirpath, namespace=None)
         orig_filedirpath_len = len(orig_filedirpath)
-        #print "ATTN: walking in add_replacement_mirrorfiledir_static2 for '{0}' with filepath1 '{1}'.".format(orig_filedirpath, new_filedirpath)
+        #print "ATTN: walking in add_replacement_shadowfiledir_static2 for '{0}' with filepath1 '{1}'.".format(orig_filedirpath, new_filedirpath)
         if (flag_mkpath_root):
-            # make the root mirrored path to help user locate it, if it doesnt exist
-            #print "ATTN:DEBUG making mirror source directory of {0}.".format(new_filedirpath)
+            # make the root shadowed path to help user locate it, if it doesnt exist
+            #print "ATTN:DEBUG making shadow source directory of {0}.".format(new_filedirpath)
             distutils.dir_util.mkpath(new_filedirpath)
         # now recurse deep in orig_filepath
         for (rootdir, subdirs, files) in os.walk(orig_filedirpath):
@@ -346,19 +357,19 @@ class MewloAssetManager(manager.MewloManager):
                 relativedir = rootdir[orig_filedirpath_len:]
             else:
                 # error
-                raise Exception("Walking directory '{0}' in add_replacement_mirrorfiledir_static and unexpectedly got a dir that doesn't start with base directory; but instead is: '{1}'.".format(orig_filedirpath,rootdir))
+                raise Exception("Walking directory '{0}' in add_replacement_shadowfiledir_static and unexpectedly got a dir that doesn't start with base directory; but instead is: '{1}'.".format(orig_filedirpath,rootdir))
             for file in files:
-                #print "ATTN:DEBUG in add_replacement_mirrorfiledir_static checking file {0} in dir {1}.".format(file,rootdir)
+                #print "ATTN:DEBUG in add_replacement_shadowfiledir_static checking file {0} in dir {1}.".format(file,rootdir)
                 new_filepath = os.path.abspath(os.path.join(new_filedirpath+relativedir, file))
                 if (os.path.isfile(new_filepath)):
                     orig_filepath = os.path.abspath(os.path.join(rootdir, file))
                     self.add_replacement_filepath(orig_filepath, new_filepath)
-            # replace non mirrored subdirs so we dont bother recursing into them?
+            # replace non shadowed subdirs so we dont bother recursing into them?
             subdirscopy = copy.copy(subdirs)
             for subdir in subdirscopy:
                 new_filepath = os.path.abspath(os.path.join(new_filedirpath+relativedir, subdir))
                 if (not os.path.isdir(new_filepath)):
-                    #print "ATTN: skipping recurse of subdir {0} since its not in mirror dir.".format(subdir)
+                    #print "ATTN: skipping recurse of subdir {0} since its not in shadow dir.".format(subdir)
                     subdirs.remove(subdir)
 
 
@@ -501,22 +512,22 @@ class MewloAssetManager(manager.MewloManager):
         return self.routegroup_mounting
 
 
-    def mirrorfiles(self, filepath_source, filepath_destination, namespace, dry_run=0):
-        """We want to mirror some (asset) files between directories (recursive into subdirs).
+    def shadowfiles(self, filepath_source, filepath_destination, namespace, dry_run=0):
+        """We want to shadow some (asset) files between directories (recursive into subdirs).
         We may have to create the filepath_target deeply.
         Return failure on error or None."""
         # resolve paths
         filepath_source = self.resolve_filepath(filepath_source, namespace)
         filepath_destination = self.resolve_filepath(filepath_destination, namespace)
-        # now mirror
+        # now shadow
         # ATTN: this does not support the replacement of files system to let user override specific files, and so needs to be rewritten to support that
-        result = misc.copy_tree_withcallback(filepath_source, filepath_destination, dry_run=dry_run, callbackfp = self.mirrorcopytree_callback)
+        result = misc.copy_tree_withcallback(filepath_source, filepath_destination, dry_run=dry_run, callbackfp = self.shadowcopytree_callback)
         if (dry_run):
-            print "ATTN:DEBUG result of mirrorfiles from '{0}' to '{1}': {2}".format(filepath_source, filepath_destination,str(result))
+            print "ATTN:DEBUG result of shadowfiles from '{0}' to '{1}': {2}".format(filepath_source, filepath_destination,str(result))
         return None
 
 
-    def mirrorcopytree_callback(self, filepath_source, filepath_dest):
+    def shadowcopytree_callback(self, filepath_source, filepath_dest):
         """Return a tuple of the form <BoolShouldCopy, new_filepath_source, new_filepath_dest>."""
         filepath_source = self.resolve_filepath(filepath_source, namespace=None)
         return (True, filepath_source, filepath_dest)
@@ -661,14 +672,14 @@ class MewloAssetMount_ExternalServer(MewloAssetMount):
 
     def mount_source(self, assetsource, assetmanager):
         """Mount an asset source on us.
-        For an ExternalServer mount point, this means physically copying (mirroring) the contents of the source file directory to a target path, where some other web server will handle serving the files.
+        For an ExternalServer mount point, this means physically copying (shadowing) the contents of the source file directory to a target path, where some other web server will handle serving the files.
         """
 
-        # ok let's mirror the files
+        # ok let's shadow the files
         namespace = assetsource.get_namespace()
         filepath_source = assetsource.get_filepath()
         filepath_destination = self.filepath + '/' + assetsource.get_id()
-        failure = assetmanager.mirrorfiles(filepath_source, filepath_destination, namespace)
+        failure = assetmanager.shadowfiles(filepath_source, filepath_destination, namespace)
 
         # for the alias filepath, we could use the source filepath, or the external destination filepath
         # using the former seems easier and more reliable, but using the later might make it easier to spot problems

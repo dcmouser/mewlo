@@ -273,8 +273,8 @@ class MewloPack(object):
             if (database_needupdate):
                 # cannot allow startup since it needs a database update
                 return EWarning("Cannot start pack because it reports that it needs to run a database update first.")
-            # setup replacement mirror for pack
-            self.add_outside_replacement_mirror_dirs_for_pack()
+            # setup replacement shadow for pack
+            self.add_outside_replacement_shadow_dirs_for_pack()
             # now packworker instantiate and setup
             if (self.packworker!=None):
                 # ok we loaded the code, now we need to ask the code itself if its ready to run
@@ -304,14 +304,14 @@ class MewloPack(object):
 
 
 
-    def add_outside_replacement_mirror_dirs_for_pack(self):
+    def add_outside_replacement_shadow_dirs_for_pack(self):
         """Each pack informs the assetmanager that it may have static files that need replacing/overiding."""
         subdirid = 'mpack_' + self.get_uniqueid()
         flag_onlyifoutsidemain = False
         orig_filedirpath = self.get_homedirpath()
         #
         assetmanager = self.sitecomp_assetmanager()
-        assetmanager.add_outside_replacement_mirror_dirs(orig_filedirpath, subdirid, flag_onlyifoutsidemain)
+        assetmanager.add_outside_replacement_shadow_dirs(orig_filedirpath, subdirid, flag_onlyifoutsidemain)
 
 
 

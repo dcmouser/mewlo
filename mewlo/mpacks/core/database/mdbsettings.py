@@ -117,6 +117,24 @@ class MewloSettingsDb(MewloSettings):
 
 
 
+
+    def listappend_settings_key(self, keyname, listitemstoadd):
+        """Append list at a specific root section (creating root section if needed)."""
+        self.db_lock(settingstoadd.keys())
+        try:
+            self.sync_load_keys([keyname])
+            retv = super(MewloSettingsDb, self).listappend_settings_key(keyname, keysubname, listitemstoadd)
+            self.sync_save_keys([keyname])
+        except Exception as exp:
+            raise
+        finally:
+            self.db_unlock()
+        return retv
+
+
+
+
+
     def set(self, newsettings):
         """Set and overwrite a value at a section, replacing whatever was there."""
         self.db_lock([])

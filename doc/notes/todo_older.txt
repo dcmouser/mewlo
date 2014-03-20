@@ -197,3 +197,97 @@ make it easier for controller actions to specify object functions
 consider whether new-user account initial email verifications should be of dif type than email CHANGE verifications
 //---------------------------------------------------------------------------
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//---------------------------------------------------------------------------
+3/4/14
+setup/install code
+more involved check of good system state at startup
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+3/6/14
+See escapequote_stringval_for_sql() in mdbmanager_sqlalchemy.py and decide how ot handle raw vs sqlalchemy high level combined expressions
+//---------------------------------------------------------------------------
+
+
+
+
+
+//---------------------------------------------------------------------------
+3/9/14
+write syncdb-like functions
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+3/9/14
+install virtualenv for django
+make setup/startup as clean as django
+//---------------------------------------------------------------------------
+
+
+
+
+
+
+
+//---------------------------------------------------------------------------
+3/14/14
+We need some more consistent logic for what goes in config SETTINGS dictionary and what is created as objects directly.
+That is -- why put something in settings dictionary rather than create an object since we are doing lots of object creating.
+An example of where we do this is database config.
+//---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+//---------------------------------------------------------------------------
+3/20/14
+canonical page header -- for saying that a certain page is not the canonical page (ie profile lookup by email/username insteadof by id)
+see https://support.google.com/webmasters/answer/139066?hl=en
+//---------------------------------------------------------------------------
