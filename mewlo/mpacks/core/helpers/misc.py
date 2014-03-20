@@ -33,6 +33,51 @@ def get_value_from_dict(thedict, keyname, defaultval=None):
 
 
 
+
+
+
+def combined_namespace(parentnamespace, childnamespace):
+    """Combine parent and child namespace strings."""
+    if (parentnamespace and childnamespace):
+        return parentnamespace + '::' + childnamespace
+    if (parentnamespace):
+        return parentnamespace
+    if (childnamespace):
+        return childnamespace
+    return ''
+
+
+def namespacedid(namespace, childid):
+    """Combine parent and child namespace strings."""
+    if (not childid):
+        childid = '[ANONYMOUS]'
+    if (namespace):
+        return namespace + '::' + childid
+    return '::'+childid
+
+
+def lookup_namespaced_byid(id, namespace, thedict):
+    if (not id.startswith('::')):
+        if (namespace):
+            hashkey = namespace + '::' + id
+            if (hashkey in thedict):
+                return thedict[hashkey]
+        hashkey = '::'+id
+        if (hashkey in thedict):
+            return thedict[hashkey]
+    hashkey = id
+    if (hashkey in thedict):
+        return thedict[hashkey]
+    # not found
+    return None
+
+
+
+
+
+
+
+
 def readfile_asjson(filepath, nicelabel):
     """
     Read a file and return json dictionary
@@ -105,7 +150,9 @@ def resolve_expand_string(patternstring, replacementdict, namespace, depthcount=
             return retv
         # recursively expand
         try:
-            retv = resolve_expand_string(replacementdict[match.group(1)], replacementdict, namespace, depthcount+1)
+            #replacedtext = replacementdict[match.group(1)]
+            replacedtext = lookup_namespaced_byid(match.group(1), namespace, replacementdict)
+            retv = resolve_expand_string(replacedtext, replacementdict, namespace, depthcount+1)
         except Exception as exp:
             mexceptionplus.reraiseplus(exp, "Could not find a key '{0}' in alias replacement dictionary: {1}".format(match.group(1),replacementdict))
         return retv
@@ -510,43 +557,5 @@ def build_extrataghtml(tagdict):
 
 
 
-
-
-
-
-
-def combined_namespace(parentnamespace, childnamespace):
-    """Combine parent and child namespace strings."""
-    if (parentnamespace and childnamespace):
-        return parentnamespace + '::' + childnamespace
-    if (parentnamespace):
-        return parentnamespace
-    if (childnamespace):
-        return childnamespace
-    return ''
-
-
-def namespacedid(namespace, childid):
-    """Combine parent and child namespace strings."""
-    if (not childid):
-        childid = '[ANONYMOUS]'
-    if (namespace):
-        return namespace + '::' + childid
-    return '::'+childid
-
-
-def lookup_namespaced_byid(id, namespace, thedict):
-    if (not id.startswith('::')):
-        hashkey = namespace + '::' + id
-        if (hashkey in thedict):
-            return thedict[hashkey]
-        hashkey = '::'+id
-        if (hashkey in thedict):
-            return thedict[hashkey]
-    hashkey = id
-    if (hashkey in thedict):
-        return thedict[hashkey]
-    # not found
-    return None
 
 
