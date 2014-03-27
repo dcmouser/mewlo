@@ -15,7 +15,7 @@ from ..eventlog.mevent import EFailure, EException
 from ..constants.mconstants import MewloConstants as mconst
 
 # python imports
-
+import time
 
 
 
@@ -98,13 +98,14 @@ class MewloUserManager(modelmanager.MewloModelManager):
         elif ('password_hashed' in userdict):
             user.password_hashed = userdict['password_hashed']
 
-        # verified email is special
+        # verified email is tracked specially
         if ('email' in verifiedfields):
             user.isverified_email = True
         else:
             user.isverified_email = False
 
-        # ATTN:TODO handle other verifiedfields
+        # other stuff
+        user.date_register = time.time()
 
         # no errors, save it
         # ATTN: to do check for save errors
@@ -188,7 +189,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
             else:
                 # ok this is a field that needs verification
                 # email is special; but we might add a check for property isverified_FIELDNAME to allow other hardcoded explicit verified columns
-                (fieldval,isverified) = user.get_fieldvalue_and_verificationstatus(fieldname)
+                (fieldval, isverified) = user.get_fieldvalue_and_verificationstatus(fieldname)
                 if (isverified):
                     # it's already verified, so nothing to do
                     continue

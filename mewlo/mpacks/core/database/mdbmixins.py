@@ -8,7 +8,6 @@ We use these "mixins" as a way for us to add common fields, and sets of fields t
 
 # mewlo imports
 import mdbfield
-import mdbmodel_gob
 
 
 
@@ -59,6 +58,7 @@ def dbfmixins_workflow(prefixstr=''):
 
 def dbfmixin_gobselfreference():
     """Mixin field for adding a global object id to a model."""
+    import mdbmodel_gob
     fieldid = 'gobid'
     field = mdbfield.Dbf1to1_OneWay(fieldid, {
             'label': "The globally unique gob representing this object",
@@ -70,6 +70,7 @@ def dbfmixin_gobselfreference():
 
 def dbfmixin_gobreference(relationname):
     """Mixin field for referring to a global object id."""
+    import mdbmodel_gob
     fieldid = relationname+"_gobid"
     field = mdbfield.Dbf1to1_OneWay(fieldid, {
             'label': "A reference to another {0} model via its globally unique id (gobid)".format(relationname),
@@ -95,3 +96,10 @@ def dbfmixins_disabledelete():
             }),
         ]
     return fieldlist
+
+
+
+
+
+
+

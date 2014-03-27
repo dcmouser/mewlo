@@ -1565,6 +1565,13 @@ class AccountAddonManager(manager.MewloManager):
             self.render_localview(request, self.viewfiles['error_requires_login'], {} )
             return
 
+        # make sure there is a pending field change ready to cancel
+        pendingverification = user.get_ispending_fieldmodify_verification(request, fieldname)
+        if (not pendingverification):
+            # no pending verification, so complain to user
+            raise mewloexception.MewloException_Web("There is no pending field change to cancel.")
+
+
         # init form+formdata
         formdata = request.get_postdata()
         # form to be used
@@ -1583,7 +1590,7 @@ class AccountAddonManager(manager.MewloManager):
             failure = self.try_cancel_modify_field(request, user, fieldname, invalidreason)
             if (failure):
                 #request.add_pagemessage_simple("Failed to cancel pending field change: {1}.".format(fieldname,failure.msg()), 'error')
-                raise MewloException_ObjectDoesNotExist("I failed2 to cancel pending field change: {0}: {1}.".format(fieldname, failure.msg()))
+                raise MewloException_ObjectDoesNotExist("Failed to cancel pending field change: {0}: {1}.".format(fieldname, failure.msg()))
                 #self.render_localview(request, self.viewfiles['generic_message'])
             else:
                 request.add_pagemessage_simple("Previous pending modification of field {0} has been canceled.".format(fieldname), 'success')

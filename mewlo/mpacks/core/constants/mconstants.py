@@ -64,7 +64,6 @@ class MewloConstants(object):
     # verifications
     DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'
     DEF_VFTYPE_pre_user_verification = 'VFTYPE_pre_user_verification'
-    DEF_VFTYPE_userfield_verification = 'VFTYPE_userfield_verification'
     DEF_VFTYPE_user_passwordreset = 'VFTYPE_user_passwordreset'
 
 

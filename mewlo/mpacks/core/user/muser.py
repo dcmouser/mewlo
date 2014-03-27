@@ -27,8 +27,8 @@ class MewloUser(mdbmodel.MewloDbModel):
     # class variables
     dbtablename = 'user'
     #
-    flag_mixin_atroot = False
-
+    flag_mixin_atroot_authortracker = False
+    flag_mixin_atroot_avatar = True
 
 
 
@@ -49,6 +49,7 @@ class MewloUser(mdbmodel.MewloDbModel):
         outstr += " "*indent + "email: {0}.\n".format(self.email)
         outstr += " "*indent + "password_hashed: {0}.\n".format(self.password_hashed)
         outstr += " "*indent + "date_lastlogin: {0}.\n".format(time.ctime(self.date_lastlogin))
+        outstr += " "*indent + "date_register: {0}.\n".format(time.ctime(self.date_register))
         return outstr
 
 
@@ -65,7 +66,9 @@ class MewloUser(mdbmodel.MewloDbModel):
 
     def has_recently_loggedin(self, recentminutes):
         """Return true if they have logged in (or provided password) in last recentminutes minutes."""
-        timesincelogin_secs = time.time() - self.date_lastlogin
+        if (self.date_lastlogin == None):
+            return False
+        timesincelogin_secs = time.time() - self.date_register
         return timesincelogin_secs < recentminutes * 60
 
 
@@ -207,9 +210,14 @@ class MewloUser(mdbmodel.MewloDbModel):
         return not self.isverified_email
 
 
-    def get_ispending_fieldmodify_verification(self, request):
+    def get_ispending_fieldmodify_verification(self, request, fieldname):
         """Is this user account pending a field modificationverification?"""
-        verification = request.sitecomp_verificationmanager().find_valid_by_type_and_userid(mconst.DEF_VFTYPE_userfield_verification, self.id, None)
+        # if this is an initial signup, then its not a normal pending fieldmodify.
+        if (not self.is_field_verified(fieldname)):
+            # field is not verified -- this means INITIAL value is not verified
+            return False
+        # find if there is a pending verification for change
+        verification = request.sitecomp_verificationmanager().find_valid_by_type_and_userid(mconst.DEF_VFTYPE_userfield_verification, self.id, fieldname)
         return (verification != None)
 
 
@@ -255,6 +263,9 @@ class MewloUser(mdbmodel.MewloDbModel):
             mdbfield.DbfUsername('username', {
                 'label': "The user's username"
                 }),
+            mdbfield.DbfString('fullname', {
+                'label': "The user's full name"
+                }),
             mdbfield.DbfEmail('email', {
                 'label': "The user's email"
                 }),
@@ -265,7 +276,10 @@ class MewloUser(mdbmodel.MewloDbModel):
                 'label': "The hashed and salted password for the user"
                 }),
             mdbfield.DbfTimestamp('date_lastlogin', {
-                'date_lastlogin': "The date of the last login"
+                'label': "The date of the last login"
+                }),
+            mdbfield.DbfTimestamp('date_register', {
+                'label': "The date of registration"
                 }),
             # globally unique resource reference
             mdbmixins.dbfmixin_gobselfreference(),
@@ -284,21 +298,57 @@ class MewloUser(mdbmodel.MewloDbModel):
     @classmethod
     def create_prerequisites(cls, dbmanager):
         """Create and register with the dbmanager any prerequisite stuff that this class uses."""
-        subfields = mdbmixins.dbfmixins_authortracker()
-        if (cls.flag_mixin_atroot):
-            # prepare extra fields that will be added at root; this doesnt actually create any prerequisites
-            cls.extend_fields(subfields)
-        else:
-            # add a special sub table that will contain some fields, using a helper class object attached to us
-            # create (AND REGISTER) the new helper object
-            backrefname = cls.get_dbtablename_pure()
-            mdbmodel_fieldset.MewloDbFieldset.make_fieldset_dbobjectclass(cls,'tracking','author tracking object',backrefname,dbmanager,subfields)
+        cls.extend_or_add_fields(mdbmixins.dbfmixins_authortracker(), dbmanager, cls.flag_mixin_atroot_authortracker, 'tracking', 'author tracking object')
+
+
+
 
 
 
     @classmethod
     def find_one_bynameorid(cls, nameorid):
         return cls.find_one_byflexibleid('username',nameorid)
+
+
+
+
+
+
+
+
+
+    @classmethod
+    def define_fields_profile(cls, dbmanager):
+        """Define some more fields for users."""
+        # define fields list
+
+        # ATTN: UNFINISHED
+        fieldlist = [
+            ]
+
+        return fieldlist
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

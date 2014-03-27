@@ -17,6 +17,7 @@ From here you can learn about extending the Mewlo system.
    error_handling_discussion
    error_handling_policy
    extending
+   fileuploads
    managers
    naming_style
    siteaddons

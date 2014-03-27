@@ -24,7 +24,8 @@ class MewloGroup(mdbmodel.MewloDbModel):
     # class variables
     dbtablename = 'ugroup'
     #
-    flag_mixin_atroot = False
+    flag_mixin_atroot_authortracker = False
+    flag_mixin_atroot_avatar = True
 
 
     def __init__(self):
@@ -97,18 +98,11 @@ class MewloGroup(mdbmodel.MewloDbModel):
     @classmethod
     def create_prerequisites(cls, dbmanager):
         """Create and register with the dbmanager any prerequisites that this class uses."""
-        subfields = mdbmixins.dbfmixins_authortracker()
-        if (cls.flag_mixin_atroot):
-            # prepare extra fields that will be added at root; this doesnt actually create any helper models
-            cls.extend_fields(subfields)
-        else:
-            # add a special sub table that will contain some fields, using a helper class object attached to us
-            # create (AND REGISTER) the new helper object
-            backrefname = cls.get_dbtablename_pure()
-            mdbmodel_fieldset.MewloDbFieldset.make_fieldset_dbobjectclass(cls,'tracking','author tracking object',backrefname,dbmanager,subfields)
+        cls.extend_or_add_fields(mdbmixins.dbfmixins_authortracker(), dbmanager, cls.flag_mixin_atroot_authortracker, 'tracking', 'author tracking object')
 
 
 
     @classmethod
     def find_one_bynameorid(cls, nameorid):
         return cls.find_one_byflexibleid('groupname',nameorid)
+

@@ -340,7 +340,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 }),
             NavNode('cancel_modify_field', {
                 'menulabel': "Cancel pending profile change",
-                'visible': lambda navnode,context: navnode.isactive(context) or context.get_value('clientuser').get_ispending_fieldmodify_verification(context.get_value('request')),
+                'visible': lambda navnode,context: navnode.isactive(context) or context.get_value('clientuser').get_ispending_fieldmodify_verification(context.get_value('request'),'email'),
                 'parent': 'profile',
                 'urlargs': {'field':'email'},
                 }),
