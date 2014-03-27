@@ -9,7 +9,6 @@ This is our database object base class.
 # mewlo imports
 from ..helpers import misc
 from ..helpers import serializabledbdict
-import mdbfield
 
 # python imports
 import pickle
@@ -749,3 +748,20 @@ class MewloDbModel(object):
         if (isinstance(nameorid,(int,long)) or nameorid.isnumeric()):
             return cls.find_one_byprimaryid(nameorid)
         return cls.find_one_bykey({stringfieldname:nameorid})
+
+
+
+    @classmethod
+    def extend_or_add_fields(cls, subfields, dbmanager, flag_mixin_atroot, propname, proplabel):
+        """Add fields to a model or as an addon object."""
+        import mdbmodel_fieldset
+        if (flag_mixin_atroot):
+            # prepare extra fields that will be added at root; this doesnt actually create any prerequisites
+            cls.extend_fields(subfields)
+        else:
+            # add a special sub table that will contain some fields, using a helper class object attached to us
+            # create (AND REGISTER) the new helper object
+            backrefname = cls.get_dbtablename_pure()
+            mdbmodel_fieldset.MewloDbFieldset.make_fieldset_dbobjectclass(cls, propname, proplabel, backrefname, dbmanager, subfields)
+
+
