@@ -54,7 +54,7 @@ class MewloVerification(mdbmodel.MewloDbModel):
         # set request-based values
         self.setvals_fromequest(request, user)
         # initial values
-        self.date_created = self.get_nowtime()
+        self.date_created = misc.get_dbnowtime()
         self.date_expires = self.date_created + (expiration_days*60*60*24)
         self.failurecount = 0
 
@@ -91,7 +91,7 @@ class MewloVerification(mdbmodel.MewloDbModel):
 
     def consume(self, request):
         """Mark verification entry as consumed/used successfully."""
-        self.date_consumed = self.get_nowtime()
+        self.date_consumed = misc.get_dbnowtime()
         # add sessionip
         session = request.get_session(False)
         if (session != None):

@@ -89,23 +89,27 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
         # create user account.
         user = self.modelclass()
-        user.username = userdict['username']
-        user.email = userdict['email']
 
-        # password -- hash it if its plaintext, or use pre-hashed version (if both provided we will ignored the pre-hashed one)
+        # directly set some properties if found in the userdict
+        knownprops = ['username', 'email', 'fullname']
+        misc.set_object_properties_from_dict(user, userdict, knownprops)
+
+        # password -- hash it if its plaintext, or use pre-hashed version (if both or neither provided it's an error)
+        if (('password' in userdict) and ('password_hashed' in userdict)):
+            raise Exception("Both password and password_hashed cannot be passed at same time to create_user().")
         if ('password' in userdict):
             self.set_userpassword_from_plaintext(user, userdict['password'])
         elif ('password_hashed' in userdict):
             user.password_hashed = userdict['password_hashed']
+        else:
+            raise Exception("Either password or password_hashed must be passed to create_user().")
 
         # verified email is tracked specially
-        if ('email' in verifiedfields):
-            user.isverified_email = True
-        else:
-            user.isverified_email = False
+        user.isverified_email = ('email' in verifiedfields)
 
         # other stuff
-        user.date_register = time.time()
+        user.date_register = misc.get_dbnowtime()
+
 
         # no errors, save it
         # ATTN: to do check for save errors

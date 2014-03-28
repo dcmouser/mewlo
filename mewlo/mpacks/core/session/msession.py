@@ -61,7 +61,7 @@ class MewloSession(mdbmodel.MewloDbModel):
 
     def init_values(self, ip):
         """Set values for a new session."""
-        curtime = time.time()
+        curtime = misc.get_dbnowtime()
         self.date_create = curtime
         self.date_update = curtime
         self.date_access = curtime
@@ -86,7 +86,7 @@ class MewloSession(mdbmodel.MewloDbModel):
     def update_access(self):
         """Update access time."""
         #print "ATTN: in msession.update_access()"
-        curtime = time.time()
+        curtime = misc.get_dbnowtime()
         self.date_access = curtime
         self.set_isdirty(True)
 

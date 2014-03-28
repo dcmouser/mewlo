@@ -258,6 +258,30 @@ class DbfLabelString(MewloDbField):
         return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',64)))]
 
 
+class DbfFilePathString(MewloDbField):
+    """Limited length text field."""
+    # ATTN: unfinished
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfFilePathString, self).__init__(id, properties)
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',512)))]
+
+class DbfUrlPathString(MewloDbField):
+    """Limited length text field."""
+    # ATTN: unfinished
+    def __init__(self, id, properties={}):
+        """Constructor."""
+        # call parent function
+        super(DbfUrlPathString, self).__init__(id, properties)
+    def create_sqlalchemy_columns(self, modelclass):
+        """Convert field to sqlalchemy column."""
+        return [sqlalchemy.Column(self.id, sqlalchemy.String(get_value_from_dict(self.properties,'length',512)))]
+
+
+
 
 class DbfVarname(MewloDbField):
     """Limited length text field."""
@@ -303,7 +327,7 @@ class DbfEnum(MewloDbField):
 
 class DbfForeignKey(MewloDbField):
     """Foreign Key."""
-    # ATTN: Make this a foreign key to user table
+    # ATTN: Make this a foreign key to another table
     def __init__(self, id, properties={}):
         """Constructor."""
         # call parent function
@@ -312,12 +336,17 @@ class DbfForeignKey(MewloDbField):
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""
         foreignkeyname = self.properties['foreignkeyname']
-        return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(foreignkeyname))]
+        # circular foreign keys do not work, so we have to work around it
+        if ('circular' in self.properties):
+            col = sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(foreignkeyname, use_alter=True, name = 'fk'+foreignkeyname))
+        else:
+            col = sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(foreignkeyname))
+        return [col]
 
 
 class DbfForeignKeyFromClassId(DbfForeignKey):
     """Foreign Key to a class id."""
-    # ATTN: Make this a foreign key to user table
+    # ATTN: Make this a foreign key to another table
     def __init__(self, id, properties={}):
         """Constructor."""
         # call parent function
@@ -502,8 +531,14 @@ class Dbf1toN_Right(MewloDbField):
         # build a foreign key to the left hand table
         leftclass = self.properties['leftclass']
         fkeyfieldname = 'id'
-        fkeyname = leftclass.get_dbtablename() + '.' + fkeyfieldname
-        return [sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(fkeyname))]
+        foreignkeyname = leftclass.get_dbtablename() + '.' + fkeyfieldname
+        # circular foreign keys do not work, so we have to work around it
+        if ('circular' in self.properties):
+            col = sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(foreignkeyname, use_alter=True, name = 'fk'+foreignkeyname))
+        else:
+            col = sqlalchemy.Column(self.id, None, sqlalchemy.ForeignKey(foreignkeyname))
+        return [col]
+
 
 
 
@@ -533,13 +568,15 @@ class Dbf1to1_Right(Dbf1toN_Right):
 
 
 
+
+
+
 class Dbf1to1_OneWay(MewloDbField):
     """Relationship field."""
     def __init__(self, id, properties={}):
         """Constructor."""
         # call parent function
         super(Dbf1to1_OneWay, self).__init__(id, properties)
-
 
     def create_sqlalchemy_columns(self, modelclass):
         """Convert field to sqlalchemy column."""

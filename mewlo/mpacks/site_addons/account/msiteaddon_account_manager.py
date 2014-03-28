@@ -1162,7 +1162,7 @@ class AccountAddonManager(manager.MewloManager):
         # ATTN:TODO - should we update expiration date? what about ip and sesssion? does it matter?
         if (False):
             expiration_dist = verification.date_expires - verification.date_created
-            verification.date_expires = self.get_nowtime() + expiration_dist
+            verification.date_expires = misc.get_dbnowtime() + expiration_dist
             verification.ip_created = request.get_remote_addr()
             isdirty = True
 

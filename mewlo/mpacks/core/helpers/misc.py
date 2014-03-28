@@ -4,9 +4,7 @@ This module contains misclenaeous helper functions.
 """
 
 
-# helper imports
-from ..eventlog import mevent
-from ..eventlog import mexceptionplus
+
 
 # python imports
 import os
@@ -84,6 +82,9 @@ def readfile_asjson(filepath, nicelabel):
     :return: EFailure on error
     """
 
+    # mewlo imports
+    from ..eventlog import mevent
+
     # python libraries
     import json
 
@@ -142,6 +143,9 @@ def does_dict_filter_match(object_features, feature_filter):
 def resolve_expand_string(patternstring, replacementdict, namespace, depthcount=0):
     """Do recursive replacement in string with patterns."""
     #print "ATTN:DEBUG Asked to exp '"+patternstring+"' with :" + str(replacementdict)+" in namespace '{0}'".format(namespace)
+
+    # mewlo imports
+    from ..eventlog import mexceptionplus
 
     def resolve_expand_string_replacevar(match):
         """Recursive call to expand contents."""
@@ -255,6 +259,9 @@ def compare_versionstrings_isremotenewer(localversion, remoteversion):
     We expect versions to be of format ##.##.## where ## can be 0 leading or not, and .05 is same a .5, we integerize the #s
     :return: tuple (isremotenewer, failure)
     """
+    # mewlo imports
+    from ..eventlog import mevent
+
     if (localversion == None):
         localversionparts = []
     else:
@@ -390,12 +397,14 @@ def parse_salthash_parameters(hashedtext):
 def nice_datestring(atime):
     """Return a nice string describing the datetime atime."""
     # ATTN: UNFINISHED -- we would like to say something like jan 1, 2010 at 5:4pm (3 weeks ago)
-    #nowtime = time.time()
     localtime = time.localtime(atime)
     timestring = time.strftime('%A, %B %d, %Y at %I:%M %p',localtime)
     return timestring
 
 
+def get_dbnowtime():
+    """Return now time for database storage."""
+    return time.time()
 
 
 def convert_list_to_id_indexed_dict(objlist):
@@ -561,5 +570,12 @@ def build_extrataghtml(tagdict):
 
 
 
+
+
+def set_object_properties_from_dict(obj, propdict, knownprops = {}):
+    """Set any properties from from dictionary..."""
+    for (key,val) in propdict.iteritems():
+        if ((key in knownprops) or (hasattr(obj,key))):
+            setattr(obj, key, val)
 
 

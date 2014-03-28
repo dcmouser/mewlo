@@ -189,19 +189,20 @@ class MewloRoleAssignment(mdbmodel.MewloDbModel):
 
         # define fields list
         fieldlist = [
-            # standard primary id number field
+
             mdbfield.DbfPrimaryId('id', {
                 'label': "The primary key and id# for this row"
                 }),
-            # subject gob
-            mdbmixins.dbfmixin_gobreference('subject'),
-            # role
+
+            mdbmixins.dbfmixin_gobreference('subject', "The subject gobid"),
+
             mdbfield.Dbf1to1_OneWay('role_id', {
                 'rightclass': MewloRole,
                 'relationname': 'role',
                 }),
-            # resource gob
-            mdbmixins.dbfmixin_gobreference('resource'),
+
+            mdbmixins.dbfmixin_gobreference('resource', "The resource gobid"),
+
             ]
 
         return fieldlist

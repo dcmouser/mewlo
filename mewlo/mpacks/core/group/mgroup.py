@@ -106,3 +106,32 @@ class MewloGroup(mdbmodel.MewloDbModel):
     def find_one_bynameorid(cls, nameorid):
         return cls.find_one_byflexibleid('groupname',nameorid)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

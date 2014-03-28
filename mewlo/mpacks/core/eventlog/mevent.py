@@ -41,7 +41,9 @@ Official Fields (not all will be in every event):
 
 # mewlo imports
 from ..helpers import debugging
+from ..helpers import misc
 from ..constants.mconstants import MewloConstants as mconst
+
 
 # python imports
 import sys
@@ -67,7 +69,7 @@ class Event(object):
         else:
             self.fields = {}
         # force timestamp
-        self.fields['timestamp'] = time.time()
+        self.fields['timestamp'] = misc.get_dbnowtime()
         # merge in fields
         if (fields != None):
             self.fields.update(fields)

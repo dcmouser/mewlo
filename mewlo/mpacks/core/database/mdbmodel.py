@@ -732,9 +732,6 @@ class MewloDbModel(object):
         return outstr
 
 
-    @classmethod
-    def get_nowtime(cls):
-        return time.time()
 
     @classmethod
     def nice_datestring(self, atime):

@@ -87,7 +87,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
             return EFailure("This verification code was already used on {0}.".format(verification.nice_datestring(verification.date_consumed)))
 
         # is it expired?
-        nowtime = verification.get_nowtime()
+        nowtime = misc.get_dbnowtime()
         if ((verification.date_expires != None) and (verification.date_expires < nowtime)):
             return EFailure("This verification code has expired.")
 
@@ -165,7 +165,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
             # or we could mark them as invalidated but leave them in place in order to give user a better error if they try to use it
             updatedict = {
                 'invalidreason': invalidreason,
-                'date_consumed': self.modelclass.get_nowtime()
+                'date_consumed': misc.get_dbnowtime()
             }
             # add sessionip
             session = request.get_session(False)
@@ -206,7 +206,7 @@ class MewloVerificationManager(modelmanager.MewloModelManager):
 
         # only valid?
         if (flag_onlyvalid):
-            nowtime = self.modelclass.get_nowtime()
+            nowtime = misc.get_dbnowtime()
             whereclause += ' AND invalidreason is NULL AND date_consumed is NULL and date_expires > {0}'.format(nowtime)
 
         #print "WHERE CLAUSE = {0}.".format(whereclause)

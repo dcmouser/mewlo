@@ -15,8 +15,11 @@ from ..verification import mverification
 import mdbsettings, mdbmanager_sqlalchemy, mdbmodel_settings, mdbmodel_gob
 from ..setting.msettings import MewloSettings
 from ..constants.mconstants import MewloConstants as mconst
-
-
+from ..avatar import mavatar
+from ..messaging import mmessaging
+from ..uploads import muploads
+from ..invite import minvite, mpetition
+from ..bridge import mbridge
 
 
 
@@ -53,14 +56,19 @@ class MewloDatabaseManager(manager.MewloManager):
             self.register_modelclass(self, msession.MewloSession)
             # verification
             self.register_modelclass(self, mverification.MewloVerification)
-
-
-
-
-
-
-
-
+            # avatars
+            self.register_modelclass(self, mavatar.MewloAvatar)
+            # uploads
+            self.register_modelclass(self, muploads.MewloUpload)
+            # messaging
+            self.register_modelclass(self, mmessaging.MewloMboxFolder)
+            self.register_modelclass(self, mmessaging.MewloMboxOut)
+            self.register_modelclass(self, mmessaging.MewloMboxIn)
+            # invites and petitions
+            self.register_modelclass(self, minvite.MewloInvitation)
+            self.register_modelclass(self, mpetition.MewloPetition)
+            # bridged logins
+            self.register_modelclass(self, mbridge.MewloBridge)
 
 
     def shutdown(self):

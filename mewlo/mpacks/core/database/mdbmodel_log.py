@@ -107,9 +107,9 @@ class MewloDbModel_Log(mdbmodel.MewloDbModel):
                 'label': "The type of the message"
                 }),
             # globally unique subject reference (usually the user logged in)
-            mdbmixins.dbfmixin_gobreference('subject'),
+            mdbmixins.dbfmixin_gobreference('subject', "The subject gobid (usually the user logged in)"),
             # globally unique resource reference (could be a document, group, thread, etc.)
-            mdbmixins.dbfmixin_gobreference('resource'),
+            mdbmixins.dbfmixin_gobreference('resource', "The resource gobid (document, group, thread, etc.)"),
             ]
 
         return fieldlist

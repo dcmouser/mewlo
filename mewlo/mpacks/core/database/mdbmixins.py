@@ -68,7 +68,7 @@ def dbfmixin_gobselfreference():
     return field
 
 
-def dbfmixin_gobreference(relationname):
+def dbfmixin_gobreference(relationname, label):
     """Mixin field for referring to a global object id."""
     import mdbmodel_gob
     fieldid = relationname+"_gobid"
@@ -100,6 +100,23 @@ def dbfmixins_disabledelete():
 
 
 
+def dbfmixins_dateipuse():
+    """Mixin fields for date created and last used and ip created and last used."""
+    fieldlist = [
+        mdbfield.DbfServerIp('ip_created', {
+            'label': "IP used at creation"
+            }),
+        mdbfield.DbfServerIp('ip_lastuse', {
+            'label': "IP of last use"
+            }),
+        mdbfield.DbfTimestamp('date_created', {
+            'label': "Date of creation"
+            }),
+        mdbfield.DbfTimestamp('date_lastuse', {
+            'label': "Date of last use"
+            }),
+        ]
+    return fieldlist
 
 
 
