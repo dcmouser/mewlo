@@ -64,3 +64,18 @@ class MewloBridge(mdbmodel.MewloDbModel):
         return fieldlist
 
 
+
+
+
+
+
+class MewloBridgeService(object):
+    """
+    The MewloBridgeService is used to do the real work of interfacing with bridges.
+    We subclass for specific derived services/engines; so we may have subclasses for twitter, facebook, google, etc.
+    """
+    pass
+
+
+
+

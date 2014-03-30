@@ -8,14 +8,14 @@ Database object for storing verification entries
 from ..database import mdbmodel
 from ..database import mdbfield
 from ..eventlog.mevent import EFailure, EException
+from ..helpers import misc
 
 # python imports
-import time
 import uuid
 
 
 class MewloVerification(mdbmodel.MewloDbModel):
-    """Session object / database model."""
+    """Verification object / database model, used when user has set/changed a profile field that needs to be verified before being accepted."""
 
     # class variables
     dbtablename = 'verification'

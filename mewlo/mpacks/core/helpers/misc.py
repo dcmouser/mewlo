@@ -19,6 +19,13 @@ import hashlib, uuid
 
 
 
+def calc_modulefilepath(file_define):
+    """Called like calc_modulefiledir(__file__) to return directory path to current module."""
+    filepath = os.path.dirname(os.path.realpath(file_define))
+    return filepath
+
+
+
 
 def get_value_from_dict(thedict, keyname, defaultval=None):
     """Very simple function to get value from dictionary or fall back to default value."""
@@ -485,6 +492,7 @@ def copy_tree_withcallback(src, dst, preserve_mode=1, preserve_times=1,
     """
     from distutils.file_util import copy_file
     from distutils.dir_util import mkpath
+    from distutils.errors import DistutilsFileError
 
     if not dry_run and not os.path.isdir(src):
         raise DistutilsFileError(
@@ -526,9 +534,9 @@ def copy_tree_withcallback(src, dst, preserve_mode=1, preserve_times=1,
 
         elif os.path.isdir(src_name):
             outputs.extend(
-                self.copy_tree(src_name, dst_name, preserve_mode,
+                copy_tree_withcallback(src_name, dst_name, preserve_mode,
                           preserve_times, preserve_symlinks, update,
-                          verbose=verbose, dry_run=dry_run))
+                          verbose=verbose, dry_run=dry_run, callbackfp=callbackfp))
         else:
             copy_file(src_name, dst_name, preserve_mode,
                       preserve_times, update, verbose=verbose,
@@ -579,3 +587,41 @@ def set_object_properties_from_dict(obj, propdict, knownprops = {}):
             setattr(obj, key, val)
 
 
+
+
+def dict_to_headitem(headitem_dict):
+    """Make a head link from dictionary."""
+    headtypes_openclose = ['script']
+    headitem_typestr = headitem_dict['_type']
+    rethtml ='<{0}'.format(headitem_typestr)
+    for key,val in headitem_dict.iteritems():
+        if (not key.startswith('_')):
+            rethtml += ' {0}="{1}"'.format(key,val)
+    # optional inner contents between tags
+    if ('_inner' in headitem_dict):
+        innercontents = headitem_dict['_inner']
+    else:
+        innercontents = ''
+    #
+    if (innercontents or (headitem_typestr in headtypes_openclose)):
+        rethtml +='>{0}</{1}>'.format(innercontents,headitem_typestr)
+    else:
+        rethtml +=' />'
+
+    return rethtml
+
+
+def headitems_tohtml(headitems):
+    """Return html for headlinks to put in head section."""
+    reth = ''
+    for headitem in headitems:
+        reth += headitem + '\n'
+    return reth
+
+
+
+def isabsoluteurl(urlpath):
+    """Return True if urlpath is already an absolute path (starting with http)."""
+    if (urlpath.startswith('http')):
+        return True
+    return False

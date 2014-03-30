@@ -11,6 +11,7 @@ From here you can learn about the core Mewlo packs.
    database
    dispatcher
    forms
+   jsmanager
    logging
    namespaces
    navigation

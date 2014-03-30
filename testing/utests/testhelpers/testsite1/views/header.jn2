@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html>
+
+
 <head>
 <title>{{ thelper.nav_pagetitle(response) }}</title>
-<link rel="stylesheet" type="text/css" href="{{request.resolve("${asset_internal_urlrel}/navbar.css")}}" media="screen" />
+
+{{ thelper.headitems_as_html(response) }}
+<link rel="stylesheet" type="text/css" href="{{request.resolve("${asset_site_internal_urlrel}/navbar.css")}}" media="screen" />
 </head>
+
 
 {{ thelper.nav_bar_html(response) }}
 
 {{ thelper.nav_breadcrumb_html(response) }}
+
 <hr/>
+
 {{ thelper.session_messages_html(request) }}
+
 {{ thelper.page_messages_html(request) }}

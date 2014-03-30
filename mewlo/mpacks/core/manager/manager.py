@@ -97,6 +97,11 @@ class MewloManager(object):
         return self.mewlosite.comp('dbmanager')
     def sitecomp_routemanager(self):
         return self.mewlosite.comp('routemanager')
+    def sitecomp_jsmanager(self):
+        return self.mewlosite.comp('jsmanager')
+    def sitecomp_assetmanager(self):
+        return self.mewlosite.comp('assetmanager')
+
 
 
     def get_setting_value(self, sectionmame, defaultval=None):

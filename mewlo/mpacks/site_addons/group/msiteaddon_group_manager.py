@@ -47,66 +47,6 @@ class GroupAddonManager(manager.MewloManager):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def request_grouphome(self, request):
         """Group list."""
         # set page id
@@ -147,3 +87,5 @@ class GroupAddonManager(manager.MewloManager):
 
         # then page contents
         self.render_localview( request, self.viewfiles['groupinfo'], {'group':group, 'assignments':assignments} )
+
+

@@ -8,7 +8,7 @@ For now, our MewloResponse class is just a thin wrapper over a werkzeug response
 # helper imports
 from ..eventlog.mevent import EventList, EError, EWarning
 from ..setting import msettings
-from ..helpers import thindict
+from ..helpers import thindict, misc
 from ..navnode import mnav
 from ..constants.mconstants import MewloConstants as mconst
 
@@ -36,6 +36,7 @@ class MewloResponse(object):
         #
         #self.headers = None
         self.headers = [('Content-Type', 'text/html; charset=utf-8')]
+        self.headitems = []
         self.responsedata = None
         self.direct_passthrough = False
         self.mimetype = None
@@ -294,5 +295,43 @@ class MewloResponse(object):
         outstr += " "*indent + " Response Body: " + self.responsedata + "\n"
         return outstr
 
+
+
+
+
+
+
+
+    def get_headitems(self):
+        """links added to head of page."""
+        return self.headitems
+
+
+    def add_headitem(self, propdict):
+        """add a new head link to response for page."""
+        headitem = misc.dict_to_headitem(propdict)
+        if (not headitem in self.headitems):
+            self.headitems.append(headitem)
+
+
+    def add_headitem_js(self, subpropdict):
+        """add a new head link to response for page."""
+        propdict = {
+            '_type': 'script',
+            'type': 'text/javascript',
+            }
+        propdict.update(subpropdict)
+        self.add_headitem(propdict)
+
+
+    def add_headitem_css(self, subpropdict):
+        """add a new head link to response for page."""
+        propdict = {
+            '_type': 'link',
+            'rel': 'stylesheet',
+            'type': 'text/css',
+            }
+        propdict.update(subpropdict)
+        self.add_headitem(propdict)
 
 

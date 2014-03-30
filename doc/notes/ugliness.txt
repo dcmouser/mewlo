@@ -1,1 +1,7 @@
 See ugliness.rst in book documentation.
+
+
+3/30/14:
+
+change all references to __file__ to call the misc function for getting path.
+(note there are 2 forms we use, but they may be interchangeable -- all the more reason to fixup).

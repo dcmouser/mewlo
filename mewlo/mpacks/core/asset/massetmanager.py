@@ -176,21 +176,17 @@ class MewloAssetManager(manager.MewloManager):
 
     def resolve_absolute_url(self, relpath, namespace):
         """Shortcut to resolve a url given a relative path."""
-        if (self.isabsoluteurl(relpath)):
+        if (misc.isabsoluteurl(relpath)):
             return self.resolve(relpath, namespace)
         return self.resolve('${siteurl_absolute}' + relpath, namespace)
 
     def resolve_relative_url(self, relpath, namespace):
         """Shortcut to resolve a url that is relative to our server root."""
-        if (self.isabsoluteurl(relpath)):
+        if (misc.isabsoluteurl(relpath)):
             return self.resolve(relpath, namespace)
         return self.resolve('${siteurl_relative}' + relpath, namespace)
 
-    def isabsoluteurl(self, urlpath):
-        """Return True if urlpath is already an absolute path (starting with http)."""
-        if (urlpath.startswith('http')):
-            return True
-        return False
+
 
 
 
@@ -623,7 +619,7 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
         # what should be the path to these files? the source id is guaranteed to be unique so we use that
         namespace = assetsource.get_namespace()
         routeid = 'assetroute_' + assetsource.get_id()
-        routepath = '/{0}/{1}'.format(self.urlpath, assetsource.get_id())
+        routepath = '/{0}/{1}'.format(self.urlpath, assetsource.get_namespacedid())
         filepath = assetsource.get_filepath()
 
         # create the new route for serving these files at this location
@@ -678,7 +674,7 @@ class MewloAssetMount_ExternalServer(MewloAssetMount):
         # ok let's shadow the files
         namespace = assetsource.get_namespace()
         filepath_source = assetsource.get_filepath()
-        filepath_destination = self.filepath + '/' + assetsource.get_id()
+        filepath_destination = self.filepath + '/' + assetsource.get_namespacedid()
         failure = assetmanager.shadowfiles(filepath_source, filepath_destination, namespace)
 
         # for the alias filepath, we could use the source filepath, or the external destination filepath
@@ -689,8 +685,8 @@ class MewloAssetMount_ExternalServer(MewloAssetMount):
         # and now we want to create some aliases for refering to them via url and file
         aliasprefix = 'asset_' + assetsource.get_id()
         aliases = {
-            aliasprefix + '_urlrel' : self.urlrel + '/' + assetsource.get_id(),
-            aliasprefix + '_urlabs' : self.urlabs + '/' + assetsource.get_id(),
+            aliasprefix + '_urlrel' : self.urlrel + '/' + assetsource.get_namespacedid(),
+            aliasprefix + '_urlabs' : self.urlabs + '/' + assetsource.get_namespacedid(),
             aliasprefix + '_filepath' : aliasfilepath,
             }
         assetmanager.merge_aliases(aliases, namespace)
@@ -740,6 +736,11 @@ class MewloAssetSource(object):
         self.namespace = namespace
 
     def get_id(self):
+        return self.id
+
+    def get_namespacedid(self):
+        if (self.namespace):
+            return self.namespace+'_'+self.id
         return self.id
 
     def get_mountid(self):

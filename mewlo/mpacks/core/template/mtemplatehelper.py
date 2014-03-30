@@ -6,6 +6,7 @@ The template files can refer to and make calls of this class [see testsite1/view
 
 # mewlo imports
 from ..manager import manager
+from ..helpers import misc
 
 # python imports
 import os.path
@@ -28,6 +29,10 @@ class MewloTemplateHelper(manager.MewloManager):
 
     def __init__(self, mewlosite, debugmode):
         super(MewloTemplateHelper,self).__init__(mewlosite, debugmode)
+
+
+
+
 
 
 
@@ -213,3 +218,16 @@ class MewloTemplateHelper(manager.MewloManager):
         reth += '</ul>\n'
         reth += '</div> <!-- messagelist -->\n'
         return reth
+
+
+
+
+
+    def headitems_as_html(self, response):
+        """links added to head of page."""
+        headitems = self.mewlosite.get_headitems(response)
+        reth = misc.headitems_tohtml(headitems)
+        return reth
+
+
+

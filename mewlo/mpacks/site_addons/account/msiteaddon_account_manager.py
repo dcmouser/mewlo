@@ -27,6 +27,8 @@ from forms.form_reset_password import MewloForm_Send_Reset_Password, MewloForm_S
 from forms.form_modifyfield_email import MewloForm_ModifyField_Email
 from forms.form_generic_confirm import MewloForm_Generic_Confirm
 from forms.form_repassword import MewloForm_RePassword
+from forms.form_edit_avatar import MewloForm_EditAvatar
+
 
 
 
@@ -78,6 +80,8 @@ class AccountAddonManager(manager.MewloManager):
             'error_requires_login': 'error_requires_login.jn2',
             #
             'repassword': 'repassword.jn2',
+            #
+            'editavatar': 'editavatar.jn2',
             }
 
 
@@ -1741,7 +1745,6 @@ class AccountAddonManager(manager.MewloManager):
 
         # init form+formdata
         formclass = MewloForm_RePassword
-
         formdata = request.get_postdata_verifyformclass(formclass)
         # the form we will use
         form = formclass(formdata)
@@ -1770,5 +1773,37 @@ class AccountAddonManager(manager.MewloManager):
         self.render_localview(request, form.get_viewfilename(), {'form':form})
         # return False saying we have presented form / handled view
         return False
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def request_profile_avatar(self, request):
+        """Avatar edit page."""
+        # set page info first (as it may be used in page contents) -- note that if caller has already set it, we don't overwrite it and leave it
+        self.set_renderpageid_ifnotset(request, 'profile_avatar')
+
+        # init form+formdata
+        formclass = MewloForm_EditAvatar
+        formdata = request.get_postdata_verifyformclass(formclass)
+        # the form we will use
+        form = formclass(formdata)
+
+        # add jquery
+        self.sitecomp_jsmanager().include_jslibrary('jquery', request)
+
+        # render form (use forms default view)
+        self.render_localview(request, form.get_viewfilename(), {'form':form})
 
 

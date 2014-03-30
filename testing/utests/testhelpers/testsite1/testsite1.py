@@ -22,6 +22,7 @@ from mewlo.mpacks.core.eventlog.mlogtarget_python import MewloLogTarget_Python
 from mewlo.mpacks.core.eventlog.mevent import EWarning
 from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
 from mewlo.mpacks.core.asset import massetmanager
+from mewlo.mpacks.core.helpers import misc
 
 # account addon
 #from mewlo.mpacks.site_addons.account import msiteaddon_account
@@ -60,7 +61,9 @@ class MewloSite_Test1(MewloSite):
         if (True):
             return pkgdirimp_config
         else:
-            return os.path.dirname(os.path.realpath(__file__))+'/config'
+            return misc.calc_modulefilepath(__file__)+'/config'
+
+
 
 
 
@@ -374,11 +377,11 @@ class MewloSite_Test1(MewloSite):
         # note that the ids for all asset sources MUST be unique
         # first we mount the files in the staticfilesource/ directory as internal assets that we will serve internally via mewlo; the id will be used for alias creation, and for the route
         assetmanager.add_assetsource(
-            massetmanager.MewloAssetSource(id='internal', mountid = 'internal_assets', filepath = '${sitefilepath}/staticfilesource', namespace=None)
+            massetmanager.MewloAssetSource(id='site_internal', mountid = 'internal_assets', filepath = '${sitefilepath}/staticfilesource', namespace=None)
             )
         # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
         assetmanager.add_assetsource(
-            massetmanager.MewloAssetSource(id='external', mountid = 'external_assets', filepath = '${sitefilepath}/staticfilesource', namespace=None)
+            massetmanager.MewloAssetSource(id='site_external', mountid = 'external_assets', filepath = '${sitefilepath}/staticfilesource', namespace=None)
             )
 
         # remember that one should never refer to the assets by a hardcoded url or file path; always use the aliases created by these functions, which will take the form (where ID is the id of the asset source):

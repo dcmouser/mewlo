@@ -23,10 +23,10 @@ from ..helpers import misc
 
 
 class MewloMboxFolder(mdbmodel.MewloDbModel):
-    """The class that represents user mailboxes."""
+    """The class that represents user message (mailbox) folders."""
 
     # class variables
-    dbtablename = 'mboxfolder'
+    dbtablename = 'mbox_folder'
     dbschemaname = 'default'
 
     @classmethod
@@ -43,7 +43,7 @@ class MewloMboxFolder(mdbmodel.MewloDbModel):
             mdbmixins.dbfmixin_gobreference('owner',"The user that owns this mbox folder (if NULL then everyone has it)"),
 
             mdbfield.DbfTypeString('foldertype', {
-                'label': "The type of mbox folder"
+                'label': "The type of mbox folder (received, sent, trash, draft)"
                 }),
 
             mdbfield.DbfLabelString('label', {
@@ -74,7 +74,7 @@ class MewloMboxOut(mdbmodel.MewloDbModel):
     """The class that represents outgoing source messages."""
 
     # class variables
-    dbtablename = 'mboxout'
+    dbtablename = 'mbox_out'
     dbschemaname = 'default'
 
     @classmethod
@@ -136,7 +136,7 @@ class MewloMboxIn(mdbmodel.MewloDbModel):
     """The LIGHTWEIGHT class that represents incoming messages."""
 
     # class variables
-    dbtablename = 'mboxin'
+    dbtablename = 'mbox_in'
     dbschemaname = 'default'
 
     @classmethod

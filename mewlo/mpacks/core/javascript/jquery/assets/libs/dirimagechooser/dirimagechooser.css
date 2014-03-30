@@ -1,0 +1,134 @@
+.dirimagechooserbox {
+	height: 320px;
+}
+
+.directorypanel {
+	height: 300px;
+	overflow: auto;
+}
+.filepanel {
+	height: 300px;
+	overflow: auto;
+}
+
+.dirimagechooserbox td {
+	vertical-align:top;
+	border: 1px solid gray;
+	margin:5px;
+	padding:5px;
+}
+
+
+
+UL.dirimagechooser {
+	font-family: Verdana, sans-serif;
+	font-size: 11px;
+	line-height: 18px;
+	padding: 0px;
+	margin: 0px;
+}
+
+.dicdir {
+	list-style: none;
+	padding: 0px;
+	padding-left: 20px;
+	margin: 0px;
+	white-space: nowrap;
+}
+
+.dicfile {
+	list-style: none;
+	padding-left: 2px;
+}
+
+
+UL.dirimagechooser A {
+	color: #333;
+	text-decoration: none;
+	display: block;
+	padding: 0px 2px;
+}
+
+
+
+UL.dirimagechooser A:hover {
+	background: #BDF;
+}
+
+
+LI.selecteditem A {
+  background: #DDDDDD;
+}
+
+
+
+
+.dirimagechooser LI.dicfile {
+	/* float left to have multiple columns */
+	float: left;
+	width: 130px;
+	height: 100px;
+	padding: 5px;
+	margin: 5px;
+	line-height: 11px;
+	overflow: hide;
+	text-align:center;
+}
+
+
+
+
+div.dirimagechooserinputdiv input {
+  border: 1px solid #666666;
+	background-color: #EEEEEE;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* caption under */
+img.dicfilea {
+	padding: 5px;
+}
+img.dicblock {
+	/*float: left;*/
+	padding: 5px;
+}
+
+
+/* Core Styles */
+.dirimagechooser LI.dicdir { background: url(images/directory.png) left top no-repeat; }
+
+
+
+/* large fonts for image chooser */
+.dirimagechooserinputdiv div input p {
+  font-size: 18px;
+}
+.dirimagechooserinputdiv input {
+  font-size: 18px;
+}
+.dirimagechooserinputdiv p {
+  font-size: 18px;
+}

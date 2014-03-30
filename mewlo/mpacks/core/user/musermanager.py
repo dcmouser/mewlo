@@ -53,6 +53,37 @@ class MewloUserManager(modelmanager.MewloModelManager):
             # some settings
             self.flag_require_email_verified_before_login = self.mewlosite.get_settingval(mconst.DEF_SETTINGSEC_siteaddon_account, 'flag_require_email_verified_before_login')
 
+            # create initial objects
+            self.create_initial_objects()
+
+
+
+
+
+
+    def create_initial_objects(self):
+        """Create initial user groups, etc."""
+
+        # create group roles if not already created (we should do this at startup instead)
+        rbacmanager = self.sitecomp_rbacmanager()
+        role = rbacmanager.lookup_role_byname(mconst.DEF_ROLENAME_groupownership)
+        if (role == None):
+            # TEST, create roles
+            role = rbacmanager.create_role(mconst.DEF_ROLENAME_groupownership, "User owns a group", "MewloUser", "MewloGroup")
+            role.save()
+            groupmember_role = rbacmanager.create_role(mconst.DEF_ROLENAME_groupmembership, "User is a member of a group", "MewloUser", "MewloGroup")
+            groupmember_role.save()
+            # now add role hierarchy
+            rolerelation = rbacmanager.create_role_entail(role, groupmember_role)
+
+        # create visitor group if not already created (we should do this at startup instead)
+        groupmanager = self.sitecomp_groupmanager()
+        group = groupmanager.lookup_group_byname(mconst.DEF_GROUPNAME_visitor)
+        if (group == None):
+            # TEST, create it
+            group = groupmanager.create_group(mconst.DEF_GROUPNAME_visitor, 'The visitor group that all members belong to', 'A longer description of the visitor group')
+            group.save()
+
 
 
 
@@ -547,39 +578,23 @@ class MewloUserManager(modelmanager.MewloModelManager):
     def create_newuser_rbac_test(self, user):
         """Build some test rbac stuff for a user."""
 
-        # first lookup or create a role
         rbacmanager = self.sitecomp_rbacmanager()
-        role = rbacmanager.lookup_role_byname(mconst.DEF_ROLENAME_groupownership)
-        if (role == None):
-            # TEST, create roles
-            role = rbacmanager.create_role(mconst.DEF_ROLENAME_groupownership, "User owns a group", "MewloUser", "MewloGroup")
-            role.save()
-            entailedrole = rbacmanager.create_role(mconst.DEF_ROLENAME_groupmembership, "User is a member of a group", "MewloUser", "MewloGroup")
-            entailedrole.save()
-            # now add role hierarchy
-            rolerelation = rbacmanager.create_role_entail(role, entailedrole)
-
-
+        groupmanager = self.sitecomp_groupmanager()
 
         # ok now let's create a dedicated group for the user
-        groupmanager = self.sitecomp_groupmanager()
-        group = groupmanager.lookup_group_byname(mconst.DEF_GROUPNAME_visitor)
-        if (group == None):
-            # TEST, create it
-            group = groupmanager.create_group(mconst.DEF_GROUPNAME_visitor, 'The visitor group that all members belong to', 'A longer description of the visitor group')
-            group.save()
+        groupname = user.username + ' private group'
+        grouplabel = "Private group belonging to user '{0}' (#{1})".format(user.username, user.id)
+        group = groupmanager.create_group(groupname, grouplabel, '')
+        group.save()
 
-        # ok now assing user to role with group as resource
-        rbacassignment = rbacmanager.create_assignment(user, role, group)
+        # and assign user as owner of this group
+        groupowner_role = rbacmanager.lookup_role_byname(mconst.DEF_ROLENAME_groupownership)
+        rbacassignment = rbacmanager.create_assignment(user, groupowner_role, group)
 
-
-
-
-
-
-
-
-
+        # also put user as member of visitor group
+        groupmember_role = rbacmanager.lookup_role_byname(mconst.DEF_ROLENAME_groupmembership)
+        visitor_group = groupmanager.lookup_group_byname(mconst.DEF_GROUPNAME_visitor)
+        rbacassignment = rbacmanager.create_assignment(user, groupmember_role, visitor_group)
 
 
 

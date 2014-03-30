@@ -57,7 +57,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             assetmanager = self.sitecomp_assetmanager()
             # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
             assetmanager.add_assetsource(
-                massetmanager.MewloAssetSource(id='account_addon', mountid = 'external_assets', filepath = '${addon_path}/assets', namespace=self.namespace)
+                massetmanager.MewloAssetSource(id='addonassets', mountid = 'external_assets', filepath = '${addon_path}/assets', namespace=self.namespace)
                 )
 
 
@@ -157,10 +157,24 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                         MewloRouteArgString(
                             id = 'id',
                             required = False,
-                            help = "id of user whose profile is being viewed",
+                            help = "id of subject user whose profile is being viewed",
                             ),
                         ],
                 controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_profile),
+            ))
+        #
+        routegroup.append(
+            MewloRoute(
+                id = 'profile_avatar',
+                path = '/profile_avatar',
+                args = [
+                        MewloRouteArgString(
+                            id = 'id',
+                            required = False,
+                            help = "id of subject user whose profile is being viewed",
+                            ),
+                        ],
+                controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_profile_avatar),
             ))
         #
         routegroup.append(
@@ -343,6 +357,12 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 'visible': lambda navnode,context: navnode.isactive(context) or context.get_value('clientuser').get_ispending_fieldmodify_verification(context.get_value('request'),'email'),
                 'parent': 'profile',
                 'urlargs': {'field':'email'},
+                }),
+#
+            NavNode('profile_avatar', {
+                'menulabel': "Edit Avatar",
+                'visible': lambda navnode,context: context.get_value('clientuser').get_isloggedin(),
+                'parent': 'profile',
                 }),
             ]
 

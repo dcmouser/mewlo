@@ -26,7 +26,7 @@ from ..uploads import muploads
 
 
 class MewloAvatar(mdbmodel.MewloDbModel):
-    """The role class manages hierarchy of roles."""
+    """Represents an avatar image for a user (or possibly group); it's a heavyweight object because there are multiple ways of using it, from a locally uploaded file, to an avatar service (like gravatar)."""
 
     # class variables
     dbtablename = 'avatar'

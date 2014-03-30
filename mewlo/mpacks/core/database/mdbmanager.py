@@ -20,6 +20,7 @@ from ..messaging import mmessaging
 from ..uploads import muploads
 from ..invite import minvite, mpetition
 from ..bridge import mbridge
+from ..throttle import mthrottle
 
 
 
@@ -69,6 +70,9 @@ class MewloDatabaseManager(manager.MewloManager):
             self.register_modelclass(self, mpetition.MewloPetition)
             # bridged logins
             self.register_modelclass(self, mbridge.MewloBridge)
+            # throttle stuff
+            self.register_modelclass(self, mthrottle.MewloThrottleEvent)
+            self.register_modelclass(self, mthrottle.MewloThrottleTrigger)
 
 
     def shutdown(self):

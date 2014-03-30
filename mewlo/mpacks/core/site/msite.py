@@ -7,6 +7,7 @@ This file contains classes to handle Mewlo site class.
 # mewlo imports
 import msitemanager
 from .. import mglobals
+from ..constants.mconstants import MewloConstants as mconst
 from ..helpers.dictlist import MDictList
 from ..pack import mpackmanager
 from ..route import mroute
@@ -34,7 +35,7 @@ from ..siteaddon import msiteaddon
 from ..mail import mmailmanager
 from ..helpers import cfgmodule
 from ..cache import mcache
-from ..constants.mconstants import MewloConstants as mconst
+from ..javascript import mjsmanager
 
 
 # python imports
@@ -177,6 +178,9 @@ class MewloSite(object):
 
         # mail manager
         self.createappendcomp('mailmanager', mmailmanager.MewloMailManager)
+
+        # javascript manager
+        self.createappendcomp('jsmanager', mjsmanager.MewloJavascriptlManager)
 
         # cache manager
         cachemanager = self.createappendcomp('cachemanager', mcache.MewloCacheManager_DogPile)
@@ -1406,4 +1410,28 @@ class MewloSite(object):
         return renderedsections
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def get_headitems(self, response):
+        """links added to head of page."""
+        headitems = []
+        # ATTN: unfinished - get any standard links for every page?
+        # get links from
+        headitems += response.get_headitems()
+        return headitems
 

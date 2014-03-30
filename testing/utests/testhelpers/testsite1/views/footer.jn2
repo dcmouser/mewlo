@@ -2,6 +2,6 @@
 <hr>
 <div align="center">
 {{ thelper.html_debugfooter(request) }}<br/>
-<img src="{{request.resolve("${asset_internal_urlrel}/Cody.png")}}"/><br/>
+<img src="{{request.resolve("${asset_site_internal_urlrel}/Cody.png")}}"/><br/>
 <i>mewlo is copyright 2013-2014 - donationcoder.com</i>
 </div>

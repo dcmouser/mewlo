@@ -19,7 +19,7 @@ from ..helpers import misc
 
 
 class MewloUpload(mdbmodel.MewloDbModel):
-    """The role class manages hierarchy of roles."""
+    """A class that represents an uploaded file; could be an avatar image, a message attachment, a blog image, etc.."""
 
     # class variables
     dbtablename = 'upload'
@@ -45,10 +45,11 @@ class MewloUpload(mdbmodel.MewloDbModel):
                 'label': "A short type string for the upload to help identify it"
                 }),
 
-
             mdbfield.DbfFilePathString('filepath', {
                 'label': "Path to local file"
                 }),
+
+            # sometimes we may automatically fetch and mirror an external file (image); if so we record the source url path here
             mdbfield.DbfUrlPathString('source_urlpath', {
                 'label': "Url of remote image"
                 }),
