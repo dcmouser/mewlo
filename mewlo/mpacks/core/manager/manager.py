@@ -99,6 +99,8 @@ class MewloManager(object):
         return self.mewlosite.comp('routemanager')
     def sitecomp_jsmanager(self):
         return self.mewlosite.comp('jsmanager')
+    def sitecomp_hsmanager(self):
+        return self.mewlosite.comp('hsmanager')
     def sitecomp_assetmanager(self):
         return self.mewlosite.comp('assetmanager')
 

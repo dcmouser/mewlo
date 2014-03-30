@@ -32,6 +32,7 @@ class MewloController_StaticFiles(mcontroller.MewloController):
         route = request.route
         basefilepath = self.sourcepath
         relpath = '/'.join(request.parsedargs['requestargs'])
+        #print "BASEFILEPATH = '{0}' and relpath = '{1}'.".format(basefilepath, relpath)
         filepath = basefilepath + "/" + relpath
         filepath = request.resolve_filepath(filepath)
 

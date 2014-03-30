@@ -622,6 +622,6 @@ def headitems_tohtml(headitems):
 
 def isabsoluteurl(urlpath):
     """Return True if urlpath is already an absolute path (starting with http)."""
-    if (urlpath.startswith('http')):
+    if (urlpath.startswith('http') or urlpath.startswith('//')):
         return True
     return False

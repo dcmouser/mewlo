@@ -1801,7 +1801,7 @@ class AccountAddonManager(manager.MewloManager):
         form = formclass(formdata)
 
         # add jquery
-        self.sitecomp_jsmanager().include_jslibrary('jquery', request)
+        self.sitecomp_hsmanager().hscript('jquery').include(request)
 
         # render form (use forms default view)
         self.render_localview(request, form.get_viewfilename(), {'form':form})

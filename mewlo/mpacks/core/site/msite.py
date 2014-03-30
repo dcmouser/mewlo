@@ -35,7 +35,7 @@ from ..siteaddon import msiteaddon
 from ..mail import mmailmanager
 from ..helpers import cfgmodule
 from ..cache import mcache
-from ..javascript import mjsmanager
+from ..hscript import mhscriptmanager
 
 
 # python imports
@@ -179,8 +179,8 @@ class MewloSite(object):
         # mail manager
         self.createappendcomp('mailmanager', mmailmanager.MewloMailManager)
 
-        # javascript manager
-        self.createappendcomp('jsmanager', mjsmanager.MewloJavascriptlManager)
+        # htmlscript/js/css manager
+        self.createappendcomp('hsmanager', mhscriptmanager.MewloHScriptManager)
 
         # cache manager
         cachemanager = self.createappendcomp('cachemanager', mcache.MewloCacheManager_DogPile)
