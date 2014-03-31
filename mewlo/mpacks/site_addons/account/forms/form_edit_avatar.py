@@ -17,7 +17,7 @@ from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
 class MewloForm_EditAvatar(MewloForm):
 
-    avatarfile = StringField('Avatar file', [validators.Length(min=3, max=132)])
+    #avatarfile = StringField('Avatar file', [validators.Length(min=3, max=132)])
 
     viewfilename = 'edit_avatar.jn2'
 

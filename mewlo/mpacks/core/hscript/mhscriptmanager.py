@@ -30,6 +30,7 @@ class MewloHScript(object):
 
     def __init__(self, idname_override=None):
         self.idname_override = idname_override
+        self.hscriptmanager = None
 
     def get_idname(self):
         """Accessor that allows override."""
@@ -37,6 +38,8 @@ class MewloHScript(object):
             return self.idname_overide
         return self.idname_default
 
+    def get_mewlosite(self):
+        return self.hscriptmanager.mewlosite
 
     def startup_register(self, hscriptmanager):
         """Store hscriptmanager (we can get mewlosite through it."""
@@ -73,14 +76,14 @@ class MewloHScript(object):
         assetmanager.add_assetsource( massetmanager.MewloAssetSource(id=idname, mountid = mountid, filepath = asset_filepath, namespace=self.DEF_hscript_namespace) )
 
 
-    def addtopage(self, request , is_relative=True):
+    def addtohead(self, request , is_relative=True):
         """Default subclass function; this does the actions needed to register the script for the page so it loads the js and css it needs."""
         idname = self.get_idname()
 
         # first do any recursive REQUIRED includes
         requires = getattr(self, 'requires', [])
         for requiredlibname in requires:
-            self.hscriptmanager.hscript(requiredlibname).addtopage(request, is_relative)
+            self.hscriptmanager.hscript(requiredlibname).addtohead(request, is_relative)
 
         # add any comment?
         comment = getattr(self,'comment', None)
@@ -113,7 +116,17 @@ class MewloHScript(object):
 
 
 
-
+    def calc_filepath(self, request, subdir, fname):
+        """Calculate the local template file path."""
+        src = '${hs::asset_'+self.get_idname()+'_filepath}'
+        if (subdir):
+            src+='/'+subdir
+        if (fname):
+            src+='/'+fname
+        # ATTN:TODO resolve it - we should resolve these at startup and not on every request
+        src = request.resolve(src)
+        # return it
+        return src
 
 
 
@@ -210,14 +223,105 @@ class MewloHScript_Foundation(MewloHScript):
 
 
 
-class MewloHScript_JQuery_DirImageChooser(MewloHScript):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class MewloHScript_JQuery_ImageBrowser(MewloHScript):
     """JQuery addon."""
-    idname_default = 'jquery_dirimagechooser'
+    idname_default = 'jquery_imagebrowser'
     requires = ['jquery']
-    comment = 'jquery - jquery_dirimagechooser (homemade addon for jquery by mouser@donationcoder.com, 2011)'
-    js_src = ['libs/dirimagechooser/dirimagechooser.js', 'libs/dirimagechooser/jquery.scrollTo-min.js']
-    css = ['libs/dirimagechooser/dirimagechooser.css']
+    comment = 'jquery - jquery_imagebrowser (homemade addon for jquery by mouser@donationcoder.com, 2011)'
+    js_src = ['libs/imagebrowser/imagebrowser.js', 'libs/imagebrowser/jquery.scrollTo-min.js']
+    css = ['libs/imagebrowser/imagebrowser.css']
     same_asset_filepath_as_hscript = 'jquery'
+    #
+    viewdir = 'libs/imagebrowser/_views'
+    viewfiles = {
+        'widget_main': 'widget_main.jn2',
+        'widget_js': 'widget_js.jn2',
+        }
+
+
+    def embed(self, request, idsuffix=''):
+        """Embed on page."""
+
+        # ATTN: this is too late to call this;
+        # it would be nice if we could do the addtohead here so that it would not have to be worried about by page building function; see ugliness.txt for why we can't and a fix we could implement later
+        # self.hscriptmanager.hscript('jquery_imagebrowser').addtohead(request)
+
+        # id suffix in case we want multiple?
+
+        # get the sections from template files
+        argdict = {
+            'imagebrowser_ajax_url': '/account/profile_avatar_imagebrowser_ajax',
+            'divid_imagebrowser': 'div_imagebrowser'+idsuffix,
+            'divid_directorypanel': 'div_directorypanel'+idsuffix,
+            'divid_filepanel': 'div_filepanel'+idsuffix,
+            'fieldid_fileinput': 'field_fileinput'+idsuffix,
+            # imageroot should be '' or '/path/to/start'
+            'imageroot': '',
+        }
+        #
+        templatefilepath = self.calc_filepath(request, self.viewdir, self.viewfiles['widget_main'])
+        widget_main_html = self.get_mewlosite().renderstr_from_template_file(request, templatefilepath, argdict)
+        #
+        templatefilepath = self.calc_filepath(request, self.viewdir, self.viewfiles['widget_js'])
+        widget_js_html = self.get_mewlosite().renderstr_from_template_file(request, templatefilepath, argdict)
+
+        # build html
+        reth = widget_main_html + widget_js_html
+
+        return reth
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -293,7 +397,7 @@ class MewloHScriptManager(manager.MewloManager):
         self.register_hscript(MewloHScript_Bootstrap())
         self.register_hscript(MewloHScript_Pure())
         self.register_hscript(MewloHScript_Foundation())
-        self.register_hscript(MewloHScript_JQuery_DirImageChooser())
+        self.register_hscript(MewloHScript_JQuery_ImageBrowser())
 
 
 

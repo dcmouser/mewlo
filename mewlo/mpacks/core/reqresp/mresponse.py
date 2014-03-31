@@ -169,6 +169,9 @@ class MewloResponse(object):
         self.rendercontext['clientuser'] = self.request.get_user_or_maketemporaryguest()
         #
         self.rendercontext['thelper'] = mewlosite.comp('templatehelper')
+        #
+        self.rendercontext['hscript'] = mewlosite.comp('hsmanager').hscript
+        #
         #self.rendercontext['alias'] = mewlosite.comp('assetmanager').get_resolvedaliases()
         #
         self.did_add_rendercontext_defaults = True

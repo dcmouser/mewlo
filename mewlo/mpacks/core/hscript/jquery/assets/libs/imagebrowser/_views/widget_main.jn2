@@ -1,0 +1,33 @@
+
+<div id="{{divid_imagebrowser}}" class="imagebrowserbox">
+
+<table border="0">
+<tr>
+
+ <td width="30%">
+	<div id="{{divid_directorypanel}}" class="directorypanel">
+		<ul class="imagebrowser" style="">
+			<li class="imgbdir">
+				<ul class="imagebrowser" style="">
+					<li class="imgbdir"></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+ </td>
+
+ <td valign="top">
+	<div id="{{divid_filepanel}}" class="filepanel">File panel goes here</div>
+ </td>
+
+</tr>
+</table>
+
+</div>
+
+
+
+<div class="imagebrowserinputdiv">
+<strong>Selected Image:</strong> 
+<input id="{{fieldid_fileinput}}" type="text" size= "60"/>
+</div>

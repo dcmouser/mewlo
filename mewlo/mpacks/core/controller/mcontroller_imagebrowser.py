@@ -1,6 +1,7 @@
 """
 mcontroller_imagebrowsers.py
 Controller made to respond to image browsing ajax widgets.
+ATTN:TODO - options for showing extensions, don't capitalize extensions, filter by extensions
 """
 
 
@@ -71,7 +72,7 @@ class MewloController_ImageBrowser(mcontroller.MewloController):
             # path exists
             dircontents = os.listdir(filepath)
             if (len(dircontents)>0):
-                reth += '<ul class="dirimagechooser" style="">'
+                reth += '<ul class="imagebrowser" style="">'
                 if (flag_showdirs):
                     # walk dirs
                     for fpath in dircontents:
@@ -80,7 +81,7 @@ class MewloController_ImageBrowser(mcontroller.MewloController):
                         if (os.path.isdir(fpathfull)):
                             # we found a dir
                             caption = self.calc_filecaption_frompath(fpath)
-                            reth += '<li class="dicdir"><a href="#" rel="{0}">'.format(dir_rel) + caption + '</a>'
+                            reth += '<li class="imgbdir"><a href="#" rel="{0}">'.format(dir_rel) + caption + '</a>'
                             if (flag_recurse):
                                 # recurse indo dir
                                 reth += self.respond_for_image_chooser(request, dir_rel, flag_showdirs, flag_showfiles, flag_recurse, flag_sayempty, flag_showimages)
@@ -96,17 +97,17 @@ class MewloController_ImageBrowser(mcontroller.MewloController):
                             if (flag_showimages):
                                 urlpath = root_fileurl + dir_rel
                                 caption = self.calc_filecaption_frompath(fpath)
-                                reth += '<li class="dicfile"><a href="#" rel="{0}">'.format(dir_rel)
-                                reth += '<div class="dicblock"><img src="{0}" class="dicfilea"/><br/>'.format(urlpath)
+                                reth += '<li class="imgbfile"><a href="#" rel="{0}">'.format(dir_rel)
+                                reth += '<div class="imgbblock"><img src="{0}" class="imgbfile"/><br/>'.format(urlpath)
                                 reth += caption + '<br/><br/></div></a></li>\n'
                             else:
-                                reth += '<li class="dicfile"><a href="#" rel="{0}">'.format(dir_rel)
+                                reth += '<li class="imgbfile"><a href="#" rel="{0}">'.format(dir_rel)
                                 reth += fpath + '</a></li>\n'
                             filecount += 1
                 reth += '</ul>'
 
         if (flag_sayempty and (filecount+dircount==0)):
-            reth += '<li class="dicfile">No files found.</li>\n'
+            reth += '<li class="imgbfile">No files found.</li>\n'
 
         return reth
 

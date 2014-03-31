@@ -117,6 +117,15 @@ class MewloTemplateManager(manager.MewloManager):
         return template
 
 
+
+    def from_string(self, request, templatestring, templatetypeid):
+        """Instantiate a template from a file."""
+        templatelcass = self.lookup_templatetype_bytypeid(templatetypeid)
+        template = templatelcass(request, self)
+        template.load_from_string(templatestring)
+        return template
+
+
     def register_templateclass(self, templateclass):
         """Register a template type."""
         self.templatetypes.append(templateclass)

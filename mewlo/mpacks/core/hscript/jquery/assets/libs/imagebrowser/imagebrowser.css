@@ -1,4 +1,4 @@
-.dirimagechooserbox {
+.imagebrowserbox {
 	height: 320px;
 }
 
@@ -11,7 +11,7 @@
 	overflow: auto;
 }
 
-.dirimagechooserbox td {
+.imagebrowserbox td {
 	vertical-align:top;
 	border: 1px solid gray;
 	margin:5px;
@@ -20,7 +20,7 @@
 
 
 
-UL.dirimagechooser {
+UL.imagebrowser {
 	font-family: Verdana, sans-serif;
 	font-size: 11px;
 	line-height: 18px;
@@ -28,7 +28,7 @@ UL.dirimagechooser {
 	margin: 0px;
 }
 
-.dicdir {
+.imgbdir {
 	list-style: none;
 	padding: 0px;
 	padding-left: 20px;
@@ -36,13 +36,13 @@ UL.dirimagechooser {
 	white-space: nowrap;
 }
 
-.dicfile {
+.imgbfile {
 	list-style: none;
 	padding-left: 2px;
 }
 
 
-UL.dirimagechooser A {
+UL.imagebrowser A {
 	color: #333;
 	text-decoration: none;
 	display: block;
@@ -51,19 +51,19 @@ UL.dirimagechooser A {
 
 
 
-UL.dirimagechooser A:hover {
+UL.imagebrowser A:hover {
 	background: #BDF;
 }
 
 
-LI.selecteditem A {
+LI.imgbselected A {
   background: #DDDDDD;
 }
 
 
 
 
-.dirimagechooser LI.dicfile {
+.imagebrowser LI.imgbfile {
 	/* float left to have multiple columns */
 	float: left;
 	width: 130px;
@@ -78,7 +78,7 @@ LI.selecteditem A {
 
 
 
-div.dirimagechooserinputdiv input {
+div.imagebrowserinputdiv input {
   border: 1px solid #666666;
 	background-color: #EEEEEE;
 }
@@ -108,27 +108,27 @@ div.dirimagechooserinputdiv input {
 
 
 /* caption under */
-img.dicfilea {
+img.imgbfilea {
 	padding: 5px;
 }
-img.dicblock {
+img.imgbblock {
 	/*float: left;*/
 	padding: 5px;
 }
 
 
 /* Core Styles */
-.dirimagechooser LI.dicdir { background: url(images/directory.png) left top no-repeat; }
+.imagebrowser LI.imgbdir { background: url(images/directory.png) left top no-repeat; }
 
 
 
 /* large fonts for image chooser */
-.dirimagechooserinputdiv div input p {
+.imagebrowserinputdiv div input p {
   font-size: 18px;
 }
-.dirimagechooserinputdiv input {
+.imagebrowserinputdiv input {
   font-size: 18px;
 }
-.dirimagechooserinputdiv p {
+.imagebrowserinputdiv p {
   font-size: 18px;
 }

@@ -3,92 +3,9 @@
 <h1>Edit Avatar</h1>
 
 
+{{ hscript('jquery_imagebrowser').embed(request) }}
+
 {{ thelper.html_autoform(form) }}
-
-
-
-
-
-
-
-
-
-
-
-<div id="dirimagechooserdiv" class="dirimagechooserbox">
-
-<table border="1">
-<tr>
-
- <td width="30%">
-	<div id="directorypaneldiv" class="directorypanel">
-		<ul class="dirimagechooser" style="">
-			<li class="dicdir"><a href="#" rel="2xlavatars/">2xlavatars</a>
-				<ul class="dirimagechooser" style="">
-					<li class="dicdir"><a href="#" rel="2xlavatars/portraits/">portraits</a></li>
-				</ul>
-			</li>
-		</ul>
-	</div>
- </td>
-
- <td valign="top">
-	<div id="filepaneldiv" class="filepanel">File panel goes here</div>
- </td>
-
-</tr>
-</table>
-
-</div>
-
-
-
-<div class="dirimagechooserinputdiv">
-<p >
- <strong>Selected Image:</strong> 
-<input id="avatar_system_filepath" name="avatar_system_filepath" type="text"/>
-</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-<script type="text/javascript">
-jQuery(document).ready(function() {
-	jQuery('#dirimagechooserdiv').dirimagechooser({
-		rootpath:'',
-		rooturl:'/assets/site_internal/avatars',
-		filelistscript:'/account/profile_avatar_dirchooser_ajax',
-		folderEvent:'click',
-		loadMessage:'Loading files, please wait..',
-		directorypaneldiv:'directorypaneldiv',
-		filepaneldiv:'filepaneldiv',
-		fileinputfield:'avatar_system_filepath'
-	}, function(f){
-		alert(f);
-	});
-});
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

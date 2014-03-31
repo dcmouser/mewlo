@@ -5,3 +5,21 @@ See ugliness.rst in book documentation.
 
 change all references to __file__ to call the misc function for getting path.
 (note there are 2 forms we use, but they may be interchangeable -- all the more reason to fixup).
+
+
+
+
+3/31/14
+
+because of the way templates are used to build pages, we cannot call a function in a template that would add a javascript/css link to head of page.
+that's because the header of page is already built at that point, and because we use standard template function in a header to grab the head contents and put them on a page, and that function gets called early.
+how might we get around that?
+
+one way would be this:
+the function that we normally call from header template that bring in js/css is : "{{ thelper.headitems_as_html(response) }}"
+this gets invoked early, which is why we can't add to headitems during template processing.
+
+but if we instead had the header template use a special tag/alias that we would replace LATE in rendering, like: "{$LATE:headitems_as_html}"
+and then replace that with thelper.headitems_as_html(response) very late in the rendering process, that would solve the problem.
+
+is there a generic way we can support values/functions that should be late-evaluated?

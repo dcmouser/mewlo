@@ -253,8 +253,8 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         #
         routegroup.append(
             MewloRoute(
-                id = 'profile_avatar_dirchooser_ajax',
-                path = '/profile_avatar_dirchooser_ajax',
+                id = 'profile_avatar_imagebrowser_ajax',
+                path = '/profile_avatar_imagebrowser_ajax',
                 controller = MewloController_ImageBrowser(
                     assetsource_id = 'account::addonassets',
                     asset_subdir = 'avatars',

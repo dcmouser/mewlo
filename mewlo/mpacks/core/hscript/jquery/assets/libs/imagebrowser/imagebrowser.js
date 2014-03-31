@@ -1,24 +1,21 @@
 /**
- * dirimagechooser js code
+ * imagebrowser js code
  * this javascript code works with a widget on a web page where a user can choose from a large set of images in a nested directory tree
  *
  * @author mouser <mouser@donationcoder.com>
- * @link $yumpswebsite
- * @copyright $yumpscopyright
- * @license $yumpslicense
  */
 
 
 if (jQuery) (function($){
 	
 	$.extend($.fn, {
-		dirimagechooser: function(o, h) {
+		imagebrowser: function(o, h) {
 
 			// Defaults
 			if( o.folderEvent == undefined ) o.folderEvent = 'click';
-			if( o.loadMessage == undefined ) o.loadMessage = 'Loading...';
-			if (o.filepaneldiv == undefined) o.filepaneldiv = 'filepaneldiv';
-			if (o.directorypaneldiv == undefined) o.directorypaneldiv = 'directorypaneldiv';
+			if( o.loadMessage == undefined ) o.loadMessage = 'Loading, please wait...';
+			//if (o.filepaneldiv == undefined) o.filepaneldiv = 'filepaneldiv';
+			//if (o.directorypaneldiv == undefined) o.directorypaneldiv = 'directorypaneldiv';
 			if (o.root == undefined ) o.root = '';
 
 
@@ -28,8 +25,8 @@ if (jQuery) (function($){
 
 				function downloadAndShowImages(c, t, dirunescaped) {
 					$(c).addClass('wait');
-					$(".dirimagechooser.start").remove();
-					$.post(o.filelistscript, { dir: t }, function(data) {
+					$(".imagebrowser.start").remove();
+					$.post(o.imagebrowser_ajax_url, { dir: t }, function(data) {
 						// downloaded stuff
 
 						$(c).find('.start').html('');
@@ -43,10 +40,10 @@ if (jQuery) (function($){
 
 
 				function downloadDirectoryTree(c, t) {
-					$(c).html('<ul class="dirimagechooser "><li class="wait">Please wait while server directory is scanned..<li></ul>');
+					$(c).html('<ul class="imagebrowser "><li class="wait">Please wait while server directory is scanned..<li></ul>');
 					$('#'+o.filepaneldiv).addClass('wait');
-					$(".dirimagechooser.start").remove();
-					$.post(o.filelistscript, { dir: t , mode: "dirtree"}, function(data) {
+					$(".imagebrowser.start").remove();
+					$.post(o.imagebrowser_ajax_url, { dir: t , mode: "dirtree"}, function(data) {
 						// downloaded stuff
 						$(c).find('.start').html('');
 						// we remove the temporary wait message and load up new image contents into image panel
@@ -60,11 +57,11 @@ if (jQuery) (function($){
 				// bind the tree li items to click events
 				function bindTree(t) {
 					$(t).find('LI A').bind(o.folderEvent, function() {
-						if( $(this).parent().hasClass('dicdir') ) {
+						if( $(this).parent().hasClass('imgbdir') ) {
 							// they select directory, so load its contents in image panel
-							// select it by adding class selecteditem (and remove from others in this div)
-							$(t).find('LI').each(function() {$(this).removeClass('selecteditem');});
-							$(this).parent().addClass('selecteditem');
+							// select it by adding class imgbselected (and remove from others in this div)
+							$(t).find('LI').each(function() {$(this).removeClass('imgbselected');});
+							$(this).parent().addClass('imgbselected');
 							// now show items in it
 							$dir = $(this).attr('rel');
 							downloadAndShowImages( $('#'+o.filepaneldiv), escape($dir), $dir );
@@ -97,9 +94,9 @@ if (jQuery) (function($){
 									{
 									$founddir=true;
 									$(t).scrollTo($(this));
-									// select it by adding class selecteditem (and remove from others in this div)
-									$(t).find('LI').each(function() {$(this).removeClass('selecteditem');});
-									$(this).parent().addClass('selecteditem');
+									// select it by adding class imgbselected (and remove from others in this div)
+									$(t).find('LI').each(function() {$(this).removeClass('imgbselected');});
+									$(this).parent().addClass('imgbselected');
 									}
 							});
 						// jump to found dir?
@@ -139,10 +136,10 @@ if (jQuery) (function($){
 				// bind image li items to the input form setting function
 				function bindImages(t,dir) {
 					$(t).find('LI A').bind(o.folderEvent, function() {
-						if( $(this).parent().hasClass('dicfile') ) {
-							// select it by adding class selecteditem (and remove from others in this div)
-							$(t).find('LI').each(function() {$(this).removeClass('selecteditem');});
-							$(this).parent().addClass('selecteditem');
+						if( $(this).parent().hasClass('imgbfile') ) {
+							// select it by adding class imgbselected (and remove from others in this div)
+							$(t).find('LI').each(function() {$(this).removeClass('imgbselected');});
+							$(this).parent().addClass('imgbselected');
 							//
 							// they select a file so we want to load it into edit input
 							var $selectedfile =  $(this).attr('rel');
@@ -157,24 +154,24 @@ if (jQuery) (function($){
 
 
 					// if this is current dir of edit field, reselect current image
-					// select it by adding class selecteditem (and remove from others in this div)
+					// select it by adding class imgbselected (and remove from others in this div)
 
 					var $dirandfile = getLookfordirandfile();
 					var $lookfordir = $dirandfile.dir;
 					var $lookforfile = $dirandfile.file;
 					var $lookforfullfile = $dirandfile.fullfile;
-					//alert('in dirimagechooserjs lookfordir = '+$lookfordir+' and dir = '+dir);
+					//alert('in imagebrowserjs lookfordir = '+$lookfordir+' and dir = '+dir);
 					if ($lookfordir == dir)
 						{
 						$(t).find('LI A').each(function() {
 							var $selectedfile =  $(this).attr('rel');
 							if ($selectedfile == $lookforfullfile)
 								{
-								$(this).parent().addClass('selecteditem');
+								$(this).parent().addClass('imgbselected');
 								$(t).scrollTo($(this).parent());
 								}
 							else
-								$(this).parent().removeClass('selecteditem');
+								$(this).parent().removeClass('imgbselected');
 							});
 						}
 					else
@@ -188,7 +185,7 @@ if (jQuery) (function($){
 
 
 				// initial Loading message
-				$('#'+o.filepaneldiv).html('<ul class="dirimagechooser start"><li class="wait">' + o.loadMessage + '<li></ul>');
+				$('#'+o.filepaneldiv).html('<ul class="imagebrowser start"><li class="wait">' + o.loadMessage + '<li></ul>');
 				$('#'+o.filepaneldiv).find('.start').html('');
 				$('#'+o.filepaneldiv).removeClass('wait');
 				// Get the initial file list?
