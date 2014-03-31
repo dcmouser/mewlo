@@ -131,7 +131,11 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
-
+    def get_raw_aliasval(self, varname, namespace):
+        """Resolve string that could include $ aliases, without replacing/expanding."""
+        text = misc.lookup_namespaced_byid(varname, namespace, self.aliases)
+        print "ATTN: found '{0}' with var {1} ns={2} in '{3}'.".format(str(text),varname,namespace,str(self.aliases))
+        return text
 
 
 
@@ -164,6 +168,7 @@ class MewloAssetManager(manager.MewloManager):
         text = self.resolve(text, namespace)
         text = misc.canonicalize_filepath(text)
         return text
+
 
 
 
@@ -450,7 +455,7 @@ class MewloAssetManager(manager.MewloManager):
 
     def add_assetsource(self, assetsource):
         """Add a staticfile_mount dictionary, with keys for 'filepath', 'urlpath'."""
-        id = assetsource.get_id()
+        id = assetsource.get_namespacedid()
         self.asset_sources[id] = assetsource
 
 
@@ -498,6 +503,14 @@ class MewloAssetManager(manager.MewloManager):
             return self.asset_mounts[mountid]
         return None
 
+    def find_mountsource_byid(self, mountsourceid):
+        """Lookup mountpoint by id; return None if not found."""
+        if (mountsourceid in self.asset_sources):
+            return self.asset_sources[mountsourceid]
+        return None
+
+
+
     def get_routegroup_mounting(self):
         """We use a single routegroup under which we create our static routes for internal mount points."""
         if (self.routegroup_mounting == None):
@@ -530,11 +543,40 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
+    def redirect_asset_aliases(self, targetnamespace, targetid, sourcenamespace, sourceid):
+        """Redirect asset aliases."""
+        self.redirect_asset_alias(targetnamespace, targetid, sourcenamespace, sourceid, '_urlrel')
+        self.redirect_asset_alias(targetnamespace, targetid, sourcenamespace, sourceid, '_urlabs')
+        self.redirect_asset_alias(targetnamespace, targetid, sourcenamespace, sourceid, '_filepath')
+
+    def redirect_asset_alias(self, targetnamespace, targetid, sourcenamespace, sourceid, suffixstr):
+        """Redirect an asset alias, so one points to the same values as another"""
+        sourcealiasstr = 'asset_' + sourceid + suffixstr
+        targetaliasstr = 'asset_' + targetid + suffixstr
+        sourceval = '${' + misc.namespacedid(sourcenamespace, sourcealiasstr) + '}'
+        self.add_alias(targetaliasstr, sourceval, targetnamespace)
 
 
+    def calc_source_filepath(self, mountsourceid, subdir=None):
+        """Lookup mount source and compute file path to it, with optional subdir."""
+        assetsource = self.find_mountsource_byid(mountsourceid)
+        filepath = assetsource.get_filepath()
+        assetsource_namespace = assetsource.get_namespace()
+        if (subdir):
+            filepath += '/'+subdir
+        filepath = self.resolve(filepath, assetsource_namespace)
+        return filepath
 
-
-
+    def calc_source_urlpath(self, mountsourceid, subdir=None):
+        """Lookup mount source and compute file path to it, with optional subdir."""
+        # ATTN:TODO - FIX THIS IS UGLY
+        assetsource = self.find_mountsource_byid(mountsourceid)
+        urlpath = '${asset_'+assetsource.get_id()+'_urlabs}'
+        assetsource_namespace = assetsource.get_namespace()
+        if (subdir):
+            urlpath += '/'+subdir
+        urlpath = self.resolve(urlpath, assetsource_namespace)
+        return urlpath
 
 
 
@@ -619,7 +661,7 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
         # what should be the path to these files? the source id is guaranteed to be unique so we use that
         namespace = assetsource.get_namespace()
         routeid = 'assetroute_' + assetsource.get_id()
-        routepath = '/{0}/{1}'.format(self.urlpath, assetsource.get_namespacedid())
+        routepath = '/{0}/{1}'.format(self.urlpath, assetsource.get_namespacedidpath())
         filepath = assetsource.get_filepath()
 
         # create the new route for serving these files at this location
@@ -627,6 +669,7 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
             id  = routeid,
             path = routepath,
             controller = mcontroller_staticfiles.MewloController_StaticFiles(sourcepath = filepath),
+            namespace=namespace,
         )
 
         # add the route to our routegroup
@@ -643,6 +686,9 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
             aliasprefix + '_filepath' : filepath,
             }
         assetmanager.merge_aliases(aliases, namespace)
+
+        # tell source where it's mounted
+        assetsource.set_mountpoint(self)
 
 
 
@@ -674,7 +720,7 @@ class MewloAssetMount_ExternalServer(MewloAssetMount):
         # ok let's shadow the files
         namespace = assetsource.get_namespace()
         filepath_source = assetsource.get_filepath()
-        filepath_destination = self.filepath + '/' + assetsource.get_namespacedid()
+        filepath_destination = self.filepath + '/' + assetsource.get_namespacedidpath()
         failure = assetmanager.shadowfiles(filepath_source, filepath_destination, namespace)
 
         # for the alias filepath, we could use the source filepath, or the external destination filepath
@@ -685,12 +731,14 @@ class MewloAssetMount_ExternalServer(MewloAssetMount):
         # and now we want to create some aliases for refering to them via url and file
         aliasprefix = 'asset_' + assetsource.get_id()
         aliases = {
-            aliasprefix + '_urlrel' : self.urlrel + '/' + assetsource.get_namespacedid(),
-            aliasprefix + '_urlabs' : self.urlabs + '/' + assetsource.get_namespacedid(),
+            aliasprefix + '_urlrel' : self.urlrel + '/' + assetsource.get_namespacedidpath(),
+            aliasprefix + '_urlabs' : self.urlabs + '/' + assetsource.get_namespacedidpath(),
             aliasprefix + '_filepath' : aliasfilepath,
             }
         assetmanager.merge_aliases(aliases, namespace)
 
+        # tell source where it's mounted
+        assetsource.set_mountpoint(self)
 
 
 
@@ -734,11 +782,17 @@ class MewloAssetSource(object):
         self.filepath = filepath
         self.route = None
         self.namespace = namespace
+        self.mountpoint = None
 
     def get_id(self):
         return self.id
 
     def get_namespacedid(self):
+        if (self.namespace):
+            return self.namespace+'::'+self.id
+        return self.id
+
+    def get_namespacedidpath(self):
         if (self.namespace):
             return self.namespace+'_'+self.id
         return self.id
@@ -754,6 +808,9 @@ class MewloAssetSource(object):
 
     def set_route(self, route):
         self.route = route
+
+    def set_mountpoint(self, mountpoint):
+        self.mountpoint = mountpoint
 
     def dumps(self, indent=0):
         """Debug information."""

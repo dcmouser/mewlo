@@ -144,6 +144,19 @@ class MewloRequest(object):
         return formdata
 
 
+    def get_postdata_val(self,varname,defaultval=None):
+        """
+        Get form post data (dictionary)
+        return None if there is none.
+        """
+        if (not self.get_ispostmethod()):
+            # the form data wasn't posted (gett'd?), so we disallow
+            return defaultval
+        if (varname in self.wreq.form):
+            return self.wreq.form[varname]
+        return defaultval
+
+
     def get_cookieval(self,cookiename):
         """Return cookie from client browser request."""
         return self.wreq.cookies.get(cookiename)

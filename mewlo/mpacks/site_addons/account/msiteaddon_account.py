@@ -9,6 +9,7 @@ from mewlo.mpacks.core.siteaddon import msiteaddon
 from mewlo.mpacks.core.navnode.mnav import NavNode, NavLink
 from mewlo.mpacks.core.route.mroute import *
 from mewlo.mpacks.core.controller.mcontroller import MewloController
+from mewlo.mpacks.core.controller.mcontroller_imagebrowser import MewloController_ImageBrowser
 from mewlo.mpacks.core.setting.msettings import MewloSettings
 from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
 from mewlo.mpacks.core.asset import massetmanager
@@ -57,7 +58,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             assetmanager = self.sitecomp_assetmanager()
             # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
             assetmanager.add_assetsource(
-                massetmanager.MewloAssetSource(id='addonassets', mountid = 'external_assets', filepath = '${addon_path}/assets', namespace=self.namespace)
+                massetmanager.MewloAssetSource(id='addonassets', mountid = 'internal_assets', filepath = '${addon_path}/assets', namespace=self.namespace)
                 )
 
 
@@ -248,6 +249,16 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                         ),
                     ],
                 controller = MewloController(root=pkgdirimp_controllers, function=self.accountmanager.request_cancel_modify_field),
+            ))
+        #
+        routegroup.append(
+            MewloRoute(
+                id = 'profile_avatar_dirchooser_ajax',
+                path = '/profile_avatar_dirchooser_ajax',
+                controller = MewloController_ImageBrowser(
+                    assetsource_id = 'account::addonassets',
+                    asset_subdir = 'avatars',
+                    ),
             ))
 
 

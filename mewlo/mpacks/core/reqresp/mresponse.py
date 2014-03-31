@@ -16,7 +16,8 @@ from ..constants.mconstants import MewloConstants as mconst
 import werkzeug
 from werkzeug.wrappers import Response
 
-
+# python imports
+import cgi
 
 
 
@@ -334,4 +335,9 @@ class MewloResponse(object):
         propdict.update(subpropdict)
         self.add_headitem(propdict)
 
+
+    def add_headitem_comment(self, comment):
+        """add a new head link to response for page."""
+        commenthtml = '<!-- {0} -->'.format(cgi.escape(comment))
+        self.headitems.append(commenthtml)
 

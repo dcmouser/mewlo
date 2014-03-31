@@ -151,7 +151,7 @@ class MewloRoute(object):
     DEF_ARGID_extraargs = 'extraargs'
 
 
-    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extras = None, forcedargs = None):
+    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extras = None, forcedargs = None, namespace=''):
         self.id = id
         self.path = path
         self.args = args
@@ -159,7 +159,7 @@ class MewloRoute(object):
         self.extras = extras
         self.forcedargs = forcedargs
         #
-        self.namespace = ''
+        self.namespace = namespace
         #
         self.controllerroot = None
         self.mewlosite = None
@@ -194,7 +194,10 @@ class MewloRoute(object):
         self.parent = parent
         self.mewlosite = mewlosite
         # set namespace
-        self.namespace = parentnamespace
+        if (not self.namespace):
+            self.namespace = parentnamespace
+        elif (parentnamespace):
+            self.namespace = parentnamespace + '::' + self.namespace
         # root propagation
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()

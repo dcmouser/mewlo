@@ -14,8 +14,6 @@ if (jQuery) (function($){
 	$.extend($.fn, {
 		dirimagechooser: function(o, h) {
 
-			//alert("GOD HELP ME IN dirimagechooser");
-
 			// Defaults
 			if( o.folderEvent == undefined ) o.folderEvent = 'click';
 			if( o.loadMessage == undefined ) o.loadMessage = 'Loading...';
@@ -165,7 +163,7 @@ if (jQuery) (function($){
 					var $lookfordir = $dirandfile.dir;
 					var $lookforfile = $dirandfile.file;
 					var $lookforfullfile = $dirandfile.fullfile;
-					//alert('lookfordir = '+$lookfordir+' and dir = '+dir);
+					//alert('in dirimagechooserjs lookfordir = '+$lookfordir+' and dir = '+dir);
 					if ($lookfordir == dir)
 						{
 						$(t).find('LI A').each(function() {
@@ -187,8 +185,6 @@ if (jQuery) (function($){
 					// Prevent A from triggering the # on non-click events
 					if( o.folderEvent.toLowerCase != 'click' ) $(t).find('LI A').bind('click', function() { return false; });
 				}
-
-
 
 
 				// initial Loading message

@@ -21,10 +21,22 @@ from ..asset import massetmanager
 
 
 class MewloHScript(object):
-    """Subclasses of this represent different javascript and css libraries."""
+    """Subclasses of this represent different javascript and css libraries.
+    By default we make it very easy to create a new simple hscript class and use it, but if needed an hscript object can overide any of these functions for more advanced use.
+    ATTN:TO - add some version # suppport.
+    """
+
+    DEF_hscript_namespace = 'hs'
 
     def __init__(self, idname_override=None):
         self.idname_override = idname_override
+
+    def get_idname(self):
+        """Accessor that allows override."""
+        if (self.idname_override):
+            return self.idname_overide
+        return self.idname_default
+
 
     def startup_register(self, hscriptmanager):
         """Store hscriptmanager (we can get mewlosite through it."""
@@ -33,12 +45,10 @@ class MewloHScript(object):
         asset_filepath = getattr(self, 'asset_filepath', None)
         if (asset_filepath):
             self.add_script_assetfilepath(self.get_idname(), asset_filepath)
-
-    def get_idname(self):
-        """Accessor that allows override."""
-        if (self.idname_override):
-            return self.idname_overide
-        return self.idname_default
+        # sometimes we may have asset files we need to alias but which will have been exposed by another required script, so we don't need to recopy or expose under a dif name, so we alias from the other
+        same_asset_filepath_as_hscript = getattr(self, 'same_asset_filepath_as_hscript', None)
+        if (same_asset_filepath_as_hscript):
+            self.clone_aliases_from_another_hscript(same_asset_filepath_as_hscript)
 
 
     def make_liburl(self, idname, src, request, is_relative):
@@ -55,23 +65,27 @@ class MewloHScript(object):
         # return it
         return src
 
-
     def add_script_assetfilepath(self, idname, asset_filepath):
         """Add a script's filepath."""
         # add asset
         assetmanager = self.hscriptmanager.sitecomp_assetmanager()
         mountid = 'internal_assets'
-        assetmanager.add_assetsource( massetmanager.MewloAssetSource(id=idname, mountid = mountid, filepath = asset_filepath, namespace='hs') )
+        assetmanager.add_assetsource( massetmanager.MewloAssetSource(id=idname, mountid = mountid, filepath = asset_filepath, namespace=self.DEF_hscript_namespace) )
 
 
-    def include(self, request , is_relative=True):
+    def addtopage(self, request , is_relative=True):
         """Default subclass function; this does the actions needed to register the script for the page so it loads the js and css it needs."""
         idname = self.get_idname()
 
         # first do any recursive REQUIRED includes
         requires = getattr(self, 'requires', [])
         for requiredlibname in requires:
-            self.hscriptmanager.hscript(requiredlibname).include(request, is_relative)
+            self.hscriptmanager.hscript(requiredlibname).addtopage(request, is_relative)
+
+        # add any comment?
+        comment = getattr(self,'comment', None)
+        if (comment):
+            request.response.add_headitem_comment(comment)
 
         # add the head items js src includes
         js_src = getattr(self,'js_src', [])
@@ -92,48 +106,148 @@ class MewloHScript(object):
 
 
 
+    def clone_aliases_from_another_hscript(self, source_idname):
+        """Clone aliases from one to another."""
+        assetmanager = self.hscriptmanager.sitecomp_assetmanager()
+        assetmanager.redirect_asset_aliases(self.DEF_hscript_namespace, self.get_idname(), self.DEF_hscript_namespace, source_idname)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class MewloHScript_JQuery(MewloHScript):
-    """JQuery js script."""
+    """JQuery js library."""
     idname_default = 'jquery'
+    comment = 'jquery javascript library (http://jquery.com)'
     js_src = ['jquery-2.1.0.js']
     asset_filepath = misc.calc_modulefilepath(__file__)+'/jquery/assets'
 
 
 class MewloHScript_JQueryCdn(MewloHScript):
-    """JQuery js script."""
+    """JQuery js library."""
     idname_default = 'jquery_cdn'
+    comment = 'jquery javascript library (http://jquery.com)'
     js_src = ['http://www.google.com/jsapi']
     js_inner = ['google.load("jquery","1.4")']
 
 
 class MewloHScript_Angular(MewloHScript):
-    """Angular js script."""
+    """Angular js library."""
     idname_default = 'angular'
+    comment = 'angular javascript library (http://angularjs.org)'
     js_src = ['angular.js']
     asset_filepath = misc.calc_modulefilepath(__file__)+'/angular/assets'
 
 
 class MewloHScript_Bootstrap(MewloHScript):
-    """bootstrap css script. See http://getbootstrap.com/getting-started/#download"""
+    """bootstrap css library."""
     idname_default = 'bootstrap'
+    comment = 'bootstrap css library (http://getbootstrap.com)'
     js_src = ['//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js']
     css = ['//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css', '//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css']
 
 
 class MewloHScript_Pure(MewloHScript):
-    """pure css script. See https://github.com/yui/pure/releases/"""
+    """pure css library"""
     idname_default = 'pure'
+    comment = 'pure css library (http://purecss.io)'
     css = ['http://yui.yahooapis.com/pure/0.5.0-rc-1/pure-min.css']
 
 
 class MewloHScript_Foundation(MewloHScript):
-    """foundation css script. See http://foundation.zurb.com/develop/download.html"""
+    """foundation css library"""
     idname_default = 'foundation'
+    comment = 'foundation css library (http://foundation.zurb.com)'
     js_src = ['js/foundation.min.js']
     css = ['css/normalize.css', 'css/foundation.css']
     asset_filepath = misc.calc_modulefilepath(__file__)+'/foundation/assets'
+
+
+
+
+
+
+class MewloHScript_JQuery_DirImageChooser(MewloHScript):
+    """JQuery addon."""
+    idname_default = 'jquery_dirimagechooser'
+    requires = ['jquery']
+    comment = 'jquery - jquery_dirimagechooser (homemade addon for jquery by mouser@donationcoder.com, 2011)'
+    js_src = ['libs/dirimagechooser/dirimagechooser.js', 'libs/dirimagechooser/jquery.scrollTo-min.js']
+    css = ['libs/dirimagechooser/dirimagechooser.css']
+    same_asset_filepath_as_hscript = 'jquery'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -173,11 +287,13 @@ class MewloHScriptManager(manager.MewloManager):
 
     def register_hscripts(self):
         """Register javascript libraries internally for later lookup."""
+        # ATTN:TODO - later we can move these into independent mpacks that register themselves
         self.register_hscript(MewloHScript_JQuery())
         self.register_hscript(MewloHScript_Angular())
         self.register_hscript(MewloHScript_Bootstrap())
         self.register_hscript(MewloHScript_Pure())
         self.register_hscript(MewloHScript_Foundation())
+        self.register_hscript(MewloHScript_JQuery_DirImageChooser())
 
 
 

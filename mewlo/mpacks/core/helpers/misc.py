@@ -165,7 +165,7 @@ def resolve_expand_string(patternstring, replacementdict, namespace, depthcount=
             replacedtext = lookup_namespaced_byid(match.group(1), namespace, replacementdict)
             retv = resolve_expand_string(replacedtext, replacementdict, namespace, depthcount+1)
         except Exception as exp:
-            mexceptionplus.reraiseplus(exp, "Could not find a key '{0}' in alias replacement dictionary: {1}".format(match.group(1),replacementdict))
+            mexceptionplus.reraiseplus(exp, "Could not find a key '{0}' (namespace '{1}') in alias replacement dictionary: {2}".format(match.group(1),namespace,replacementdict))
         return retv
 
     regexpat = r'\$\{([a-zA-Z0-9\_\-\:]+)\}'
