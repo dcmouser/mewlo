@@ -1,0 +1,16 @@
+4/1/14
+
+add asset option to not copy files.??
+
+filter on imagebrowser
+
+
+avatar demo page -- does not init with current avatar
+
+
+
+5/22/14
+
+musermanger.py has this code inside function calc_account_templatepath():
+        viewbasepath = '${account::addon_path}/views'
+which ties it to the supposedly indpendent addon for user; we should try to move this code so that isnt required

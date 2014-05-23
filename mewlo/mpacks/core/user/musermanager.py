@@ -37,7 +37,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         # settings
         self.flag_require_email_verified_before_login = None
         #
-        # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
+        # we put all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
         self.viewfiles = {
             'user_verify_field_email': 'user_verify_field_email.jn2',
         }
@@ -281,8 +281,10 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
     def calc_account_templatepath(self, viewfilepath):
         """Template path inside user account site addon."""
-        viewbasepath = '${addon_path}/views/'
-        return viewbasepath+viewfilepath
+        # ATTN:TODO - this hardcodes the views to the account addon_path -- but really the MUserManager class is supposed to be separate
+        # This code should probably be put into the msiteaddon_account stuff
+        viewbasepath = '${account::addon_path}/views'
+        return viewbasepath + '/' +viewfilepath
 
 
 

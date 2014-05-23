@@ -30,13 +30,13 @@ class GroupAddonManager(manager.MewloManager):
 
 
 
-    def __init__(self, mewlosite, debugmode):
+    def __init__(self, mewlosite, debugmode, siteaddon):
         """Constructor."""
         super(GroupAddonManager,self).__init__(mewlosite, debugmode)
         #
-        self.viewbasepath = '${addon_path}/views/'
+        self.viewbasepath = siteaddon.calc_alias_varname('views')
         #
-        # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
+        # we put all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
         self.viewfiles = {
             'grouplist' : 'grouplist.jn2',
             'groupinfo' : 'groupinfo.jn2',

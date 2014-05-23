@@ -1,9 +1,55 @@
 {% include "${siteviewpath}/header.jn2" %}
 
-<h1>Edit Avatar</h1>
+<h1>Profile Avatar</h1>
 
 
-{{ hscript('jquery_imagebrowser').embed(request) }}
+
+
+
+<div>
+<strong>Choose from a built-in image:</strong>
+{{ hscript('jquery_imagebrowser').embed(request, imagebrowser_ajax_url='/account/profile_avatar_imagebrowser_ajax') }}
+</div>
+
+
+
+
+<br/>
+<div>
+<strong>Use the gravatar (remote avatar) service:</strong><br/>
+Not implemented yet.<br/>
+{DISABLED hscript('remote_avatar').embed(request) }}
+</div>
+
+
+
+<br/>
+<div>
+<strong>Use a remote image:</strong><br/>
+Not implemented yet.<br/>
+{DISABLED hscript('remote_image').embed(request) }}
+</div>
+
+
+
+<br/>
+<div>
+<strong>Upload your own image:</strong><br/>
+Not implemented yet.<br/>
+{DISABLED hscript('upload_image').embed(request) }}
+</div>
+
+
+
+<br/>
+<div>
+<strong>Do not use an avatar image.</strong><br/>
+Not implemented yet.<br/>
+</div>
+
+
+
+
 
 {{ thelper.html_autoform(form) }}
 

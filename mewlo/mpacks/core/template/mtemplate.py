@@ -27,7 +27,9 @@ class MewloTemplate(object):
         self.templatemanager = templatemanager
         self.filepath = None
         self.filecontents = None
-
+        #
+        self.laterender_regex_search = None
+        self.laterender_regex_replace = None
 
     def load_from_file(self, filepath):
         """Load a template from a file."""
@@ -43,7 +45,17 @@ class MewloTemplate(object):
 
     def render_string(self, args={}):
         """Render template into a string and return string.  Use args dictionary to pass in values."""
-        raise Exception("Base template invoked for function 'render_string'.")
+        # first do the main work
+        renderedtext = self.render_string_internal(args)
+        # and now any LATE replacements -- this allows the rare case where we want to so some special replacements after the template has "executed"
+        renderedtext = self.late_render_string(renderedtext, args)
+        # return it
+        return renderedtext
+
+
+    def render_string_internal(self, args):
+        """Render template into a string and return string.  Use args dictionary to pass in values."""
+        raise Exception("ERROR: Base template invoked for function 'render_string_internal'.")
 
     def render_sections(self, args={}, required_sections=[]):
         """Render template broken into sections defined by @@SECTIONAME = headers
@@ -72,6 +84,43 @@ class MewloTemplate(object):
             if (not key in sectionsout):
                 raise Exeception('Internal error, template is missing a required section ({0}): "{1}" (from {2}).'.format(key, str(sectionsout), self.filepath))
         return sectionsout
+
+
+
+    def late_render_string(self, renderedtext, args={}):
+        """Do late-rendering of an already rendered string."""
+        # are there any things that need late rendering?
+        if (self.laterender_regex_search):
+            # try replacements
+            (renderedtext, number_of_subs_made) = re.subn(self.laterender_regex_search, self.laterender_regex_replace, renderedtext)
+            if (number_of_subs_made>0):
+                #print "ATTN: late_render_string resulted in '{0}'.".format(renderedtext)
+                # there were replacements, now re-render
+                self.load_from_string(renderedtext)
+                # non-recursive call (no more late expands)
+                renderedtext = self.render_string_internal(args)
+        # return it
+        return renderedtext
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

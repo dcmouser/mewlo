@@ -38,15 +38,12 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
     def __init__(self, mewlosite, debugmode):
         # call parent constructor
-        super(MewloSiteAddon_Account, self).__init__(mewlosite, debugmode)
+        super(MewloSiteAddon_Account, self).__init__(mewlosite, debugmode, mnamespace='account')
         self.needs_startupstages([mconst.DEF_STARTUPSTAGE_addonstuff])
         # path prefix (used below in route setup)
         self.routepathprefix = '/account'
-        # namespace
-        self.namespace = 'account'
         # create the helper manager
-        self.accountmanager = self.mewlosite.createappendcomp('accountmanager', msiteaddon_account_manager.AccountAddonManager)
-
+        self.accountmanager = self.mewlosite.createappendcomp('accountmanager', msiteaddon_account_manager.AccountAddonManager, siteaddon=self)
 
     def startup_prep(self, stageid, eventlist):
         """
@@ -58,9 +55,8 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             assetmanager = self.sitecomp_assetmanager()
             # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
             assetmanager.add_assetsource(
-                massetmanager.MewloAssetSource(id='addonassets', mountid = 'internal_assets', filepath = '${addon_path}/assets', namespace=self.namespace)
+                massetmanager.MewloAssetSource(id='addon', mountid = 'internal_assets', filepath = self.calc_alias_varname('assets'), mnamespace=self.mnamespace)
                 )
-
 
 
 
@@ -96,13 +92,12 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
     def add_aliases(self):
         """create aliases."""
         # config some aliases we can use (for example in our templates)
-        thisdir = os.path.abspath(os.path.dirname(__file__))
+        thisdir = misc.calc_modulefiledirpath(__file__)
         aliases = {
             # add an alias so we can refer to our view path
             'addon_path': thisdir,
-            #self.namespace+'::'+'addon_account_path': thisdir,
             }
-        self.mewlosite.merge_settings_aliases(aliases, namespace=self.namespace)
+        self.mewlosite.merge_settings_aliases(aliases, mnamespace=self.mnamespace)
 
 
 
@@ -114,7 +109,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         """This is called by default by the base MewloSite near startup, to add routes to the system."""
 
         # create a routegroup
-        routegroup = MewloRouteGroup(controllerroot = pkgdirimp_controllers, pathprefix=self.routepathprefix, namespace = self.namespace)
+        routegroup = MewloRouteGroup(controllerroot = pkgdirimp_controllers, pathprefix=self.routepathprefix, mnamespace = self.mnamespace)
 
         # now add routes to it
         routegroup.append(
@@ -167,7 +162,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
         routegroup.append(
             MewloRoute(
                 id = 'profile_avatar',
-                path = '/profile_avatar',
+                path = '/profile/avatar',
                 args = [
                         MewloRouteArgString(
                             id = 'id',
@@ -256,7 +251,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 id = 'profile_avatar_imagebrowser_ajax',
                 path = '/profile_avatar_imagebrowser_ajax',
                 controller = MewloController_ImageBrowser(
-                    assetsource_id = 'account::addonassets',
+                    assetsource_id = misc.mnamespacedid(self.mnamespace, 'addon'),
                     asset_subdir = 'avatars',
                     ),
             ))
@@ -378,7 +373,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             ]
 
         # add nodes to site
-        self.mewlosite.comp('navnodemanager').add_nodes(nodes, namespace = self.namespace)
+        self.mewlosite.comp('navnodemanager').add_nodes(nodes, mnamespace = self.mnamespace)
 
 
 

@@ -15,14 +15,19 @@ import hashlib, uuid
 
 
 
+# constant
+DEF_mnamespace_separator = '::'
+DEF_mnamespace_separator_forpath = '_'
 
 
 
 
-def calc_modulefilepath(file_define):
+def calc_modulefiledirpath(file_define, subpath = None):
     """Called like calc_modulefiledir(__file__) to return directory path to current module."""
-    filepath = os.path.dirname(os.path.realpath(file_define))
-    return filepath
+    path = os.path.dirname(os.path.realpath(file_define))
+    if (subpath):
+        path += '/' + subpath
+    return path
 
 
 
@@ -41,33 +46,47 @@ def get_value_from_dict(thedict, keyname, defaultval=None):
 
 
 
-def combined_namespace(parentnamespace, childnamespace):
-    """Combine parent and child namespace strings."""
-    if (parentnamespace and childnamespace):
-        return parentnamespace + '::' + childnamespace
-    if (parentnamespace):
-        return parentnamespace
-    if (childnamespace):
-        return childnamespace
+def combined_mnamespaceid(mnamespaceid_parent, mnamespaceid_child):
+    """Combine parent and child mnamespace strings."""
+    if (mnamespaceid_parent and mnamespaceid_child):
+        return mnamespaceid_parent + DEF_mnamespace_separator + mnamespaceid_child
+    if (mnamespaceid_parent):
+        return mnamespaceid_parent
+    if (mnamespaceid_child):
+        return mnamespaceid_child
     return ''
 
 
-def namespacedid(namespace, childid):
-    """Combine parent and child namespace strings."""
+def mnamespacedid(mnamespace, childid):
+    """Combine parent and child mnamespace strings."""
     if (not childid):
-        childid = '[ANONYMOUS]'
-    if (namespace):
-        return namespace + '::' + childid
-    return '::'+childid
+        childid = 'ANONYMOUS'
+    # ATTN: TODO -- might we check if childid already has a namespace, and skip adding it if so?
+    if (False and childid.find(DEF_mnamespace_separator)==-1):
+        return childid
+    if (mnamespace):
+        return mnamespace + DEF_mnamespace_separator + childid
+    return DEF_mnamespace_separator + childid
+
+def mnamespacedid_forpath(mnamespace, childid):
+    """Combine parent and child mnamespace strings, suitable for use in a file path, where a mnamespace separator : would not be an allowed character."""
+    if (not childid):
+        childid = 'ANONYMOUS'
+    # ATTN: TODO -- might we check if childid already has a namespace, and skip adding it if so?
+    if (False and childid.find(DEF_mnamespace_separator)==-1):
+        return childid
+    if (mnamespace):
+        return mnamespace + DEF_mnamespace_separator_forpath + childid
+    return childid
 
 
-def lookup_namespaced_byid(id, namespace, thedict):
-    if (not id.startswith('::')):
-        if (namespace):
-            hashkey = namespace + '::' + id
+def lookup_mnamespaced_byid(id, mnamespace, thedict):
+    if (not id.startswith(DEF_mnamespace_separator)):
+        if (mnamespace):
+            hashkey = mnamespace + DEF_mnamespace_separator + id
             if (hashkey in thedict):
                 return thedict[hashkey]
-        hashkey = '::'+id
+        hashkey = DEF_mnamespace_separator + id
         if (hashkey in thedict):
             return thedict[hashkey]
     hashkey = id
@@ -147,9 +166,9 @@ def does_dict_filter_match(object_features, feature_filter):
 
 
 
-def resolve_expand_string(patternstring, replacementdict, namespace, depthcount=0):
+def resolve_expand_string(patternstring, replacementdict, mnamespace, depthcount=0):
     """Do recursive replacement in string with patterns."""
-    #print "ATTN:DEBUG Asked to exp '"+patternstring+"' with :" + str(replacementdict)+" in namespace '{0}'".format(namespace)
+    #print "ATTN:DEBUG Asked to exp '"+patternstring+"' with :" + str(replacementdict)+" in mnamespace '{0}'".format(mnamespace)
 
     # mewlo imports
     from ..eventlog import mexceptionplus
@@ -159,14 +178,20 @@ def resolve_expand_string(patternstring, replacementdict, namespace, depthcount=
         if (depthcount>99):
             # bailout of out-of-control recursion
             return retv
-        # recursively expand
+        # first lookup item, which will return None if not found
+        replacedtext = lookup_mnamespaced_byid(match.group(1), mnamespace, replacementdict)
+        if (replacedtext == None):
+            raise Exception("Could not find a key during lookup_mnamespaced_byid for '{0}' (mnamespace '{1}') in alias replacement dictionary: {2}".format(match.group(1), mnamespace, replacementdict))
+        # now recursively expand
         try:
-            #replacedtext = replacementdict[match.group(1)]
-            replacedtext = lookup_namespaced_byid(match.group(1), namespace, replacementdict)
-            retv = resolve_expand_string(replacedtext, replacementdict, namespace, depthcount+1)
+            retv = resolve_expand_string(replacedtext, replacementdict, mnamespace, depthcount+1)
         except Exception as exp:
-            mexceptionplus.reraiseplus(exp, "Could not find a key '{0}' (namespace '{1}') in alias replacement dictionary: {2}".format(match.group(1),namespace,replacementdict))
+            mexceptionplus.reraiseplus(exp, "Failed to resolve_expandstring '{0}' (mnamespace '{1}') in alias replacement dictionary: {2}".format(replacedtext, mnamespace, replacementdict))
         return retv
+
+    #if (patternstring == None):
+    #    # error
+    #    raise Exception("Replacement pattern string is None.");
 
     regexpat = r'\$\{([a-zA-Z0-9\_\-\:]+)\}'
     retv = re.sub(regexpat, resolve_expand_string_replacevar, patternstring)

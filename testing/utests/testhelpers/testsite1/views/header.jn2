@@ -5,9 +5,9 @@
 <head>
 <title>{{ thelper.nav_pagetitle(response) }}</title>
 
-{{ thelper.headitems_as_html(response) }}
+{-{ thelper.headitems_as_html(response) }-}
 
-<link rel="stylesheet" type="text/css" href="{{request.resolve("${asset_site_internal_urlrel}/navbar.css")}}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{{request.resolve("${asset_siteinternal_urlrel}/navbar.css")}}" media="screen" />
 </head>
 
 

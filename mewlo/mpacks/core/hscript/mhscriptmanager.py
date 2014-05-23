@@ -26,7 +26,8 @@ class MewloHScript(object):
     ATTN:TO - add some version # suppport.
     """
 
-    DEF_hscript_namespace = 'hs'
+    # all hscript aliases and assets are treated as being under a mnamespace
+    DEF_hscript_mnamespace = 'hs'
 
     def __init__(self, idname_override=None):
         self.idname_override = idname_override
@@ -38,6 +39,14 @@ class MewloHScript(object):
             return self.idname_overide
         return self.idname_default
 
+    def calc_asset_varrep(self, varname):
+        """Simple wrapper to redirect to assetmanager calc_asset_varrep."""
+        idname = self.get_idname()
+        assetmanager = self.hscriptmanager.sitecomp_assetmanager()
+        mnamespace = self.DEF_hscript_mnamespace
+        return assetmanager.calc_asset_varrep_withmnamespace(mnamespace, idname, varname)
+
+
     def get_mewlosite(self):
         return self.hscriptmanager.mewlosite
 
@@ -47,38 +56,38 @@ class MewloHScript(object):
         # make assets for the library available
         asset_filepath = getattr(self, 'asset_filepath', None)
         if (asset_filepath):
-            self.add_script_assetfilepath(self.get_idname(), asset_filepath)
+            self.add_script_assetfilepath(asset_filepath)
         # sometimes we may have asset files we need to alias but which will have been exposed by another required script, so we don't need to recopy or expose under a dif name, so we alias from the other
         same_asset_filepath_as_hscript = getattr(self, 'same_asset_filepath_as_hscript', None)
         if (same_asset_filepath_as_hscript):
             self.clone_aliases_from_another_hscript(same_asset_filepath_as_hscript)
 
 
-    def make_liburl(self, idname, src, request, is_relative):
+    def make_liburl(self, src, request, is_relative):
         """Make a lib url, relative or absolute."""
         if (misc.isabsoluteurl(src)):
             # it's already absolute, just return it
             return src
         if (is_relative):
-            src = '${hs::asset_'+idname+'_urlrel}/'+src
+            src = self.calc_asset_varrep('urlrel')+'/'+src
         else:
-            src = '${hs::asset_'+idname+'_urlabs}/'+src
+            src = self.calc_asset_varrep('urlabs')+'/'+src
         # ATTN:TODO resolve it - we should resolve these at startup and not on every request
         src = request.resolve(src)
         # return it
         return src
 
-    def add_script_assetfilepath(self, idname, asset_filepath):
+    def add_script_assetfilepath(self, asset_filepath):
         """Add a script's filepath."""
         # add asset
+        idname = self.get_idname()
         assetmanager = self.hscriptmanager.sitecomp_assetmanager()
         mountid = 'internal_assets'
-        assetmanager.add_assetsource( massetmanager.MewloAssetSource(id=idname, mountid = mountid, filepath = asset_filepath, namespace=self.DEF_hscript_namespace) )
+        assetmanager.add_assetsource( massetmanager.MewloAssetSource(id=idname, mountid=mountid, filepath=asset_filepath, mnamespace=self.DEF_hscript_mnamespace) )
 
 
     def addtohead(self, request , is_relative=True):
         """Default subclass function; this does the actions needed to register the script for the page so it loads the js and css it needs."""
-        idname = self.get_idname()
 
         # first do any recursive REQUIRED includes
         requires = getattr(self, 'requires', [])
@@ -88,12 +97,12 @@ class MewloHScript(object):
         # add any comment?
         comment = getattr(self,'comment', None)
         if (comment):
-            request.response.add_headitem_comment(comment)
+            request.response.add_headitem_comment(comment, is_unique=True)
 
         # add the head items js src includes
         js_src = getattr(self,'js_src', [])
         for src in js_src:
-            src = self.make_liburl(idname, src, request, is_relative)
+            src = self.make_liburl(src, request, is_relative)
             request.response.add_headitem_js({'src':src})
 
         # add the head items js script inner includes (raw js code in header)
@@ -104,7 +113,7 @@ class MewloHScript(object):
         # any helper css files?
         css = getattr(self,'css', [])
         for src in css:
-            src = self.make_liburl(idname, src, request, is_relative)
+            src = self.make_liburl(src, request, is_relative)
             request.response.add_headitem_css({'href':src})
 
 
@@ -112,13 +121,13 @@ class MewloHScript(object):
     def clone_aliases_from_another_hscript(self, source_idname):
         """Clone aliases from one to another."""
         assetmanager = self.hscriptmanager.sitecomp_assetmanager()
-        assetmanager.redirect_asset_aliases(self.DEF_hscript_namespace, self.get_idname(), self.DEF_hscript_namespace, source_idname)
+        assetmanager.redirect_asset_aliase_set(self.DEF_hscript_mnamespace, self.get_idname(), self.DEF_hscript_mnamespace, source_idname)
 
 
 
     def calc_filepath(self, request, subdir, fname):
         """Calculate the local template file path."""
-        src = '${hs::asset_'+self.get_idname()+'_filepath}'
+        src = self.calc_asset_varrep('filepath')
         if (subdir):
             src+='/'+subdir
         if (fname):
@@ -176,7 +185,7 @@ class MewloHScript_JQuery(MewloHScript):
     idname_default = 'jquery'
     comment = 'jquery javascript library (http://jquery.com)'
     js_src = ['jquery-2.1.0.js']
-    asset_filepath = misc.calc_modulefilepath(__file__)+'/jquery/assets'
+    asset_filepath = misc.calc_modulefiledirpath(__file__, 'jquery/assets')
 
 
 class MewloHScript_JQueryCdn(MewloHScript):
@@ -192,7 +201,7 @@ class MewloHScript_Angular(MewloHScript):
     idname_default = 'angular'
     comment = 'angular javascript library (http://angularjs.org)'
     js_src = ['angular.js']
-    asset_filepath = misc.calc_modulefilepath(__file__)+'/angular/assets'
+    asset_filepath = misc.calc_modulefiledirpath(__file__ , 'angular/assets')
 
 
 class MewloHScript_Bootstrap(MewloHScript):
@@ -216,7 +225,7 @@ class MewloHScript_Foundation(MewloHScript):
     comment = 'foundation css library (http://foundation.zurb.com)'
     js_src = ['js/foundation.min.js']
     css = ['css/normalize.css', 'css/foundation.css']
-    asset_filepath = misc.calc_modulefilepath(__file__)+'/foundation/assets'
+    asset_filepath = misc.calc_modulefiledirpath(__file__ , 'foundation/assets')
 
 
 
@@ -267,24 +276,23 @@ class MewloHScript_JQuery_ImageBrowser(MewloHScript):
         }
 
 
-    def embed(self, request, idsuffix=''):
+    def embed(self, request, imagebrowser_ajax_url='', imageroot='', idsuffix=''):
         """Embed on page."""
 
-        # ATTN: this is too late to call this;
-        # it would be nice if we could do the addtohead here so that it would not have to be worried about by page building function; see ugliness.txt for why we can't and a fix we could implement later
-        # self.hscriptmanager.hscript('jquery_imagebrowser').addtohead(request)
-
-        # id suffix in case we want multiple?
+        # ATTN: we are now using a late-loading system of page header stuff to let the widget on the page do it's own addtohead stuff;
+        # normally we would have to call addtohead BEFORE the template was rendering, but if the user writes the template tag to include page headers using a late-resolving method (see header.jn2), we can do this here
+        # note that because we automatically ignore duplicate addtohead stuff, it is safe to call in both places
+        self.hscriptmanager.hscript('jquery_imagebrowser').addtohead(request)
 
         # get the sections from template files
         argdict = {
-            'imagebrowser_ajax_url': '/account/profile_avatar_imagebrowser_ajax',
+            'imagebrowser_ajax_url': imagebrowser_ajax_url,
             'divid_imagebrowser': 'div_imagebrowser'+idsuffix,
             'divid_directorypanel': 'div_directorypanel'+idsuffix,
             'divid_filepanel': 'div_filepanel'+idsuffix,
             'fieldid_fileinput': 'field_fileinput'+idsuffix,
             # imageroot should be '' or '/path/to/start'
-            'imageroot': '',
+            'imageroot': imageroot,
         }
         #
         templatefilepath = self.calc_filepath(request, self.viewdir, self.viewfiles['widget_main'])
@@ -409,15 +417,6 @@ class MewloHScriptManager(manager.MewloManager):
         # let it do any startup stuff
         hscript.startup_register(self)
 
-
-
-
-    def add_script_assetfilepath(self, idname, asset_filepath):
-        """Add a script's filepath."""
-        # add asset
-        assetmanager = self.sitecomp_assetmanager()
-        mountid = 'internal_assets'
-        assetmanager.add_assetsource( massetmanager.MewloAssetSource(id=idname, mountid = mountid, filepath = filepath, namespace='js') )
 
 
     def hscript(self, idname):

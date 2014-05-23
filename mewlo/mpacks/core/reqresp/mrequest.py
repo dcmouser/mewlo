@@ -37,10 +37,10 @@ class MewloRequest(object):
         self.response = mresponse.MewloResponse(self)
 
 
-    def get_matchedroute_namespace(self):
-        """Return the namespace of the matched route."""
+    def get_matchedroute_mnamespace(self):
+        """Return the mnamespace of the matched route."""
         if (self.route != None):
-            return self.route.namespace
+            return self.route.mnamespace
         return None
 
 
@@ -372,14 +372,14 @@ class MewloRequest(object):
 
     def build_routeurl_byid(self, routeid, flag_relative, args):
         """Build a url to a route with some optional args."""
-        # ATTN: we can leave namespace as None since routemanager will look it up from us passing the SELF request field
-        return self.mewlosite.comp('routemanager').build_routeurl_byid(routeid, flag_relative, args, self, namespace=None)
+        # ATTN: we can leave mnamespace as None since routemanager will look it up from us passing the SELF request field
+        return self.mewlosite.comp('routemanager').build_routeurl_byid(routeid, flag_relative, args, self, mnamespace=None)
 
 
     def build_routelink_byid(self, linktext, routeid, linkargs={}, flag_relative=True, args={}):
         """Build a url to a route with some optional args."""
-        # ATTN: we can leave namespace as None since routemanager will look it up from us passing the SELF request field
-        return self.mewlosite.comp('routemanager').build_routelink_byid(linktext, linkargs, routeid, flag_relative, args, self, namespace=None)
+        # ATTN: we can leave mnamespace as None since routemanager will look it up from us passing the SELF request field
+        return self.mewlosite.comp('routemanager').build_routelink_byid(linktext, linkargs, routeid, flag_relative, args, self, mnamespace=None)
 
 
 
@@ -410,10 +410,10 @@ class MewloRequest(object):
 
     # these just shortcut to assetmanager
     def resolve(self, text):
-        return self.mewlosite.comp('assetmanager').resolve(text, self.get_matchedroute_namespace())
+        return self.mewlosite.comp('assetmanager').resolve(text, self.get_matchedroute_mnamespace())
 
     def resolve_filepath(self, filepath):
-        return self.mewlosite.comp('assetmanager').resolve_filepath(filepath, self.get_matchedroute_namespace())
+        return self.mewlosite.comp('assetmanager').resolve_filepath(filepath, self.get_matchedroute_mnamespace())
 
 
 

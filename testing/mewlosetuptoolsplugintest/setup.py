@@ -12,10 +12,10 @@ import os
 
 # mewlo helpers
 from mewlo.externaltools.setuptoolhelpers import shelp_invoke_setuptools_setup
-
+from mewlo.mpacks.core.helpers.misc import calc_modulefiledirpath
 
 # the source path, typically the directory of this script
-sourcepath = os.path.abspath(os.path.dirname(__file__))
+sourcepath = misc.calc_modulefiledirpath(__file__)
 
 
 

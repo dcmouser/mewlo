@@ -64,7 +64,7 @@ class DbmSqlAlchemyHelper(object):
         if (self.engine == None):
             # create it
             if ('url' in self.dbsettings):
-                self.url = self.resolve(self.dbsettings['url'], namespace=None)
+                self.url = self.resolve(self.dbsettings['url'], mnamespace=None)
             else:
                 raise EFailure("Could not get 'url' for about database connections.")
             # logging flag?
@@ -90,8 +90,9 @@ class DbmSqlAlchemyHelper(object):
             self.session = Session()
         return self.session
 
-    def resolve(self, text, namespace):
-        return self.dbmanager.resolve(text, namespace)
+    def resolve(self, text, mnamespace):
+        """Just invoke resolve function of attached dbmanager."""
+        return self.dbmanager.resolve(text, mnamespace)
 
 
     def sqlahelper_makedbtables_all(self):

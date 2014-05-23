@@ -86,8 +86,8 @@ class NavNodeManager(manager.MewloManager):
     # class constants
     description = "Manages the navnode structures that build site maps and menus and breadcrumbs"
     typestr = "core"
-
-
+    #
+    DEF_navnodeid_home = 'home'
 
 
     def __init__(self, mewlosite, debugmode):
@@ -139,27 +139,27 @@ class NavNodeManager(manager.MewloManager):
 
 
 
-    def add_nodes(self, nodestoadd, namespace=''):
+    def add_nodes(self, nodestoadd, mnamespace=''):
         """Add one or more nodes to our node list."""
-        # ATTN: unfinished - namespace not implemented yet
+        # ATTN: unfinished - mnamespace not implemented yet
         if type(nodestoadd) is list:
             for node in nodestoadd:
-                node.set_namespace(namespace)
+                node.set_mnamespace(mnamespace)
             self.nodes.extend(nodestoadd)
         else:
-            nodestoadd.set_namespace(namespace)
+            nodestoadd.set_mnamespace(mnamespace)
             self.nodes.append(nodestoadd)
 
 
-    def lookupnode_byid(self, nodeid, namespace):
+    def lookupnode_byid(self, nodeid, mnamespace):
         """Lookup node by string or reference."""
-        # ATTN:TODO - make namespace compatible
+        # ATTN:TODO - make mnamespace compatible
         if (nodeid==None):
             return None
         # if its not a string, just return it
         if (not isinstance(nodeid,basestring)):
             return nodeid
-        node = misc.lookup_namespaced_byid(nodeid, namespace, self.nodehash)
+        node = misc.lookup_mnamespaced_byid(nodeid, mnamespace, self.nodehash)
         return node
 
 
@@ -187,7 +187,7 @@ class NavNodeManager(manager.MewloManager):
         for node in self.nodes:
             # lookup children by id and convert to node references
             children = node.get_property('children',[],False,None)
-            children = self.convert_nodeidlist_to_nodelist(children, node.get_namespace())
+            children = self.convert_nodeidlist_to_nodelist(children, node.get_mnamespace())
             # now walk children and add them to our children list, and add us to their parent list
             for child in children:
                 if (child not in node.children):
@@ -200,7 +200,7 @@ class NavNodeManager(manager.MewloManager):
                 parents = [parent]
             else:
                 parents = node.get_property('parents',[],False,None)
-            parents = self.convert_nodeidlist_to_nodelist(parents, node.get_namespace())
+            parents = self.convert_nodeidlist_to_nodelist(parents, node.get_mnamespace())
             # now walk parents and add them to our parent list, and add us to their child list
             #print "ATTN: debug building navnode structure with node {0} having parents {1}.".format(node.id,str(parents))
             for parent in parents:
@@ -220,16 +220,16 @@ class NavNodeManager(manager.MewloManager):
 
 
 
-    def convert_nodeidlist_to_nodelist(self, nodeidlist, namespace):
+    def convert_nodeidlist_to_nodelist(self, nodeidlist, mnamespace):
         """Convert a list of id strings to a list of node references."""
         nodelist = []
         for nodeid in nodeidlist:
-            node = self.lookupnode_byid(nodeid, namespace)
+            node = self.lookupnode_byid(nodeid, mnamespace)
             if (node!=None):
                 nodelist.append(node)
             else:
                 print str(self.nodehash)
-                raise Exception("Could not find navnode with id '{0}' (namespace={1}).".format(nodeid,namespace))
+                raise Exception("Could not find navnode with id '{0}' (mnamespace={1}).".format(nodeid, mnamespace))
         return nodelist
 
 
@@ -245,8 +245,8 @@ class NavNodeManager(manager.MewloManager):
         """Given response and a possible explicit rootnode, find current node and rootnode to use."""
         currentnodeid = responsecontext.get_value('pagenodeid')
         request = responsecontext.get_value('request')
-        namespace = request.get_matchedroute_namespace()
-        currentnode = self.lookupnode_byid(currentnodeid, namespace)
+        mnamespace = request.get_matchedroute_mnamespace()
+        currentnode = self.lookupnode_byid(currentnodeid, mnamespace)
         # decide rootnode
         if (currentnode != None and rootnode == None):
             # find the top parent of this node
@@ -434,9 +434,10 @@ class NavNodeManager(manager.MewloManager):
         # ATTN: this is a bit kludgey
         if (len(nodepath)>0):
             endnode=nodepath[len(nodepath)-1]
-            if (endnode.id!='home'):
-                if ('::home' in self.nodehash):
-                    nodepath.append(self.nodehash['::home'])
+            if (endnode.id!=self.DEF_navnodeid_home):
+                navnode_home_hashid = misc.mnamespacedid(None, self.DEF_navnodeid_home)
+                if (navnode_home_hashid in self.nodehash):
+                    nodepath.append(self.nodehash[navnode_home_hashid])
         # reverse list for breadcrumbs, where root is at front
         navdata = nodepath[::-1]
         return navdata
@@ -626,18 +627,18 @@ class NavNode(object):
         """Constructor for the class."""
         self.id = id
         self.properties = properties
-        self.namespace = ''
+        self.mnamespace = ''
         self.resetbuild(None)
 
 
-    def set_namespace(self, namespace):
-        self.namespace = namespace
+    def set_mnamespace(self, mnamespace):
+        self.mnamespace = mnamespace
 
-    def get_namespace(self):
-        return self.namespace
+    def get_mnamespace(self):
+        return self.mnamespace
 
     def fullid(self):
-        return misc.namespacedid(self.namespace, self.id)
+        return misc.mnamespacedid(self.mnamespace, self.id)
 
     def dumps(self, indent=0):
         """Return a string (with newlines and indents) that displays some debugging useful information about the object."""
@@ -670,7 +671,7 @@ class NavNode(object):
             # lookup by name
             if (routeid==None):
                 routeid = self.id
-            self.route = self.mewlosite.comp('routemanager').lookup_route_byid(routeid, self.namespace)
+            self.route = self.mewlosite.comp('routemanager').lookup_route_byid(routeid, self.mnamespace)
 
 
 
@@ -822,16 +823,16 @@ class NavNode(object):
         """Ask site to construct proper relative url on the site by adding site prefix."""
         if (False and request != None):
             return request.resolve_relative_url(url)
-        namespace = self.namespace
-        return self.mewlosite.resolve_relative_url(url, namespace)
+        mnamespace = self.mnamespace
+        return self.mewlosite.resolve_relative_url(url, mmnamespace)
 
 
     def resolve_navnode(self, val, request):
         """Ask site to construct proper relative url on the site by adding site prefix."""
         if (False and request != None):
             return request.resolve(val)
-        namespace = self.namespace
-        return self.mewlosite.resolve(val, namespace)
+        mnamespace = self.mnamespace
+        return self.mewlosite.resolve(val, mnamespace)
 
 
 

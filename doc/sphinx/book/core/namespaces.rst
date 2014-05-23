@@ -7,23 +7,36 @@ A url route maps a pattern to a controller (view) function that gets called when
 
 In Django, url namespaces serve of a couple of purposes related to writing modular, reusable, compartmentalized code:
 
-    * With a module (app, addon, etc.), one can refer to urls by name, using short names that implicitly use the current namespace.
+    * With a module (app, addon, etc.), one can refer to urls by name, using short names that *implicitly* use the *current* namespace.
     * Namespaces allow us to use short names without worrying about clashing with other modules (apps).
     * Using namespaces that can be specified/overridden at time of instantiation means that we can dynamically instantiate multiple copies of a module (app, addon, etc.), giving each one a different custom namespace; allowing us to refer to each one specifically.
     
+So, there are TWO key ideas as work:
+    1. Things (named urls for django), can have namespaces, and we can refer to them by name, either explicitly specifying a namespace, or using the implicit current namespace.
+    2. We often want to instantiate multiple copies of some object (or collection of objects), where it will be easy to specify a custom namespace for each, while keeping the object names unchanged.
+
+
 Mewlo follows this idea and supports route (url) namespaces in a similar fashion.
 When a request is matched against a route, the request notes the matching route and inherits that namespace as its current namespace.
 Lookups of routes by name are done in that default namespace -- but explicit namespaces provided along with names for lookup can be used when needed.
 
 In addition to url route lookups, Mewlo also has a concept of NavNodes, which are used to build site/menu structure, and which closely relate to url routes by name.  NavNodes are set up with the same namespace system as url routes, and work the same way.
 
+The idea is consistent -- we look up objects by name, with an explicit or implicit namespace helping to resolve lookups.
 
-Views, Templates, and Aliases
------------------------------
+
+Namespace use in Views, Templates, and Aliases
+----------------------------------------------
 
 In addition to url routes and nav nodes, we use the same namespace system to provide the same functionality to alias lookups -- which have the same demands.  Alias resolution is used in template view lookups, etc. and so this affects all view file lookups.
 
-It's worth noting that this is quite different from the way django does template lookup.  Django uses an ordered list of Template loaders and directories.  When one references a template file, django searches these directories (loaders) and returns the first matching file.
+
+It's worth noting that this is quite different from the way django does template lookup.  Django uses an ordered list of Template loaders and directories.  When one references a template file, django searches these directories (loaders) and returns the first matching file.  Django does not have a namespace system for such template/file lookups.
+
+
+
+Shadowing
+---------
 
 In Mewlo, one always specifies a full file path, whether referring to a template file or a static resource file.  But this file path will typically use an alias to refer to a specific directory.  Aliases use the same namespace system as url routes.
 

@@ -11,6 +11,7 @@ from mewlo.mpacks.core.route.mroute import *
 from mewlo.mpacks.core.controller.mcontroller import MewloController
 from mewlo.mpacks.core.setting.msettings import MewloSettings
 from mewlo.mpacks.core.constants.mconstants import MewloConstants as mconst
+from mewlo.mpacks.core.helpers.misc import calc_modulefiledirpath
 
 # python imports
 import os, sys
@@ -36,13 +37,11 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
 
     def __init__(self, mewlosite, debugmode):
         # call parent constructor
-        super(MewloSiteAddon_Group, self).__init__(mewlosite, debugmode)
+        super(MewloSiteAddon_Group, self).__init__(mewlosite, debugmode, mnamespace='group')
         # path prefix (used below in route setup)
         self.routepathprefix = '/groups'
-        # namespaces
-        self.namespace = 'group'
         # create the helper manager
-        self.groupaddonmanager = self.mewlosite.createappendcomp('group_addon_manager', msiteaddon_group_manager.GroupAddonManager)
+        self.groupaddonmanager = self.mewlosite.createappendcomp('group_addon_manager', msiteaddon_group_manager.GroupAddonManager, self)
 
 
 
@@ -82,12 +81,12 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
     def add_aliases(self):
         """create aliases."""
         # config some aliases we can use (for example in our templates)
-        thisdir = os.path.abspath(os.path.dirname(__file__))
+        thisdir = misc.calc_modulefiledirpath(__file__)
         aliases = {
             # add an alias so we can refer to our view path
             'addon_path': thisdir,
             }
-        self.mewlosite.merge_settings_aliases(aliases, namespace=self.namespace)
+        self.mewlosite.merge_settings_aliases(aliases, mnamespace=self.mnamespace)
 
 
 
@@ -95,7 +94,7 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
         """This is called by default by the base MewloSite near startup, to add routes to the system."""
 
         # create a routegroup
-        routegroup = MewloRouteGroup(controllerroot = pkgdirimp_controllers, pathprefix=self.routepathprefix, namespace = self.namespace)
+        routegroup = MewloRouteGroup(controllerroot = pkgdirimp_controllers, pathprefix=self.routepathprefix, mnamespace = self.mnamespace)
 
         # now add routes to it
         routegroup.append(
@@ -146,7 +145,7 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
             ]
 
         # add nodes to site
-        self.mewlosite.comp('navnodemanager').add_nodes(nodes, namespace = self.namespace)
+        self.mewlosite.comp('navnodemanager').add_nodes(nodes, mnamespace = self.mnamespace)
 
 
 

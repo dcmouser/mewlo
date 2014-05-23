@@ -50,7 +50,12 @@ class MewloMailManager(manager.MewloManager):
 
     def send_email(self, maildict):
         """Just a wrapper around our mail sender function of choice."""
-        return self.send_email_smtplib(maildict)
+        failure = self.send_email_smtplib(maildict)
+        # log it
+        msg = "Sending email {0} with failure result = {1}.".format(maildict,failure)
+        self.mewlosite.logevent(msg)
+        # return it
+        return failure
 
 
 

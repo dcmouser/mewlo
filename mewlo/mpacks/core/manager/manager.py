@@ -134,7 +134,7 @@ class MewloManager(object):
         request.response.set_renderpageid_ifnotset(pageid)
 
     def calc_localtemplatepath(self, viewfilepath):
-        return self.viewbasepath+viewfilepath
+        return self.viewbasepath + '/' + viewfilepath
 
     def render_localview(self, request, viewfilepath, args=None):
         """Helper function to render relative view file."""

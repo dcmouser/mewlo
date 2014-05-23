@@ -44,7 +44,7 @@ class AccountAddonManager(manager.MewloManager):
 
 
 
-    def __init__(self, mewlosite, debugmode):
+    def __init__(self, mewlosite, debugmode, siteaddon):
         """Constructor."""
         super(AccountAddonManager,self).__init__(mewlosite, debugmode)
         self.needs_startupstages([mconst.DEF_STARTUPSTAGE_final])
@@ -52,7 +52,7 @@ class AccountAddonManager(manager.MewloManager):
         # settings
         self.registration_mode = None
         #
-        self.viewbasepath = '${addon_path}/views/'
+        self.viewbasepath = siteaddon.calc_alias_varname('views')
         #
         # we all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
         self.viewfiles = {
@@ -1800,8 +1800,9 @@ class AccountAddonManager(manager.MewloManager):
         # the form we will use
         form = formclass(formdata)
 
-        # add jquery
-        self.sitecomp_hsmanager().hscript('jquery_imagebrowser').addtohead(request)
+        # add jquery lib we need for this view
+        # ATTN: we are now using a late-loading system of page header stuff to let the widget on the page do it's own addtohead stuff
+        # self.sitecomp_hsmanager().hscript('jquery_imagebrowser').addtohead(request)
 
         # render form (use forms default view)
         self.render_localview(request, form.get_viewfilename(), {'form':form})

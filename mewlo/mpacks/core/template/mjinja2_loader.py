@@ -23,9 +23,9 @@ class MewloJinja2Loader(jinja2.BaseLoader):
 
     def get_source(self, environment, templatefilepath):
         """Lookup a source template file."""
-        namespace = self.request.get_matchedroute_namespace()
-        #print "ATTN: in MewloJinja2Loader get_source() looking for '{0}' in namespace '{1}'.".format(templatefilepath, namespace)
-        path = self.mewlosite.resolve_filepath(templatefilepath, namespace)
+        mnamespace = self.request.get_matchedroute_mnamespace()
+        #print "ATTN: in MewloJinja2Loader get_source() looking for '{0}' in mnamespace '{1}'.".format(templatefilepath, mnamespace)
+        path = self.mewlosite.resolve_filepath(templatefilepath, mnamespace)
         if not os.path.exists(path):
             raise jinja2.TemplateNotFound(template)
         mtime = os.path.getmtime(path)

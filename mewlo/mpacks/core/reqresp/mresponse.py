@@ -311,10 +311,14 @@ class MewloResponse(object):
         return self.headitems
 
 
-    def add_headitem(self, propdict):
+    def add_headitem_dict(self, propdict, is_unique):
         """add a new head link to response for page."""
         headitem = misc.dict_to_headitem(propdict)
-        if (not headitem in self.headitems):
+        self.add_headitem(headitem, is_unique)
+
+    def add_headitem(self, headitem, is_unique):
+        """add a new head link to response for page."""
+        if ((not is_unique) or (not headitem in self.headitems)):
             self.headitems.append(headitem)
 
 
@@ -325,7 +329,7 @@ class MewloResponse(object):
             'type': 'text/javascript',
             }
         propdict.update(subpropdict)
-        self.add_headitem(propdict)
+        self.add_headitem_dict(propdict, True)
 
 
     def add_headitem_css(self, subpropdict):
@@ -336,11 +340,11 @@ class MewloResponse(object):
             'type': 'text/css',
             }
         propdict.update(subpropdict)
-        self.add_headitem(propdict)
+        self.add_headitem_dict(propdict, True)
 
 
-    def add_headitem_comment(self, comment):
+    def add_headitem_comment(self, comment, is_unique):
         """add a new head link to response for page."""
         commenthtml = '<!-- {0} -->'.format(cgi.escape(comment))
-        self.headitems.append(commenthtml)
+        self.add_headitem(commenthtml, is_unique)
 

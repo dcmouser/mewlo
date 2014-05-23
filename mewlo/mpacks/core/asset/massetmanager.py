@@ -76,17 +76,44 @@ class MewloAssetManager(manager.MewloManager):
     #    self.aliases = aliases
 
 
-    def merge_aliases(self, aliases, namespace):
+    def merge_aliases(self, aliases):
         """Merge in some aliases."""
         for (key,val) in aliases.iteritems():
-            self.add_alias(key, val, namespace)
+            self.add_alias(key, val)
 
-    def add_alias(self, aliasname, aliasval, namespace):
+    def merge_aliases_withmnamespace(self, aliases, mnamespace):
+        """Merge in some aliases."""
+        for (key,val) in aliases.iteritems():
+            self.add_alias_withmnamespace(key, val, mnamespace)
+
+
+    def add_alias(self, aliasname, aliasval):
         """Add an alias."""
-        hashkey = misc.namespacedid(namespace, aliasname)
+        hashkey = aliasname
+        self.aliases[hashkey] = aliasval
+
+    def add_alias_withmnamespace(self, aliasname, aliasval, mnamespace):
+        """Add an alias."""
+        hashkey = misc.mnamespacedid(mnamespace, aliasname)
         self.aliases[hashkey] = aliasval
 
 
+    def calc_asset_varname(self, idname, varname):
+        """Construct an asset varname without mnamespace."""
+        fullidvarname = 'asset_'+idname+'_'+varname
+        return fullidvarname
+
+
+    def calc_asset_varname_withmnamespace(self, mnamespace, idname, varname):
+        """Construct an asset varname with mnamespace.
+        NOTE: If empty mnamespace, the varname will look like ::asset_idname_varname"""
+        fullidvarname = 'asset_'+idname+'_'+varname
+        return misc.mnamespacedid(mnamespace,fullidvarname)
+
+    def calc_asset_varrep_withmnamespace(self, mnamespace, idname, varname):
+        """Construct an asset varname with mnamespace.
+        NOTE: If empty mnamespace, the varname will look like ${::asset_idname_varname}"""
+        return '${' + self.calc_asset_varname_withmnamespace(mnamespace, idname, varname) + '}'
 
 
 
@@ -129,25 +156,23 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
-
-
-    def get_raw_aliasval(self, varname, namespace):
+    def get_raw_aliasval(self, varname, mnamespace):
         """Resolve string that could include $ aliases, without replacing/expanding."""
-        text = misc.lookup_namespaced_byid(varname, namespace, self.aliases)
-        print "ATTN: found '{0}' with var {1} ns={2} in '{3}'.".format(str(text),varname,namespace,str(self.aliases))
+        text = misc.lookup_mnamespaced_byid(varname, mnamespace, self.aliases)
+        print "ATTN: found '{0}' with var {1} ns={2} in '{3}'.".format(str(text), varname, mnamespace, str(self.aliases))
         return text
 
 
 
 
-    def resolve(self, text, namespace):
+    def resolve(self, text, mnamespace):
         """Resolve a string that could include $ aliases.  This is the central function that many places call."""
         if (text==None):
             return None
         if (not isinstance(text, basestring)):
             return text
         # ok resolve aliases -- for now we use a helper function to do the main work
-        resolvedtext = misc.resolve_expand_string(text, self.aliases, namespace)
+        resolvedtext = misc.resolve_expand_string(text, self.aliases, mnamespace)
         # now we have a fully resolved string that may have contained some aliases
         return resolvedtext
 
@@ -155,17 +180,17 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
-    def resolve_filepath(self, text, namespace):
+    def resolve_filepath(self, text, mnamespace):
         """Call resolve THEN call replace_filepath."""
-        resolvedtext = self.resolve(text, namespace)
+        resolvedtext = self.resolve(text, mnamespace)
         resolvedtext = self.replace_filepath(resolvedtext)
         #print "ATTN:DEBUG resolved '{0}' to '{1}'.".format(text, resolvedtext)
         return resolvedtext
 
 
-    def resolve_filepath_canonical_noreplace(self, text, namespace):
+    def resolve_filepath_canonical_noreplace(self, text, mnamespace):
         """Resolve string that could include $ aliases, AND THEN canonicalize it."""
-        text = self.resolve(text, namespace)
+        text = self.resolve(text, mnamespace)
         text = misc.canonicalize_filepath(text)
         return text
 
@@ -175,34 +200,34 @@ class MewloAssetManager(manager.MewloManager):
 
     # shortcuts that just call resolve() with some extra info
 
-    def resolve_absolute_filepath(self, relpath, namespace):
+    def resolve_absolute_filepath(self, relpath, mnamespace):
         """Shortcut to resolve a filepath given a relative path."""
-        return self.resolve_filepath('${sitefilepath}' + relpath, namespace)
+        return self.resolve_filepath('${sitefilepath}' + relpath, mnamespace)
 
-    def resolve_absolute_url(self, relpath, namespace):
+    def resolve_absolute_url(self, relpath, mnamespace):
         """Shortcut to resolve a url given a relative path."""
         if (misc.isabsoluteurl(relpath)):
-            return self.resolve(relpath, namespace)
-        return self.resolve('${siteurl_absolute}' + relpath, namespace)
+            return self.resolve(relpath, mnamespace)
+        return self.resolve('${siteurl_absolute}' + relpath, mnamespace)
 
-    def resolve_relative_url(self, relpath, namespace):
+    def resolve_relative_url(self, relpath, mnamespace):
         """Shortcut to resolve a url that is relative to our server root."""
         if (misc.isabsoluteurl(relpath)):
-            return self.resolve(relpath, namespace)
-        return self.resolve('${siteurl_relative}' + relpath, namespace)
+            return self.resolve(relpath, mnamespace)
+        return self.resolve('${siteurl_relative}' + relpath, mnamespace)
 
 
 
 
 
-    def get_resolvedaliases_UNUSED(self, namespace):
+    def get_resolvedaliases_UNUSED(self, mnamespace):
         """Return a dictionary of resolved aliases; might be useful for templates."""
         # ATTN: Note that most aliases will not need resolving, but some may recurively include each other, that's why we have to do this
         # ATTN: Note that this could be quite slow unless we do it smartly -- would be nice to cache this result so that we don't have to recreate it each call
         # ATTN: TODO eliminate this function
         aliases = {}
         for key,val in self.aliases.iteritems():
-            aliases[key] = misc.resolve_expand_string(val, self.aliases, namespace)
+            aliases[key] = misc.resolve_expand_string(val, self.aliases, mnamespace)
         return aliases
 
 
@@ -319,8 +344,8 @@ class MewloAssetManager(manager.MewloManager):
 
 
     def is_filepath_under_another(self, filepath, potentialparent_filepath):
-        filepath = self.resolve_filepath_canonical_noreplace(filepath, namespace=None)
-        potentialparent_filepath = self.resolve_filepath_canonical_noreplace(potentialparent_filepath, namespace=None)
+        filepath = self.resolve_filepath_canonical_noreplace(filepath, mnamespace=None)
+        potentialparent_filepath = self.resolve_filepath_canonical_noreplace(potentialparent_filepath, mnamespace=None)
         if (filepath.startswith(potentialparent_filepath)):
             return True
         return False
@@ -331,8 +356,8 @@ class MewloAssetManager(manager.MewloManager):
         """Add a new mapping to replace a filepath."""
         # ATTN: note that we do not handle the case where the new_filepath has been previously rerouted to something else
         # first ensure all are in canonical format
-        orig_filepath = self.resolve_filepath_canonical_noreplace(orig_filepath, namespace=None)
-        new_filepath = self.resolve_filepath_canonical_noreplace(new_filepath, namespace=None)
+        orig_filepath = self.resolve_filepath_canonical_noreplace(orig_filepath, mnamespace=None)
+        new_filepath = self.resolve_filepath_canonical_noreplace(new_filepath, mnamespace=None)
         # now add it to our dictionary
         self.replacements_filepaths_static[orig_filepath] = new_filepath
         #print "ATTN:DEBUG adding asset replacement for '{0}' is '{1}'.".format(orig_filepath, new_filepath)
@@ -342,8 +367,8 @@ class MewloAssetManager(manager.MewloManager):
         """Traverse two shadow didrectories and add cases where there exists replacement files in the new filedirpath."""
         # first ensure all are in canonical format
         #print "ATTN: walking in add_replacement_shadowfiledir_static1 for '{0}' with filepath1 '{1}'.".format(orig_filedirpath, new_filedirpath)
-        orig_filedirpath = self.resolve_filepath_canonical_noreplace(orig_filedirpath, namespace=None)
-        new_filedirpath = self.resolve_filepath_canonical_noreplace(new_filedirpath, namespace=None)
+        orig_filedirpath = self.resolve_filepath_canonical_noreplace(orig_filedirpath, mnamespace=None)
+        new_filedirpath = self.resolve_filepath_canonical_noreplace(new_filedirpath, mnamespace=None)
         orig_filedirpath_len = len(orig_filedirpath)
         #print "ATTN: walking in add_replacement_shadowfiledir_static2 for '{0}' with filepath1 '{1}'.".format(orig_filedirpath, new_filedirpath)
         if (flag_mkpath_root):
@@ -455,7 +480,7 @@ class MewloAssetManager(manager.MewloManager):
 
     def add_assetsource(self, assetsource):
         """Add a staticfile_mount dictionary, with keys for 'filepath', 'urlpath'."""
-        id = assetsource.get_namespacedid()
+        id = assetsource.get_mnamespacedid()
         self.asset_sources[id] = assetsource
 
 
@@ -467,8 +492,8 @@ class MewloAssetManager(manager.MewloManager):
         outstr = " "*indent + "AssetManager (" + self.__class__.__name__  + ") reporting in.\n"
         outstr += self.dumps_description(indent+1)
         outstr += " "*indent + " Aliases:\n"
-        for (key, val) in self.aliases.iteritems():
-            outstr += " "*indent + " [{0}] = '{1}'\n".format(key,val)
+        for key in sorted(self.aliases):
+            outstr += " "*indent + " [{0}] = '{1}'\n".format(key,self.aliases[key])
         outstr += " "*indent + " AssetMounts:\n"
         for (id, assetmount) in self.asset_mounts.iteritems():
             outstr += assetmount.dumps(indent+2)
@@ -521,13 +546,13 @@ class MewloAssetManager(manager.MewloManager):
         return self.routegroup_mounting
 
 
-    def shadowfiles(self, filepath_source, filepath_destination, namespace, dry_run=0):
+    def shadowfiles(self, filepath_source, filepath_destination, mnamespace, dry_run=0):
         """We want to shadow some (asset) files between directories (recursive into subdirs).
         We may have to create the filepath_target deeply.
         Return failure on error or None."""
         # resolve paths
-        filepath_source = self.resolve_filepath(filepath_source, namespace)
-        filepath_destination = self.resolve_filepath(filepath_destination, namespace)
+        filepath_source = self.resolve_filepath(filepath_source, mnamespace)
+        filepath_destination = self.resolve_filepath(filepath_destination, mnamespace)
         # now shadow
         # ATTN: this does not support the replacement of files system to let user override specific files, and so needs to be rewritten to support that
         result = misc.copy_tree_withcallback(filepath_source, filepath_destination, dry_run=dry_run, callbackfp = self.shadowcopytree_callback)
@@ -538,44 +563,42 @@ class MewloAssetManager(manager.MewloManager):
 
     def shadowcopytree_callback(self, filepath_source, filepath_dest):
         """Return a tuple of the form <BoolShouldCopy, new_filepath_source, new_filepath_dest>."""
-        filepath_source = self.resolve_filepath(filepath_source, namespace=None)
+        filepath_source = self.resolve_filepath(filepath_source, mnamespace=None)
         return (True, filepath_source, filepath_dest)
 
 
 
-    def redirect_asset_aliases(self, targetnamespace, targetid, sourcenamespace, sourceid):
+    def redirect_asset_aliase_set(self, targetmnamespace, targetid, sourcemnamespace, sourceid):
         """Redirect asset aliases."""
-        self.redirect_asset_alias(targetnamespace, targetid, sourcenamespace, sourceid, '_urlrel')
-        self.redirect_asset_alias(targetnamespace, targetid, sourcenamespace, sourceid, '_urlabs')
-        self.redirect_asset_alias(targetnamespace, targetid, sourcenamespace, sourceid, '_filepath')
+        self.redirect_asset_alias(targetmnamespace, targetid, sourcemnamespace, sourceid, 'urlrel')
+        self.redirect_asset_alias(targetmnamespace, targetid, sourcemnamespace, sourceid, 'urlabs')
+        self.redirect_asset_alias(targetmnamespace, targetid, sourcemnamespace, sourceid, 'filepath')
 
-    def redirect_asset_alias(self, targetnamespace, targetid, sourcenamespace, sourceid, suffixstr):
+    def redirect_asset_alias(self, targetmnamespace, targetid, sourcemnamespace, sourceid, varname):
         """Redirect an asset alias, so one points to the same values as another"""
-        sourcealiasstr = 'asset_' + sourceid + suffixstr
-        targetaliasstr = 'asset_' + targetid + suffixstr
-        sourceval = '${' + misc.namespacedid(sourcenamespace, sourcealiasstr) + '}'
-        self.add_alias(targetaliasstr, sourceval, targetnamespace)
+        sourceval = self.calc_asset_varrep_withmnamespace(sourcemnamespace, sourceid, varname)
+        targetaliasvarname = self.calc_asset_varname_withmnamespace(targetmnamespace, targetid, varname)
+        self.add_alias(targetaliasvarname, sourceval)
 
 
     def calc_source_filepath(self, mountsourceid, subdir=None):
         """Lookup mount source and compute file path to it, with optional subdir."""
         assetsource = self.find_mountsource_byid(mountsourceid)
         filepath = assetsource.get_filepath()
-        assetsource_namespace = assetsource.get_namespace()
+        assetsource_mnamespace = assetsource.get_mnamespace()
         if (subdir):
             filepath += '/'+subdir
-        filepath = self.resolve(filepath, assetsource_namespace)
+        filepath = self.resolve(filepath, assetsource_mnamespace)
         return filepath
 
     def calc_source_urlpath(self, mountsourceid, subdir=None):
         """Lookup mount source and compute file path to it, with optional subdir."""
         # ATTN:TODO - FIX THIS IS UGLY
         assetsource = self.find_mountsource_byid(mountsourceid)
-        urlpath = '${asset_'+assetsource.get_id()+'_urlabs}'
-        assetsource_namespace = assetsource.get_namespace()
+        urlpathstr = self.calc_asset_varrep_withmnamespace(assetsource.get_mnamespace(), assetsource.get_id(), 'urlabs')
         if (subdir):
-            urlpath += '/'+subdir
-        urlpath = self.resolve(urlpath, assetsource_namespace)
+            urlpathstr += '/'+subdir
+        urlpath = self.resolve(urlpathstr, None)
         return urlpath
 
 
@@ -631,7 +654,21 @@ class MewloAssetMount(object):
         # base class does nothing
         pass
 
+    def mount_source_add_aliases(self, assetmanager, assetsource, mnamespace, relurl, absurl, filepath):
+        # create and add aliases
 
+        # and now we want to create some aliases for refering to them via url and file
+        assetsourceid = assetsource.get_id()
+        #
+        aliases = {
+            assetmanager.calc_asset_varname_withmnamespace(mnamespace, assetsourceid, 'urlrel') : relurl,
+            assetmanager.calc_asset_varname_withmnamespace(mnamespace, assetsourceid, 'urlabs') : absurl,
+            assetmanager.calc_asset_varname_withmnamespace(mnamespace, assetsourceid, 'filepath') : filepath,
+            }
+        assetmanager.merge_aliases(aliases)
+
+        # tell source where it's mounted
+        assetsource.set_mountpoint(self)
 
 
 
@@ -659,9 +696,9 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
         routegroup = assetmanager.get_routegroup_mounting()
 
         # what should be the path to these files? the source id is guaranteed to be unique so we use that
-        namespace = assetsource.get_namespace()
+        mnamespace = assetsource.get_mnamespace()
         routeid = 'assetroute_' + assetsource.get_id()
-        routepath = '/{0}/{1}'.format(self.urlpath, assetsource.get_namespacedidpath())
+        routepath = '/{0}/{1}'.format(self.urlpath, assetsource.get_mnamespacedid_forpath())
         filepath = assetsource.get_filepath()
 
         # create the new route for serving these files at this location
@@ -669,7 +706,7 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
             id  = routeid,
             path = routepath,
             controller = mcontroller_staticfiles.MewloController_StaticFiles(sourcepath = filepath),
-            namespace=namespace,
+            mnamespace=mnamespace,
         )
 
         # add the route to our routegroup
@@ -678,17 +715,12 @@ class MewloAssetMount_InternalRoute(MewloAssetMount):
         # store it in the asset source for later
         assetsource.set_route(route)
 
-        # and now we want to create some aliases for refering to them via url and file
-        aliasprefix = 'asset_' + assetsource.get_id()
-        aliases = {
-            aliasprefix + '_urlrel' : assetmanager.resolve_relative_url(routepath, namespace=namespace),
-            aliasprefix + '_urlabs' : assetmanager.resolve_absolute_url(routepath, namespace=namespace),
-            aliasprefix + '_filepath' : filepath,
-            }
-        assetmanager.merge_aliases(aliases, namespace)
+        # add aliases
+        relurl = assetmanager.resolve_relative_url(routepath, mnamespace=mnamespace)
+        absurl = assetmanager.resolve_absolute_url(routepath, mnamespace=mnamespace)
+        self.mount_source_add_aliases(assetmanager, assetsource, mnamespace, relurl, absurl, filepath)
 
-        # tell source where it's mounted
-        assetsource.set_mountpoint(self)
+
 
 
 
@@ -718,27 +750,21 @@ class MewloAssetMount_ExternalServer(MewloAssetMount):
         """
 
         # ok let's shadow the files
-        namespace = assetsource.get_namespace()
+        mnamespace = assetsource.get_mnamespace()
         filepath_source = assetsource.get_filepath()
-        filepath_destination = self.filepath + '/' + assetsource.get_namespacedidpath()
-        failure = assetmanager.shadowfiles(filepath_source, filepath_destination, namespace)
+        filepath_destination = self.filepath + '/' + assetsource.get_mnamespacedid_forpath()
+        failure = assetmanager.shadowfiles(filepath_source, filepath_destination, mnamespace)
 
         # for the alias filepath, we could use the source filepath, or the external destination filepath
         # using the former seems easier and more reliable, but using the later might make it easier to spot problems
         # in the future we may want to decide based on what kind of mount and source we are using
-        aliasfilepath = assetsource.get_filepath()
+        filepath = assetsource.get_filepath()
 
-        # and now we want to create some aliases for refering to them via url and file
-        aliasprefix = 'asset_' + assetsource.get_id()
-        aliases = {
-            aliasprefix + '_urlrel' : self.urlrel + '/' + assetsource.get_namespacedidpath(),
-            aliasprefix + '_urlabs' : self.urlabs + '/' + assetsource.get_namespacedidpath(),
-            aliasprefix + '_filepath' : aliasfilepath,
-            }
-        assetmanager.merge_aliases(aliases, namespace)
+        # add aliases
+        relurl = self.urlrel + '/' + assetsource.get_mnamespacedid_forpath()
+        absurl = self.urlabs + '/' + assetsource.get_mnamespacedid_forpath()
+        self.mount_source_add_aliases(assetmanager, assetsource, mnamespace, relurl, absurl, filepath)
 
-        # tell source where it's mounted
-        assetsource.set_mountpoint(self)
 
 
 
@@ -776,26 +802,24 @@ class MewloAssetSource(object):
     'asset_ID_urlrel' | 'asset_ID_urlabs' | 'asset_ID_filepath'
     """
 
-    def __init__(self, id, mountid, filepath, namespace):
+    def __init__(self, id, mountid, filepath, mnamespace):
         self.id = id
         self.mountid = mountid
         self.filepath = filepath
         self.route = None
-        self.namespace = namespace
+        self.mnamespace = mnamespace
         self.mountpoint = None
 
     def get_id(self):
         return self.id
 
-    def get_namespacedid(self):
-        if (self.namespace):
-            return self.namespace+'::'+self.id
-        return self.id
+    def get_mnamespacedid(self):
+        """Return mnamespace qualified id."""
+        return misc.mnamespacedid(self.mnamespace, self.id)
 
-    def get_namespacedidpath(self):
-        if (self.namespace):
-            return self.namespace+'_'+self.id
-        return self.id
+    def get_mnamespacedid_forpath(self):
+        """Return a string with mnamespace incorporated, suitable for use in a file or url path, where a mnamespace separator : would not be an allowed character."""
+        return misc.mnamespacedid_forpath(self.mnamespace, self.id)
 
     def get_mountid(self):
         return self.mountid
@@ -803,8 +827,8 @@ class MewloAssetSource(object):
     def get_filepath(self):
         return self.filepath
 
-    def get_namespace(self):
-        return self.namespace
+    def get_mnamespace(self):
+        return self.mnamespace
 
     def set_route(self, route):
         self.route = route
@@ -814,7 +838,7 @@ class MewloAssetSource(object):
 
     def dumps(self, indent=0):
         """Debug information."""
-        outstr = " "*indent + "MewloAssetSource ({0}) [namespace={1}] reporting in.\n".format(self.__class__.__name__ , self.namespace)
+        outstr = " "*indent + "MewloAssetSource ({0}) [mnamespace={1}] reporting in.\n".format(self.__class__.__name__ , self.mnamespace)
         outstr += " "*indent + " id={0}, mountid={1}, filepath='{2}'\n".format(self.id, self.mountid, self.filepath)
         return outstr
 

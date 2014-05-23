@@ -61,7 +61,7 @@ class MewloSite_Test1(MewloSite):
         if (True):
             return pkgdirimp_config
         else:
-            return misc.calc_modulefilepath(__file__)+'/config'
+            return misc.calc_modulefiledirpath(__file__ , 'config')
 
 
 
@@ -83,7 +83,7 @@ class MewloSite_Test1(MewloSite):
             # some generic settings for every site, to point to location of some stuff
             mconst.DEF_SETTINGNAME_pkgdirimps_sitempacks: [pkgdirimp_sitempacks],
             mconst.DEF_SETTINGNAME_controllerroot: pkgdirimp_controllers,
-            mconst.DEF_SETTINGNAME_sitefilepath: os.path.dirname(os.path.realpath(__file__)),
+            mconst.DEF_SETTINGNAME_sitefilepath: misc.calc_modulefiledirpath(__file__),
             # should we also load mewlo site installed setuptools plugins
             mconst.DEF_SETTINGNAME_flag_importsetuptoolspacks: True,
             mconst.DEF_SETTINGNAME_replaceshadowpath: '${sitefilepath}/replaceshadow',
@@ -212,7 +212,7 @@ class MewloSite_Test1(MewloSite):
         logger = self.add_logger(MewloLogger('mytestlogger'))
 
         # now add some targets (handlers) to it
-        logger.add_target(MewloLogTarget_File(filename=self.resolve('${logfilepath}/testlogout1.txt', namespace=None), filemode='w'))
+        logger.add_target(MewloLogTarget_File(filename=self.resolve('${logfilepath}/testlogout1.txt', mnamespace=None), filemode='w'))
 
         if (False):
             # want to test raising an exception on failure to write/open file? uncomment this -- the bad blank filename will throw an exception
@@ -221,7 +221,7 @@ class MewloSite_Test1(MewloSite):
         if (True):
             # let's add standard python logging as a test, and route that to file; this creates a standard python-style logger and catches events sent to that
             import logging
-            pythonlogger = MewloLogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolve('${logfilepath}/testlogout_python.txt', namespace=None))
+            pythonlogger = MewloLogTarget_Python.make_simple_pythonlogger_tofile('mewlo', self.resolve('${logfilepath}/testlogout_python.txt', mnamespace=None))
             logger.add_target(MewloLogTarget_Python(pythonlogger))
             # and then as a test, let's create an error message in this log
             pythonlogger.error("This is a manual python test error.")
@@ -377,15 +377,16 @@ class MewloSite_Test1(MewloSite):
         # note that the ids for all asset sources MUST be unique
         # first we mount the files in the staticfilesource/ directory as internal assets that we will serve internally via mewlo; the id will be used for alias creation, and for the route
         assetmanager.add_assetsource(
-            massetmanager.MewloAssetSource(id='site_internal', mountid = 'internal_assets', filepath = '${sitefilepath}/staticfilesource', namespace=None)
+            massetmanager.MewloAssetSource(id='siteinternal', mountid = 'internal_assets', filepath = '${sitefilepath}/staticfilesource', mnamespace=None)
             )
         # then as a test, lets mount same files on the external mount point -- this will cause mewlo to physically copy the files to the external filepath, where presumably another web server can serve them
         assetmanager.add_assetsource(
-            massetmanager.MewloAssetSource(id='site_external', mountid = 'external_assets', filepath = '${sitefilepath}/staticfilesource', namespace=None)
+            massetmanager.MewloAssetSource(id='siteexternal', mountid = 'external_assets', filepath = '${sitefilepath}/staticfilesource', mnamespace=None)
             )
 
         # remember that one should never refer to the assets by a hardcoded url or file path; always use the aliases created by these functions, which will take the form (where ID is the id of the asset source):
         # 'asset_ID_urlrel' | 'asset_ID_urlabs' | 'asset_ID_filepath'
+        # you can also use helper function
 
 
 

@@ -27,8 +27,11 @@ class MewloTemplate_Jinja2(mtemplate.MewloTemplate):
         # parent function
         super(MewloTemplate_Jinja2, self).__init__(request, templatemanager)
         #
+        self.filepath = None
         self.jinja2_environement = None
-
+        #
+        self.laterender_regex_search = r'\{\-\{(.*?)\}\-\}'
+        self.laterender_regex_replace = r'{{\1}}'
 
 
     def load_from_file(self, filepath):
@@ -40,10 +43,14 @@ class MewloTemplate_Jinja2(mtemplate.MewloTemplate):
         self.template = jinja2_environement.get_template( filepath )
 
 
-    def render_string(self, args={}):
-        """Render template into a string and return string.  Use args dictionary to pass in values."""
-        renderedtext = self.template.render(args)
-        return renderedtext
+    def load_from_string(self, templatestring):
+        """Load a template from a string."""
+        self.filepath = None
+        # get/make environment which uses our custom handler
+        jinja2_environement = self.getmake_jinja2_environment(self.templatemanager, self.request)
+        # load the template file
+        self.template = jinja2_environement.from_string( templatestring )
+
 
 
     def getmake_jinja2_environment(self, templatemanager, request):
@@ -59,6 +66,29 @@ class MewloTemplate_Jinja2(mtemplate.MewloTemplate):
             # create the environment
             self.jinja2_environement = mjinja2_loader.MewloJinja2Environment(templatemanager.mewlosite, request, loader=jinja2_templateLoader, undefined=jinja2_undefined)
         return self.jinja2_environement
+
+
+
+
+
+    def render_string_internal(self, args):
+        """Render template into a string and return string.  Use args dictionary to pass in values."""
+        #print "ATTN: in render_string_internal with args={0}".format(str(args))
+        renderedtext = self.template.render(args)
+        return renderedtext
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -16,8 +16,8 @@ class MewloRoute_StaticFiles(mroute.MewloRoute):
     """
 
 
-    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extras = None, forcedargs = None, namespace=''):
-        super(MewloRoute_StaticFiles,self).__init__(id,path,controller,args=args, allow_extra_args=allow_extra_args, extras=extras, forcedargs=forcedargs, namespace=namespace)
+    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extras = None, forcedargs = None, mnamespace=''):
+        super(MewloRoute_StaticFiles,self).__init__(id,path,controller,args=args, allow_extra_args=allow_extra_args, extras=extras, forcedargs=forcedargs, mnamespace=mnamespace)
 
 
     def match_args(self, requestargstring):

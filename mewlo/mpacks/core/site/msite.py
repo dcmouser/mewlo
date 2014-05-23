@@ -27,7 +27,7 @@ from ..eventlog.mevent import Event, EventList, EWarning, EError, EDebug, EInfo
 from ..eventlog.mlogger import MewloLogger
 from ..eventlog.mlogtarget_file import MewloLogTarget_File
 from ..eventlog import mewloexception
-from ..helpers.misc import get_value_from_dict, resolve_expand_string
+from ..helpers.misc import get_value_from_dict, resolve_expand_string, calc_modulefiledirpath
 from ..user import muser, musermanager
 from ..group import mgroup, mgroupmanager
 from ..rbac import mrbac
@@ -740,7 +740,7 @@ class MewloSite(object):
     def get_installdir(self):
         """Get the directory path of the mewlo installation from the mewlo pack."""
         import mewlo
-        path = os.path.dirname(os.path.realpath(mewlo.__file__))
+        path = calc_modulefiledirpath(mewlo.__file__)
         return path
 
     def get_root_pack_directory_list(self):
@@ -763,7 +763,7 @@ class MewloSite(object):
                     packpath = sitepack
                 else:
                     # it's a module import, get it's directory
-                    packpath = os.path.dirname(os.path.realpath(sitepack.__file__))
+                    packpath = calc_modulefiledirpath(sitepack.__file__)
                 # add path string to our list
                 packdirectories.append(packpath)
         #
@@ -906,7 +906,7 @@ class MewloSite(object):
             mconst.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_sitename),
             mconst.DEF_SETTINGNAME_mewlofilepath: self.get_installdir(),
             }
-        self.merge_settings_aliases(aliases, namespace=None)
+        self.merge_settings_aliases(aliases, mnamespace=None)
 
 
     def add_latesettings_assets(self):
@@ -941,7 +941,7 @@ class MewloSite(object):
 
         # now add some targets (handlers) to it
         fpath = self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_default_logfilename)
-        self.fallbacklogger.add_target(MewloLogTarget_File(filename=self.resolve(fpath, namespace=None), filemode='w'))
+        self.fallbacklogger.add_target(MewloLogTarget_File(filename=self.resolve(fpath, mnamespace=None), filemode='w'))
 
 
 
@@ -974,7 +974,7 @@ class MewloSite(object):
             mconst.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
             mconst.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
             }
-        self.merge_settings_aliases(aliases, namespace=None)
+        self.merge_settings_aliases(aliases, mnamespace=None)
 
 
 
@@ -1002,8 +1002,8 @@ class MewloSite(object):
 
 
 
-    def merge_settings_aliases(self, aliases, namespace):
-        self.comp('assetmanager').merge_aliases(aliases, namespace)
+    def merge_settings_aliases(self, aliases, mnamespace):
+        self.comp('assetmanager').merge_aliases_withmnamespace(aliases, mnamespace)
 
 
 
@@ -1224,20 +1224,20 @@ class MewloSite(object):
 
 
     # these just shortcut to assetmanager
-    def resolve(self, text, namespace):
-        return self.comp('assetmanager').resolve(text, namespace)
+    def resolve(self, text, mnamespace):
+        return self.comp('assetmanager').resolve(text, mnamespace)
 
-    def resolve_filepath(self, text, namespace):
-        return self.comp('assetmanager').resolve_filepath(text, namespace)
+    def resolve_filepath(self, text, mnamespace):
+        return self.comp('assetmanager').resolve_filepath(text, mnamespace)
 
-    def resolve_absolute_filepath(self, relpath, namespace):
-        return self.comp('assetmanager').resolve_absolute_filepath(relpath, namespace)
+    def resolve_absolute_filepath(self, relpath, mnamespace):
+        return self.comp('assetmanager').resolve_absolute_filepath(relpath, mnamespace)
 
-    def resolve_absolute_url(self, relpath, namespace):
-        return self.comp('assetmanager').resolve_absolute_url(relpath, namespace)
+    def resolve_absolute_url(self, relpath, mnamespace):
+        return self.comp('assetmanager').resolve_absolute_url(relpath, mnamespace)
 
-    def resolve_relative_url(self, relpath, namespace):
-        return self.comp('assetmanager').resolve_relative_url(relpath, namespace)
+    def resolve_relative_url(self, relpath, mnamespace):
+        return self.comp('assetmanager').resolve_relative_url(relpath, mnamespace)
 
 
 

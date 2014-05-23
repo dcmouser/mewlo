@@ -24,7 +24,7 @@ The MewloPack is created by the manager.
 # mewlo imports
 from ..helpers.callables import importmodule_bypath
 from ..eventlog.mevent import EFailure, EDebug, EventList
-from ..helpers.misc import get_value_from_dict, append_text
+from ..helpers.misc import get_value_from_dict, append_text, calc_modulefiledirpath
 from mpack import MewloPack
 from ..manager import manager
 from ..setting.msettings import MewloSettings
@@ -261,7 +261,7 @@ class MewloPackManager(manager.MewloManager):
                 if (not hasattr(entrypoint_data, '__iter__')):
                     entrypoint_data = [ entrypoint_data ]
                 for amod in entrypoint_data:
-                    apath = os.path.abspath(os.path.dirname(amod.__file__))
+                    apath = calc_modulefiledirpath(amod.__file__)
                     infofilepaths += self.findfilepaths(apath, filepattern)
             else:
                 # error bad directive in entry_point

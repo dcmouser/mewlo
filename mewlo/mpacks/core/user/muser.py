@@ -68,7 +68,7 @@ class MewloUser(mdbmodel.MewloDbModel):
         """Return true if they have logged in (or provided password) in last recentminutes minutes."""
         if (self.date_lastlogin == None):
             return False
-        timesincelogin_secs = misc.get_dbnowtime() - self.date_register
+        timesincelogin_secs = misc.get_dbnowtime() - self.date_lastlogin
         return timesincelogin_secs < recentminutes * 60
 
 

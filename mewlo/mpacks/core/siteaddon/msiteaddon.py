@@ -7,7 +7,7 @@ This file contains bases classes for MewloSiteAddons
 # mewlo imports
 from ..manager import manager
 from ..constants.mconstants import MewloConstants as mconst
-
+from ..helpers import misc
 
 
 
@@ -24,12 +24,15 @@ class MewloSiteAddon(manager.MewloManager):
     typestr = "siteaddon"
 
 
-    def __init__(self, mewlosite, debugmode):
+    def __init__(self, mewlosite, debugmode, mnamespace):
         """
         Initialization/construction of a manager
         When this happens you should never do much -- because you may have no idea what other managers/components have been created yet.
         """
         super(MewloSiteAddon, self).__init__(mewlosite, debugmode)
+        # set mnamespace
+        self.mnamespace = mnamespace
+        # what startup stages do we need?
         self.needs_startupstages([mconst.DEF_STARTUPSTAGE_addonstuff])
 
 
@@ -91,6 +94,8 @@ class MewloSiteAddon(manager.MewloManager):
 
 
 
+    def calc_alias_varname(self, subpath):
+        return '${' + misc.mnamespacedid(self.mnamespace,'addon_path') + '}/' + subpath
 
 
 
