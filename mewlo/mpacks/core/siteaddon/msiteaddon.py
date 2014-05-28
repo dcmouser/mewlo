@@ -24,7 +24,7 @@ class MewloSiteAddon(manager.MewloManager):
     typestr = "siteaddon"
 
 
-    def __init__(self, mewlosite, debugmode, mnamespace):
+    def __init__(self, mewlosite, debugmode, mnamespace, settings_section):
         """
         Initialization/construction of a manager
         When this happens you should never do much -- because you may have no idea what other managers/components have been created yet.
@@ -32,6 +32,8 @@ class MewloSiteAddon(manager.MewloManager):
         super(MewloSiteAddon, self).__init__(mewlosite, debugmode)
         # set mnamespace
         self.mnamespace = mnamespace
+        # settings section
+        self.set_settings_section(settings_section)
         # what startup stages do we need?
         self.needs_startupstages([mconst.DEF_STARTUPSTAGE_addonstuff])
 
@@ -46,8 +48,6 @@ class MewloSiteAddon(manager.MewloManager):
             self.add_aliases()
             self.add_routes()
             self.add_navnodes()
-
-
 
 
 
@@ -89,15 +89,8 @@ class MewloSiteAddon(manager.MewloManager):
 
 
 
-
-
-
-
-
     def calc_alias_varname(self, subpath):
         return '${' + misc.mnamespacedid(self.mnamespace,'addon_path') + '}/' + subpath
-
-
 
 
 

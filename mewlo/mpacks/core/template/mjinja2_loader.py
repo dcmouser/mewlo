@@ -27,7 +27,7 @@ class MewloJinja2Loader(jinja2.BaseLoader):
         #print "ATTN: in MewloJinja2Loader get_source() looking for '{0}' in mnamespace '{1}'.".format(templatefilepath, mnamespace)
         path = self.mewlosite.resolve_filepath(templatefilepath, mnamespace)
         if not os.path.exists(path):
-            raise jinja2.TemplateNotFound(template)
+            raise jinja2.TemplateNotFound(templatefilepath)
         mtime = os.path.getmtime(path)
         with file(path) as f:
             source = f.read().decode('utf-8')

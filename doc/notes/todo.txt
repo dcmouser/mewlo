@@ -14,3 +14,4 @@ avatar demo page -- does not init with current avatar
 musermanger.py has this code inside function calc_account_templatepath():
         viewbasepath = '${account::addon_path}/views'
 which ties it to the supposedly indpendent addon for user; we should try to move this code so that isnt required
+

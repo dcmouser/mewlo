@@ -44,7 +44,7 @@ class MewloHScript(object):
         idname = self.get_idname()
         assetmanager = self.hscriptmanager.sitecomp_assetmanager()
         mnamespace = self.DEF_hscript_mnamespace
-        return assetmanager.calc_asset_varrep_withmnamespace(mnamespace, idname, varname)
+        return assetmanager.calc_asset_varrep(mnamespace, idname, varname)
 
 
     def get_mewlosite(self):
@@ -138,7 +138,9 @@ class MewloHScript(object):
         return src
 
 
-
+    def lookup_viewfilepath_byid(self, viewfileid):
+        """Just simple wrapper around dictionary lookup."""
+        return self.viewfiles[viewfileid]
 
 
 
@@ -295,10 +297,10 @@ class MewloHScript_JQuery_ImageBrowser(MewloHScript):
             'imageroot': imageroot,
         }
         #
-        templatefilepath = self.calc_filepath(request, self.viewdir, self.viewfiles['widget_main'])
+        templatefilepath = self.calc_filepath(request, self.viewdir, self.lookup_viewfilepath_byid('widget_main'))
         widget_main_html = self.get_mewlosite().renderstr_from_template_file(request, templatefilepath, argdict)
         #
-        templatefilepath = self.calc_filepath(request, self.viewdir, self.viewfiles['widget_js'])
+        templatefilepath = self.calc_filepath(request, self.viewdir, self.lookup_viewfilepath_byid('widget_js'))
         widget_js_html = self.get_mewlosite().renderstr_from_template_file(request, templatefilepath, argdict)
 
         # build html

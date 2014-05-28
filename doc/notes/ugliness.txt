@@ -33,3 +33,20 @@ we currently handle ASSETS and ALIASES with one class (assetmanager) -- should w
 namespace param is being passed in dif order for some functions -- standardize
 we have some functions that are namespace and non-namespace enabled, but some are not used -- remove the unused ones
 check the namespacedid function and see about enabling the option that doesnt add namespace when a namespace is already there
+
+
+5/23/14
+
+The account siteaddon demonstrates some messiness regarding proliferation of "Managers":
+There is msiteaddon_account and there is also msiteaddon_account_manager.
+The first sets up the addon and routes.
+The second actually has the functions called when visiting pages, etc.
+Both are derived from MewloManager and thus have some duplicative content (sitesettings name, etc.)
+This is messy.
+(In fact there is a third+fourth file for an addon (*_mpack.py and *_mpack.json).
+Can't we simplifiy?
+
+
+5/23/14
+There is some duplication of function in MewloManager (which many things derive from) and other things that are NOT derived from it.  For example see mhscriptmanager which uses also self.viewfiles[] and helper functions.
+Should we make the self.viewfiles[] dictionary a full blown object?

@@ -38,7 +38,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
     def __init__(self, mewlosite, debugmode):
         # call parent constructor
-        super(MewloSiteAddon_Account, self).__init__(mewlosite, debugmode, mnamespace='account')
+        super(MewloSiteAddon_Account, self).__init__(mewlosite, debugmode, mnamespace='account', settings_section = 'siteaddon_account')
         self.needs_startupstages([mconst.DEF_STARTUPSTAGE_addonstuff])
         # path prefix (used below in route setup)
         self.routepathprefix = '/account'
@@ -60,6 +60,9 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
 
 
 
+    def calc_local_templatepath_byid(self, viewfileid):
+        """Redirect this request to helper accountmanager."""
+        return self.accountmanager.calc_local_templatepath_byid(viewfileid)
 
 
 
@@ -97,7 +100,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
             # add an alias so we can refer to our view path
             'addon_path': thisdir,
             }
-        self.mewlosite.merge_settings_aliases(aliases, mnamespace=self.mnamespace)
+        self.mewlosite.merge_settings_aliases(self.mnamespace, aliases)
 
 
 
@@ -251,6 +254,7 @@ class MewloSiteAddon_Account(msiteaddon.MewloSiteAddon):
                 id = 'profile_avatar_imagebrowser_ajax',
                 path = '/profile_avatar_imagebrowser_ajax',
                 controller = MewloController_ImageBrowser(
+                    # see startup_prep() for where the asset source was created with name 'namespace::addon'
                     assetsource_id = misc.mnamespacedid(self.mnamespace, 'addon'),
                     asset_subdir = 'avatars',
                     ),

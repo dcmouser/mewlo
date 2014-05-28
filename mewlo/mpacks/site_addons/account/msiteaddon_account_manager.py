@@ -50,6 +50,9 @@ class AccountAddonManager(manager.MewloManager):
         self.needs_startupstages([mconst.DEF_STARTUPSTAGE_final])
 
         # settings
+        self.siteaddon = siteaddon
+        self.set_settings_section(siteaddon.get_settings_section())
+        #
         self.registration_mode = None
         #
         self.viewbasepath = siteaddon.calc_alias_varname('views')
@@ -82,6 +85,8 @@ class AccountAddonManager(manager.MewloManager):
             'repassword': 'repassword.jn2',
             #
             'editavatar': 'editavatar.jn2',
+            #
+            'user_verify_field_email': 'user_verify_field_email.jn2',
             }
 
 
@@ -92,7 +97,7 @@ class AccountAddonManager(manager.MewloManager):
         """
         super(AccountAddonManager,self).startup_prep(stageid, eventlist)
         if (stageid == mconst.DEF_STARTUPSTAGE_final):
-            self.registration_mode = self.mewlosite.get_settingval(mconst.DEF_SETTINGSEC_siteaddon_account, 'registration_mode')
+            self.registration_mode = self.get_settingval('registration_mode')
 
 
 
@@ -215,7 +220,7 @@ class AccountAddonManager(manager.MewloManager):
         # set page info first (as it may be used in page contents) -- note that if caller has already set it, we don't overwrite it and leave it
         self.set_renderpageid_ifnotset(request, 'login')
         # render form (use forms default view)
-        self.render_localview(request, form.get_viewfilename(), {'form':form})
+        self.render_localview_byfilename(request, form.get_viewfilename(), {'form':form})
         # return False saying we have presented form / handled view
         return False
 
@@ -266,7 +271,7 @@ class AccountAddonManager(manager.MewloManager):
         # logout
         self.try_logout(request, flag_clearsession=True)
         # then page contents
-        self.render_localview(request, self.viewfiles['logout_complete'])
+        self.render_localview_byid(request, 'logout_complete')
 
 
 
@@ -372,7 +377,7 @@ class AccountAddonManager(manager.MewloManager):
                 # drop down and re-present form with errors
 
         # render form
-        self.render_localview(request, form.get_viewfilename(), {'form':form})
+        self.render_localview_byfilename(request, form.get_viewfilename(), {'form':form})
 
 
 
@@ -405,15 +410,15 @@ class AccountAddonManager(manager.MewloManager):
             if (user != None):
                 # a user was created; tell the session about the user's identity (i.e. the client browser BECOMES this new user and is logged in immediately)
                 request.set_user(user)
-            success_viewfile = self.viewfiles['register_done_immediate']
+            success_viewid = self.lookup_viewfilepath_byid('register_done_immediate')
         else:
             # deferrred user creation, we create a verification instead
             (verification, errordict, successmessage) = self.try_precreate_newuser_deferred_justverification(request, userdict)
-            success_viewfile = self.viewfiles['register_done_deferred_verification']
+            success_viewid = self.lookup_viewfilepath_byid('register_done_deferred_verification')
 
         if (not errordict):
             # success, we handle rendering page
-            self.render_localview(request, success_viewfile, {'successmessage': successmessage})
+            self.render_localview_byid(request, success_viewid, {'successmessage': successmessage})
 
         # return
         return (errordict, successmessage)
@@ -495,7 +500,7 @@ class AccountAddonManager(manager.MewloManager):
         # now send them an email telling them how to verify
         verificationurl = self.calc_verificationurl_registration_deferred(verification, request)
         #
-        emailtemplatefile = self.calc_localtemplatepath(self.viewfiles['register_deferred_email_verificationsent'])
+        emailtemplatefile = self.calc_local_templatepath_byid('register_deferred_email_verificationsent')
         maildict = self.get_mewlosite().rendersections_from_template_file(request, emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
         maildict['to'] = [ userdict['email'] ]
         #
@@ -624,7 +629,7 @@ class AccountAddonManager(manager.MewloManager):
         (verification, failure) = self.try_verify_registration_validatecode(request, verification_code)
         if (failure != None):
             # ATTN: TODO - make this a form where they can provide the verification code manually
-            self.render_localview(request, self.viewfiles['verify_registration_deferred_error_codenotfound'], {'failure':failure})
+            self.render_localview_byid(request, 'verify_registration_deferred_error_codenotfound', {'failure':failure})
             return
 
         # code is good.
@@ -641,7 +646,7 @@ class AccountAddonManager(manager.MewloManager):
         errordict = self.sitecomp_usermanager().error_if_user_exists(checkuserdict)
         if (errordict):
             # another user has this email, sorry sucker, you took too long to verify
-            self.render_localview(request, self.viewfiles['verify_registration_deferred_error_emailinuse'], {'failure':failure})
+            self.render_localview_byid(request, 'verify_registration_deferred_error_emailinuse', {'failure':failure})
             return
 
         # ok email is still available, now we'd like to present them with a form that contains:
@@ -712,7 +717,7 @@ class AccountAddonManager(manager.MewloManager):
             (user, errordict, successmessage) = self.try_create_newuser_deferred(request, userdict)
             if (not errordict):
                 # success
-                viewfilename = self.viewfiles['register_done_deferred_usercreated']
+                viewfilename = self.lookup_viewfilepath_byid('register_done_deferred_usercreated')
                 viewargs['successmessage'] = successmessage
                 # drop down to render
             else:
@@ -732,7 +737,7 @@ class AccountAddonManager(manager.MewloManager):
                 form.set_values_from_dict(verification_userdict)
 
         # render form
-        self.render_localview(request, viewfilename,viewargs)
+        self.render_localview_byfilename(request, viewfilename, viewargs)
 
 
 
@@ -902,7 +907,7 @@ class AccountAddonManager(manager.MewloManager):
         rbacmanager.annotate_assignments(assignments)
 
         # then page contents
-        self.render_localview( request, self.viewfiles['profile'], {'studieduser':user, 'assignments':assignments} )
+        self.render_localview_byid( request, 'profile', {'studieduser':user, 'assignments':assignments} )
 
 
 
@@ -935,9 +940,9 @@ class AccountAddonManager(manager.MewloManager):
 
         # render a page now
         if (failure == None):
-            self.render_localview(request, self.viewfiles['userfield_verify_success'], {'fieldname': fieldname} )
+            self.render_localview_byid(request, 'userfield_verify_success', {'fieldname': fieldname} )
         else:
-            self.render_localview(request, self.viewfiles['userfield_verify_failure'], {'fieldname': fieldname, 'failure': failure.msg()})
+            self.render_localview_byid(request, 'userfield_verify_failure', {'fieldname': fieldname, 'failure': failure.msg()})
 
 
 
@@ -1043,8 +1048,7 @@ class AccountAddonManager(manager.MewloManager):
                 failure = self.try_resend_field_verification(request, user, verification, fieldname, fieldval)
                 if (not failure):
                     # success
-                    viewfilename = self.viewfiles['verify_resent']
-                    self.render_localview(request, viewfilename, viewargs)
+                    self.render_localview_byid(request, 'verify_resent', viewargs)
                     return
                 # there was an error resending the verification, so add error and drop down
                 form.add_genericerror(failure.msg())
@@ -1089,8 +1093,7 @@ class AccountAddonManager(manager.MewloManager):
                         failure = self.try_resend_field_verification(request, user, verification, fieldname, fieldval)
                     if (not failure):
                         # success
-                        viewfilename = self.viewfiles['verify_resent']
-                        self.render_localview(request, viewfilename, viewargs)
+                        self.render_localview_byid(request, 'verify_resent', viewargs)
                         return
                 else:
                     # couldn't find them, that's an error
@@ -1103,7 +1106,7 @@ class AccountAddonManager(manager.MewloManager):
                 pass
 
         # render form
-        self.render_localview(request, viewfilename, viewargs)
+        self.render_localview_byfilename(request, viewfilename, viewargs)
 
 
 
@@ -1250,15 +1253,14 @@ class AccountAddonManager(manager.MewloManager):
 
             if (not failure):
                 # success
-                viewfilename = self.viewfiles['reset_password_sent']
-                self.render_localview(request, viewfilename, viewargs)
+                self.render_localview_byid(request, 'reset_password_sent', viewargs)
                 return
 
             # there was an error resending the verification, so add error and drop down
             form.add_genericerror(failure.msg())
 
         # render form
-        self.render_localview(request, viewfilename, viewargs)
+        self.render_localview_byfilename(request, viewfilename, viewargs)
 
 
 
@@ -1281,7 +1283,7 @@ class AccountAddonManager(manager.MewloManager):
         # email it to the user
         verificationurl = self.calc_verificationurl_passwordreset(verification, request)
         #
-        emailtemplatefile = self.calc_localtemplatepath(self.viewfiles['reset_password_verify_email'])
+        emailtemplatefile = self.calc_local_templatepath_byid('reset_password_verify_email')
         maildict = self.get_mewlosite().rendersections_from_template_file(request, emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
         maildict['to'] = [user.email]
         # now send it
@@ -1338,7 +1340,7 @@ class AccountAddonManager(manager.MewloManager):
         (verification, failure) = self.try_validatecode_passwordreset(request, verification_code)
         if (failure != None):
             # ATTN: TODO - make this a form where they can provide the verification code manually
-            self.render_localview(request, self.viewfiles['generic_verification_code_error'], {'failure':failure})
+            self.render_localview_byid(request, 'generic_verification_code_error', {'failure':failure})
             return
 
         # code is good
@@ -1400,7 +1402,7 @@ class AccountAddonManager(manager.MewloManager):
                 verification.consume(request)
                 # and drop down to view sucess
                 request.add_pagemessage_simple("Your password has been successfully changed.", 'success')
-                viewfilename = self.viewfiles['generic_message']
+                viewfilename = self.lookup_viewfilepath_byid('generic_message')
             else:
                 # add error to form
                 form.add_genericerror(failure.msg())
@@ -1413,7 +1415,7 @@ class AccountAddonManager(manager.MewloManager):
                 form.set_values_from_dict( {'code':verification.verification_code} )
 
         # render form
-        self.render_localview(request, viewfilename, viewargs)
+        self.render_localview_byfilename(request, viewfilename, viewargs)
 
 
 
@@ -1480,7 +1482,7 @@ class AccountAddonManager(manager.MewloManager):
         else:
             # unsupported field, error
             #request.add_pagemessage_simple("ERROR: Unsupported fieldname specified1.", 'error')
-            #self.render_localview(request, self.viewfiles['generic_message'])
+            #self.render_localview_byid(request, 'generic_message')
             raise mewloexception.MewloException_ObjectDoesNotExist("I failed1 to cancel pending field change: {0}.".format(fieldname))
 
 
@@ -1508,14 +1510,14 @@ class AccountAddonManager(manager.MewloManager):
             if (not failure):
                 # success, we've modified the field (or created a verification to do so); and drop down to view sucess
                 request.add_pagemessage_simple(successmessage, 'success')
-                viewfilename = self.viewfiles['generic_message']
+                viewfilename = self.lookup_viewfilepath_byid('generic_message')
             else:
                 # add error to form
                 form.add_genericerror(failure.msg())
                 # drop down and re-present form with errors
 
         # render form
-        self.render_localview(request, viewfilename, viewargs)
+        self.render_localview_byfilename(request, viewfilename, viewargs)
 
 
 
@@ -1566,7 +1568,7 @@ class AccountAddonManager(manager.MewloManager):
         # get logged in user from session (required)
         user = request.get_user()
         if (user == None):
-            self.render_localview(request, self.viewfiles['error_requires_login'], {} )
+            self.render_localview_byid(request, 'error_requires_login', {} )
             return
 
         # make sure there is a pending field change ready to cancel
@@ -1595,14 +1597,14 @@ class AccountAddonManager(manager.MewloManager):
             if (failure):
                 #request.add_pagemessage_simple("Failed to cancel pending field change: {1}.".format(fieldname,failure.msg()), 'error')
                 raise MewloException_ObjectDoesNotExist("Failed to cancel pending field change: {0}: {1}.".format(fieldname, failure.msg()))
-                #self.render_localview(request, self.viewfiles['generic_message'])
+                #self.render_localview_byid(request, 'generic_message')
             else:
                 request.add_pagemessage_simple("Previous pending modification of field {0} has been canceled.".format(fieldname), 'success')
-                self.render_localview(request, self.viewfiles['generic_message'])
+                self.render_localview_byid(request, 'generic_message')
             return
 
         # render form
-        self.render_localview(request, viewfilename, viewargs)
+        self.render_localview_byfilename(request, viewfilename, viewargs)
 
 
 
@@ -1770,7 +1772,7 @@ class AccountAddonManager(manager.MewloManager):
         # set page info first (as it may be used in page contents) -- note that if caller has already set it, we don't overwrite it and leave it
         self.set_renderpageid_ifnotset(request, 'repassword')
         # render form (use forms default view)
-        self.render_localview(request, form.get_viewfilename(), {'form':form})
+        self.render_localview_byfilename(request, form.get_viewfilename(), {'form':form})
         # return False saying we have presented form / handled view
         return False
 
@@ -1805,6 +1807,6 @@ class AccountAddonManager(manager.MewloManager):
         # self.sitecomp_hsmanager().hscript('jquery_imagebrowser').addtohead(request)
 
         # render form (use forms default view)
-        self.render_localview(request, form.get_viewfilename(), {'form':form})
+        self.render_localview_byfilename(request, form.get_viewfilename(), {'form':form})
 
 

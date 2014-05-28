@@ -76,44 +76,29 @@ class MewloAssetManager(manager.MewloManager):
     #    self.aliases = aliases
 
 
-    def merge_aliases(self, aliases):
+    def merge_aliases(self, mnamespace, aliases):
         """Merge in some aliases."""
         for (key,val) in aliases.iteritems():
-            self.add_alias(key, val)
-
-    def merge_aliases_withmnamespace(self, aliases, mnamespace):
-        """Merge in some aliases."""
-        for (key,val) in aliases.iteritems():
-            self.add_alias_withmnamespace(key, val, mnamespace)
+            self.add_alias(mnamespace, key, val)
 
 
-    def add_alias(self, aliasname, aliasval):
-        """Add an alias."""
-        hashkey = aliasname
-        self.aliases[hashkey] = aliasval
-
-    def add_alias_withmnamespace(self, aliasname, aliasval, mnamespace):
+    def add_alias(self, mnamespace, aliasname, aliasval):
         """Add an alias."""
         hashkey = misc.mnamespacedid(mnamespace, aliasname)
         self.aliases[hashkey] = aliasval
 
 
-    def calc_asset_varname(self, idname, varname):
-        """Construct an asset varname without mnamespace."""
-        fullidvarname = 'asset_'+idname+'_'+varname
-        return fullidvarname
 
-
-    def calc_asset_varname_withmnamespace(self, mnamespace, idname, varname):
+    def calc_asset_varname(self, mnamespace, idname, varname):
         """Construct an asset varname with mnamespace.
         NOTE: If empty mnamespace, the varname will look like ::asset_idname_varname"""
         fullidvarname = 'asset_'+idname+'_'+varname
-        return misc.mnamespacedid(mnamespace,fullidvarname)
+        return misc.mnamespacedid(mnamespace, fullidvarname)
 
-    def calc_asset_varrep_withmnamespace(self, mnamespace, idname, varname):
+    def calc_asset_varrep(self, mnamespace, idname, varname):
         """Construct an asset varname with mnamespace.
         NOTE: If empty mnamespace, the varname will look like ${::asset_idname_varname}"""
-        return '${' + self.calc_asset_varname_withmnamespace(mnamespace, idname, varname) + '}'
+        return '${' + self.calc_asset_varname(mnamespace, idname, varname) + '}'
 
 
 
@@ -155,12 +140,6 @@ class MewloAssetManager(manager.MewloManager):
 
 
 
-
-    def get_raw_aliasval(self, varname, mnamespace):
-        """Resolve string that could include $ aliases, without replacing/expanding."""
-        text = misc.lookup_mnamespaced_byid(varname, mnamespace, self.aliases)
-        print "ATTN: found '{0}' with var {1} ns={2} in '{3}'.".format(str(text), varname, mnamespace, str(self.aliases))
-        return text
 
 
 
@@ -576,9 +555,9 @@ class MewloAssetManager(manager.MewloManager):
 
     def redirect_asset_alias(self, targetmnamespace, targetid, sourcemnamespace, sourceid, varname):
         """Redirect an asset alias, so one points to the same values as another"""
-        sourceval = self.calc_asset_varrep_withmnamespace(sourcemnamespace, sourceid, varname)
-        targetaliasvarname = self.calc_asset_varname_withmnamespace(targetmnamespace, targetid, varname)
-        self.add_alias(targetaliasvarname, sourceval)
+        sourceval = self.calc_asset_varrep(sourcemnamespace, sourceid, varname)
+        targetaliasvarname = self.calc_asset_varname(targetmnamespace, targetid, varname)
+        self.add_alias(targetmnamespace, targetaliasvarname, sourceval)
 
 
     def calc_source_filepath(self, mountsourceid, subdir=None):
@@ -595,7 +574,7 @@ class MewloAssetManager(manager.MewloManager):
         """Lookup mount source and compute file path to it, with optional subdir."""
         # ATTN:TODO - FIX THIS IS UGLY
         assetsource = self.find_mountsource_byid(mountsourceid)
-        urlpathstr = self.calc_asset_varrep_withmnamespace(assetsource.get_mnamespace(), assetsource.get_id(), 'urlabs')
+        urlpathstr = self.calc_asset_varrep(assetsource.get_mnamespace(), assetsource.get_id(), 'urlabs')
         if (subdir):
             urlpathstr += '/'+subdir
         urlpath = self.resolve(urlpathstr, None)
@@ -661,11 +640,11 @@ class MewloAssetMount(object):
         assetsourceid = assetsource.get_id()
         #
         aliases = {
-            assetmanager.calc_asset_varname_withmnamespace(mnamespace, assetsourceid, 'urlrel') : relurl,
-            assetmanager.calc_asset_varname_withmnamespace(mnamespace, assetsourceid, 'urlabs') : absurl,
-            assetmanager.calc_asset_varname_withmnamespace(mnamespace, assetsourceid, 'filepath') : filepath,
+            assetmanager.calc_asset_varname(mnamespace, assetsourceid, 'urlrel') : relurl,
+            assetmanager.calc_asset_varname(mnamespace, assetsourceid, 'urlabs') : absurl,
+            assetmanager.calc_asset_varname(mnamespace, assetsourceid, 'filepath') : filepath,
             }
-        assetmanager.merge_aliases(aliases)
+        assetmanager.merge_aliases(mnamespace, aliases)
 
         # tell source where it's mounted
         assetsource.set_mountpoint(self)
@@ -838,7 +817,7 @@ class MewloAssetSource(object):
 
     def dumps(self, indent=0):
         """Debug information."""
-        outstr = " "*indent + "MewloAssetSource ({0}) [mnamespace={1}] reporting in.\n".format(self.__class__.__name__ , self.mnamespace)
+        outstr = " "*indent + "MewloAssetSource ({0}) fullname '{1}' with [mnamespace={2}] reporting in.\n".format(self.__class__.__name__ , self.get_mnamespacedid(), self.mnamespace)
         outstr += " "*indent + " id={0}, mountid={1}, filepath='{2}'\n".format(self.id, self.mountid, self.filepath)
         return outstr
 

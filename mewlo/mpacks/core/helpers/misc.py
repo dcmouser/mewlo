@@ -62,10 +62,11 @@ def mnamespacedid(mnamespace, childid):
     if (not childid):
         childid = 'ANONYMOUS'
     # ATTN: TODO -- might we check if childid already has a namespace, and skip adding it if so?
-    if (False and childid.find(DEF_mnamespace_separator)==-1):
+    if (True and childid.find(DEF_mnamespace_separator)!=-1):
         return childid
     if (mnamespace):
         return mnamespace + DEF_mnamespace_separator + childid
+    # NOTE: IMPORTANT - we add namespace separator at start, even when namespace is None (or ''), so we have a fully qualified namespaced id
     return DEF_mnamespace_separator + childid
 
 def mnamespacedid_forpath(mnamespace, childid):
@@ -73,11 +74,13 @@ def mnamespacedid_forpath(mnamespace, childid):
     if (not childid):
         childid = 'ANONYMOUS'
     # ATTN: TODO -- might we check if childid already has a namespace, and skip adding it if so?
-    if (False and childid.find(DEF_mnamespace_separator)==-1):
-        return childid
+    if (True and childid.find(DEF_mnamespace_separator)!=-1):
+        # in this case we need to CHANGE the namespace separator to a PATH compatible namespace separator
+        return childid.replace(DEF_mnamespace_separator,DEF_mnamespace_separator_forpath)
     if (mnamespace):
         return mnamespace + DEF_mnamespace_separator_forpath + childid
-    return childid
+    # NOTE: IMPORTANT - we add namespace separator at start, even when namespace is None (or ''), so we have a fully qualified namespaced id
+    return DEF_mnamespace_separator_forpath + childid
 
 
 def lookup_mnamespaced_byid(id, mnamespace, thedict):

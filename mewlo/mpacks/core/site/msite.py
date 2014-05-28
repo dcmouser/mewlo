@@ -906,7 +906,7 @@ class MewloSite(object):
             mconst.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_sitename),
             mconst.DEF_SETTINGNAME_mewlofilepath: self.get_installdir(),
             }
-        self.merge_settings_aliases(aliases, mnamespace=None)
+        self.merge_settings_aliases('', aliases)
 
 
     def add_latesettings_assets(self):
@@ -974,7 +974,7 @@ class MewloSite(object):
             mconst.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
             mconst.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
             }
-        self.merge_settings_aliases(aliases, mnamespace=None)
+        self.merge_settings_aliases('', aliases)
 
 
 
@@ -1002,8 +1002,8 @@ class MewloSite(object):
 
 
 
-    def merge_settings_aliases(self, aliases, mnamespace):
-        self.comp('assetmanager').merge_aliases_withmnamespace(aliases, mnamespace)
+    def merge_settings_aliases(self, mnamespace, aliases):
+        self.comp('assetmanager').merge_aliases(mnamespace, aliases)
 
 
 

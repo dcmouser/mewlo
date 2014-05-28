@@ -23,8 +23,10 @@ class MewloManager(object):
         Initialization/construction of a manager
         When this happens you should never do much -- because you may have no idea what other managers/components have been created yet.
         """
+        # settings
         self.mewlosite = mewlosite
         self.startup_stages_needed = []
+        self.viewfiles = {}
 
     def needs_startupstages(self, stagelist):
         """Merge some startup stages."""
@@ -41,6 +43,20 @@ class MewloManager(object):
         This is invoked by site strtup, for each stage specified in startup_stages_needed() above.
         """
         pass
+
+
+    def get_settings_section(self):
+        """Return the settings section used by this manager."""
+        #ATTN: UNFINISHED -- for now we only use this for siteaddon managers
+        return self.settings_section
+
+    def set_settings_section(self, settings_section):
+        self.settings_section = settings_section
+
+    def get_settingval(self, settingname):
+        """We and others can call this to ask for a setting value from us, using the initialized settings_section"""
+        #ATTN: we may want to move this to manager
+        self.mewlosite.get_settingval(self.get_settings_section(), settingname)
 
 
 
@@ -133,9 +149,22 @@ class MewloManager(object):
         """Helper function to set page id."""
         request.response.set_renderpageid_ifnotset(pageid)
 
+    def calc_local_templatepath_byid(self, viewfileid):
+        """Just simple wrapper that calls calc_localtemplatepath after looking up viewfilepath_byid."""
+        return self.calc_localtemplatepath(self.lookup_viewfilepath_byid(viewfileid))
+
+    def lookup_viewfilepath_byid(self, viewfileid):
+        """Just simple wrapper around dictionary lookup."""
+        return self.viewfiles[viewfileid]
+
     def calc_localtemplatepath(self, viewfilepath):
+        """Just combine viewbasepath with filename."""
         return self.viewbasepath + '/' + viewfilepath
 
-    def render_localview(self, request, viewfilepath, args=None):
+    def render_localview_byfilename(self, request, viewfilepath, args=None):
         """Helper function to render relative view file."""
         request.response.render_from_template_file(self.calc_localtemplatepath(viewfilepath), args=args)
+
+    def render_localview_byid(self, request, viewfileid, args=None):
+        """Helper function to render relative view file."""
+        return self.render_localview_byfilename(request, self.lookup_viewfilepath_byid(viewfileid), args)

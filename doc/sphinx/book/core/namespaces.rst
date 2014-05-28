@@ -49,6 +49,20 @@ By default mewlo sets up a shadowing directory under each project for the entire
 Note that neither for Django or Mewlo does this functionality make it easy to replace CLASSES/code modules.
 
 
+
+Coding Guidelines Relating to Namespaces
+----------------------------------------
+
+Functions that take namespace and childid should pass namespace first.
+Always use misc.namespacedid(namespace,childid) function to compose a namespaced id.
+This function will add :: prefix if namespace is None or '', so it always fully qualifies a name.
+This function will use a childid of 'ANONYMOUS' if the childid is blank.
+This function will NOT add a namespace:: prefix if the variable already has a namespace (no nesting namespaces).
+
+
+
+
+
 TO DO
 -----
 

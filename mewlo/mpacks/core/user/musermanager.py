@@ -36,11 +36,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
         muser.MewloUserTemp.set_objectmanager(self)
         # settings
         self.flag_require_email_verified_before_login = None
-        #
-        # we put all of our non-form view files here, so that they are in one place (the forms themselves can specify their own default view files -- see form.get_viewfilename())
-        self.viewfiles = {
-            'user_verify_field_email': 'user_verify_field_email.jn2',
-        }
+
 
 
 
@@ -51,8 +47,8 @@ class MewloUserManager(modelmanager.MewloModelManager):
         super(MewloUserManager,self).startup_prep(stageid, eventlist)
         if (stageid == mconst.DEF_STARTUPSTAGE_final):
             # some settings
-            self.flag_require_email_verified_before_login = self.mewlosite.get_settingval(mconst.DEF_SETTINGSEC_siteaddon_account, 'flag_require_email_verified_before_login')
-
+            accountmanager = self.lookup_accountmanager()
+            self.flag_require_email_verified_before_login = accountmanager.get_settingval('flag_require_email_verified_before_login')
             # create initial objects
             self.create_initial_objects()
 
@@ -95,7 +91,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
     def getmake_guestuserobject(self):
         """
         Make a guest user object and return it.
-        Ultimately I think that "making" a guest user object, should probably involve loading a specific guest user account from database.
+        Ultimately I think that "making" a guest user object, should probably involve loading a specific guest user object from database.
         ATTN: unfinished.
         """
         # ATTN: test -- for now just return a new object
@@ -106,7 +102,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
     def create_user(self, request, userdict, verifiedfields):
         """
-        Make a new user account.
+        Make a new user object.
         We take a userdict instead of explicit variables for username, email, password, so that we can eventually accomodate whatever initial user properties we have specified at time of registration.
         return tuple (userobject, errordict); if there are errors return them and userobject as None
         """
@@ -118,7 +114,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
             # errors
             return (None, errordict, '')
 
-        # create user account.
+        # create user object.
         user = self.modelclass()
 
         # directly set some properties if found in the userdict
@@ -269,7 +265,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
     def send_field_verification_email_given_verification(self, request, verification, fieldname, emailaddress):
         """Send a verification email."""
         verificationurl = self.calc_verificationurl_field(request, verification, fieldname)
-        emailtemplatefile = self.calc_account_templatepath(self.viewfiles['user_verify_field_email'])
+        emailtemplatefile = self.calc_account_templatepath_byid('user_verify_field_email')
         maildict = self.get_mewlosite().rendersections_from_template_file(request, emailtemplatefile, {'verificationurl':verificationurl}, ['subject','body'])
         maildict['to'] = [emailaddress]
         # now send it
@@ -279,12 +275,20 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
 
 
-    def calc_account_templatepath(self, viewfilepath):
+    def calc_account_templatepath_byid(self, viewfileid):
         """Template path inside user account site addon."""
-        # ATTN:TODO - this hardcodes the views to the account addon_path -- but really the MUserManager class is supposed to be separate
-        # This code should probably be put into the msiteaddon_account stuff
-        viewbasepath = '${account::addon_path}/views'
-        return viewbasepath + '/' +viewfilepath
+        # we just hand this off to the lookedup/registered siteaddon_account
+        accountmanager = self.lookup_accountmanager()
+        return accountmanager.calc_local_templatepath_byid(viewfileid)
+
+
+
+    def lookup_accountmanager(self):
+        """Lookup the globally registered account account manager (created by account siteaddon), which certain of our functions rely upon for certain settings and view files."""
+        accountmanager = self.mewlosite.comp('accountmanager')
+        return accountmanager
+
+
 
 
 
@@ -388,7 +392,7 @@ class MewloUserManager(modelmanager.MewloModelManager):
 
     def login_user(self, userdict):
         """
-        Make a new user account.
+        Lookup user object.
         return tuple (userobject, errordict)
         IMPORTANT: if there are errors return userobject as None (and set errordict)
         """

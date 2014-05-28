@@ -37,7 +37,7 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
 
     def __init__(self, mewlosite, debugmode):
         # call parent constructor
-        super(MewloSiteAddon_Group, self).__init__(mewlosite, debugmode, mnamespace='group')
+        super(MewloSiteAddon_Group, self).__init__(mewlosite, debugmode, mnamespace='group', settings_section='siteaddon_group')
         # path prefix (used below in route setup)
         self.routepathprefix = '/groups'
         # create the helper manager
@@ -86,7 +86,7 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
             # add an alias so we can refer to our view path
             'addon_path': thisdir,
             }
-        self.mewlosite.merge_settings_aliases(aliases, mnamespace=self.mnamespace)
+        self.mewlosite.merge_settings_aliases(self.mnamespace, aliases)
 
 
 

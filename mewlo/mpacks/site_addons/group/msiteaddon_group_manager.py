@@ -33,6 +33,9 @@ class GroupAddonManager(manager.MewloManager):
     def __init__(self, mewlosite, debugmode, siteaddon):
         """Constructor."""
         super(GroupAddonManager,self).__init__(mewlosite, debugmode)
+        # settings
+        self.siteaddon = siteaddon
+        self.set_settings_section(siteaddon.get_settings_section())
         #
         self.viewbasepath = siteaddon.calc_alias_varname('views')
         #
@@ -57,7 +60,7 @@ class GroupAddonManager(manager.MewloManager):
         grouplist = groupmanager.modelclass.find_all()
 
         # then page contents
-        self.render_localview( request, self.viewfiles['grouplist'], {'grouplist':grouplist, 'groupinfofunc':self.groupinfofunc} )
+        self.render_localview_byid( request, 'grouplist', {'grouplist':grouplist, 'groupinfofunc':self.groupinfofunc} )
 
 
     def groupinfofunc(self, group, request):
@@ -86,6 +89,6 @@ class GroupAddonManager(manager.MewloManager):
         rbacmanager.annotate_assignments(assignments)
 
         # then page contents
-        self.render_localview( request, self.viewfiles['groupinfo'], {'group':group, 'assignments':assignments} )
+        self.render_localview_byid( request, 'groupinfo', {'group':group, 'assignments':assignments} )
 
 
