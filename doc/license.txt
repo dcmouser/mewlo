@@ -1,8 +1,5 @@
 Mewlo is open source.
 
-But I am still debating which OS license to use.
-
-For now, the code should be considered under AGPLv3 license (see http://en.wikipedia.org/wiki/Affero_General_Public_License).
-But we may explore changing to a more permissive license like BSD in the future.
+It is released under the AGPLv3 license (see http://en.wikipedia.org/wiki/Affero_General_Public_License).
 
 Contact mouser@donationcoder.com with suggestions.

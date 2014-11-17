@@ -22,9 +22,9 @@ python utest1.py
 We can also run the same demo site in  testsite1/ directly (not via unit tests),
  and have it parse commandline for various options/tests:
 
-E:\WebsiteHttp\mewlo\testing\utests>python demosite1test.py --help
+E:\WebsiteHttp\mewlo\testing\utests\testhelpers\testsite1>python testsite1.py --help
 
 and to run the server to serve pages
 
-E:\WebsiteHttp\mewlo\testing\utests>python demosite1test.py --runserver
+E:\WebsiteHttp\mewlo\testing\utests\testhelpers\testsite1>python testsite1.py --runserver
 //---------------------------------------------------------------------------

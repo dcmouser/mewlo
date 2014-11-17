@@ -21,12 +21,12 @@ we want to support console based utilties for a website
 
 
 //---------------------------------------------------------------------------
-the important of a testing framework that will submit many requests at once
+the importance of a testing framework that will submit many requests at once
 //---------------------------------------------------------------------------
 
 
 //---------------------------------------------------------------------------
-we currently use model CLASS OBJECTS to do higher level managering of models objects.
+we currently use model CLASS OBJECTS to do higher level managing of models and objects.
 this is how sqlalchemy wants to work.
 
 but it might be nice to have the idea of a supervisor/manager for each model class,
@@ -34,5 +34,7 @@ that does the things that we currently expect the class to do.
 //---------------------------------------------------------------------------
 
 
-
-
+//---------------------------------------------------------------------------
+there is a lot of reference to request.response and response.request
+perhaps it makes sense to think of a SINGLE object, "reqre", which is both? rather than having each refer to each other?
+//---------------------------------------------------------------------------

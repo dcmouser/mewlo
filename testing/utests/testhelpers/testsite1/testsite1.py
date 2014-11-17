@@ -25,6 +25,7 @@ from mewlo.mpacks.core.asset import massetmanager
 from mewlo.mpacks.core.helpers import misc
 
 # account addon
+# ATTN: why is this disabled?
 #from mewlo.mpacks.site_addons.account import msiteaddon_account
 #from mewlo.mpacks.site_addons.group import msiteaddon_group
 
@@ -57,7 +58,7 @@ class MewloSite_Test1(MewloSite):
 
     def get_pkgdirimp_config(self):
         # returns the package directory import where config settings files live
-        # either if these will work -- we can return file path OR package
+        # either of these will work -- we can return file path OR package
         if (True):
             return pkgdirimp_config
         else:
@@ -244,7 +245,7 @@ class MewloSite_Test1(MewloSite):
         """This is called by default by the base MewloSite near startup, to add routes to the system."""
 
         # create a routegroup
-        routegroup = MewloRouteGroup()
+        routegroup = MewloRouteGroup('testsite_routegroup')
         # overide the parent import-pack-directory for the urls in this group? if we don't it will use the controller root set in SITE config
         # routegroup.set_controllerroot(pkgdirimp_controllers)
 
@@ -277,6 +278,7 @@ class MewloSite_Test1(MewloSite):
                 # we can pass in any extra data which will just be part of the route that can be examined post-matching
                 extras = { 'stuff': "whatever we want" },
                 # we can force the route to simulate as if certain url call args were assigned (this works whether there are RouteArgs for these or not; no type checking is performed on them)
+                # this could be useful in two scenarios: first, if we initially wrote code to handle an arg and then changed our mind and want to not let user set that arg; second, if we reuse a controller function in different places and simulate dif arg values for each
                 forcedargs = { 'sign': u"aries" },
                 ))
 
@@ -358,9 +360,9 @@ class MewloSite_Test1(MewloSite):
     def add_latesettings_assets(self):
         """Configure some asset settings."""
 
-
         # setting up static file serving
         assetmanager = self.comp('assetmanager')
+
         # add external asset mount point where we can copy public static files so they can be served by a separate traditional web server
         # presumably this directory is being served by a more traditional webserver, at this url we specify below
         assetmanager.add_assetmount(
@@ -374,7 +376,7 @@ class MewloSite_Test1(MewloSite):
 
 
         # now that we have some mount points, we can specify some files to be hosted on them
-        # note that the ids for all asset sources MUST be unique
+        # note that the ids for all asset sources MUST be unique (ATTN:TODO elaborate on this please)
         # first we mount the files in the staticfilesource/ directory as internal assets that we will serve internally via mewlo; the id will be used for alias creation, and for the route
         assetmanager.add_assetsource(
             massetmanager.MewloAssetSource(id='siteinternal', mountid = 'internal_assets', filepath = '${sitefilepath}/staticfilesource', mnamespace=None)
@@ -386,7 +388,7 @@ class MewloSite_Test1(MewloSite):
 
         # remember that one should never refer to the assets by a hardcoded url or file path; always use the aliases created by these functions, which will take the form (where ID is the id of the asset source):
         # 'asset_ID_urlrel' | 'asset_ID_urlabs' | 'asset_ID_filepath'
-        # you can also use helper function
+        # you can also use helper function to build these names, which would be better.
 
 
 
@@ -430,16 +432,6 @@ class MewloSite_Test1(MewloSite):
 
 
 
-
-
-
-
-    def add_addons(self):
-        """Add any site addons."""
-        # register accountmanager addon component
-        # this is now handled automatically by addon mpacks
-        #self.createappendcomp('accountaddon', msiteaddon_account.MewloSiteAddon_Account)
-        #self.createappendcomp('groupaddon', msiteaddon_group.MewloSiteAddon_Group)
 
 
 
@@ -488,7 +480,8 @@ class MewloSite_Test1(MewloSite):
     def post_runroute_callable(self, request):
         """This is called by default after a route has been invoked.  Subclassed sites can override it."""
 
-        #request.logevent(EWarning("This is a test warning called POST run route: " + request.get_path()))
+        if (False):
+            request.logevent(EWarning("This is a test warning called POST run route: " + request.get_path()))
         return None
 
 
@@ -541,10 +534,10 @@ class MewloSite_Test1(MewloSite):
 def main():
     """This function is invoked by the python interpreter if this script itself is executed as the main script."""
 
-    # custom commandline args (if we dont have any we can pass None instead of parser to do_main_commandline_startyp()).
+    # add custom commandline args (if we dont have any we can pass None instead of parser to do_main_commandline_startup()).
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--querytests", help="run some test queries",action="store_true", default=False)
+    parser.add_argument("-t", "--querytests", help="run some test queries", action="store_true", default=False)
 
     # Create a site manager and ask it to instantiate a site of the class we specify, and handle some generic commandline options
     # it returns parsed commandline args so we can look for any custom ones

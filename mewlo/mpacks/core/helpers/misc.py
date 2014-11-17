@@ -46,15 +46,22 @@ def get_value_from_dict(thedict, keyname, defaultval=None):
 
 
 
-def combined_mnamespaceid(mnamespaceid_parent, mnamespaceid_child):
-    """Combine parent and child mnamespace strings."""
-    if (mnamespaceid_parent and mnamespaceid_child):
-        return mnamespaceid_parent + DEF_mnamespace_separator + mnamespaceid_child
-    if (mnamespaceid_parent):
-        return mnamespaceid_parent
-    if (mnamespaceid_child):
-        return mnamespaceid_child
-    return ''
+def inherited_mnamespace(mnamespace_parent, mnamespace_child):
+    """
+    Combine parent and child mnamespace strings.
+    This function is called on rare occasions where we are traversing a hierarchy of structures (see build_structure function in mroute.py), and we want a namespace from a parent to be inherited by a child,
+    BUT want to deal with a case where the child might have an explicit namespace provided (and not parent).
+    So, the basic logic here is, if the child namespace is specified, use that; if not, use the parent namespace (blank or not).
+    NOTE: As described above, if both are specified we should use child, however we might log a message warning that it's possibly an issue.
+    """
+    if (mnamespace_parent and mnamespace_child):
+        # issue a warning? and drop down
+        pass
+    if (mnamespace_child):
+        return mnamespace_child
+    # return parent namespace (which might be empty)
+    return mnamespace_parent
+
 
 
 def mnamespacedid(mnamespace, childid):
@@ -68,6 +75,7 @@ def mnamespacedid(mnamespace, childid):
         return mnamespace + DEF_mnamespace_separator + childid
     # NOTE: IMPORTANT - we add namespace separator at start, even when namespace is None (or ''), so we have a fully qualified namespaced id
     return DEF_mnamespace_separator + childid
+
 
 def mnamespacedid_forpath(mnamespace, childid):
     """Combine parent and child mnamespace strings, suitable for use in a file path, where a mnamespace separator : would not be an allowed character."""

@@ -15,3 +15,13 @@ musermanger.py has this code inside function calc_account_templatepath():
         viewbasepath = '${account::addon_path}/views'
 which ties it to the supposedly indpendent addon for user; we should try to move this code so that isnt required
 
+
+
+5/28/14
+
+fix:         # ATTN:TOFIX - this is modifying self.mnamespace which i find troubling
+        self.mnamespace = misc.combined_mnamespaceid(mnamespaceid_parent, self.mnamespace)
+        
+        this function is not ok: combined_mnamespaceid
+        
+fix: ALL #ATTN:TOFIX, TODO, etc

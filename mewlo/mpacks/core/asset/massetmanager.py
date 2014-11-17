@@ -519,7 +519,7 @@ class MewloAssetManager(manager.MewloManager):
         """We use a single routegroup under which we create our static routes for internal mount points."""
         if (self.routegroup_mounting == None):
             # create the routegroup
-            self.routegroup_mounting = mroute.MewloRouteGroup()
+            self.routegroup_mounting = mroute.MewloRouteGroup('assetmanager_routegroup')
             # add routegroup we just created to the site
             self.sitecomp_routemanager().append(self.routegroup_mounting)
         return self.routegroup_mounting

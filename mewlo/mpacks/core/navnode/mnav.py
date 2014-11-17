@@ -139,7 +139,7 @@ class NavNodeManager(manager.MewloManager):
 
 
 
-    def add_nodes(self, nodestoadd, mnamespace=''):
+    def add_nodes(self, nodestoadd, mnamespace=None):
         """Add one or more nodes to our node list."""
         # ATTN: unfinished - mnamespace not implemented yet
         if type(nodestoadd) is list:
@@ -540,7 +540,7 @@ class NavNodeManager(manager.MewloManager):
 
 
 
-    def calcnav_currentpage_title(self, responsecontext):
+    def calcnav_currentpage_title(self, responsecontext, default=None):
         """
         Return title of current page from current navnode
         """
@@ -550,7 +550,7 @@ class NavNodeManager(manager.MewloManager):
         # if nothing to do, return now
         if (currentnode == None):
             # unknown pagetitle
-            return ''
+            return default
         return currentnode.get_pagetitle(responsecontext)
 
 
@@ -627,7 +627,7 @@ class NavNode(object):
         """Constructor for the class."""
         self.id = id
         self.properties = properties
-        self.mnamespace = ''
+        self.mnamespace = None
         self.resetbuild(None)
 
 

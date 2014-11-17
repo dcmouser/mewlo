@@ -33,6 +33,7 @@ we currently handle ASSETS and ALIASES with one class (assetmanager) -- should w
 namespace param is being passed in dif order for some functions -- standardize
 we have some functions that are namespace and non-namespace enabled, but some are not used -- remove the unused ones
 check the namespacedid function and see about enabling the option that doesnt add namespace when a namespace is already there
+fix namespaceid_ parameters
 
 
 5/23/14
@@ -50,3 +51,24 @@ Can't we simplifiy?
 5/23/14
 There is some duplication of function in MewloManager (which many things derive from) and other things that are NOT derived from it.  For example see mhscriptmanager which uses also self.viewfiles[] and helper functions.
 Should we make the self.viewfiles[] dictionary a full blown object?
+
+
+9/14/14
+check testsite1.py, there is some ugliness in the early setup, late setup stuff, etc.
+
+
+9/14/14
+# database config seems inconsistent -- are we defining sections for each possible alternative database mode that are exclusive, but then also cramming a generic "settings" section in there?  if so, better to have 2 sections, "settings" and "modes" and put modes as subsection
+
+
+9/14/14
+get_configval (see # email config settings) is ugly and looks like a lot of repetetive code; surely there's a better way to do this.
+
+
+9/14/14
+in testsite1.py we document refering to asset files by names of the form: 'asset_ID_urlrel' | 'asset_ID_urlabs' | 'asset_ID_filepath'
+why are these not using dotted names?
+
+
+9/14/14
+run testsite1.py -t to run test, there is an error: "ERROR: PAGENODEID hello COULD NOT BE LOCATED; NO BREADCRUMB BAR GENERATED."

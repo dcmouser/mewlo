@@ -94,7 +94,7 @@ class MewloSiteAddon_Group(msiteaddon.MewloSiteAddon):
         """This is called by default by the base MewloSite near startup, to add routes to the system."""
 
         # create a routegroup
-        routegroup = MewloRouteGroup(controllerroot = pkgdirimp_controllers, pathprefix=self.routepathprefix, mnamespace = self.mnamespace)
+        routegroup = MewloRouteGroup('groupsiteaddon_routegroup',controllerroot = pkgdirimp_controllers, pathprefix=self.routepathprefix, mnamespace = self.mnamespace)
 
         # now add routes to it
         routegroup.append(

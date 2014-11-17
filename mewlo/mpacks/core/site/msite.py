@@ -862,9 +862,6 @@ class MewloSite(object):
         self.add_routes()
         self.add_navnodes()
 
-        # site addons
-        self.add_addons()
-
         # we add fallback loggers at END, after user-site added loggers
         self.add_fallback_loggers()
 
@@ -906,7 +903,7 @@ class MewloSite(object):
             mconst.DEF_SETTINGNAME_sitename: self.settings.get_subvalue(mconst.DEF_SETTINGSEC_config, mconst.DEF_SETTINGNAME_sitename),
             mconst.DEF_SETTINGNAME_mewlofilepath: self.get_installdir(),
             }
-        self.merge_settings_aliases('', aliases)
+        self.merge_settings_aliases(None, aliases)
 
 
     def add_latesettings_assets(self):
@@ -926,9 +923,6 @@ class MewloSite(object):
         """Does nothing in base class, but subclass can overide."""
         pass
 
-    def add_addons(self):
-        """Does nothing in base class, but subclass can overide."""
-        pass
 
 
     def add_fallback_loggers(self):
@@ -974,7 +968,7 @@ class MewloSite(object):
             mconst.DEF_SETTINGNAME_dbfilepath: '${sitefilepath}/database',
             mconst.DEF_SETTINGNAME_siteview_filepath: '${sitefilepath}/views',
             }
-        self.merge_settings_aliases('', aliases)
+        self.merge_settings_aliases(None, aliases)
 
 
 

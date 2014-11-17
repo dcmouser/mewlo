@@ -34,23 +34,6 @@ class BasicSiteTest(unittest.TestCase):
 
 
 
-    def testDatabaseTest(self):
-        """Test of some database stuff."""
-
-        # create sitemanager and start it up
-        sitemanager = self.makestart_sitemanager()
-
-        # fail or pass test depending on if there were any preparation errors
-        self.failIf(sitemanager.prepeventlist.count_errors() > 0)
-
-        # shutdown sitemanager and site
-        sitemanager.shutdown()
-
-
-
-
-
-
 
 
 

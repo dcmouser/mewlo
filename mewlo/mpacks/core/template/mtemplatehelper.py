@@ -64,11 +64,11 @@ class MewloTemplateHelper(manager.MewloManager):
         return html
 
 
-    def nav_pagetitle(self, response):
+    def nav_pagetitle(self, response, default='ERROR: No title set for this page'):
         """Page title from navnodes."""
         # get response context
         responsecontext = response.get_rendercontext()
-        return self.mewlosite.comp('navnodemanager').calcnav_currentpage_title(responsecontext)
+        return self.mewlosite.comp('navnodemanager').calcnav_currentpage_title(responsecontext, default)
 
 
 

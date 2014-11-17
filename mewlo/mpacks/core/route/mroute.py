@@ -151,7 +151,7 @@ class MewloRoute(object):
     DEF_ARGID_extraargs = 'extraargs'
 
 
-    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extras = None, forcedargs = None, mnamespace=''):
+    def __init__(self, id, path, controller, args=[], allow_extra_args=False, extras = None, forcedargs = None, mnamespace=None):
         self.id = id
         self.path = path
         self.args = args
@@ -189,13 +189,17 @@ class MewloRoute(object):
         return misc.mnamespacedid(self.mnamespace, self.id)
 
 
-    def build_structure(self, parent, mewlosite, eventlist, mnamespaceid_parent=''):
-        """Startup any info/caching; this is called before system startup by our parent site."""
+    def build_structure(self, parent, mewlosite, eventlist, mnamespace_parent=None):
+        """
+        Initial preparation, invoked by parent.  This is called before system startup by our parent site.
+        The idea here is that we want to be able to CONSTRUCT (__init__) hierarchical structures before arranging them into a hierarchy.
+        So to get the parents and namespaces correct, we need to invoke a build_structure AFTER the hierarchy is assembled.
+        """
         self.parent = parent
         self.mewlosite = mewlosite
-        # set mnamespace
-        # ATTN:TOFIX - this is modifying self.mnamespace which i find troubling
-        self.mnamespace = misc.combined_mnamespaceid(mnamespaceid_parent, self.mnamespace)
+        # adjust our namespace if needed, so that we inherit parent's namespace if none has been explicitly set (overridden) for ourselves
+        #print "In build_structure for route with id = '{0}' and self_namespace = '{1}' and mnamespace_parent = '{2}'.".format(self.id, self.mnamespace, mnamespace_parent)
+        self.mnamespace = misc.inherited_mnamespace(mnamespace_parent, self.mnamespace)
         # root propagation
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
@@ -534,7 +538,7 @@ class MewloRouteGroup(object):
     The MewloRouteGroup class holds a list of routes (or child RouteGroups); it's a way of letting us organize collections of routes
     """
 
-    def __init__(self, id='', controllerroot=None, routes=None, pathprefix='', mnamespace=''):
+    def __init__(self, id='', controllerroot=None, routes=None, pathprefix='', mnamespace=None):
         self.id = id
         self.controllerroot = controllerroot
         self.routes = []
@@ -554,18 +558,23 @@ class MewloRouteGroup(object):
         return misc.mnamespacedid(self.mnamespace, self.id)
 
 
-    def build_structure(self, parent, mewlosite, eventlist, mnamespaceid_parent=''):
-        """Initial preparation, invoked by parent."""
+    def build_structure(self, parent, mewlosite, eventlist, mnamespace_parent=None):
+        """
+        Initial preparation, invoked by parent.
+        The idea here is that we want to be able to CONSTRUCT (__init__) hierarchical structures before arranging them into a hierarchy.
+        So to get the parents and namespaces correct, we need to invoke a build_structure AFTER the hierarchy is assembled.
+        """
         self.parent = parent
-        # full mnamespace
-        fullmnamespace = misc.combined_mnamespaceid(mnamespaceid_parent, self.mnamespace)
-        #print "ATTN:DEBUG in routegroup build_structure with '{0}' and '{1}' and '{2}' and '{3}'".format(self.id, self.mnamespace, mnamespaceid_parent, fullmnamespace)
+
+        # adjust our namespace if needed, so that we inherit parent's namespace if none has been explicitly set (overridden) for ourselves
+        #print "In build_structure for routegroup with id = '{0}' and self_namespace = '{1}' and mnamespace_parent = '{2}'.".format(self.id, self.mnamespace, mnamespace_parent)
+        self.mnamespace = misc.inherited_mnamespace(mnamespace_parent, self.mnamespace)
         # we want to propagate controllerroot from parent down
         if (self.controllerroot == None):
             self.controllerroot = parent.get_controllerroot()
         # recursive startup
         for route in self.routes:
-            route.build_structure(self, mewlosite, eventlist, fullmnamespace)
+            route.build_structure(self, mewlosite, eventlist, self.mnamespace)
 
 
 
@@ -677,7 +686,7 @@ class MewloRouteManager(manager.MewloManager):
     def __init__(self, mewlosite, debugmode):
         super(MewloRouteManager,self).__init__(mewlosite, debugmode)
         self.needs_startupstages([mconst.DEF_STARTUPSTAGE_routestart])
-        self.routegroup = MewloRouteGroup('', None, None)
+        self.routegroup = MewloRouteGroup('root_routegroup', None, None)
 
 
     def startup_prep(self, stageid, eventlist):
